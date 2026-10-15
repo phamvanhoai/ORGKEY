@@ -16,6 +16,7 @@
 - Ba ô nhớ SET để lưu/gọi lại toàn bộ cấu hình biểu diễn, gồm cả âm lượng tổng.
 - Mixer bốn kênh độc lập cho Keys, Chord, Drums và Master; mức kênh được lưu tự động và trong từng SET.
 - FX thời gian thực gồm Delay và Reverb, có mức wet riêng; FX được đưa vào WAV và lưu cùng SET.
+- Tám performance pad tổng hợp: Kick, Snare, Hi-hat, Clap, Low Tom, High Tom, Crash và Perc; đi qua kênh Drums/FX và bộ ghi WAV.
 
 ## Chưa triển khai
 

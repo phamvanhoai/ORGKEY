@@ -64,6 +64,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var showMixer by remember { mutableStateOf(false) }
     var showSets by remember { mutableStateOf(false) }
     var showChords by remember { mutableStateOf(false) }
+    var showPads by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         engine.bpm = bpm; engine.instrument = instrument; engine.chordIndex = chord; engine.rhythmStyle = style;engine.effectType=effect
@@ -86,7 +87,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     } else {
                         engine.startRecording(); recording = true
                     }
-                }, onSets = { showSets = true }, onAbout = { showAbout = true })
+                }, onPads={showPads=true},onSets = { showSets = true }, onAbout = { showAbout = true })
                 Row(Modifier.weight(0.52f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     PerformancePanel(octave, bpm, playing, sustain, chordNames[chord],
                         onOctave = { octave = (octave + it).coerceIn(1, 7) },
@@ -112,16 +113,17 @@ private fun ORGXApp(engine: AudioEngine) {
                     engine.rhythmStyle = style;engine.effectType=effect; engine.masterVolume = loadedVolume
                 }, onDismiss = { showSets = false })
             if(showChords) ChordDialog(chordNames,chord,onSelect={chord=it;engine.chordIndex=it;showChords=false},onDismiss={showChords=false})
+            if(showPads) PadDialog(engine,onDismiss={showPads=false})
             if (showAbout) AboutDialog(onDismiss = { showAbout = false })
         }
     }
 }
 
-@Composable private fun Header(recording:Boolean,onRecord:()->Unit,onSets:()->Unit,onAbout: () -> Unit) {
+@Composable private fun Header(recording:Boolean,onRecord:()->Unit,onPads:()->Unit,onSets:()->Unit,onAbout: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text("ORGX", color = Text, fontWeight = FontWeight.Black, fontSize = 25.sp)
         Spacer(Modifier.width(10.dp)); Text("MUSIC WORKSTATION", color = Accent, fontSize = 12.sp, letterSpacing = 2.sp)
-        Spacer(Modifier.weight(1f)); TextButton(onClick=onSets){Text("SET",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onRecord,colors=ButtonDefaults.textButtonColors(contentColor=if(recording) Color(0xFFEF4444) else Subtle)){Text(if(recording) "STOP REC" else "REC",fontWeight=FontWeight.Bold)};TextButton(onClick = onAbout) { Text("DESIGNED BY HOVAIT", color = Subtle) }
+        Spacer(Modifier.weight(1f));TextButton(onClick=onPads){Text("PAD",color=Subtle,fontWeight=FontWeight.Bold)}; TextButton(onClick=onSets){Text("SET",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onRecord,colors=ButtonDefaults.textButtonColors(contentColor=if(recording) Color(0xFFEF4444) else Subtle)){Text(if(recording) "STOP REC" else "REC",fontWeight=FontWeight.Bold)};TextButton(onClick = onAbout) { Text("DESIGNED BY HOVAIT", color = Subtle) }
     }
 }
 
@@ -248,6 +250,12 @@ private fun ORGXApp(engine: AudioEngine) {
 @Composable private fun ChordDialog(names:List<String>,selected:Int,onSelect:(Int)->Unit,onDismiss:()->Unit){
     AlertDialog(onDismissRequest=onDismiss,title={Text("Chord library")},text={Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
         names.chunked(4).forEachIndexed{row,items->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){items.forEachIndexed{column,name->val index=row*4+column;FilterChip(selected=selected==index,onClick={onSelect(index)},label={Text(name)},modifier=Modifier.weight(1f))}}}
+    }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
+}
+@Composable private fun PadDialog(engine:AudioEngine,onDismiss:()->Unit){
+    val names=listOf("KICK","SNARE","HI-HAT","CLAP","LOW TOM","HIGH TOM","CRASH","PERC")
+    AlertDialog(onDismissRequest=onDismiss,title={Text("Performance pads")},text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
+        names.chunked(4).forEachIndexed{row,items->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){items.forEachIndexed{column,name->val index=row*4+column;Button(onClick={engine.triggerPad(index)},modifier=Modifier.weight(1f).height(62.dp),contentPadding=PaddingValues(3.dp),shape=RoundedCornerShape(9.dp)){Text(name,fontSize=9.sp,fontWeight=FontWeight.Bold,maxLines=2)}}}}
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
 @Composable private fun AboutDialog(onDismiss:()->Unit){AlertDialog(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column{Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.0",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}

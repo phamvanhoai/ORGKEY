@@ -8,6 +8,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicIntegerArray
 import kotlin.concurrent.thread
 import kotlin.math.PI
 import kotlin.math.exp
@@ -39,6 +40,7 @@ class AudioEngine(private val recordingDirectory: File) {
     private var noiseState = 0x13579BDF
     private val effectBuffer = DoubleArray(sampleRate)
     private var effectPosition = 0
+    private val padAges = AtomicIntegerArray(8).apply { for (i in 0 until length()) set(i, -1) }
 
     private data class Voice(var phase: Double = 0.0, var released: Boolean = false, var gain: Float = 1f)
 
@@ -67,6 +69,7 @@ class AudioEngine(private val recordingDirectory: File) {
     }
 
     fun noteOn(note: Int) { voices[note] = Voice() }
+    fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
     fun noteOff(note: Int) {
         if (sustain) voices[note]?.released = true else voices.remove(note)
     }
@@ -144,6 +147,30 @@ class AudioEngine(private val recordingDirectory: File) {
         return kick * 0.70 + snare * (if (rhythmStyle == 1) 0.40 else 0.32) + hat * hatLevel
     }
 
+    private fun padSample(): Double {
+        var result = 0.0
+        for (pad in 0..7) {
+            val age = padAges.get(pad)
+            if (age < 0) continue
+            val time = age.toDouble() / sampleRate
+            noiseState = noiseState * 1664525 + 1013904223
+            val noise = ((noiseState ushr 8) / 8388607.5) - 1.0
+            result += when (pad) {
+                0 -> sin(2.0 * PI * (85.0 - 52.0 * time.coerceAtMost(0.25)) * time) * exp(-time * 18.0)
+                1 -> noise * exp(-time * 22.0) + sin(2.0 * PI * 185.0 * time) * exp(-time * 30.0) * 0.25
+                2 -> noise * exp(-time * 90.0) * 0.45
+                3 -> noise * exp(-time * 16.0) * (0.65 + 0.35 * sin(2.0 * PI * 28.0 * time))
+                4 -> sin(2.0 * PI * 105.0 * time) * exp(-time * 12.0)
+                5 -> sin(2.0 * PI * 175.0 * time) * exp(-time * 14.0)
+                6 -> noise * exp(-time * 4.5) * 0.55
+                else -> sin(2.0 * PI * 520.0 * time) * exp(-time * 25.0) * 0.55
+            }
+            val duration = if (pad == 6) sampleRate else sampleRate / 2
+            if (age >= duration) padAges.set(pad, -1) else padAges.incrementAndGet(pad)
+        }
+        return result
+    }
+
     private fun accompanimentSample(): Double {
         if (!rhythmPlaying) return 0.0
         val chords = arrayOf(
@@ -196,7 +223,7 @@ class AudioEngine(private val recordingDirectory: File) {
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                 }
                 val synth = mixed / voices.size.coerceAtLeast(1)
-                val rhythm = rhythmSample()
+                val rhythm = rhythmSample() + padSample()
                 val accompaniment = accompanimentSample()
                 val mixedOutput = synth * keysVolume + accompaniment * chordVolume + rhythm * drumsVolume
                 val scaled = (processEffect(mixedOutput) * masterVolume * Short.MAX_VALUE)
