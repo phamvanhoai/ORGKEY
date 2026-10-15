@@ -19,12 +19,17 @@ class AudioEngine(private val recordingDirectory: File) {
     private val voices = ConcurrentHashMap<Int, Voice>()
     private val running = AtomicBoolean(true)
     @Volatile var masterVolume = 0.65f
+    @Volatile var keysVolume = 0.78f
+    @Volatile var chordVolume = 0.22f
+    @Volatile var drumsVolume = 0.55f
     @Volatile var sustain = false
     @Volatile var rhythmPlaying = false
     @Volatile var bpm = 120
     @Volatile var instrument = 0
     @Volatile var chordIndex = 0
     @Volatile var rhythmStyle = 0
+    @Volatile var effectType = 0
+    @Volatile var effectMix = 0.28f
     @Volatile var isRecording = false
 
     private val recordingLock = Any()
@@ -32,6 +37,8 @@ class AudioEngine(private val recordingDirectory: File) {
 
     private var transportFrame = 0L
     private var noiseState = 0x13579BDF
+    private val effectBuffer = DoubleArray(sampleRate)
+    private var effectPosition = 0
 
     private data class Voice(var phase: Double = 0.0, var released: Boolean = false, var gain: Float = 1f)
 
@@ -141,9 +148,17 @@ class AudioEngine(private val recordingDirectory: File) {
         if (!rhythmPlaying) return 0.0
         val chords = arrayOf(
             intArrayOf(48, 52, 55), // C
-            intArrayOf(45, 48, 52), // Am
+            intArrayOf(50, 53, 57), // Dm
+            intArrayOf(52, 55, 59), // Em
             intArrayOf(41, 45, 48), // F
-            intArrayOf(43, 47, 50)  // G
+            intArrayOf(43, 47, 50), // G
+            intArrayOf(45, 48, 52), // Am
+            intArrayOf(47, 50, 53), // Bdim
+            intArrayOf(48, 52, 55, 58), // C7
+            intArrayOf(50, 54, 57, 60), // D7
+            intArrayOf(52, 56, 59, 62), // E7
+            intArrayOf(41, 45, 48, 52), // Fmaj7
+            intArrayOf(43, 47, 50, 53)  // G7
         )
         val notes = chords[chordIndex.coerceIn(0, chords.lastIndex)]
         val time = transportFrame.toDouble() / sampleRate
@@ -151,6 +166,17 @@ class AudioEngine(private val recordingDirectory: File) {
             val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)
             sin(2.0 * PI * frequency * time)
         } / notes.size
+    }
+
+    private fun processEffect(dry: Double): Double {
+        if (effectType == 0) return dry
+        val delayFrames = if (effectType == 1) (sampleRate * 0.28).toInt() else (sampleRate * 0.095).toInt()
+        val readPosition = (effectPosition - delayFrames + effectBuffer.size) % effectBuffer.size
+        val delayed = effectBuffer[readPosition]
+        val feedback = if (effectType == 1) 0.38 else 0.67
+        effectBuffer[effectPosition] = (dry + delayed * feedback).coerceIn(-2.0, 2.0)
+        effectPosition = (effectPosition + 1) % effectBuffer.size
+        return dry * (1.0 - effectMix) + delayed * effectMix
     }
 
     private fun renderLoop() {
@@ -172,7 +198,8 @@ class AudioEngine(private val recordingDirectory: File) {
                 val synth = mixed / voices.size.coerceAtLeast(1)
                 val rhythm = rhythmSample()
                 val accompaniment = accompanimentSample()
-                val scaled = ((synth * 0.70 + accompaniment * 0.22 + rhythm * 0.55) * masterVolume * Short.MAX_VALUE)
+                val mixedOutput = synth * keysVolume + accompaniment * chordVolume + rhythm * drumsVolume
+                val scaled = (processEffect(mixedOutput) * masterVolume * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(), Short.MAX_VALUE.toDouble()).toInt().toShort()
                 output[frame * 2] = scaled
                 output[frame * 2 + 1] = scaled

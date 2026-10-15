@@ -1,5 +1,6 @@
 ﻿package com.hovait.orgx
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Environment
 import android.widget.Toast
@@ -49,15 +50,31 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun ORGXApp(engine: AudioEngine) {
     val context = LocalContext.current
-    var octave by remember { mutableIntStateOf(4) }
-    var bpm by remember { mutableIntStateOf(120) }
+    val preferences = remember { context.getSharedPreferences("orgx-settings", 0) }
+    val chordNames = listOf("C","Dm","Em","F","G","Am","Bdim","C7","D7","E7","Fmaj7","G7")
+    var octave by remember { mutableIntStateOf(preferences.getInt("octave", 4)) }
+    var bpm by remember { mutableIntStateOf(preferences.getInt("bpm", 120)) }
     var playing by remember { mutableStateOf(false) }
     var sustain by remember { mutableStateOf(false) }
-    var instrument by remember { mutableIntStateOf(0) }
-    var chord by remember { mutableIntStateOf(0) }
+    var instrument by remember { mutableIntStateOf(preferences.getInt("instrument", 0).coerceIn(0, 2)) }
+    var chord by remember { mutableIntStateOf(preferences.getInt("chord", 0).coerceIn(0, chordNames.lastIndex)) }
+    var style by remember { mutableIntStateOf(preferences.getInt("style", 0).coerceIn(0, 2)) }
+    var effect by remember { mutableIntStateOf(preferences.getInt("effect", 0).coerceIn(0, 2)) }
     var recording by remember { mutableStateOf(false) }
     var showMixer by remember { mutableStateOf(false) }
+    var showSets by remember { mutableStateOf(false) }
+    var showChords by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        engine.bpm = bpm; engine.instrument = instrument; engine.chordIndex = chord; engine.rhythmStyle = style;engine.effectType=effect
+        engine.masterVolume=preferences.getFloat("masterVolume",0.65f);engine.keysVolume=preferences.getFloat("keysVolume",0.78f)
+        engine.chordVolume=preferences.getFloat("chordVolume",0.22f);engine.drumsVolume=preferences.getFloat("drumsVolume",0.55f)
+        engine.effectMix=preferences.getFloat("effectMix",0.28f)
+    }
+    LaunchedEffect(octave, bpm, instrument, chord, style, effect) {
+        preferences.edit().putInt("octave", octave).putInt("bpm", bpm)
+            .putInt("instrument", instrument).putInt("chord", chord).putInt("style", style).putInt("effect",effect).apply()
+    }
     MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Bg, surface = Panel)) {
         Box(Modifier.fillMaxSize().background(Bg).systemBarsPadding()) {
             Column(Modifier.fillMaxSize().padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -69,31 +86,42 @@ private fun ORGXApp(engine: AudioEngine) {
                     } else {
                         engine.startRecording(); recording = true
                     }
-                }, onAbout = { showAbout = true })
+                }, onSets = { showSets = true }, onAbout = { showAbout = true })
                 Row(Modifier.weight(0.52f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val chordNames = listOf("C", "Am", "F", "G")
                     PerformancePanel(octave, bpm, playing, sustain, chordNames[chord],
                         onOctave = { octave = (octave + it).coerceIn(1, 7) },
                         onBpm = { delta -> bpm = (bpm + delta).coerceIn(40, 240); engine.bpm = bpm },
                         onPlay = { playing = !playing; engine.setRhythmEnabled(playing) },
                         onSustain = { sustain = !sustain; engine.sustain = sustain; if (!sustain) engine.releaseSustain() },
-                        onChord = { chord = (chord + 1) % chordNames.size; engine.chordIndex = chord },
+                        onChord = { showChords = true },
                         onMixer = { showMixer = true }, modifier = Modifier.weight(1f))
-                    StatusPanel(bpm, octave, playing, chordNames[chord], listOf("ORGX Grand", "ORGX Organ", "ORGX Lead")[instrument], modifier = Modifier.weight(1.3f))
+                    StatusPanel(bpm, octave, playing, chordNames[chord], listOf("Pop", "Rock", "Dance")[style], listOf("ORGX Grand", "ORGX Organ", "ORGX Lead")[instrument], modifier = Modifier.weight(1.3f))
                 }
                 PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth())
             }
-            if (showMixer) MixerDialog(engine, instrument, onInstrument = { instrument = it; engine.instrument = it }, onDismiss = { showMixer = false })
+            if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
+                onInstrument = { instrument = it; engine.instrument = it },
+                onStyle = { style = it; engine.rhythmStyle = it },
+                onEffect = { effect = it; engine.effectType = it },
+                onDismiss = { showMixer = false })
+            if (showSets) SetMemoryDialog(preferences, octave, bpm, instrument, chord, style, effect, engine,
+                onLoad = { loadedOctave, loadedBpm, loadedInstrument, loadedChord, loadedStyle, loadedEffect, loadedVolume ->
+                    octave = loadedOctave; bpm = loadedBpm; instrument = loadedInstrument
+                    chord = loadedChord; style = loadedStyle; effect=loadedEffect;engine.bpm = bpm
+                    engine.instrument = instrument; engine.chordIndex = chord
+                    engine.rhythmStyle = style;engine.effectType=effect; engine.masterVolume = loadedVolume
+                }, onDismiss = { showSets = false })
+            if(showChords) ChordDialog(chordNames,chord,onSelect={chord=it;engine.chordIndex=it;showChords=false},onDismiss={showChords=false})
             if (showAbout) AboutDialog(onDismiss = { showAbout = false })
         }
     }
 }
 
-@Composable private fun Header(recording:Boolean,onRecord:()->Unit,onAbout: () -> Unit) {
+@Composable private fun Header(recording:Boolean,onRecord:()->Unit,onSets:()->Unit,onAbout: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text("ORGX", color = Text, fontWeight = FontWeight.Black, fontSize = 25.sp)
         Spacer(Modifier.width(10.dp)); Text("MUSIC WORKSTATION", color = Accent, fontSize = 12.sp, letterSpacing = 2.sp)
-        Spacer(Modifier.weight(1f)); TextButton(onClick=onRecord,colors=ButtonDefaults.textButtonColors(contentColor=if(recording) Color(0xFFEF4444) else Subtle)){Text(if(recording) "STOP REC" else "REC",fontWeight=FontWeight.Bold)};TextButton(onClick = onAbout) { Text("DESIGNED BY HOVAIT", color = Subtle) }
+        Spacer(Modifier.weight(1f)); TextButton(onClick=onSets){Text("SET",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onRecord,colors=ButtonDefaults.textButtonColors(contentColor=if(recording) Color(0xFFEF4444) else Subtle)){Text(if(recording) "STOP REC" else "REC",fontWeight=FontWeight.Bold)};TextButton(onClick = onAbout) { Text("DESIGNED BY HOVAIT", color = Subtle) }
     }
 }
 
@@ -113,9 +141,9 @@ private fun ORGXApp(engine: AudioEngine) {
     }
 }
 
-@Composable private fun StatusPanel(bpm:Int,octave:Int,playing:Boolean,chordName:String,instrumentName:String,modifier:Modifier) {
+@Composable private fun StatusPanel(bpm:Int,octave:Int,playing:Boolean,chordName:String,styleName:String,instrumentName:String,modifier:Modifier) {
     Column(modifier.background(Panel, RoundedCornerShape(14.dp)).padding(14.dp)) {
-        Row { Column(Modifier.weight(1f)) { Text("LIVE SET",color=Accent,fontSize=11.sp); Text(instrumentName,color=Text,fontSize=22.sp,fontWeight=FontWeight.Bold) }; StatusDot(playing) }
+        Row { Column(Modifier.weight(1f)) { Text("LIVE SET • ${styleName.uppercase()}",color=Accent,fontSize=11.sp); Text(instrumentName,color=Text,fontSize=22.sp,fontWeight=FontWeight.Bold) }; StatusDot(playing) }
         Spacer(Modifier.weight(1f)); Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween) {
             Stat("TEMPO", "$bpm BPM"); Stat("CHORD", chordName); Stat("OCTAVE", octave.toString()); Stat("ENGINE", "48 kHz")
         }
@@ -188,7 +216,40 @@ private fun ORGXApp(engine: AudioEngine) {
     }
 }
 
-@Composable private fun MixerDialog(engine:AudioEngine,instrument:Int,onInstrument:(Int)->Unit,onDismiss:()->Unit){var volume by remember{mutableFloatStateOf(engine.masterVolume)};AlertDialog(onDismissRequest=onDismiss,title={Text("Sound & mixer")},text={Column{Text("INSTRUMENT",fontWeight=FontWeight.Bold);Row(horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Grand","Organ","Lead").forEachIndexed{index,name->FilterChip(selected=instrument==index,onClick={onInstrument(index)},label={Text(name)})}};Spacer(Modifier.height(12.dp));Text("OUTPUT LEVEL ${(volume*100).toInt()}%") ; Slider(value=volume,onValueChange={volume=it;engine.masterVolume=it})}},confirmButton={TextButton(onClick=onDismiss){Text("DONE")}})}
+@Composable private fun MixerDialog(engine:AudioEngine,preferences:SharedPreferences,instrument:Int,style:Int,effect:Int,onInstrument:(Int)->Unit,onStyle:(Int)->Unit,onEffect:(Int)->Unit,onDismiss:()->Unit){
+    var master by remember{mutableFloatStateOf(engine.masterVolume)};var keys by remember{mutableFloatStateOf(engine.keysVolume)}
+    var chords by remember{mutableFloatStateOf(engine.chordVolume)};var drums by remember{mutableFloatStateOf(engine.drumsVolume)}
+    var fx by remember{mutableFloatStateOf(engine.effectMix)}
+    var mixChannel by remember{mutableIntStateOf(0)}
+    fun saveMix(){preferences.edit().putFloat("masterVolume",master).putFloat("keysVolume",keys).putFloat("chordVolume",chords).putFloat("drumsVolume",drums).putFloat("effectMix",fx).apply()}
+    AlertDialog(onDismissRequest={saveMix();onDismiss()},title={Text("Sound & mixer")},text={Column{
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("VOICE",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Grand","Organ","Lead").forEachIndexed{index,name->FilterChip(selected=instrument==index,onClick={onInstrument(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("STYLE",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Pop","Rock","Dance").forEachIndexed{index,name->FilterChip(selected=style==index,onClick={onStyle(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("FX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Dry","Delay","Reverb").forEachIndexed{index,name->FilterChip(selected=effect==index,onClick={onEffect(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("MIX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Column(Modifier.weight(1f)){Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Keys","Chord","Drums").forEachIndexed{index,name->FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}};Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Master","FX").forEachIndexed{offset,name->val index=offset+3;FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}}}}
+        val level=when(mixChannel){0->keys;1->chords;2->drums;3->master;else->fx}
+        Text("${listOf("KEYS","CHORD","DRUMS","MASTER","FX")[mixChannel]} ${(level*100).toInt()}%",fontSize=10.sp,fontWeight=FontWeight.Bold)
+        Slider(value=level,onValueChange={when(mixChannel){0->{keys=it;engine.keysVolume=it};1->{chords=it;engine.chordVolume=it};2->{drums=it;engine.drumsVolume=it};3->{master=it;engine.masterVolume=it};else->{fx=it;engine.effectMix=it}}})
+    }},confirmButton={TextButton(onClick={saveMix();onDismiss()}){Text("DONE")}})
+}
+@Composable private fun SetMemoryDialog(preferences:SharedPreferences,octave:Int,bpm:Int,instrument:Int,chord:Int,style:Int,effect:Int,engine:AudioEngine,onLoad:(Int,Int,Int,Int,Int,Int,Float)->Unit,onDismiss:()->Unit){
+    var revision by remember{mutableIntStateOf(0)}
+    AlertDialog(onDismissRequest=onDismiss,title={Text("SET memory")},text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
+        repeat(3){index->
+            val slot=index+1;val exists=preferences.getBoolean("set${slot}_saved",false);revision
+            Row(Modifier.fillMaxWidth().background(Muted,RoundedCornerShape(8.dp)).padding(horizontal=10.dp),verticalAlignment=Alignment.CenterVertically){
+                Text("SET $slot",Modifier.weight(1f),fontWeight=FontWeight.Bold)
+                TextButton(enabled=exists,onClick={engine.keysVolume=preferences.getFloat("set${slot}_keys",0.78f);engine.chordVolume=preferences.getFloat("set${slot}_chords",0.22f);engine.drumsVolume=preferences.getFloat("set${slot}_drums",0.55f);engine.effectMix=preferences.getFloat("set${slot}_fx",0.28f);onLoad(preferences.getInt("set${slot}_octave",4),preferences.getInt("set${slot}_bpm",120),preferences.getInt("set${slot}_instrument",0),preferences.getInt("set${slot}_chord",0),preferences.getInt("set${slot}_style",0),preferences.getInt("set${slot}_effect",0),preferences.getFloat("set${slot}_volume",0.65f));onDismiss()}){Text("LOAD")}
+                TextButton(onClick={preferences.edit().putBoolean("set${slot}_saved",true).putInt("set${slot}_octave",octave).putInt("set${slot}_bpm",bpm).putInt("set${slot}_instrument",instrument).putInt("set${slot}_chord",chord).putInt("set${slot}_style",style).putInt("set${slot}_effect",effect).putFloat("set${slot}_volume",engine.masterVolume).putFloat("set${slot}_keys",engine.keysVolume).putFloat("set${slot}_chords",engine.chordVolume).putFloat("set${slot}_drums",engine.drumsVolume).putFloat("set${slot}_fx",engine.effectMix).apply();revision++}){Text(if(exists) "UPDATE" else "SAVE")}
+            }
+        }
+    }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
+}
+@Composable private fun ChordDialog(names:List<String>,selected:Int,onSelect:(Int)->Unit,onDismiss:()->Unit){
+    AlertDialog(onDismissRequest=onDismiss,title={Text("Chord library")},text={Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
+        names.chunked(4).forEachIndexed{row,items->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){items.forEachIndexed{column,name->val index=row*4+column;FilterChip(selected=selected==index,onClick={onSelect(index)},label={Text(name)},modifier=Modifier.weight(1f))}}}
+    }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
+}
 @Composable private fun AboutDialog(onDismiss:()->Unit){AlertDialog(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column{Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.0",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
 
 

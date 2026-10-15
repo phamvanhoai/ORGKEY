@@ -8,10 +8,14 @@
 - Bàn phím cảm ứng đa điểm hai quãng tám, nhận đúng phím trắng/phím đen và cho phép rê ngón giữa các nốt.
 - Ba âm sắc tổng hợp: ORGX Grand, ORGX Organ và ORGX Lead; phát bằng `AudioTrack` 48 kHz.
 - Bộ tổng hợp nhiều nốt, đổi octave, sustain và chỉnh âm lượng tổng.
-- Rhythm 8 bước phát kick, snare và hi-hat tổng hợp, chạy/dừng bằng PLAY và bám theo tempo.
-- Phần đệm hòa âm tự động đồng bộ rhythm, chuyển trực tiếp giữa C, Am, F và G.
+- Ba style rhythm 8 bước Pop, Rock và Dance phát kick, snare, hi-hat; chạy/dừng bằng PLAY và bám theo tempo.
+- Thư viện 12 hợp âm C, Dm, Em, F, G, Am, Bdim, C7, D7, E7, Fmaj7 và G7; phần đệm đổi ngay và đồng bộ rhythm.
 - Thu trực tiếp toàn bộ tiếng đàn và rhythm ra WAV stereo 48 kHz/16-bit bằng nút REC.
 - Điều khiển tempo, trạng thái engine và hộp thông tin “Designed by hovait”.
+- Tự lưu tempo, octave, nhạc cụ, hợp âm và style giữa các lần mở ứng dụng.
+- Ba ô nhớ SET để lưu/gọi lại toàn bộ cấu hình biểu diễn, gồm cả âm lượng tổng.
+- Mixer bốn kênh độc lập cho Keys, Chord, Drums và Master; mức kênh được lưu tự động và trong từng SET.
+- FX thời gian thực gồm Delay và Reverb, có mức wet riêng; FX được đưa vào WAV và lưu cùng SET.
 
 ## Chưa triển khai
 
