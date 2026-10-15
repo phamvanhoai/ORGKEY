@@ -1,10 +1,10 @@
 # Luồng khởi động ứng dụng
 
-Phân tích tĩnh từ manifest và DEX của APK. Luồng launcher chính đã được nối từ `Application` qua `SplashActivity` đến `MainActivity`; `SafeActivity` là đường trung gian riêng có thể được gọi từ `MainActivity`.
+Phân tích tĩnh từ manifest và DEX của APK. Luồng launcher chính đã được nối từ `Application` qua `SplashActivity` đến `MainActivity`; `SafeActivity` là launcher Safe Mode tùy chọn, bị tắt mặc định và được điều khiển bởi preference.
 
 ## Thành phần và điểm vào
 
-Manifest đặt `sofeh.android.MainApplication` làm application và khai báo `com.sofeh.android.musicstudio3.SplashActivity` là activity duy nhất có `MAIN` + `LAUNCHER`. Vì vậy khởi động bình thường từ biểu tượng đi theo:
+Manifest đặt `sofeh.android.MainApplication` làm application. `SplashActivity` có `MAIN` + `LAUNCHER` và được bật mặc định. Vì vậy khởi động bình thường từ biểu tượng chính đi theo:
 
 ```text
 MainApplication.onCreate
@@ -69,9 +69,18 @@ Nhánh hoàn tất splash gọi `startActivity(Intent(SplashActivity, MainActivi
 
 Splash cuối cùng gọi `finish()`, nên không nằm lại trong back stack của luồng này.
 
-## `SafeActivity`
+## Launcher `SafeActivity`
 
-`SafeActivity` không có intent-filter launcher. REA tìm hai using-node: `MainActivity` và runnable `r92`; do đó đây là nhánh được mở nội bộ, không phải khởi động bình thường từ biểu tượng.
+`SafeActivity` cũng có `MAIN` + `LAUNCHER`, nhãn `ORG - Safe Mode`, icon `ic_launcher_safe`, task affinity riêng và `android:enabled="false"` trong manifest. Nó không xuất hiện trong launcher ở trạng thái mặc định.
+
+Subclass `com.sofeh.android.musicstudio3.MainActivity.v()` trả về `SafeActivity.class`. Trong `sofeh.android.MainActivity.O0()`, ứng dụng tạo `ComponentName(this, v())` rồi đọc preference boolean `safe_mode`:
+
+```text
+safe_mode == true  → COMPONENT_ENABLED_STATE_ENABLED
+safe_mode == false → COMPONENT_ENABLED_STATE_DISABLED
+```
+
+Lời gọi dùng flag `DONT_KILL_APP`, nên thay đổi trạng thái component không yêu cầu giết tiến trình tại chính điểm gọi. Đây là cơ chế làm hiện hoặc ẩn launcher Safe Mode.
 
 Khi được mở, nó:
 
@@ -80,10 +89,20 @@ Khi được mở, nó:
 3. chờ 750 ms;
 4. nhánh mặc định của `r92.run()` mở `MainActivity` và gọi `finish()`.
 
-Bằng chứng: [`safe-oncreate.json`](safe-oncreate.json), [`r92-run.json`](r92-run.json), [`safe-activity-references.json`](safe-activity-references.json), mã rút gọn [`safe-oncreate.java`](source/safe-oncreate.java).
+Bằng chứng: [`safe-oncreate.json`](safe-oncreate.json), [`r92-run.json`](r92-run.json), [`safe-activity-references.json`](safe-activity-references.json), [`main-safe-target-v.json`](main-safe-target-v.json), [`base-main-v-callers.json`](base-main-v-callers.json), [`load-settings-O0.java`](source/load-settings-O0.java), mã rút gọn [`safe-oncreate.java`](source/safe-oncreate.java).
 
-Ý nghĩa chính xác của cờ `MainApplication.c` và điều kiện cụ thể trong `MainActivity` dẫn tới `SafeActivity` chưa được đặt tên từ các class đã rút gọn. Thứ tự activity và thời gian chuyển tiếp thì đã được xác nhận tĩnh.
+Cờ `MainApplication.c` được đặt khi người dùng khởi động qua icon Safe Mode. `MainActivity.onResume()` chép cờ này vào `l4`, rồi lập tức đặt `MainApplication.c = false`, nên tín hiệu chỉ được tiêu thụ một lần cho lượt resume đó.
+
+Runnable khởi tạo trong `s2.run()` đọc `l4`. Nếu cờ bật, nó không mở menu thường mà hiện dialog bắt buộc với ba lựa chọn:
+
+- mở bản gốc;
+- mở SET;
+- mở trạng thái trống.
+
+Sau khi dựng dialog, nó đặt `l4 = false`. Nếu cờ không bật, nhánh tương ứng mở menu bình thường qua `N1("menu", true)`. Như vậy Safe Mode là đường khởi động yêu cầu người dùng chọn nguồn dữ liệu ban đầu, thay vì tự đi vào menu chuẩn.
+
+Bằng chứng bổ sung: [`main-onresume-safe.json`](main-onresume-safe.json), [`main-onresume-safe.java`](source/main-onresume-safe.java), [`s2-run.java`](source/s2-run.java).
 
 ## Kết quả
 
-Luồng khởi động bình thường là `MainApplication → SplashActivity → MainActivity`. `SafeActivity → MainActivity` là đường nội bộ dự phòng có delay 750 ms. Việc hiển thị khung hình thực tế, thời gian I/O import và hành vi khi Android hủy tiến trình vẫn cần quan sát runtime.
+Luồng bình thường là `MainApplication → SplashActivity → MainActivity`. Khi preference `safe_mode` bật, hệ thống có thêm launcher `SafeActivity → MainActivity` với delay 750 ms và cờ Safe Mode. Việc hiển thị khung hình thực tế, thời gian I/O import và hành vi khi Android hủy tiến trình vẫn cần quan sát runtime.

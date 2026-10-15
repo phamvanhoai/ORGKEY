@@ -13,6 +13,6 @@ Các parser/inventory nhẹ được chạy lại thành công:
 - ELF `dic`: `.text` 756 byte, 245 lệnh x86, entry `0x550`.
 - Helper OpenSL nội bộ: 3 vùng, 1.484 byte, 371 lệnh ARM64; giải mã bao phủ đủ byte.
 - Bằng chứng REA mới cho `ProcessIn`, `InDeviceStart` và `InDeviceStop` đều là JSON hợp lệ.
-- Manifest: 486 artifact, đường dẫn duy nhất và 0 sai lệch kích thước/SHA-256.
+- Manifest: 491 artifact, đường dẫn duy nhất và 0 sai lệch kích thước/SHA-256.
 
 Các kết quả này được tạo lại trực tiếp từ APK hoặc artifact giải mã có hash đã ghi trong báo cáo. Phân tích runtime không nằm trong phạm vi kiểm chứng này.

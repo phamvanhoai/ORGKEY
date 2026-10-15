@@ -2,13 +2,13 @@
 
 [`analysis-manifest.json`](analysis-manifest.json) là danh mục có thể kiểm chứng của các artifact trong thư mục `analysis/`. Mỗi mục lưu đường dẫn tương đối, kích thước byte và SHA-256 của nội dung.
 
-Manifest hiện bao phủ 486 file, tổng cộng 16.197.204 byte:
+Manifest hiện bao phủ 491 file, tổng cộng 16.370.807 byte:
 
 | Loại | Số file |
 |---|---:|
-| JSON | 218 |
+| JSON | 222 |
 | ASM | 87 |
-| Java | 82 |
+| Java | 83 |
 | Markdown | 62 |
 | Python | 26 |
 | TXT | 5 |

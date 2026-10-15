@@ -1,9 +1,9 @@
 {
   "summary": {
-    "file_count": 486,
-    "total_bytes": 16197204,
+    "file_count": 491,
+    "total_bytes": 16370807,
     "by_extension": {
-      ".json": 218,
+      ".json": 222,
       ".md": 62,
       ".xml": 1,
       ".csv": 4,
@@ -11,7 +11,7 @@
       ".bin": 1,
       ".asm": 87,
       ".txt": 5,
-      ".java": 82
+      ".java": 83
     }
   },
   "files": [
@@ -23,7 +23,7 @@
     {
       "path": "ANALYSIS-MANIFEST.md",
       "size": 1526,
-      "sha256": "a5b1514bb751b1fe62638c47325f412514b9722ead2c6805f4f1cdc098f2ea1b"
+      "sha256": "80d60ed559dfade081305c72c2dabe60e08af2110b2829647c8de34d532ef4ed"
     },
     {
       "path": "AndroidManifest.xml",
@@ -37,8 +37,8 @@
     },
     {
       "path": "APP-STARTUP.md",
-      "size": 4677,
-      "sha256": "51fd7ee2f614d21e59e714c2c012f652b461cb58eb8d0a81d2fc178192e3600c"
+      "size": 6157,
+      "sha256": "1d14d89ba4680c1b4292e3e1297345ec5812c9ab76b166f3cca2898fe05406c9"
     },
     {
       "path": "app-storage-root.json",
@@ -74,6 +74,16 @@
       "path": "b60-class.json",
       "size": 9710,
       "sha256": "59e925d6bed0d7212dc11f034f320063b9ff42ceea9fe7bf9bc0f71011b7ba70"
+    },
+    {
+      "path": "base-main-v-callers.json",
+      "size": 52658,
+      "sha256": "7d3c25ef323f662aa9009aac4d525203010f8c490b488f388fc93c7dfa44490d"
+    },
+    {
+      "path": "base-main-v.json",
+      "size": 52039,
+      "sha256": "c8a2a0722134fb701286e22f116219a8b12cd22603c2c1031ada854c87e7a668"
     },
     {
       "path": "build_analysis_manifest.py",
@@ -684,6 +694,16 @@
       "path": "main-oncreate.json",
       "size": 85771,
       "sha256": "4fdc7d78a50fede68b086c76729ff31b5d5bc99a7e2544a2e5d4314b76e8375d"
+    },
+    {
+      "path": "main-onresume-safe.json",
+      "size": 57108,
+      "sha256": "cbf46716a29c1b4c7912f095f1af7a9af61f321a746f20edcf357a135e69ea5c"
+    },
+    {
+      "path": "main-safe-target-v.json",
+      "size": 9716,
+      "sha256": "71fedd20c5370ac9aa428fceab6064c912e0849448b42339a0072a11d38f915f"
     },
     {
       "path": "main-settings-h1.json",
@@ -1911,6 +1931,11 @@
       "sha256": "8f1de92a62f2349374369ddfd68e605a9cc05f4ff9ce026a3eb7d26796c8c8f6"
     },
     {
+      "path": "source/main-onresume-safe.java",
+      "size": 590,
+      "sha256": "6c119759f04cd5c3c3cf4a34c801f25a20fa5106b0bd853c875bbb277a1dfcb3"
+    },
+    {
       "path": "source/main-settings-h1.java",
       "size": 12493,
       "sha256": "1ea3b0eed95983f6e2a28aaf240bf637dde4734f6ecefc28cc6ab2584c29dcb3"
@@ -2277,8 +2302,8 @@
     },
     {
       "path": "TONG-QUAN.md",
-      "size": 19771,
-      "sha256": "e542cd871aed5fba8d20a16aef026d261a02e66600dbe517e0a72a252eb022fa"
+      "size": 19783,
+      "sha256": "11a2d8ce1ea22c2fc63c592a8071bb249b7c23836a4b90bfb65f434f1a782dce"
     },
     {
       "path": "touch-D0.json",
@@ -2373,7 +2398,7 @@
     {
       "path": "VALIDATION.md",
       "size": 1070,
-      "sha256": "8e78c1f45a72fdbdfea906174f5e607c4289e4049bee2062b54070ddb43e4505"
+      "sha256": "5cd6e6f4838fceb413e500c711bdcf761843b17e3e7a215030422a84325524e6"
     },
     {
       "path": "VONG-DOI-WAV.md",

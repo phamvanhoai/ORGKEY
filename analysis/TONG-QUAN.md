@@ -1,8 +1,8 @@
 # Tổng quan APK ORG 24
 
-Mục lục toàn bộ báo cáo: [INDEX.md](INDEX.md). Manifest kiểm chứng 486 artifact, kích thước và SHA-256 nằm tại [ANALYSIS-MANIFEST.md](ANALYSIS-MANIFEST.md).
+Mục lục toàn bộ báo cáo: [INDEX.md](INDEX.md). Manifest kiểm chứng 491 artifact, kích thước và SHA-256 nằm tại [ANALYSIS-MANIFEST.md](ANALYSIS-MANIFEST.md).
 
-Đã dựng [luồng khởi động ứng dụng](APP-STARTUP.md): `MainApplication → SplashActivity → MainActivity`, quá trình tạo 13 thư mục, nhập URI `VIEW/SEND`, xử lý extras và nhánh nội bộ `SafeActivity → MainActivity` sau 750 ms.
+Đã dựng [luồng khởi động ứng dụng](APP-STARTUP.md): `MainApplication → SplashActivity → MainActivity`, tạo 13 thư mục, nhập URI `VIEW/SEND`, xử lý extras; preference `safe_mode` bật launcher riêng `SafeActivity → MainActivity` sau 750 ms.
 
 Đã giải mã [catalog nội dung tải xuống `download.en`](DOWNLOAD-CATALOG.md): 101 nhóm tác giả, 431 gói ZIP, 21 preview, timestamp và các trường metadata được parse hết; ghi nhận năm record dùng tên archive trùng.
 
