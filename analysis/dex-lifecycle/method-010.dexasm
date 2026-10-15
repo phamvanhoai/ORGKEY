@@ -1,0 +1,505 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lwa2;->getView(I Landroid/view/View; Landroid/view/ViewGroup;)Landroid/view/View;
+# Addresses in bytes; branch deltas in code units.
+000000 08001b00                 move-object/from16       v0, v27
+000004 02011c00                 move/from16              v1, v28
+000008 5402703a                 iget-object              v2, v0, Lwa2;->h Lsofeh/android/MainActivity;
+00000c 5423f833                 iget-object              v3, v2, Lsofeh/android/MainActivity;->m6 [Ljava/lang/String;
+000010 750463061b00             invoke-super/range       v27 ... v30, Landroid/widget/ArrayAdapter;->getView(I Landroid/view/View; Landroid/view/ViewGroup;)Landroid/view/View;
+000016 0c04                     move-result-object       v4
+000018 14057801097f             const                    v5, 2131296632
+00001e 6e2066055400             invoke-virtual           v4, v5, Landroid/view/View;->findViewById(I)Landroid/view/View;
+000024 0c05                     move-result-object       v5
+000026 1f050702                 check-cast               v5, Landroid/widget/ImageView;
+00002a 140614000201             const                    v6, 16908308
+000030 6e2066056400             invoke-virtual           v4, v6, Landroid/view/View;->findViewById(I)Landroid/view/View;
+000036 0c06                     move-result-object       v6
+000038 1f061902                 check-cast               v6, Landroid/widget/TextView;
+00003c 140715000201             const                    v7, 16908309
+000042 6e2066057400             invoke-virtual           v4, v7, Landroid/view/View;->findViewById(I)Landroid/view/View;
+000048 0c07                     move-result-object       v7
+00004a 1f071902                 check-cast               v7, Landroid/widget/TextView;
+00004e 1408aa00097f             const                    v8, 2131296426
+000054 6e2066058400             invoke-virtual           v4, v8, Landroid/view/View;->findViewById(I)Landroid/view/View;
+00005a 0c08                     move-result-object       v8
+00005c 1f08fe01                 check-cast               v8, Landroid/widget/Button;
+000060 1409ab00097f             const                    v9, 2131296427
+000066 6e2066059400             invoke-virtual           v4, v9, Landroid/view/View;->findViewById(I)Landroid/view/View;
+00006c 0c09                     move-result-object       v9
+00006e 1f090602                 check-cast               v9, Landroid/widget/ImageButton;
+000072 140a3d02097f             const                    v10, 2131296829
+000078 6e206605a400             invoke-virtual           v4, v10, Landroid/view/View;->findViewById(I)Landroid/view/View;
+00007e 0c0a                     move-result-object       v10
+000080 1f0a0e02                 check-cast               v10, Landroid/widget/ProgressBar;
+000084 124b                     const/4                  v11, 4
+000086 6e20c305ba00             invoke-virtual           v10, v11, Landroid/view/View;->setVisibility(I)V
+00008c 120c                     const/4                  v12, 0
+00008e 6e209d05c400             invoke-virtual           v4, v12, Landroid/view/View;->setBackground(Landroid/graphics/drawable/Drawable;)V
+000094 6e1072050400             invoke-virtual           v4, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
+00009a 0c0c                     move-result-object       v12
+00009c 120d                     const/4                  v13, 0
+00009e 59cdf900                 iput                     v13, v12, Landroid/view/ViewGroup$LayoutParams;->height I
+0000a2 540c6a3a                 iget-object              v12, v0, Lwa2;->b Ljava/util/ArrayList;
+0000a6 6e10bf480c00             invoke-virtual           v12, Ljava/util/ArrayList;->size()I
+0000ac 0a0e                     move-result              v14
+0000ae 34e10400                 if-lt                    v1, v14, +004h
+0000b2 2900c303                 goto/16                  +3c3h
+0000b6 6e20b6481c00             invoke-virtual           v12, v1, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+0000bc 0c0c                     move-result-object       v12
+0000be 1f0c2810                 check-cast               v12, Ljava/lang/Integer;
+0000c2 6e1099460c00             invoke-virtual           v12, Ljava/lang/Integer;->intValue()I
+0000c8 0a0c                     move-result              v12
+0000ca 3b0c0400                 if-gez                   v12, +004h
+0000ce 2900b503                 goto/16                  +3b5h
+0000d2 540e6b3a                 iget-object              v14, v0, Lwa2;->c Lew;
+0000d6 6e20d73fce00             invoke-virtual           v14, v12, Lew;->j(I)Lhb2;
+0000dc 0c0f                     move-result-object       v15
+0000de 220d4210                 new-instance             v13, Ljava/lang/StringBuilder;
+0000e2 701052470d00             invoke-direct            v13, Ljava/lang/StringBuilder;-><init>()V
+0000e8 542bbe33                 iget-object              v11, v2, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;
+0000ec 6e205f47bd00             invoke-virtual           v13, v11, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+0000f2 620b5427                 sget-object              v11, Ljava/io/File;->separator Ljava/lang/String;
+0000f6 6e205f47bd00             invoke-virtual           v13, v11, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+0000fc 08100300                 move-object/from16       v16, v3
+000100 54f37925                 iget-object              v3, v15, Lhb2;->c Ljava/lang/String;
+000104 08110b00                 move-object/from16       v17, v11
+000108 52fb7d25                 iget                     v11, v15, Lhb2;->g I
+00010c 08120a00                 move-object/from16       v18, v10
+000110 54fa7a25                 iget-object              v10, v15, Lhb2;->d Ljava/lang/String;
+000114 08130a00                 move-object/from16       v19, v10
+000118 54fa7b25                 iget-object              v10, v15, Lhb2;->e Ljava/lang/String;
+00011c 02140b00                 move/from16              v20, v11
+000120 54fb7725                 iget-object              v11, v15, Lhb2;->a Ljava/lang/String;
+000124 6e205f473d00             invoke-virtual           v13, v3, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+00012a 6e106b470d00             invoke-virtual           v13, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+000130 0c0d                     move-result-object       v13
+000132 08150d00                 move-object/from16       v21, v13
+000136 54fd7825                 iget-object              v13, v15, Lhb2;->b Ljava/lang/String;
+00013a 6e20b206d700             invoke-virtual           v7, v13, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+000140 220dc614                 new-instance             v13, Lqa2;
+000144 7040655d0dc1             invoke-direct            v13, v0, v1, v12, Lqa2;-><init>(Lwa2; I I)V
+00014a 6e20b205d400             invoke-virtual           v4, v13, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+000150 552de833                 iget-boolean             v13, v2, Lsofeh/android/MainActivity;->k6 Z
+000154 02160d00                 move/from16              v22, v13
+000158 1a0d1501                 const-string             v13, " "
+00015c 02170c00                 move/from16              v23, v12
+000160 39162200                 if-nez                   v22, +022h
+000164 540c6d3a                 iget-object              v12, v0, Lwa2;->e Ljava/lang/String;
+000168 6e201947cd00             invoke-virtual           v13, v12, Ljava/lang/String;->concat(Ljava/lang/String;)Ljava/lang/String;
+00016e 0c0c                     move-result-object       v12
+000170 08180a00                 move-object/from16       v24, v10
+000174 540a693a                 iget-object              v10, v0, Lwa2;->a Ljava/util/ArrayList;
+000178 6e20b6481a00             invoke-virtual           v10, v1, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+00017e 0c01                     move-result-object       v1
+000180 6e201c471c00             invoke-virtual           v12, v1, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+000186 0a01                     move-result              v1
+000188 38011000                 if-eqz                   v1, +010h
+00018c 6e1094050400             invoke-virtual           v4, Landroid/view/View;->performClick()Z
+000192 5421c033                 iget-object              v1, v2, Lsofeh/android/MainActivity;->f6 Lwa2;
+000196 6e1064060100             invoke-virtual           v1, Landroid/widget/ArrayAdapter;->notifyDataSetChanged()V
+00019c 1211                     const/4                  v1, 1
+00019e 5c21e833                 iput-boolean             v1, v2, Lsofeh/android/MainActivity;->k6 Z
+0001a2 2803                     goto                     +3h
+0001a4 08180a00                 move-object/from16       v24, v10
+0001a8 6e203647db00             invoke-virtual           v11, v13, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0001ae 0a01                     move-result              v1
+0001b0 181900c87e9a00000000     const-wide               v25, 2592000000
+0001ba 140cf700087f             const                    v12, 2131230967
+0001c0 140afb00087f             const                    v10, 2131230971
+0001c6 3801e500                 if-eqz                   v1, +0e5h
+0001ca 1401ffa15aff             const                    v1, -10837505
+0001d0 6e209e051400             invoke-virtual           v4, v1, Landroid/view/View;->setBackgroundColor(I)V
+0001d6 12f1                     const/4                  v1, -1
+0001d8 6e20b3061600             invoke-virtual           v6, v1, Landroid/widget/TextView;->setTextColor(I)V
+0001de 6e20b3061700             invoke-virtual           v7, v1, Landroid/widget/TextView;->setTextColor(I)V
+0001e4 1a019c01                 const-string             v1, " SET"
+0001e8 6e2036471b00             invoke-virtual           v11, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0001ee 0a01                     move-result              v1
+0001f0 38010900                 if-eqz                   v1, +009h
+0001f4 6e207906a500             invoke-virtual           v5, v10, Landroid/widget/ImageView;->setImageResource(I)V
+0001fa 13160100                 const/16                 v22, 1
+0001fe 29006f00                 goto/16                  +06fh
+000202 1a018301                 const-string             v1, " Instrument"
+000206 6e2036471b00             invoke-virtual           v11, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+00020c 0a01                     move-result              v1
+00020e 38010600                 if-eqz                   v1, +006h
+000212 6e207906c500             invoke-virtual           v5, v12, Landroid/widget/ImageView;->setImageResource(I)V
+000218 28f1                     goto                     -fh
+00021a 1a01a301                 const-string             v1, " Style"
+00021e 6e2036471b00             invoke-virtual           v11, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000224 0a01                     move-result              v1
+000226 38010900                 if-eqz                   v1, +009h
+00022a 1401ff00087f             const                    v1, 2131230975
+000230 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+000236 28e2                     goto                     -1eh
+000238 1a01a201                 const-string             v1, " Sound/Loop"
+00023c 6e2036471b00             invoke-virtual           v11, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000242 0a01                     move-result              v1
+000244 38010900                 if-eqz                   v1, +009h
+000248 1401fe00087f             const                    v1, 2131230974
+00024e 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+000254 28d3                     goto                     -2dh
+000256 1a01a601                 const-string             v1, " System"
+00025a 6e2036471b00             invoke-virtual           v11, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000260 0a01                     move-result              v1
+000262 38010900                 if-eqz                   v1, +009h
+000266 14010001087f             const                    v1, 2131230976
+00026c 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+000272 28c4                     goto                     -3ch
+000274 1a01a001                 const-string             v1, " Skin"
+000278 6e2036471b00             invoke-virtual           v11, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+00027e 0a01                     move-result              v1
+000280 38010900                 if-eqz                   v1, +009h
+000284 1401fd00087f             const                    v1, 2131230973
+00028a 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+000290 28b5                     goto                     -4bh
+000292 1a01cb01                 const-string             v1, " by Sofeh"
+000296 6e2036471b00             invoke-virtual           v11, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+00029c 0a01                     move-result              v1
+00029e 38010900                 if-eqz                   v1, +009h
+0002a2 14018301087f             const                    v1, 2131231107
+0002a8 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+0002ae 28a6                     goto                     -5ah
+0002b0 1a01ca01                 const-string             v1, " by "
+0002b4 6e2036471b00             invoke-virtual           v11, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0002ba 0a01                     move-result              v1
+0002bc 38010900                 if-eqz                   v1, +009h
+0002c0 1401fa00087f             const                    v1, 2131230970
+0002c6 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+0002cc 2897                     goto                     -69h
+0002ce 1401f600087f             const                    v1, 2131230966
+0002d4 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+0002da 2890                     goto                     -70h
+0002dc d80c1701                 add-int/lit8             v12, v23, 1
+0002e0 54e19623                 iget-object              v1, v14, Lew;->b Ljava/util/ArrayList;
+0002e4 6e10bf480100             invoke-virtual           v1, Ljava/util/ArrayList;->size()I
+0002ea 0a01                     move-result              v1
+0002ec 351c2900                 if-ge                    v12, v1, +029h
+0002f0 6e20d73fce00             invoke-virtual           v14, v12, Lew;->j(I)Lhb2;
+0002f6 0c01                     move-result-object       v1
+0002f8 54117725                 iget-object              v1, v1, Lhb2;->a Ljava/lang/String;
+0002fc 6e203647d100             invoke-virtual           v1, v13, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000302 0a01                     move-result              v1
+000304 38010300                 if-eqz                   v1, +003h
+000308 281b                     goto                     +1bh
+00030a 71006d470000             invoke-static            Ljava/lang/System;->currentTimeMillis()J
+000310 0b01                     move-result-wide         v1
+000312 6e20d73fce00             invoke-virtual           v14, v12, Lew;->j(I)Lhb2;
+000318 0c06                     move-result-object       v6
+00031a 53667c25                 iget-wide                v6, v6, Lhb2;->f J
+00031e 9b060619                 add-long                 v6, v6, v25
+000322 31010106                 cmp-long                 v1, v1, v6
+000326 3c010900                 if-gtz                   v1, +009h
+00032a 1401f900087f             const                    v1, 2131230969
+000330 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+000336 2804                     goto                     +4h
+000338 d80c0c01                 add-int/lit8             v12, v12, 1
+00033c 28d2                     goto                     -2eh
+00033e 1a01c506                 const-string             v1, "-"
+000342 6e2036471300             invoke-virtual           v3, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000348 0a01                     move-result              v1
+00034a 38010700                 if-eqz                   v1, +007h
+00034e 1241                     const/4                  v1, 4
+000350 6e20c3051800             invoke-virtual           v8, v1, Landroid/view/View;->setVisibility(I)V
+000356 2819                     goto                     +19h
+000358 1241                     const/4                  v1, 4
+00035a 120b                     const/4                  v11, 0
+00035c 6e20c305b800             invoke-virtual           v8, v11, Landroid/view/View;->setVisibility(I)V
+000362 1402db01087f             const                    v2, 2131231195
+000368 6e5ba70628bb             invoke-virtual           v8, v2, v11, v11, v11, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+00036e 1a02f136                 const-string             v2, "See some videos"
+000372 6e20a1052800             invoke-virtual           v8, v2, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+000378 22021815                 new-instance             v2, Lra2;
+00037c 70407c5e02bf             invoke-direct            v2, v0, v15, v11, Lra2;-><init>(Lwa2; Lhb2; B)V
+000382 6e20b2052800             invoke-virtual           v8, v2, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+000388 6e20c3051900             invoke-virtual           v9, v1, Landroid/view/View;->setVisibility(I)V
+00038e 1104                     return-object            v4
+000390 120b                     const/4                  v11, 0
+000392 6e209e05b400             invoke-virtual           v4, v11, Landroid/view/View;->setBackgroundColor(I)V
+000398 150100ff                 const/high16             v1, -16777216
+00039c 6e20b3061600             invoke-virtual           v6, v1, Landroid/widget/TextView;->setTextColor(I)V
+0003a2 1401888888ff             const                    v1, -7829368
+0003a8 6e20b3061700             invoke-virtual           v7, v1, Landroid/widget/TextView;->setTextColor(I)V
+0003ae 1a015461                 const-string             v1, "set"
+0003b2 08061800                 move-object/from16       v6, v24
+0003b6 6e2036471600             invoke-virtual           v6, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0003bc 0a01                     move-result              v1
+0003be 38010600                 if-eqz                   v1, +006h
+0003c2 6e207906a500             invoke-virtual           v5, v10, Landroid/widget/ImageView;->setImageResource(I)V
+0003c8 284f                     goto                     +4fh
+0003ca 1a010155                 const-string             v1, "ins"
+0003ce 6e2036471600             invoke-virtual           v6, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0003d4 0a01                     move-result              v1
+0003d6 38010600                 if-eqz                   v1, +006h
+0003da 6e207906c500             invoke-virtual           v5, v12, Landroid/widget/ImageView;->setImageResource(I)V
+0003e0 2843                     goto                     +43h
+0003e2 1a011c66                 const-string             v1, "sty"
+0003e6 6e2036471600             invoke-virtual           v6, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0003ec 0a01                     move-result              v1
+0003ee 38010900                 if-eqz                   v1, +009h
+0003f2 1401ff00087f             const                    v1, 2131230975
+0003f8 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+0003fe 2834                     goto                     +34h
+000400 1a014b5d                 const-string             v1, "pad"
+000404 6e2036471600             invoke-virtual           v6, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+00040a 0a01                     move-result              v1
+00040c 38010900                 if-eqz                   v1, +009h
+000410 1401fe00087f             const                    v1, 2131230974
+000416 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+00041c 2825                     goto                     +25h
+00041e 1a016f66                 const-string             v1, "sys"
+000422 6e2036471600             invoke-virtual           v6, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000428 0a01                     move-result              v1
+00042a 38010900                 if-eqz                   v1, +009h
+00042e 14010001087f             const                    v1, 2131230976
+000434 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+00043a 2816                     goto                     +16h
+00043c 1a017365                 const-string             v1, "skn"
+000440 6e2036471600             invoke-virtual           v6, v1, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000446 0a01                     move-result              v1
+000448 38010900                 if-eqz                   v1, +009h
+00044c 1401fc00087f             const                    v1, 2131230972
+000452 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+000458 2807                     goto                     +7h
+00045a 1401f800087f             const                    v1, 2131230968
+000460 6e2079061500             invoke-virtual           v5, v1, Landroid/widget/ImageView;->setImageResource(I)V
+000466 71006d470000             invoke-static            Ljava/lang/System;->currentTimeMillis()J
+00046c 0b05                     move-result-wide         v5
+00046e 53fa7c25                 iget-wide                v10, v15, Lhb2;->f J
+000472 9b0a0a19                 add-long                 v10, v10, v25
+000476 3101050a                 cmp-long                 v1, v5, v10
+00047a 3b010500                 if-gez                   v1, +005h
+00047e 1211                     const/4                  v1, 1
+000480 120b                     const/4                  v11, 0
+000482 2803                     goto                     +3h
+000484 1201                     const/4                  v1, 0
+000486 28fd                     goto                     -3h
+000488 6e20c305b800             invoke-virtual           v8, v11, Landroid/view/View;->setVisibility(I)V
+00048e 1a05db53                 const-string             v5, "http://"
+000492 6e2036475300             invoke-virtual           v3, v5, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000498 0a06                     move-result              v6
+00049a 1a0d8732                 const-string             v13, "Open..."
+00049e 1a0ee253                 const-string             v14, "https://"
+0004a2 39060800                 if-nez                   v6, +008h
+0004a6 6e203647e300             invoke-virtual           v3, v14, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0004ac 0a06                     move-result              v6
+0004ae 38060700                 if-eqz                   v6, +007h
+0004b2 02190100                 move/from16              v25, v1
+0004b6 1206                     const/4                  v6, 0
+0004b8 2900ec00                 goto/16                  +0ech
+0004bc 5426e233                 iget-object              v6, v2, Lsofeh/android/MainActivity;->k0 Landroid/content/SharedPreferences;
+0004c0 220a4210                 new-instance             v10, Ljava/lang/StringBuilder;
+0004c4 1a0ba149                 const-string             v11, "dlf"
+0004c8 70205547ba00             invoke-direct            v10, v11, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+0004ce 02190100                 move/from16              v25, v1
+0004d2 080b1500                 move-object/from16       v11, v21
+0004d6 120c                     const/4                  v12, 0
+0004d8 71202608cb00             invoke-static            v11, v12, Lbp3;->i(Ljava/lang/String; Z)Ljava/lang/String;
+0004de 0c01                     move-result-object       v1
+0004e0 6e205f471a00             invoke-virtual           v10, v1, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+0004e6 6e106b470a00             invoke-virtual           v10, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+0004ec 0c01                     move-result-object       v1
+0004ee 722035021600             invoke-interface         v6, v1, Landroid/content/SharedPreferences;->contains(Ljava/lang/String;)Z
+0004f4 0a01                     move-result              v1
+0004f6 38011700                 if-eqz                   v1, +017h
+0004fa 6e20a105d800             invoke-virtual           v8, v13, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+000500 1401ec00087f             const                    v1, 2131230956
+000506 6e5ca70618cc             invoke-virtual           v8, v1, v12, v12, v12, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+00050c 2201bb13                 new-instance             v1, Loa2;
+000510 1216                     const/4                  v6, 1
+000512 70401058016b             invoke-direct            v1, v0, v11, v6, Loa2;-><init>(Lwa2; Ljava/lang/String; B)V
+000518 6e20b2051800             invoke-virtual           v8, v1, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+00051e 1241                     const/4                  v1, 4
+000520 2900d700                 goto/16                  +0d7h
+000524 1216                     const/4                  v6, 1
+000526 1a0c430f                 const-string             v12, "Download..."
+00052a 3d149500                 if-lez                   v20, +095h
+00052e 02160600                 move/from16              v22, v6
+000532 13060900                 const/16                 v6, 9
+000536 02011400                 move/from16              v1, v20
+00053a 36612b00                 if-gt                    v1, v6, +02bh
+00053e d80101ff                 add-int/lit8             v1, v1, -1
+000542 46061001                 aget-object              v6, v16, v1
+000546 38062500                 if-eqz                   v6, +025h
+00054a 6e1028470600             invoke-virtual           v6, Ljava/lang/String;->isEmpty()Z
+000550 0a06                     move-result              v6
+000552 39061f00                 if-nez                   v6, +01fh
+000556 22064210                 new-instance             v6, Ljava/lang/StringBuilder;
+00055a 701052470600             invoke-direct            v6, Ljava/lang/StringBuilder;-><init>()V
+000560 6e10a4060700             invoke-virtual           v7, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
+000566 0c0a                     move-result-object       v10
+000568 6e205e47a600             invoke-virtual           v6, v10, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+00056e 1a0a1701                 const-string             v10, "  "
+000572 6e205f47a600             invoke-virtual           v6, v10, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+000578 46011001                 aget-object              v1, v16, v1
+00057c 6e205f471600             invoke-virtual           v6, v1, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+000582 6e106b470600             invoke-virtual           v6, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+000588 0c01                     move-result-object       v1
+00058a 6e20b2061700             invoke-virtual           v7, v1, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+000590 1201                     const/4                  v1, 0
+000592 712026081300             invoke-static            v3, v1, Lbp3;->i(Ljava/lang/String; Z)Ljava/lang/String;
+000598 0c03                     move-result-object       v3
+00059a 5421ea33                 iget-object              v1, v2, Lsofeh/android/MainActivity;->l0 Landroid/content/SharedPreferences;
+00059e 22064210                 new-instance             v6, Ljava/lang/StringBuilder;
+0005a2 701052470600             invoke-direct            v6, Ljava/lang/StringBuilder;-><init>()V
+0005a8 62075834                 sget-object              v7, Lsofeh/android/MainActivity;->y6 Ljava/lang/String;
+0005ac 6e205f477600             invoke-virtual           v6, v7, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+0005b2 6207e232                 sget-object              v7, Lsofeh/android/MainActivity;->B6 Ljava/lang/String;
+0005b6 1a0a1441                 const-string             v10, "_"
+0005ba 7140813f763a             invoke-static            v6, v7, v10, v3, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0005c0 0c06                     move-result-object       v6
+0005c2 1a070000                 const-string             v7, ""
+0005c6 72303b026107             invoke-interface         v1, v6, v7, Landroid/content/SharedPreferences;->getString(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0005cc 0c01                     move-result-object       v1
+0005ce 6e1028470100             invoke-virtual           v1, Ljava/lang/String;->isEmpty()Z
+0005d4 0a01                     move-result              v1
+0005d6 38012100                 if-eqz                   v1, +021h
+0005da 1a013534                 const-string             v1, "Purchase..."
+0005de 6e20a1051800             invoke-virtual           v8, v1, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+0005e4 38190a00                 if-eqz                   v25, +00ah
+0005e8 1401e600087f             const                    v1, 2131230950
+0005ee 1206                     const/4                  v6, 0
+0005f0 6e56a7061866             invoke-virtual           v8, v1, v6, v6, v6, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+0005f6 2808                     goto                     +8h
+0005f8 1401e500087f             const                    v1, 2131230949
+0005fe 1206                     const/4                  v6, 0
+000600 6e56a7061866             invoke-virtual           v8, v1, v6, v6, v6, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+000606 22014b11                 new-instance             v1, Ljf;
+00060a 705b5d4b01f3             invoke-direct            v1, v0, v3, v15, v11, Ljf;-><init>(Lwa2; Ljava/lang/String; Lhb2; Ljava/lang/String;)V
+000610 6e20b2051800             invoke-virtual           v8, v1, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+000616 2884                     goto                     -7ch
+000618 1206                     const/4                  v6, 0
+00061a 6e20a105c800             invoke-virtual           v8, v12, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+000620 38190900                 if-eqz                   v25, +009h
+000624 1401e900087f             const                    v1, 2131230953
+00062a 6e56a7061866             invoke-virtual           v8, v1, v6, v6, v6, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+000630 2807                     goto                     +7h
+000632 1403e700087f             const                    v3, 2131230951
+000638 6e56a7063866             invoke-virtual           v8, v3, v6, v6, v6, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+00063e 22017414                 new-instance             v1, Lpa2;
+000642 1213                     const/4                  v3, 1
+000644 70536f5c01bf             invoke-direct            v1, v0, v15, v11, v3, Lpa2;-><init>(Lwa2; Lhb2; Ljava/lang/String; B)V
+00064a 6e20b2051800             invoke-virtual           v8, v1, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+000650 290067ff                 goto/16                  -099h
+000654 1401e900087f             const                    v1, 2131230953
+00065a 1403e700087f             const                    v3, 2131230951
+000660 1206                     const/4                  v6, 0
+000662 6e20a105c800             invoke-virtual           v8, v12, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+000668 38190600                 if-eqz                   v25, +006h
+00066c 6e56a7061866             invoke-virtual           v8, v1, v6, v6, v6, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+000672 2804                     goto                     +4h
+000674 6e56a7063866             invoke-virtual           v8, v3, v6, v6, v6, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+00067a 22017414                 new-instance             v1, Lpa2;
+00067e 1223                     const/4                  v3, 2
+000680 70536f5c01bf             invoke-direct            v1, v0, v15, v11, v3, Lpa2;-><init>(Lwa2; Lhb2; Ljava/lang/String; B)V
+000686 6e20b2051800             invoke-virtual           v8, v1, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+00068c 290049ff                 goto/16                  -0b7h
+000690 1a013434                 const-string             v1, "Purchase full version..."
+000694 6e20a1051800             invoke-virtual           v8, v1, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+00069a 38190900                 if-eqz                   v25, +009h
+00069e 1401e600087f             const                    v1, 2131230950
+0006a4 6e56a7061866             invoke-virtual           v8, v1, v6, v6, v6, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+0006aa 2807                     goto                     +7h
+0006ac 1401e500087f             const                    v1, 2131230949
+0006b2 6e56a7061866             invoke-virtual           v8, v1, v6, v6, v6, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(I I I I)V
+0006b8 22011815                 new-instance             v1, Lra2;
+0006bc 1213                     const/4                  v3, 1
+0006be 70407c5e013f             invoke-direct            v1, v0, v15, v3, Lra2;-><init>(Lwa2; Lhb2; B)V
+0006c4 6e20b2051800             invoke-virtual           v8, v1, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+0006ca 29002aff                 goto/16                  -0d6h
+0006ce 6e20c3051900             invoke-virtual           v9, v1, Landroid/view/View;->setVisibility(I)V
+0006d4 08011300                 move-object/from16       v1, v19
+0006d8 6e2036475100             invoke-virtual           v1, v5, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0006de 0a03                     move-result              v3
+0006e0 1a05ff0e                 const-string             v5, "Demo..."
+0006e4 39030800                 if-nez                   v3, +008h
+0006e8 6e203647e100             invoke-virtual           v1, v14, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0006ee 0a03                     move-result              v3
+0006f0 38030500                 if-eqz                   v3, +005h
+0006f4 120b                     const/4                  v11, 0
+0006f6 2900a200                 goto/16                  +0a2h
+0006fa 1a032707                 const-string             v3, ".mp3"
+0006fe 6e201b473100             invoke-virtual           v1, v3, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
+000704 0a03                     move-result              v3
+000706 38034b00                 if-eqz                   v3, +04bh
+00070a 120b                     const/4                  v11, 0
+00070c 6e20c305b900             invoke-virtual           v9, v11, Landroid/view/View;->setVisibility(I)V
+000712 1a01b726                 const-string             v1, "Listen..."
+000716 6e20a1051900             invoke-virtual           v9, v1, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+00071c 5221d833                 iget                     v1, v2, Lsofeh/android/MainActivity;->i6 I
+000720 1403ef00087f             const                    v3, 2131230959
+000726 02051700                 move/from16              v5, v23
+00072a 33512c00                 if-ne                    v1, v5, +02ch
+00072e 5621e033                 iget-byte                v1, v2, Lsofeh/android/MainActivity;->j6 B
+000732 38011a00                 if-eqz                   v1, +01ah
+000736 1402f200087f             const                    v2, 2131230962
+00073c 1213                     const/4                  v3, 1
+00073e 32310a00                 if-eq                    v1, v3, +00ah
+000742 1223                     const/4                  v3, 2
+000744 32310300                 if-eq                    v1, v3, +003h
+000748 2820                     goto                     +20h
+00074a 6e2079062900             invoke-virtual           v9, v2, Landroid/widget/ImageView;->setImageResource(I)V
+000750 281c                     goto                     +1ch
+000752 080a1200                 move-object/from16       v10, v18
+000756 120b                     const/4                  v11, 0
+000758 6e20c305ba00             invoke-virtual           v10, v11, Landroid/view/View;->setVisibility(I)V
+00075e 6e2079062900             invoke-virtual           v9, v2, Landroid/widget/ImageView;->setImageResource(I)V
+000764 2812                     goto                     +12h
+000766 080a1200                 move-object/from16       v10, v18
+00076a 120b                     const/4                  v11, 0
+00076c 5421c833                 iget-object              v1, v2, Lsofeh/android/MainActivity;->g6 Landroid/media/MediaPlayer;
+000770 38010500                 if-eqz                   v1, +005h
+000774 6e20c305ba00             invoke-virtual           v10, v11, Landroid/view/View;->setVisibility(I)V
+00077a 6e2079063900             invoke-virtual           v9, v3, Landroid/widget/ImageView;->setImageResource(I)V
+000780 2804                     goto                     +4h
+000782 6e2079063900             invoke-virtual           v9, v3, Landroid/widget/ImageView;->setImageResource(I)V
+000788 2201a113                 new-instance             v1, Lo31;
+00078c 1252                     const/4                  v2, 5
+00078e 70529c5701f5             invoke-direct            v1, v0, v5, v15, v2, Lo31;-><init>(Landroid/widget/ArrayAdapter; I Ljava/lang/Object; B)V
+000794 6e20b2051900             invoke-virtual           v9, v1, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+00079a 1104                     return-object            v4
+00079c 1a034f07                 const-string             v3, ".zip"
+0007a0 6e201b473100             invoke-virtual           v1, v3, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
+0007a6 0a03                     move-result              v3
+0007a8 38034800                 if-eqz                   v3, +048h
+0007ac 120b                     const/4                  v11, 0
+0007ae 6e20c305b900             invoke-virtual           v9, v11, Landroid/view/View;->setVisibility(I)V
+0007b4 22034210                 new-instance             v3, Ljava/lang/StringBuilder;
+0007b8 701052470300             invoke-direct            v3, Ljava/lang/StringBuilder;-><init>()V
+0007be 5422be33                 iget-object              v2, v2, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;
+0007c2 08061100                 move-object/from16       v6, v17
+0007c6 7140813f2316             invoke-static            v3, v2, v6, v1, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0007cc 0c01                     move-result-object       v1
+0007ce 711023080100             invoke-static            v1, Lbp3;->f(Ljava/lang/String;)Z
+0007d4 0a02                     move-result              v2
+0007d6 38021f00                 if-eqz                   v2, +01fh
+0007da 711028080100             invoke-static            v1, Lbp3;->k(Ljava/lang/String;)J
+0007e0 0b02                     move-result-wide         v2
+0007e2 16060000                 const-wide/16            v6, 0
+0007e6 31020206                 cmp-long                 v2, v2, v6
+0007ea 3d021500                 if-lez                   v2, +015h
+0007ee 6e20a105d900             invoke-virtual           v9, v13, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+0007f4 1402ed00087f             const                    v2, 2131230957
+0007fa 6e2079062900             invoke-virtual           v9, v2, Landroid/widget/ImageView;->setImageResource(I)V
+000800 2202bb13                 new-instance             v2, Loa2;
+000804 120b                     const/4                  v11, 0
+000806 7040105802b1             invoke-direct            v2, v0, v1, v11, Loa2;-><init>(Lwa2; Ljava/lang/String; B)V
+00080c 6e20b2052900             invoke-virtual           v9, v2, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+000812 1104                     return-object            v4
+000814 120b                     const/4                  v11, 0
+000816 6e20a1055900             invoke-virtual           v9, v5, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+00081c 1402e800087f             const                    v2, 2131230952
+000822 6e2079062900             invoke-virtual           v9, v2, Landroid/widget/ImageView;->setImageResource(I)V
+000828 22027414                 new-instance             v2, Lpa2;
+00082c 705b6f5c021f             invoke-direct            v2, v0, v15, v1, v11, Lpa2;-><init>(Lwa2; Lhb2; Ljava/lang/String; B)V
+000832 6e20b2052900             invoke-virtual           v9, v2, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+000838 1104                     return-object            v4
+00083a 6e20c305b900             invoke-virtual           v9, v11, Landroid/view/View;->setVisibility(I)V
+000840 6e20a1055900             invoke-virtual           v9, v5, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+000846 1401f500087f             const                    v1, 2131230965
+00084c 6e2079061900             invoke-virtual           v9, v1, Landroid/widget/ImageView;->setImageResource(I)V
+000852 22011815                 new-instance             v1, Lra2;
+000856 1223                     const/4                  v3, 2
+000858 70407c5e013f             invoke-direct            v1, v0, v15, v3, Lra2;-><init>(Lwa2; Lhb2; B)V
+00085e 6e20b2051900             invoke-virtual           v9, v1, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+000864 1104                     return-object            v4

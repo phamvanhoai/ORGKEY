@@ -1,0 +1,61 @@
+# classes.dex SHA-256: 568dea4a5d014991a1f7d4da5d5f0c0feff3c438ad5e541ee20f1fd1ecceb459
+# Lyd1;->g(Ljava/lang/Object;)V
+# Addresses in bytes; branch deltas in code units.
+000000 1f083a0f                 check-cast               v8, Lc23;
+000004 54875b4f                 iget-object              v7, v8, Lc23;->b Lsofeh/android/MainActivity;
+000008 54805c4f                 iget-object              v0, v8, Lc23;->c Lb60;
+00000c 5401f94d                 iget-object              v1, v0, Lb60;->b Ljava/lang/Object;
+000010 1f012925                 check-cast               v1, Ljava/util/ArrayList;
+000014 6e1032cc0100             invoke-virtual           v1, Ljava/util/ArrayList;->clear()V
+00001a 5402fa4d                 iget-object              v2, v0, Lb60;->c Ljava/lang/Object;
+00001e 1f022925                 check-cast               v2, Ljava/util/ArrayList;
+000022 6e1032cc0200             invoke-virtual           v2, Ljava/util/ArrayList;->clear()V
+000028 22039a09                 new-instance             v3, Landroid/media/SoundPool;
+00002c 1234                     const/4                  v4, 3
+00002e 1205                     const/4                  v5, 0
+000030 13060900                 const/16                 v6, 9
+000034 704005296354             invoke-direct            v3, v6, v4, v5, Landroid/media/SoundPool;-><init>(I I I)V
+00003a 2802                     goto                     +2h
+00003c 1203                     const/4                  v3, 0
+00003e 39032300                 if-nez                   v3, +023h
+000042 22046109                 new-instance             v4, Landroid/media/AudioAttributes$Builder;
+000046 701015280400             invoke-direct            v4, Landroid/media/AudioAttributes$Builder;-><init>()V
+00004c 13050e00                 const/16                 v5, 14
+000050 6e201b285400             invoke-virtual           v4, v5, Landroid/media/AudioAttributes$Builder;->setUsage(I)Landroid/media/AudioAttributes$Builder;
+000056 0c04                     move-result-object       v4
+000058 1245                     const/4                  v5, 4
+00005a 6e2018285400             invoke-virtual           v4, v5, Landroid/media/AudioAttributes$Builder;->setContentType(I)Landroid/media/AudioAttributes$Builder;
+000060 0c04                     move-result-object       v4
+000062 6e1016280400             invoke-virtual           v4, Landroid/media/AudioAttributes$Builder;->build()Landroid/media/AudioAttributes;
+000068 0c04                     move-result-object       v4
+00006a 22059809                 new-instance             v5, Landroid/media/SoundPool$Builder;
+00006e 701002290500             invoke-direct            v5, Landroid/media/SoundPool$Builder;-><init>()V
+000074 6e2004294500             invoke-virtual           v5, v4, Landroid/media/SoundPool$Builder;->setAudioAttributes(Landroid/media/AudioAttributes;)Landroid/media/SoundPool$Builder;
+00007a 0c04                     move-result-object       v4
+00007c 6e1003290400             invoke-virtual           v4, Landroid/media/SoundPool$Builder;->build()Landroid/media/SoundPool;
+000082 0c03                     move-result-object       v3
+000084 5b03f84d                 iput-object              v3, v0, Lb60;->a Ljava/lang/Object;
+000088 2204a70e                 new-instance             v4, Lb23;
+00008c 70209a4a8400             invoke-direct            v4, v8, Lb23;-><init>(Lc23;)V
+000092 6e2007294300             invoke-virtual           v3, v4, Landroid/media/SoundPool;->setOnLoadCompleteListener(Landroid/media/SoundPool$OnLoadCompleteListener;)V
+000098 5408f84d                 iget-object              v8, v0, Lb60;->a Ljava/lang/Object;
+00009c 1f089a09                 check-cast               v8, Landroid/media/SoundPool;
+0000a0 14030e00117f             const                    v3, 2131820558
+0000a6 1214                     const/4                  v4, 1
+0000a8 6e4006297843             invoke-virtual           v8, v7, v3, v4, Landroid/media/SoundPool;->load(Landroid/content/Context; I I)I
+0000ae 0a08                     move-result              v8
+0000b0 71102ec90800             invoke-static            v8, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+0000b6 0c08                     move-result-object       v8
+0000b8 6e202fcc8100             invoke-virtual           v1, v8, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+0000be 1a080000                 const-string             v8, ""
+0000c2 6e202fcc8200             invoke-virtual           v2, v8, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+0000c8 5400f84d                 iget-object              v0, v0, Lb60;->a Ljava/lang/Object;
+0000cc 1f009a09                 check-cast               v0, Landroid/media/SoundPool;
+0000d0 14030f00117f             const                    v3, 2131820559
+0000d6 6e4006297043             invoke-virtual           v0, v7, v3, v4, Landroid/media/SoundPool;->load(Landroid/content/Context; I I)I
+0000dc 0a07                     move-result              v7
+0000de 71102ec90700             invoke-static            v7, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+0000e4 0c07                     move-result-object       v7
+0000e6 6e202fcc7100             invoke-virtual           v1, v7, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+0000ec 6e202fcc8200             invoke-virtual           v2, v8, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+0000f2 0e00                     return-void              

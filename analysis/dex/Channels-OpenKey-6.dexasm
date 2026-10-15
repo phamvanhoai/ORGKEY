@@ -1,0 +1,143 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/music/Channels;->OpenKey(I I I Z I I I I I I I I I I I Z I I)V
+# registers=48 incoming_words=19
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  08001d00                 move-object/from16       v0, v29
+000004  02062300                 move/from16              v6, v35
+000008  5401ea34                 iget-object              v1, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+00000c  5411b435                 iget-object              v1, v1, Lsofeh/music/Music;->fInstruments Lsofeh/music/Instruments;
+000010  6e207d616100             invoke-virtual           v1, v6, Lsofeh/music/Instruments;->Get(I)Lsofeh/music/Instrument;
+000016  0c01                     move-result-object       v1
+000018  56112d35                 iget-byte                v1, v1, Lsofeh/music/Instrument;->fModeCount B
+00001c  39013500                 if-nez                   v1, +035h
+000020  1315ffff                 const/16                 v21, -1
+000024  13160000                 const/16                 v22, 0
+000028  1201                     const/4                  v1, 0
+00002a  1310ffff                 const/16                 v16, -1
+00002e  1311ffff                 const/16                 v17, -1
+000032  1312ffff                 const/16                 v18, -1
+000036  1313ffff                 const/16                 v19, -1
+00003a  1314ffff                 const/16                 v20, -1
+00003e  02021e00                 move/from16              v2, v30
+000042  02031f00                 move/from16              v3, v31
+000046  02042000                 move/from16              v4, v32
+00004a  02052200                 move/from16              v5, v34
+00004e  02072400                 move/from16              v7, v36
+000052  02082500                 move/from16              v8, v37
+000056  02092600                 move/from16              v9, v38
+00005a  020a2700                 move/from16              v10, v39
+00005e  020b2800                 move/from16              v11, v40
+000062  020c2900                 move/from16              v12, v41
+000066  020d2a00                 move/from16              v13, v42
+00006a  020e2b00                 move/from16              v14, v43
+00006e  020f2c00                 move/from16              v15, v44
+000072  02172d00                 move/from16              v23, v45
+000076  02182e00                 move/from16              v24, v46
+00007a  02192f00                 move/from16              v25, v47
+00007e  741a32610000             invoke-virtual/range     v0 ... v25, Lsofeh/music/Channels;->OpenKey(I I I I I I I I I I I I I I I I I I I I I I Z I I)V
+000084  0e00                     return-void              
+000086  5201e934                 iget                     v1, v0, Lsofeh/music/Channels;->fMode I
+00008a  1202                     const/4                  v2, 0
+00008c  3b010500                 if-gez                   v1, +005h
+000090  6e3030616002             invoke-virtual           v0, v6, v2, Lsofeh/music/Channels;->ModeSet(I I)V
+000096  5401ea34                 iget-object              v1, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+00009a  5411b435                 iget-object              v1, v1, Lsofeh/music/Music;->fInstruments Lsofeh/music/Instruments;
+00009e  6e207d616100             invoke-virtual           v1, v6, Lsofeh/music/Instruments;->Get(I)Lsofeh/music/Instrument;
+0000a4  0c01                     move-result-object       v1
+0000a6  54132e35                 iget-object              v3, v1, Lsofeh/music/Instrument;->fModeList [Lsofeh/music/InstMode;
+0000aa  5204e934                 iget                     v4, v0, Lsofeh/music/Channels;->fMode I
+0000ae  46030304                 aget-object              v3, v3, v4
+0000b2  52341735                 iget                     v4, v3, Lsofeh/music/InstMode;->Sound I
+0000b6  38210700                 if-eqz                   v33, +007h
+0000ba  52350a35                 iget                     v5, v3, Lsofeh/music/InstMode;->Aftertouch I
+0000be  3a050300                 if-ltz                   v5, +003h
+0000c2  0154                     move                     v4, v5
+0000c4  3a043b00                 if-ltz                   v4, +03bh
+0000c8  1315ffff                 const/16                 v21, -1
+0000cc  13160000                 const/16                 v22, 0
+0000d0  1310ffff                 const/16                 v16, -1
+0000d4  1311ffff                 const/16                 v17, -1
+0000d8  1312ffff                 const/16                 v18, -1
+0000dc  1313ffff                 const/16                 v19, -1
+0000e0  1314ffff                 const/16                 v20, -1
+0000e4  02052200                 move/from16              v5, v34
+0000e8  02072400                 move/from16              v7, v36
+0000ec  02082500                 move/from16              v8, v37
+0000f0  02092600                 move/from16              v9, v38
+0000f4  020a2700                 move/from16              v10, v39
+0000f8  020b2800                 move/from16              v11, v40
+0000fc  020c2900                 move/from16              v12, v41
+000100  020d2a00                 move/from16              v13, v42
+000104  020e2b00                 move/from16              v14, v43
+000108  020f2c00                 move/from16              v15, v44
+00010c  02172d00                 move/from16              v23, v45
+000110  02182e00                 move/from16              v24, v46
+000114  02192f00                 move/from16              v25, v47
+000118  081b0100                 move-object/from16       v27, v1
+00011c  021a0200                 move/from16              v26, v2
+000120  081c0300                 move-object/from16       v28, v3
+000124  0141                     move                     v1, v4
+000126  02021e00                 move/from16              v2, v30
+00012a  02031f00                 move/from16              v3, v31
+00012e  02042000                 move/from16              v4, v32
+000132  741a32610000             invoke-virtual/range     v0 ... v25, Lsofeh/music/Channels;->OpenKey(I I I I I I I I I I I I I I I I I I I I I I Z I I)V
+000138  2807                     goto                     +7h
+00013a  081b0100                 move-object/from16       v27, v1
+00013e  021a0200                 move/from16              v26, v2
+000142  081c0300                 move-object/from16       v28, v3
+000146  02001a00                 move/from16              v0, v26
+00014a  08011c00                 move-object/from16       v1, v28
+00014e  54120d35                 iget-object              v2, v1, Lsofeh/music/InstMode;->Mix [B
+000152  2123                     array-length             v3, v2
+000154  35306300                 if-ge                    v0, v3, +063h
+000158  48020200                 aget-byte                v2, v2, v0
+00015c  3a025800                 if-ltz                   v2, +058h
+000160  08031b00                 move-object/from16       v3, v27
+000164  56343235                 iget-byte                v4, v3, Lsofeh/music/Instrument;->fSndCount B
+000168  35424b00                 if-ge                    v2, v4, +04bh
+00016c  54140f35                 iget-object              v4, v1, Lsofeh/music/InstMode;->MixVol [B
+000170  48040400                 aget-byte                v4, v4, v0
+000174  d8040464                 add-int/lit8             v4, v4, 100
+000178  92040425                 mul-int                  v4, v4, v37
+00017c  db080464                 div-int/lit8             v8, v4, 100
+000180  54140e35                 iget-object              v4, v1, Lsofeh/music/InstMode;->MixPan [B
+000184  48040400                 aget-byte                v4, v4, v0
+000188  90092604                 add-int                  v9, v38, v4
+00018c  13160000                 const/16                 v22, 0
+000190  13190000                 const/16                 v25, 0
+000194  1310ffff                 const/16                 v16, -1
+000198  1311ffff                 const/16                 v17, -1
+00019c  1312ffff                 const/16                 v18, -1
+0001a0  1313ffff                 const/16                 v19, -1
+0001a4  1314ffff                 const/16                 v20, -1
+0001a8  1315ffff                 const/16                 v21, -1
+0001ac  02042000                 move/from16              v4, v32
+0001b0  02052200                 move/from16              v5, v34
+0001b4  02062300                 move/from16              v6, v35
+0001b8  02072400                 move/from16              v7, v36
+0001bc  020a2700                 move/from16              v10, v39
+0001c0  020b2800                 move/from16              v11, v40
+0001c4  020c2900                 move/from16              v12, v41
+0001c8  020d2a00                 move/from16              v13, v42
+0001cc  020e2b00                 move/from16              v14, v43
+0001d0  020f2c00                 move/from16              v15, v44
+0001d4  02172d00                 move/from16              v23, v45
+0001d8  02182e00                 move/from16              v24, v46
+0001dc  021a0000                 move/from16              v26, v0
+0001e0  081c0100                 move-object/from16       v28, v1
+0001e4  0121                     move                     v1, v2
+0001e6  081b0300                 move-object/from16       v27, v3
+0001ea  08001d00                 move-object/from16       v0, v29
+0001ee  02021e00                 move/from16              v2, v30
+0001f2  02031f00                 move/from16              v3, v31
+0001f6  741a32610000             invoke-virtual/range     v0 ... v25, Lsofeh/music/Channels;->OpenKey(I I I I I I I I I I I I I I I I I I I I I I Z I I)V
+0001fc  280c                     goto                     +ch
+0001fe  021a0000                 move/from16              v26, v0
+000202  081c0100                 move-object/from16       v28, v1
+000206  081b0300                 move-object/from16       v27, v3
+00020a  2805                     goto                     +5h
+00020c  021a0000                 move/from16              v26, v0
+000210  081c0100                 move-object/from16       v28, v1
+000214  d8001a01                 add-int/lit8             v0, v26, 1
+000218  2899                     goto                     -67h
+00021a  0e00                     return-void              

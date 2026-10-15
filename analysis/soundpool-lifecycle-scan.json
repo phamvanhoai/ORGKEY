@@ -1,0 +1,179 @@
+﻿[
+  {
+    "dex": "classes.dex",
+    "method": "Lyd1;->g(Ljava/lang/Object;)V",
+    "hits": [
+      {
+        "address": "0x34",
+        "opcode": "invoke-direct",
+        "operands": "v3, v6, v4, v5, Landroid/media/SoundPool;-><init>(I I I)V"
+      },
+      {
+        "address": "0x7c",
+        "opcode": "invoke-virtual",
+        "operands": "v4, Landroid/media/SoundPool$Builder;->build()Landroid/media/SoundPool;"
+      },
+      {
+        "address": "0x92",
+        "opcode": "invoke-virtual",
+        "operands": "v3, v4, Landroid/media/SoundPool;->setOnLoadCompleteListener(Landroid/media/SoundPool$OnLoadCompleteListener;)V"
+      }
+    ],
+    "file": "method-001.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lr03;->g(Ljava/lang/Object;)V",
+    "hits": [
+      {
+        "address": "0x3a",
+        "opcode": "invoke-virtual",
+        "operands": "v4, v6, v5, Landroid/media/SoundPool;->load(Ljava/lang/String; I)I"
+      },
+      {
+        "address": "0x6c",
+        "opcode": "invoke-virtual",
+        "operands": "v4, v3, Landroid/media/SoundPool;->unload(I)Z"
+      },
+      {
+        "address": "0x7a",
+        "opcode": "invoke-virtual",
+        "operands": "v7, v6, v5, Landroid/media/SoundPool;->load(Ljava/lang/String; I)I"
+      }
+    ],
+    "file": "method-002.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lsofeh/android/MainActivity;->G1(Ljava/lang/String; Z)Z",
+    "hits": [
+      {
+        "address": "0x126",
+        "opcode": "invoke-virtual",
+        "operands": "v7, Lsofeh/android/MainActivity;->Q0()V"
+      }
+    ],
+    "file": "method-003.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lsofeh/android/MainActivity;->Q0()V",
+    "hits": [
+      {
+        "address": "0x12",
+        "opcode": "iget-object",
+        "operands": "v8, v8, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;"
+      },
+      {
+        "address": "0xca",
+        "opcode": "iget-object",
+        "operands": "v8, v8, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;"
+      }
+    ],
+    "file": "method-004.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lsofeh/android/MainActivity;->V(Ljava/lang/String; Z)V",
+    "hits": [
+      {
+        "address": "0xa8",
+        "opcode": "iget-object",
+        "operands": "v5, v1, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;"
+      }
+    ],
+    "file": "method-005.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lsofeh/android/MainActivity;->onCreate(Landroid/os/Bundle;)V",
+    "hits": [
+      {
+        "address": "0x3d0",
+        "opcode": "iput-object",
+        "operands": "v0, v1, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;"
+      },
+      {
+        "address": "0x4dc",
+        "opcode": "iget-object",
+        "operands": "v9, v1, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;"
+      }
+    ],
+    "file": "method-006.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lsofeh/android/MainActivity;->v0(I I Lvs3; F F I)V",
+    "hits": [
+      {
+        "address": "0x2898",
+        "opcode": "invoke-virtual",
+        "operands": "v9, Lsofeh/android/MainActivity;->Q0()V"
+      },
+      {
+        "address": "0x2cfa",
+        "opcode": "invoke-virtual",
+        "operands": "v4, Lsofeh/android/MainActivity;->Q0()V"
+      }
+    ],
+    "file": "method-007.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lsofeh/android/MainActivity;->v1(F I I)V",
+    "hits": [
+      {
+        "address": "0x194",
+        "opcode": "invoke-virtual",
+        "operands": "v0, Lsofeh/android/MainActivity;->Q0()V"
+      },
+      {
+        "address": "0x684",
+        "opcode": "invoke-virtual",
+        "operands": "v0, Lsofeh/android/MainActivity;->Q0()V"
+      }
+    ],
+    "file": "method-008.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lsofeh/android/MainActivity;->z1(I)V",
+    "hits": [
+      {
+        "address": "0x106",
+        "opcode": "invoke-virtual",
+        "operands": "v8, Lsofeh/android/MainActivity;->Q0()V"
+      }
+    ],
+    "file": "method-009.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lwa2;->getView(I Landroid/view/View; Landroid/view/ViewGroup;)Landroid/view/View;",
+    "hits": [
+      {
+        "address": "0xe8",
+        "opcode": "iget-object",
+        "operands": "v11, v2, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;"
+      },
+      {
+        "address": "0x7be",
+        "opcode": "iget-object",
+        "operands": "v2, v2, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;"
+      }
+    ],
+    "file": "method-010.dexasm"
+  },
+  {
+    "dex": "classes3.dex",
+    "method": "Lx13;->g()V",
+    "hits": [
+      {
+        "address": "0x5e",
+        "opcode": "invoke-virtual",
+        "operands": "v2, Landroid/media/SoundPool;->release()V"
+      }
+    ],
+    "file": "method-011.dexasm"
+  }
+]

@@ -1,0 +1,955 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionCode="274"
+    android:versionName="2026.10.01"
+    android:installLocation="auto"
+    android:compileSdkVersion="37"
+    android:compileSdkVersionCodename="17"
+    package="com.sofeh.android.musicstudio3"
+    platformBuildVersionCode="37"
+    platformBuildVersionName="17">
+    <uses-sdk
+        android:minSdkVersion="24"
+        android:targetSdkVersion="36"/>
+    <uses-feature
+        android:name="android.hardware.audio.low_latency"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.usb.UsbAccessory"
+        android:required="false"/>
+    <uses-permission android:name="android.permission.USB_PERMISSION"/>
+    <uses-feature
+        android:name="android.hardware.bluetooth"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false"/>
+    <uses-permission
+        android:name="android.permission.RECORD_AUDIO"
+        android:required="false"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-feature
+        android:name="android.hardware.faketouch"
+        android:required="false"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <uses-permission
+        android:name="android.permission.VIBRATE"
+        android:required="false"/>
+    <uses-permission android:name="com.android.vending.BILLING"/>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.INSERT"/>
+            <data android:mimeType="vnd.android.cursor.dir/event"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="sms"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+            <data android:path="tel:"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <package android:name="com.android.vending"/>
+        <intent>
+            <action android:name="com.android.vending.billing.InAppBillingService.BIND"/>
+        </intent>
+        <intent>
+            <action android:name="com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND"/>
+        </intent>
+        <package android:name="com.facebook.katana"/>
+        <intent>
+            <action android:name="androidx.browser.customtabs.CustomTabsService"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="http"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="market"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent>
+        <package android:name="com.topjohnwu.magisk"/>
+        <package android:name="eu.chainfire.supersu"/>
+        <package android:name="com.noshufou.android.su"/>
+        <package android:name="com.koushikdutta.superuser"/>
+        <package android:name="com.thirdparty.superuser"/>
+        <intent>
+            <action android:name="com.digitalturbine.ignite.cl.IgniteRemoteService"/>
+        </intent>
+    </queries>
+    <uses-permission android:name="android.permission.READ_BASIC_PHONE_STATE"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION"/>
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID"/>
+    <uses-permission android:name="com.android.vending.CHECK_LICENSE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="com.amazon.privacypass.ATTEST"/>
+    <permission
+        android:name="com.sofeh.android.musicstudio3.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.sofeh.android.musicstudio3.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+    <application
+        android:theme="@style/AppTheme"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:name="sofeh.android.MainApplication"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
+        android:extractNativeLibs="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:resizeableActivity="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:requestLegacyExternalStorage="true"
+        android:dataExtractionRules="@xml/data_extraction_rules">
+        <meta-data
+            android:name="com.google.android.play.billingclient.version"
+            android:value="9.1.0"/>
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false"/>
+        <activity
+            android:theme="@style/SplashTheme"
+            android:icon="@mipmap/ic_launcher"
+            android:name="com.sofeh.android.musicstudio3.SplashActivity"
+            android:exported="true"
+            android:screenOrientation="locked"
+            android:configChanges="density|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="file"/>
+                <data android:scheme="content"/>
+                <data android:mimeType="application/*"/>
+                <data android:host="*"/>
+                <data android:pathPattern=".*\\.Set"/>
+                <data android:pathPattern=".*\\..*\\.Set"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Set"/>
+                <data android:pathPattern=".*\\.set"/>
+                <data android:pathPattern=".*\\..*\\.set"/>
+                <data android:pathPattern=".*\\..*\\..*\\.set"/>
+                <data android:pathPattern=".*\\.SET"/>
+                <data android:pathPattern=".*\\..*\\.SET"/>
+                <data android:pathPattern=".*\\..*\\..*\\.SET"/>
+                <data android:pathPattern=".*\\.Music"/>
+                <data android:pathPattern=".*\\..*\\.Music"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Music"/>
+                <data android:pathPattern=".*\\.music"/>
+                <data android:pathPattern=".*\\..*\\.music"/>
+                <data android:pathPattern=".*\\..*\\..*\\.music"/>
+                <data android:pathPattern=".*\\.MUSIC"/>
+                <data android:pathPattern=".*\\..*\\.MUSIC"/>
+                <data android:pathPattern=".*\\..*\\..*\\.MUSIC"/>
+                <data android:pathPattern=".*\\.Template"/>
+                <data android:pathPattern=".*\\..*\\.Template"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Template"/>
+                <data android:pathPattern=".*\\.template"/>
+                <data android:pathPattern=".*\\..*\\.template"/>
+                <data android:pathPattern=".*\\..*\\..*\\.template"/>
+                <data android:pathPattern=".*\\.TEMPLATE"/>
+                <data android:pathPattern=".*\\..*\\.TEMPLATE"/>
+                <data android:pathPattern=".*\\..*\\..*\\.TEMPLATE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="file"/>
+                <data android:host="*"/>
+                <data android:pathPattern=".*\\.Set"/>
+                <data android:pathPattern=".*\\..*\\.Set"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Set"/>
+                <data android:pathPattern=".*\\.set"/>
+                <data android:pathPattern=".*\\..*\\.set"/>
+                <data android:pathPattern=".*\\..*\\..*\\.set"/>
+                <data android:pathPattern=".*\\.SET"/>
+                <data android:pathPattern=".*\\..*\\.SET"/>
+                <data android:pathPattern=".*\\..*\\..*\\.SET"/>
+                <data android:pathPattern=".*\\.Music"/>
+                <data android:pathPattern=".*\\..*\\.Music"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Music"/>
+                <data android:pathPattern=".*\\.music"/>
+                <data android:pathPattern=".*\\..*\\.music"/>
+                <data android:pathPattern=".*\\..*\\..*\\.music"/>
+                <data android:pathPattern=".*\\.MUSIC"/>
+                <data android:pathPattern=".*\\..*\\.MUSIC"/>
+                <data android:pathPattern=".*\\..*\\..*\\.MUSIC"/>
+                <data android:pathPattern=".*\\.Template"/>
+                <data android:pathPattern=".*\\..*\\.Template"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Template"/>
+                <data android:pathPattern=".*\\.template"/>
+                <data android:pathPattern=".*\\..*\\.template"/>
+                <data android:pathPattern=".*\\..*\\..*\\.template"/>
+                <data android:pathPattern=".*\\.TEMPLATE"/>
+                <data android:pathPattern=".*\\..*\\.TEMPLATE"/>
+                <data android:pathPattern=".*\\..*\\..*\\.TEMPLATE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="file"/>
+                <data android:scheme="content"/>
+                <data android:mimeType="*/*"/>
+                <data android:host="*"/>
+                <data android:pathPattern=".*\\.Set"/>
+                <data android:pathPattern=".*\\..*\\.Set"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Set"/>
+                <data android:pathPattern=".*\\.set"/>
+                <data android:pathPattern=".*\\..*\\.set"/>
+                <data android:pathPattern=".*\\..*\\..*\\.set"/>
+                <data android:pathPattern=".*\\.SET"/>
+                <data android:pathPattern=".*\\..*\\.SET"/>
+                <data android:pathPattern=".*\\..*\\..*\\.SET"/>
+                <data android:pathPattern=".*\\.Music"/>
+                <data android:pathPattern=".*\\..*\\.Music"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Music"/>
+                <data android:pathPattern=".*\\.music"/>
+                <data android:pathPattern=".*\\..*\\.music"/>
+                <data android:pathPattern=".*\\..*\\..*\\.music"/>
+                <data android:pathPattern=".*\\.MUSIC"/>
+                <data android:pathPattern=".*\\..*\\.MUSIC"/>
+                <data android:pathPattern=".*\\..*\\..*\\.MUSIC"/>
+                <data android:pathPattern=".*\\.Template"/>
+                <data android:pathPattern=".*\\..*\\.Template"/>
+                <data android:pathPattern=".*\\..*\\..*\\.Template"/>
+                <data android:pathPattern=".*\\.template"/>
+                <data android:pathPattern=".*\\..*\\.template"/>
+                <data android:pathPattern=".*\\..*\\..*\\.template"/>
+                <data android:pathPattern=".*\\.TEMPLATE"/>
+                <data android:pathPattern=".*\\..*\\.TEMPLATE"/>
+                <data android:pathPattern=".*\\..*\\..*\\.TEMPLATE"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:theme="@style/SettingTheme"
+            android:label="ORG - Safe Mode"
+            android:icon="@mipmap/ic_launcher_safe"
+            android:name="com.sofeh.android.musicstudio3.SafeActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:taskAffinity="com.sofeh.android.musicstudio3.SafeActivity"
+            android:screenOrientation="locked"
+            android:configChanges="density|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.sofeh.android.musicstudio3.MainActivity"
+            android:launchMode="singleTask"
+            android:configChanges="density|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard"
+            android:largeHeap="true"
+            android:enableOnBackInvokedCallback="false"/>
+        <activity
+            android:theme="@style/SettingTheme"
+            android:name="sofeh.android.setting.SettingActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="behind"
+            android:configChanges="smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard"/>
+        <activity
+            android:theme="@style/TransparentTheme"
+            android:name="sofeh.android.TempActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:configChanges="smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard"
+            android:noHistory="true"/>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:authorities="com.sofeh.android.musicstudio3.fileprovider"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/fileprovider"/>
+        </provider>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6201798499291567~8769764746"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+            android:value="true"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+            android:value="true"/>
+        <uses-library
+            android:name="androidx.window.extensions"
+            android:required="false"/>
+        <uses-library
+            android:name="androidx.window.sidecar"
+            android:required="false"/>
+        <activity
+            android:name="com.appbrain.AppBrainActivity"
+            android:configChanges="smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard"/>
+        <provider
+            android:name="com.appbrain.AppBrainInitProvider"
+            android:exported="false"
+            android:authorities="com.sofeh.android.musicstudio3.AppBrainInitProvider"/>
+        <service android:name="com.appbrain.AppBrainService"/>
+        <service
+            android:name="com.appbrain.AppBrainJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="@bool/appbrain_job_service_enabled"/>
+        <activity
+            android:theme="@style/Theme.GoogleMobileAds"
+            android:name="com.google.android.libraries.ads.mobile.sdk.common.AdActivity"
+            android:exported="false"
+            android:configChanges="smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard"/>
+        <service
+            android:name="com.google.firebase.components.ComponentDiscoveryService"
+            android:exported="false"
+            android:directBootAware="true">
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.inappmessaging.display.FirebaseInAppMessagingDisplayKtxRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.inappmessaging.display.FirebaseInAppMessagingDisplayRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.inappmessaging.FirebaseInAppMessagingKtxRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.inappmessaging.FirebaseInAppMessagingRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.abt.component.AbtRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+        </service>
+        <activity
+            android:theme="@style/Theme.HsdpServiceTransparent"
+            android:name="com.google.android.play.core.hsdp.service.HsdpShimActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop"
+            android:configChanges="screenSize|screenLayout|orientation|keyboardHidden"/>
+        <meta-data
+            android:name="com.bytedance.sdk.pangle.version"
+            android:value="8.3.0.3"/>
+        <activity
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTCeilingLandingPageActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_landing_page"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.IABLandingPageActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_landing_page"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTLandingPageActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_landing_page"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTPlayableLandingPageActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_landing_page"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTVideoLandingPageLink2Activity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_landing_page"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTHistoryLandingPageActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_landing_page"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTHistoryActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTDelegateActivity"
+            android:multiprocess="true"
+            android:launchMode="standard">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_privacy_landing_page"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTWebsiteActivity"
+            android:multiprocess="true"
+            android:launchMode="standard">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_app_open_ad_no_animation"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTAppOpenAdActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_app_open_ad_no_animation_trans"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTAppOpenAdTransActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_full_screen_new"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTRewardVideoActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_full_screen_new"
+            android:name="com.bytedance.sdk.openadsdk.activity.TTRewardWebActivity"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_full_screen_new"
+            android:name="com.bytedance.sdk.openadsdk.activity.TTFullWebActivity"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_full_screen_new"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTRewardExpressVideoActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_full_screen_new"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTFullScreenVideoActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_full_screen_new"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTFullScreenExpressVideoActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/tt_full_screen_new"
+            android:name="com.bytedance.sdk.openadsdk.activity.single.TTAdActivity"
+            android:multiprocess="true"
+            android:launchMode="standard"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.android.billingclient.api.ProxyBillingActivity"
+            android:exported="false"
+            android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard"/>
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.android.billingclient.api.ProxyBillingActivityV2"
+            android:exported="false"
+            android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard"/>
+        <receiver
+            android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+            </intent-filter>
+            <meta-data
+                android:name="com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED"
+                android:value="true"/>
+        </receiver>
+        <service
+            android:name="com.google.firebase.messaging.FirebaseMessagingService"
+            android:exported="false"
+            android:directBootAware="true">
+            <intent-filter android:priority="-500">
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.facebook.ads.AudienceNetworkActivity"
+            android:exported="false"
+            android:configChanges="smallestScreenSize|screenSize|screenLayout|orientation|keyboardHidden"/>
+        <provider
+            android:name="com.facebook.ads.AudienceNetworkContentProvider"
+            android:exported="false"
+            android:authorities="com.sofeh.android.musicstudio3.AudienceNetworkContentProvider"/>
+        <receiver
+            android:name="com.google.android.gms.measurement.AppMeasurementReceiver"
+            android:enabled="true"
+            android:exported="false"/>
+        <service
+            android:name="com.google.android.gms.measurement.AppMeasurementService"
+            android:enabled="true"
+            android:exported="false"/>
+        <service
+            android:name="com.google.android.gms.measurement.AppMeasurementJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="true"
+            android:exported="false"/>
+        <activity
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:name="com.inmobi.ads.rendering.InMobiAdActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"
+            android:hardwareAccelerated="true"/>
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.inmobi.ads.rendering.InMobiInAppBrowserActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"
+            android:hardwareAccelerated="true"/>
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:exported="false"
+            android:authorities="com.sofeh.android.musicstudio3.firebaseinitprovider"
+            android:initOrder="100"
+            android:directBootAware="true"/>
+        <provider
+            android:name="com.applovin.sdk.AppLovinInitProvider"
+            android:exported="false"
+            android:authorities="com.sofeh.android.musicstudio3.applovininitprovider"
+            android:initOrder="101"/>
+        <activity
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:name="com.applovin.adview.AppLovinFullscreenActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="behind"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"
+            android:hardwareAccelerated="true"/>
+        <activity
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:name="com.applovin.adview.AppLovinFullscreenImmersiveActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"
+            android:hardwareAccelerated="true"/>
+        <activity
+            android:name="com.applovin.sdk.AppLovinWebViewActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerDetailActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerMultiAdActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerAdUnitsListActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerAdUnitWaterfallsListActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerAdUnitDetailActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerCmpNetworksListActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerTcfConsentStatusesListActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerTcfInfoListActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerTcfStringActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerTestLiveNetworkActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerTestModeNetworkActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerUnifiedFlowActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerWaterfallSegmentsActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.mediation.MaxDebuggerActivity.Theme"
+            android:name="com.applovin.mediation.MaxDebuggerAxonEventsListActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.creative.CreativeDebuggerActivity.Theme"
+            android:name="com.applovin.creative.MaxCreativeDebuggerActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <activity
+            android:theme="@style/com.applovin.creative.CreativeDebuggerActivity.Theme"
+            android:name="com.applovin.creative.MaxCreativeDebuggerDisplayedAdActivity"
+            android:configChanges="fontScale|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden|keyboard|locale"/>
+        <service
+            android:name="com.applovin.impl.adview.activity.FullscreenAdService"
+            android:exported="false"
+            android:stopWithTask="false"/>
+        <service
+            android:name="com.applovin.impl.adview.activity.AppRestartDuringAdDetectionService"
+            android:exported="false"/>
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+            android:exported="false"/>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:exported="false"
+            android:authorities="com.sofeh.android.musicstudio3.androidx-startup">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="okhttp3.internal.platform.PlatformInitializer"
+                android:value="androidx.startup"/>
+        </provider>
+        <service
+            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+            android:enabled="@bool/enable_system_alarm_service_default"
+            android:exported="false"
+            android:directBootAware="false"/>
+        <service
+            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="@bool/enable_system_job_service_default"
+            android:exported="true"
+            android:directBootAware="false"/>
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:enabled="@bool/enable_system_foreground_service_default"
+            android:exported="false"
+            android:directBootAware="false"/>
+        <receiver
+            android:name="androidx.work.impl.utils.ForceStopRunnable.BroadcastReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:directBootAware="false"/>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy.BatteryChargingProxy"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy.BatteryNotLowProxy"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_OKAY"/>
+                <action android:name="android.intent.action.BATTERY_LOW"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy.StorageNotLowProxy"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.DEVICE_STORAGE_LOW"/>
+                <action android:name="android.intent.action.DEVICE_STORAGE_OK"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy.NetworkStateProxy"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+            android:enabled="@bool/enable_system_alarm_service_default"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+            android:permission="android.permission.DUMP"
+            android:enabled="true"
+            android:exported="true"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS"/>
+            </intent-filter>
+        </receiver>
+        <activity
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:name="com.vungle.ads.internal.ui.VungleActivity"
+            android:launchMode="singleTop"
+            android:configChanges="smallestScreenSize|screenSize|uiMode|screenLayout|orientation|keyboardHidden"
+            android:hardwareAccelerated="true"/>
+        <provider
+            android:name="com.vungle.ads.VungleProvider"
+            android:exported="false"
+            android:authorities="com.sofeh.android.musicstudio3.vungle-provider"
+            android:initOrder="102"/>
+        <uses-library
+            android:name="com.amazon.privacypass"
+            android:required="false"/>
+        <uses-library
+            android:name="android.ext.adservices"
+            android:required="false"/>
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:permission="android.permission.DUMP"
+            android:enabled="true"
+            android:exported="true"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION"/>
+            </intent-filter>
+        </receiver>
+        <provider
+            android:name="com.squareup.picasso.PicassoProvider"
+            android:exported="false"
+            android:authorities="com.sofeh.android.musicstudio3.com.squareup.picasso"/>
+        <service
+            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+            android:exported="false">
+            <meta-data
+                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+                android:value="cct"/>
+        </service>
+        <service
+            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false"/>
+        <receiver
+            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+            android:exported="false"/>
+        <service
+            android:name="androidx.room.MultiInstanceInvalidationService"
+            android:exported="false"
+            android:directBootAware="true"/>
+        <activity
+            android:name="com.fyber.inneractive.sdk.activities.InneractiveInternalBrowserActivity"
+            android:screenOrientation="fullUser"
+            android:configChanges="smallestScreenSize|screenSize|screenLayout|orientation|keyboardHidden"
+            android:hardwareAccelerated="true"/>
+        <activity
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:name="com.fyber.inneractive.sdk.activities.InneractiveFullscreenAdActivity"
+            android:configChanges="smallestScreenSize|screenSize|screenLayout|orientation|keyboardHidden"
+            android:hardwareAccelerated="true"/>
+        <activity
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:name="com.fyber.inneractive.sdk.activities.InneractiveRichMediaVideoPlayerActivityCore"
+            android:configChanges="smallestScreenSize|screenSize|screenLayout|orientation|keyboardHidden"
+            android:hardwareAccelerated="true"/>
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.fyber.inneractive.sdk.activities.InternalStoreWebpageActivity"
+            android:excludeFromRecents="true"
+            android:screenOrientation="sensor"
+            android:configChanges="smallestScreenSize|screenSize|screenLayout|orientation|keyboardHidden"/>
+        <activity
+            android:name="com.fyber.inneractive.sdk.activities.FyberReportAdActivity"
+            android:screenOrientation="fullUser"
+            android:configChanges="smallestScreenSize|screenSize|screenLayout|orientation|keyboardHidden"
+            android:hardwareAccelerated="true"/>
+        <activity
+            android:theme="@style/Theme.PlayCore.Transparent"
+            android:name="com.google.android.play.core.common.PlayCoreDialogWrapperActivity"
+            android:exported="false"
+            android:stateNotNeeded="true"/>
+    </application>
+</manifest>

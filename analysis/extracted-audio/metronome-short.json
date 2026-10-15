@@ -1,0 +1,18 @@
+{
+  "source_asset": "assets/empty.Template",
+  "instrument_index": 0,
+  "instrument": "-",
+  "sound_index": 0,
+  "sound": "Primary",
+  "note": 1,
+  "section": "Metronome Short",
+  "sample_rate": 48000,
+  "channels": 1,
+  "samples_per_channel": 12031,
+  "pcm_bytes": 24062,
+  "wave_index": 0,
+  "loop": 0,
+  "loop_start": 0,
+  "loop_end": 12030,
+  "output": "analysis\\extracted-audio\\metronome-short.wav"
+}

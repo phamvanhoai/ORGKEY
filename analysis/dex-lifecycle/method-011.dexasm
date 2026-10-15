@@ -1,0 +1,28 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lx13;->g()V
+# Addresses in bytes; branch deltas in code units.
+000000 5444543b                 iget-object              v4, v4, Lx13;->a Lew;
+000004 6e10ea460400             invoke-virtual           v4, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+00000a 2200c110                 new-instance             v0, Ljava/util/ArrayList;
+00000e 54449623                 iget-object              v4, v4, Lew;->b Ljava/util/ArrayList;
+000012 7020b0484000             invoke-direct            v0, v4, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
+000018 6e10bf480000             invoke-virtual           v0, Ljava/util/ArrayList;->size()I
+00001e 0a04                     move-result              v4
+000020 1201                     const/4                  v1, 0
+000022 35412200                 if-ge                    v1, v4, +022h
+000026 6e20b6481000             invoke-virtual           v0, v1, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+00002c 0c02                     move-result-object       v2
+00002e d8010101                 add-int/lit8             v1, v1, 1
+000032 1f02a102                 check-cast               v2, Lc23;
+000036 54220902                 iget-object              v2, v2, Lc23;->c Lb60;
+00003a 54235c01                 iget-object              v3, v2, Lb60;->b Ljava/lang/Object;
+00003e 1f03c110                 check-cast               v3, Ljava/util/ArrayList;
+000042 6e10b4480300             invoke-virtual           v3, Ljava/util/ArrayList;->clear()V
+000048 54235d01                 iget-object              v3, v2, Lb60;->c Ljava/lang/Object;
+00004c 1f03c110                 check-cast               v3, Ljava/util/ArrayList;
+000050 6e10b4480300             invoke-virtual           v3, Ljava/util/ArrayList;->clear()V
+000056 54225b01                 iget-object              v2, v2, Lb60;->a Ljava/lang/Object;
+00005a 1f021701                 check-cast               v2, Landroid/media/SoundPool;
+00005e 6e1097030200             invoke-virtual           v2, Landroid/media/SoundPool;->release()V
+000064 28df                     goto                     -21h
+000066 0e00                     return-void              

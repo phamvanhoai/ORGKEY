@@ -1,0 +1,40 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lr03;->g(Ljava/lang/Object;)V
+# Addresses in bytes; branch deltas in code units.
+000000 1f07a102                 check-cast               v7, Lc23;
+000004 52607231                 iget                     v0, v6, Lr03;->a I
+000008 54667331                 iget-object              v6, v6, Lr03;->b Ljava/lang/String;
+00000c 54770902                 iget-object              v7, v7, Lc23;->c Lb60;
+000010 d8000002                 add-int/lit8             v0, v0, 2
+000014 54715c01                 iget-object              v1, v7, Lb60;->b Ljava/lang/Object;
+000018 1f01c110                 check-cast               v1, Ljava/util/ArrayList;
+00001c 54725d01                 iget-object              v2, v7, Lb60;->c Ljava/lang/Object;
+000020 1f02c110                 check-cast               v2, Ljava/util/ArrayList;
+000024 6e10bf480100             invoke-virtual           v1, Ljava/util/ArrayList;->size()I
+00002a 0a03                     move-result              v3
+00002c 54745b01                 iget-object              v4, v7, Lb60;->a Ljava/lang/Object;
+000030 1f041701                 check-cast               v4, Landroid/media/SoundPool;
+000034 1215                     const/4                  v5, 1
+000036 34301100                 if-lt                    v0, v3, +011h
+00003a 6e3095036405             invoke-virtual           v4, v6, v5, Landroid/media/SoundPool;->load(Ljava/lang/String; I)I
+000040 0a07                     move-result              v7
+000042 7110a4460700             invoke-static            v7, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+000048 0c07                     move-result-object       v7
+00004a 6e20b2487100             invoke-virtual           v1, v7, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+000050 6e20b2486200             invoke-virtual           v2, v6, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+000056 0e00                     return-void              
+000058 6e20b6480100             invoke-virtual           v1, v0, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+00005e 0c03                     move-result-object       v3
+000060 1f032810                 check-cast               v3, Ljava/lang/Integer;
+000064 6e1099460300             invoke-virtual           v3, Ljava/lang/Integer;->intValue()I
+00006a 0a03                     move-result              v3
+00006c 6e2098033400             invoke-virtual           v4, v3, Landroid/media/SoundPool;->unload(I)Z
+000072 54775b01                 iget-object              v7, v7, Lb60;->a Ljava/lang/Object;
+000076 1f071701                 check-cast               v7, Landroid/media/SoundPool;
+00007a 6e3095036705             invoke-virtual           v7, v6, v5, Landroid/media/SoundPool;->load(Ljava/lang/String; I)I
+000080 0a07                     move-result              v7
+000082 7110a4460700             invoke-static            v7, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+000088 0c07                     move-result-object       v7
+00008a 6e30be480107             invoke-virtual           v1, v0, v7, Ljava/util/ArrayList;->set(I Ljava/lang/Object;)Ljava/lang/Object;
+000090 6e30be480206             invoke-virtual           v2, v0, v6, Ljava/util/ArrayList;->set(I Ljava/lang/Object;)Ljava/lang/Object;
+000096 0e00                     return-void              

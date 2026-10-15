@@ -1,0 +1,84 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/android/MainActivity;->G1(Ljava/lang/String; Z)Z
+# Addresses in bytes; branch deltas in code units.
+000000 52706933                 iget                     v0, v7, Lsofeh/android/MainActivity;->U1 I
+000004 1211                     const/4                  v1, 1
+000006 39000400                 if-nez                   v0, +004h
+00000a 0110                     move                     v0, v1
+00000c 2802                     goto                     +2h
+00000e 1240                     const/4                  v0, 4
+000010 1202                     const/4                  v2, 0
+000012 0113                     move                     v3, v1
+000014 0124                     move                     v4, v2
+000016 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00001a 12f6                     const/4                  v6, -1
+00001c 6e2066626500             invoke-virtual           v5, v6, Lsofeh/music/Music;->TrackCount(I)I
+000022 0a05                     move-result              v5
+000024 35532d00                 if-ge                    v3, v5, +02dh
+000028 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00002c 6e2060623500             invoke-virtual           v5, v3, Lsofeh/music/Music;->Track(I)Lsofeh/music/Track;
+000032 0c05                     move-result-object       v5
+000034 5255e935                 iget                     v5, v5, Lsofeh/music/MusicObject;->fGroup I
+000038 39052000                 if-nez                   v5, +020h
+00003c 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000040 6e2060623500             invoke-virtual           v5, v3, Lsofeh/music/Music;->Track(I)Lsofeh/music/Track;
+000046 0c05                     move-result-object       v5
+000048 56554936                 iget-byte                v5, v5, Lsofeh/music/Track;->fType B
+00004c 33151600                 if-ne                    v5, v1, +016h
+000050 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000054 6e2060623500             invoke-virtual           v5, v3, Lsofeh/music/Music;->Track(I)Lsofeh/music/Track;
+00005a 0c05                     move-result-object       v5
+00005c 55554336                 iget-boolean             v5, v5, Lsofeh/music/Track;->fRecord Z
+000060 38050400                 if-eqz                   v5, +004h
+000064 d8040401                 add-int/lit8             v4, v4, 1
+000068 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00006c 6e2060623500             invoke-virtual           v5, v3, Lsofeh/music/Music;->Track(I)Lsofeh/music/Track;
+000072 0c05                     move-result-object       v5
+000074 59564236                 iput                     v6, v5, Lsofeh/music/Track;->fPedalMode I
+000078 d8030301                 add-int/lit8             v3, v3, 1
+00007c 28cd                     goto                     -33h
+00007e 6e1028470800             invoke-virtual           v8, Ljava/lang/String;->isEmpty()Z
+000084 0a03                     move-result              v3
+000086 38030500                 if-eqz                   v3, +005h
+00008a d80404ff                 add-int/lit8             v4, v4, -1
+00008e 0119                     move                     v9, v1
+000090 36140300                 if-gt                    v4, v1, +003h
+000094 0119                     move                     v9, v1
+000096 38093600                 if-eqz                   v9, +036h
+00009a 0113                     move                     v3, v1
+00009c 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0000a0 6e2066626500             invoke-virtual           v5, v6, Lsofeh/music/Music;->TrackCount(I)I
+0000a6 0a05                     move-result              v5
+0000a8 35532d00                 if-ge                    v3, v5, +02dh
+0000ac 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0000b0 6e2060623500             invoke-virtual           v5, v3, Lsofeh/music/Music;->Track(I)Lsofeh/music/Track;
+0000b6 0c05                     move-result-object       v5
+0000b8 5255e935                 iget                     v5, v5, Lsofeh/music/MusicObject;->fGroup I
+0000bc 39052000                 if-nez                   v5, +020h
+0000c0 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0000c4 6e2060623500             invoke-virtual           v5, v3, Lsofeh/music/Music;->Track(I)Lsofeh/music/Track;
+0000ca 0c05                     move-result-object       v5
+0000cc 56554936                 iget-byte                v5, v5, Lsofeh/music/Track;->fType B
+0000d0 33151600                 if-ne                    v5, v1, +016h
+0000d4 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0000d8 6e2060623500             invoke-virtual           v5, v3, Lsofeh/music/Music;->Track(I)Lsofeh/music/Track;
+0000de 0c05                     move-result-object       v5
+0000e0 55554336                 iget-boolean             v5, v5, Lsofeh/music/Track;->fRecord Z
+0000e4 38050c00                 if-eqz                   v5, +00ch
+0000e8 35040300                 if-ge                    v4, v0, +003h
+0000ec 280b                     goto                     +bh
+0000ee d80404ff                 add-int/lit8             v4, v4, -1
+0000f2 54750134                 iget-object              v5, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0000f6 6e306f623502             invoke-virtual           v5, v3, v2, Lsofeh/music/Music;->TrackRecordSet(I Z)V
+0000fc d8030301                 add-int/lit8             v3, v3, 1
+000100 28ce                     goto                     -32h
+000102 6e1028470800             invoke-virtual           v8, Ljava/lang/String;->isEmpty()Z
+000108 0a00                     move-result              v0
+00010a 39000b00                 if-nez                   v0, +00bh
+00010e 54700134                 iget-object              v0, v7, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000112 6e3062622008             invoke-virtual           v0, v2, v8, Lsofeh/music/Music;->Track(I Ljava/lang/String;)Lsofeh/music/Track;
+000118 0c08                     move-result-object       v8
+00011a 6e3070628009             invoke-virtual           v0, v8, v9, Lsofeh/music/Music;->TrackRecordSet(Lsofeh/music/Track; Z)V
+000120 6e200c602700             invoke-virtual           v7, v2, Lsofeh/android/MainActivity;->H1(Z)V
+000126 6e1026600700             invoke-virtual           v7, Lsofeh/android/MainActivity;->Q0()V
+00012c 0f09                     return                   v9

@@ -1,0 +1,144 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/music/Music;->ExportKeyToAudioFile(Ljava/lang/String; I I I I [I I I)V
+# registers=33 incoming_words=9
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  08001800                 move-object/from16       v0, v24
+000004  08011e00                 move-object/from16       v1, v30
+000008  5202cf35                 iget                     v2, v0, Lsofeh/music/Music;->fOutSampleRate I
+00000c  db020264                 div-int/lit8             v2, v2, 100
+000010  5902cd35                 iput                     v2, v0, Lsofeh/music/Music;->fOutBufferSize I
+000014  23235118                 new-array                v3, v2, [J
+000018  23225118                 new-array                v2, v2, [J
+00001c  2204ae15                 new-instance             v4, Lsofeh/music/Channels;
+000020  702023610400             invoke-direct            v4, v0, Lsofeh/music/Channels;-><init>(Lsofeh/music/Music;)V
+000026  1265                     const/4                  v5, 6
+000028  5945eb34                 iput                     v5, v4, Lsofeh/music/Channels;->fType I
+00002c  5205cd35                 iget                     v5, v0, Lsofeh/music/Music;->fOutBufferSize I
+000030  5945ed34                 iput                     v5, v4, Lsofeh/music/Channels;->size I
+000034  1216                     const/4                  v6, 1
+000036  5946ec34                 iput                     v6, v4, Lsofeh/music/Channels;->mixer I
+00003a  5b43dc34                 iput-object              v3, v4, Lsofeh/music/Channels;->bufL [J
+00003e  5b42dd34                 iput-object              v2, v4, Lsofeh/music/Channels;->bufR [J
+000042  02061b00                 move/from16              v6, v27
+000046  5946e934                 iput                     v6, v4, Lsofeh/music/Channels;->fMode I
+00004a  da050502                 mul-int/lit8             v5, v5, 2
+00004e  23552319                 new-array                v5, v5, [S
+000052  13170000                 const/16                 v23, 0
+000056  0756                     move-object              v6, v5
+000058  02051700                 move/from16              v5, v23
+00005c  2117                     array-length             v7, v1
+00005e  35754100                 if-ge                    v5, v7, +041h
+000062  440a0105                 aget                     v10, v1, v5
+000066  3d0a3600                 if-lez                   v10, +036h
+00006a  da071d0c                 mul-int/lit8             v7, v29, 12
+00006e  9007071c                 add-int                  v7, v7, v28
+000072  1315ffff                 const/16                 v21, -1
+000076  13160000                 const/16                 v22, 0
+00007a  0768                     move-object              v8, v6
+00007c  0176                     move                     v6, v7
+00007e  13076400                 const/16                 v7, 100
+000082  0789                     move-object              v9, v8
+000084  1208                     const/4                  v8, 0
+000086  079b                     move-object              v11, v9
+000088  12f9                     const/4                  v9, -1
+00008a  130c6400                 const/16                 v12, 100
+00008e  120d                     const/4                  v13, 0
+000090  120e                     const/4                  v14, 0
+000092  120f                     const/4                  v15, 0
+000094  13100000                 const/16                 v16, 0
+000098  1311e803                 const/16                 v17, 1000
+00009c  13140000                 const/16                 v20, 0
+0000a0  02132000                 move/from16              v19, v32
+0000a4  02122000                 move/from16              v18, v32
+0000a8  07b1                     move-object              v1, v11
+0000aa  020b1f00                 move/from16              v11, v31
+0000ae  741333610400             invoke-virtual/range     v4 ... v22, Lsofeh/music/Channels;->OpenKey(I I I Z I I I I I I I I I I I Z I I)V
+0000b4  5446e634                 iget-object              v6, v4, Lsofeh/music/Channels;->fList [Lsofeh/music/Channel;
+0000b8  46060605                 aget-object              v6, v6, v5
+0000bc  52679834                 iget                     v7, v6, Lsofeh/music/Channel;->Release F
+0000c0  1508a040                 const/high16             v8, 1084227584
+0000c4  2d070708                 cmpl-float               v7, v7, v8
+0000c8  3d070600                 if-lez                   v7, +006h
+0000cc  59689834                 iput                     v8, v6, Lsofeh/music/Channel;->Release F
+0000d0  2802                     goto                     +2h
+0000d2  0761                     move-object              v1, v6
+0000d4  d8050501                 add-int/lit8             v5, v5, 1
+0000d8  0716                     move-object              v6, v1
+0000da  08011e00                 move-object/from16       v1, v30
+0000de  28bf                     goto                     -41h
+0000e0  0761                     move-object              v1, v6
+0000e2  2206a615                 new-instance             v6, Lsofeh/audio/a;
+0000e6  5209cf35                 iget                     v9, v0, Lsofeh/music/Music;->fOutSampleRate I
+0000ea  560ace35                 iget-byte                v10, v0, Lsofeh/music/Music;->fOutChannels B
+0000ee  560bca35                 iget-byte                v11, v0, Lsofeh/music/Music;->fOutBitsPerSample B
+0000f2  08071900                 move-object/from16       v7, v25
+0000f6  02081a00                 move/from16              v8, v26
+0000fa  7606e8600600             invoke-direct/range      v6 ... v11, Lsofeh/audio/a;-><init>(Ljava/lang/String; I I I I)V
+000100  02051700                 move/from16              v5, v23
+000104  6e103b610400             invoke-virtual           v4, Lsofeh/music/Channels;->isEmpty()Z
+00010a  0a07                     move-result              v7
+00010c  39077500                 if-nez                   v7, +075h
+000110  16070000                 const-wide/16            v7, 0
+000114  7130db487308             invoke-static            v3, v7, v8, Ljava/util/Arrays;->fill([J J)V
+00011a  7130db487208             invoke-static            v2, v7, v8, Ljava/util/Arrays;->fill([J J)V
+000120  6e1036610400             invoke-virtual           v4, Lsofeh/music/Channels;->Process()V
+000126  02091700                 move/from16              v9, v23
+00012a  520acd35                 iget                     v10, v0, Lsofeh/music/Music;->fOutBufferSize I
+00012e  35a94700                 if-ge                    v9, v10, +047h
+000132  450a0309                 aget-wide                v10, v3, v9
+000136  160cc800                 const-wide/16            v12, 200
+00013a  beca                     div-long/2addr           v10, v12
+00013c  4c0a0309                 aput-wide                v10, v3, v9
+000140  450a0209                 aget-wide                v10, v2, v9
+000144  beca                     div-long/2addr           v10, v12
+000146  4c0a0209                 aput-wide                v10, v2, v9
+00014a  450a0309                 aget-wide                v10, v3, v9
+00014e  310c0a07                 cmp-long                 v12, v10, v7
+000152  170d00f40100             const-wide/32            v13, 128000
+000158  170f000cfeff             const-wide/32            v15, -128000
+00015e  9d110a0a                 mul-long                 v17, v10, v10
+000162  3b0c0500                 if-gez                   v12, +005h
+000166  9e11110f                 div-long                 v17, v17, v15
+00016a  2803                     goto                     +3h
+00016c  9e11110d                 div-long                 v17, v17, v13
+000170  9c0a0a11                 sub-long                 v10, v10, v17
+000174  4c0a0309                 aput-wide                v10, v3, v9
+000178  450a0209                 aget-wide                v10, v2, v9
+00017c  310c0a07                 cmp-long                 v12, v10, v7
+000180  3b0c0600                 if-gez                   v12, +006h
+000184  9d0c0a0a                 mul-long                 v12, v10, v10
+000188  befc                     div-long/2addr           v12, v15
+00018a  2805                     goto                     +5h
+00018c  9d0f0a0a                 mul-long                 v15, v10, v10
+000190  9e0c0f0d                 div-long                 v12, v15, v13
+000194  bcca                     sub-long/2addr           v10, v12
+000196  4c0a0209                 aput-wide                v10, v2, v9
+00019a  e00c0901                 shl-int/lit8             v12, v9, 1
+00019e  450d0309                 aget-wide                v13, v3, v9
+0001a2  84dd                     long-to-int              v13, v13
+0001a4  8fdd                     int-to-short             v13, v13
+0001a6  510d010c                 aput-short               v13, v1, v12
+0001aa  d80c0c01                 add-int/lit8             v12, v12, 1
+0001ae  84aa                     long-to-int              v10, v10
+0001b0  8faa                     int-to-short             v10, v10
+0001b2  510a010c                 aput-short               v10, v1, v12
+0001b6  d8090901                 add-int/lit8             v9, v9, 1
+0001ba  28b8                     goto                     -48h
+0001bc  6e30ec60160a             invoke-virtual           v6, v1, v10, Lsofeh/audio/a;->c([S I)V
+0001c2  d8070501                 add-int/lit8             v7, v5, 1
+0001c6  1248                     const/4                  v8, 4
+0001c8  35851300                 if-ge                    v5, v8, +013h
+0001cc  08051e00                 move-object/from16       v5, v30
+0001d0  02081700                 move/from16              v8, v23
+0001d4  2159                     array-length             v9, v5
+0001d6  35980e00                 if-ge                    v8, v9, +00eh
+0001da  44090508                 aget                     v9, v5, v8
+0001de  3d090500                 if-lez                   v9, +005h
+0001e2  6e2026618400             invoke-virtual           v4, v8, Lsofeh/music/Channels;->Close(I)V
+0001e8  d8080801                 add-int/lit8             v8, v8, 1
+0001ec  28f4                     goto                     -ch
+0001ee  08051e00                 move-object/from16       v5, v30
+0001f2  0175                     move                     v5, v7
+0001f4  2888                     goto                     -78h
+0001f6  6e10ea600600             invoke-virtual           v6, Lsofeh/audio/a;->a()V
+0001fc  0e00                     return-void              

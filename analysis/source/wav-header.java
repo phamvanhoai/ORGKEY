@@ -1,0 +1,36 @@
+﻿    public final void b() throws IOException {
+        this.a.seek(0L);
+        this.a.write("RIFF".getBytes(), 0, 4);
+        cl0 cl0Var = this.a;
+        cl0Var.writeInt(Integer.reverseBytes(((int) cl0Var.length()) - 8));
+        this.a.write("WAVE".getBytes(), 0, 4);
+        this.a.write("fmt ".getBytes(), 0, 4);
+        cl0 cl0Var2 = this.a;
+        cl0Var2.getClass();
+        cl0Var2.writeInt(Integer.reverseBytes(16));
+        cl0 cl0Var3 = this.a;
+        cl0Var3.getClass();
+        cl0Var3.writeShort(Short.reverseBytes((short) 1));
+        cl0 cl0Var4 = this.a;
+        cl0Var4.getClass();
+        int i = this.e;
+        cl0Var4.writeShort(Short.reverseBytes((short) (i & Settings.DEFAULT_INITIAL_WINDOW_SIZE)));
+        cl0 cl0Var5 = this.a;
+        cl0Var5.getClass();
+        int i2 = this.d;
+        cl0Var5.writeInt(Integer.reverseBytes(i2));
+        int i3 = this.f;
+        int i4 = (i * i3) / 8;
+        cl0 cl0Var6 = this.a;
+        cl0Var6.getClass();
+        cl0Var6.writeInt(Integer.reverseBytes(i2 * i4));
+        cl0 cl0Var7 = this.a;
+        cl0Var7.getClass();
+        cl0Var7.writeShort(Short.reverseBytes((short) (i4 & Settings.DEFAULT_INITIAL_WINDOW_SIZE)));
+        cl0 cl0Var8 = this.a;
+        cl0Var8.getClass();
+        cl0Var8.writeShort(Short.reverseBytes((short) (i3 & Settings.DEFAULT_INITIAL_WINDOW_SIZE)));
+        this.a.write("data".getBytes(), 0, 4);
+        cl0 cl0Var9 = this.a;
+        cl0Var9.writeInt(Integer.reverseBytes(((int) cl0Var9.length()) - 44));
+    }

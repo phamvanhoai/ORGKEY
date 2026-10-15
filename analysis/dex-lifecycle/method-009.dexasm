@@ -1,0 +1,110 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/android/MainActivity;->z1(I)V
+# Addresses in bytes; branch deltas in code units.
+000000 5280b433                 iget                     v0, v8, Lsofeh/android/MainActivity;->e2 I
+000004 12f1                     const/4                  v1, -1
+000006 3210cb00                 if-eq                    v0, v1, +0cbh
+00000a 54810134                 iget-object              v1, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00000e 6e20b5610100             invoke-virtual           v1, v0, Lsofeh/music/Music;->GroupName(I)Ljava/lang/String;
+000014 0c00                     move-result-object       v0
+000016 62017135                 sget-object              v1, Lsofeh/music/Music;->RhythmSection [Ljava/lang/String;
+00001a e1020904                 shr-int/lit8             v2, v9, 4
+00001e 46010102                 aget-object              v1, v1, v2
+000022 1243                     const/4                  v3, 4
+000024 1214                     const/4                  v4, 1
+000026 32321200                 if-eq                    v2, v3, +012h
+00002a 1a051501                 const-string             v5, " "
+00002e 712093445100             invoke-static            v1, v5, Liy1;->y(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/StringBuilder;
+000034 0c01                     move-result-object       v1
+000036 dd05090f                 and-int/lit8             v5, v9, 15
+00003a b045                     add-int/2addr            v5, v4
+00003c 6e205a475100             invoke-virtual           v1, v5, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+000042 6e106b470100             invoke-virtual           v1, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+000048 0c01                     move-result-object       v1
+00004a 5285b433                 iget                     v5, v8, Lsofeh/android/MainActivity;->e2 I
+00004e 6e309a605809             invoke-virtual           v8, v5, v9, Lsofeh/android/MainActivity;->x1(I I)I
+000054 0a05                     move-result              v5
+000056 1226                     const/4                  v6, 2
+000058 33650800                 if-ne                    v5, v6, +008h
+00005c 1a05e80e                 const-string             v5, "Default "
+000060 7120873f1500             invoke-static            v5, v1, Lep4;->z(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000066 0c01                     move-result-object       v1
+000068 1a05e537                 const-string             v5, "Style"
+00006c 1207                     const/4                  v7, 0
+00006e 3d098e00                 if-lez                   v9, +08eh
+000072 6e5715605810             invoke-virtual           v8, v5, v0, v1, v7, Lsofeh/android/MainActivity;->K1(Ljava/lang/String; Ljava/lang/String; Ljava/lang/String; Z)V
+000078 55808533                 iget-boolean             v0, v8, Lsofeh/android/MainActivity;->Y1 Z
+00007c 38004e00                 if-eqz                   v0, +04eh
+000080 33624c00                 if-ne                    v2, v6, +04ch
+000084 dd00090f                 and-int/lit8             v0, v9, 15
+000088 b040                     add-int/2addr            v0, v4
+00008a 59805634                 iput                     v0, v8, Lsofeh/android/MainActivity;->y4 I
+00008e 59804e34                 iput                     v0, v8, Lsofeh/android/MainActivity;->x4 I
+000092 36303000                 if-gt                    v0, v3, +030h
+000096 54800134                 iget-object              v0, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00009a 5281b433                 iget                     v1, v8, Lsofeh/android/MainActivity;->e2 I
+00009e 6e20b8611000             invoke-virtual           v0, v1, Lsofeh/music/Music;->GroupOf(I)Lsofeh/music/TrackGroup;
+0000a4 0c00                     move-result-object       v0
+0000a6 52008636                 iget                     v0, v0, Lsofeh/music/TrackGroup;->Group I
+0000aa 38002400                 if-eqz                   v0, +024h
+0000ae 54800134                 iget-object              v0, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0000b2 5281b433                 iget                     v1, v8, Lsofeh/android/MainActivity;->e2 I
+0000b6 6e20b8611000             invoke-virtual           v0, v1, Lsofeh/music/Music;->GroupOf(I)Lsofeh/music/TrackGroup;
+0000bc 0c00                     move-result-object       v0
+0000be 54009136                 iget-object              v0, v0, Lsofeh/music/TrackGroup;->STSIndex [I
+0000c2 52815634                 iget                     v1, v8, Lsofeh/android/MainActivity;->y4 I
+0000c6 b141                     sub-int/2addr            v1, v4
+0000c8 44000001                 aget                     v0, v0, v1
+0000cc 3d001300                 if-lez                   v0, +013h
+0000d0 54800134                 iget-object              v0, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0000d4 5281b433                 iget                     v1, v8, Lsofeh/android/MainActivity;->e2 I
+0000d8 6e20b8611000             invoke-virtual           v0, v1, Lsofeh/music/Music;->GroupOf(I)Lsofeh/music/TrackGroup;
+0000de 0c00                     move-result-object       v0
+0000e0 54009136                 iget-object              v0, v0, Lsofeh/music/TrackGroup;->STSIndex [I
+0000e4 52815634                 iget                     v1, v8, Lsofeh/android/MainActivity;->y4 I
+0000e8 b141                     sub-int/2addr            v1, v4
+0000ea 44000001                 aget                     v0, v0, v1
+0000ee 59804e34                 iput                     v0, v8, Lsofeh/android/MainActivity;->x4 I
+0000f2 54800134                 iget-object              v0, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0000f6 52814e34                 iget                     v1, v8, Lsofeh/android/MainActivity;->x4 I
+0000fa 6e2041621000             invoke-virtual           v0, v1, Lsofeh/music/Music;->STSPut(I)V
+000100 6e200c607800             invoke-virtual           v8, v7, Lsofeh/android/MainActivity;->H1(Z)V
+000106 6e1026600800             invoke-virtual           v8, Lsofeh/android/MainActivity;->Q0()V
+00010c 6e103d600800             invoke-virtual           v8, Lsofeh/android/MainActivity;->Y()V
+000112 6e1044600800             invoke-virtual           v8, Lsofeh/android/MainActivity;->a0()V
+000118 1260                     const/4                  v0, 6
+00011a 33021800                 if-ne                    v2, v0, +018h
+00011e 54800134                 iget-object              v0, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000122 6e10bf610000             invoke-virtual           v0, Lsofeh/music/Music;->GroupPlayState()I
+000128 0a00                     move-result              v0
+00012a dd01090f                 and-int/lit8             v1, v9, 15
+00012e b041                     add-int/2addr            v1, v4
+000130 98020401                 shl-int                  v2, v4, v1
+000134 b520                     and-int/2addr            v0, v2
+000136 39000600                 if-nez                   v0, +006h
+00013a 6e309d609804             invoke-virtual           v8, v9, v4, Lsofeh/android/MainActivity;->y1(I Z)V
+000140 0e00                     return-void              
+000142 6e2000601800             invoke-virtual           v8, v1, Lsofeh/android/MainActivity;->D1(I)V
+000148 0e00                     return-void              
+00014a 5280dc33                 iget                     v0, v8, Lsofeh/android/MainActivity;->j2 I
+00014e 38000600                 if-eqz                   v0, +006h
+000152 6e309d609804             invoke-virtual           v8, v9, v4, Lsofeh/android/MainActivity;->y1(I Z)V
+000158 0e00                     return-void              
+00015a 5280b433                 iget                     v0, v8, Lsofeh/android/MainActivity;->e2 I
+00015e 6e309a600809             invoke-virtual           v8, v0, v9, Lsofeh/android/MainActivity;->x1(I I)I
+000164 0a00                     move-result              v0
+000166 38001b00                 if-eqz                   v0, +01bh
+00016a 5280bc33                 iget                     v0, v8, Lsofeh/android/MainActivity;->f2 I
+00016e e1010004                 shr-int/lit8             v1, v0, 4
+000172 33610700                 if-ne                    v1, v6, +007h
+000176 33420500                 if-ne                    v2, v4, +005h
+00017a 5980c433                 iput                     v0, v8, Lsofeh/android/MainActivity;->g2 I
+00017e 2803                     goto                     +3h
+000180 5987c433                 iput                     v7, v8, Lsofeh/android/MainActivity;->g2 I
+000184 5989bc33                 iput                     v9, v8, Lsofeh/android/MainActivity;->f2 I
+000188 0e00                     return-void              
+00018a 1a09b049                 const-string             v9, "does not have "
+00018e 7120873f1900             invoke-static            v9, v1, Lep4;->z(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000194 0c09                     move-result-object       v9
+000196 6e5715605890             invoke-virtual           v8, v5, v0, v9, v7, Lsofeh/android/MainActivity;->K1(Ljava/lang/String; Ljava/lang/String; Ljava/lang/String; Z)V
+00019c 0e00                     return-void              

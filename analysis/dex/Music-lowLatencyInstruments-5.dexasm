@@ -1,0 +1,21 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/music/Music;->lowLatencyInstruments([I I Ljava/lang/String;)V
+# registers=6 incoming_words=4
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  5220ba35                 iget                     v0, v2, Lsofeh/music/Music;->fLowLatencyMethod I
+000004  1231                     const/4                  v1, 3
+000006  32100f00                 if-eq                    v0, v1, +00fh
+00000a  1241                     const/4                  v1, 4
+00000c  32100300                 if-eq                    v0, v1, +003h
+000010  0e00                     return-void              
+000012  2200bc15                 new-instance             v0, Lsofeh/music/Music$1;
+000016  705385612045             invoke-direct            v0, v2, v5, v4, v3, Lsofeh/music/Music$1;-><init>(Lsofeh/music/Music; Ljava/lang/String; I [I)V
+00001c  6e1092470000             invoke-virtual           v0, Ljava/lang/Thread;->start()V
+000022  0e00                     return-void              
+000024  5422ec35                 iget-object              v2, v2, Lsofeh/music/MusicObject;->fPlatform Lx13;
+000028  5422543b                 iget-object              v2, v2, Lx13;->a Lew;
+00002c  22031e18                 new-instance             v3, Lzd1;
+000030  13041100                 const/16                 v4, 17
+000034  7020b36d4300             invoke-direct            v3, v4, Lzd1;-><init>(B)V
+00003a  6e20d63f3200             invoke-virtual           v2, v3, Lew;->i(Ly42;)V
+000040  0e00                     return-void              

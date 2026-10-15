@@ -1,0 +1,119 @@
+[
+  {
+    "dex": "classes.dex",
+    "owner": "Ls2;",
+    "method": "run",
+    "proto_index": 7815,
+    "code_unit": 417,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes.dex",
+    "owner": "Ls2;",
+    "method": "run",
+    "proto_index": 7815,
+    "code_unit": 508,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/android/MainActivity;",
+    "method": "O0",
+    "proto_index": 3177,
+    "code_unit": 1191,
+    "opcode": "0x59",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/InstMode$1;",
+    "method": "func",
+    "proto_index": 6987,
+    "code_unit": 265,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Music;",
+    "method": "<init>",
+    "proto_index": 6550,
+    "code_unit": 170,
+    "opcode": "0x59",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Music;",
+    "method": "OutDeviceStart",
+    "proto_index": 3177,
+    "code_unit": 58,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Music;",
+    "method": "OutDeviceStart",
+    "proto_index": 3177,
+    "code_unit": 205,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Music;",
+    "method": "OutDeviceStart",
+    "proto_index": 3177,
+    "code_unit": 291,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Music;",
+    "method": "OutDeviceStop",
+    "proto_index": 3177,
+    "code_unit": 35,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Music;",
+    "method": "get_fLowLatencyMethod",
+    "proto_index": 51,
+    "code_unit": 0,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Music;",
+    "method": "lowLatencyInstruments",
+    "proto_index": 6710,
+    "code_unit": 0,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Music;",
+    "method": "set_fLowLatencyMethod",
+    "proto_index": 3213,
+    "code_unit": 0,
+    "opcode": "0x59",
+    "status": "candidate_requires_instruction_verification"
+  },
+  {
+    "dex": "classes3.dex",
+    "owner": "Lsofeh/music/Tracks;",
+    "method": "RecordTrack",
+    "proto_index": 227,
+    "code_unit": 88,
+    "opcode": "0x52",
+    "status": "candidate_requires_instruction_verification"
+  }
+]

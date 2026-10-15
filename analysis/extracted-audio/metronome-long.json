@@ -1,0 +1,18 @@
+{
+  "source_asset": "assets/empty.Template",
+  "instrument_index": 0,
+  "instrument": "-",
+  "sound_index": 0,
+  "sound": "Primary",
+  "note": 0,
+  "section": "Metronome Long",
+  "sample_rate": 48000,
+  "channels": 1,
+  "samples_per_channel": 17800,
+  "pcm_bytes": 35600,
+  "wave_index": 0,
+  "loop": 0,
+  "loop_start": 0,
+  "loop_end": 17799,
+  "output": "analysis\\extracted-audio\\metronome-long.wav"
+}

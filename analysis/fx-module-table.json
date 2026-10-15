@@ -1,0 +1,28 @@
+{
+  "fx_block_fixed_bytes": 52,
+  "base_module_bytes_including_type": 8,
+  "base_layout": [
+    { "field": "type", "bytes": 4, "encoding": "int32-le" },
+    { "field": "enabled", "bytes": 1, "encoding": "boolean" },
+    { "field": "state", "bytes": 2, "encoding": "opaque byte[2]" },
+    { "field": "flag", "bytes": 1, "encoding": "boolean" }
+  ],
+  "types": [
+    { "type": 1, "name": "Band pass", "dex_class": "Lo01;", "record_bytes": 16 },
+    { "type": 2, "name": "Band Move", "dex_class": "Lsofeh/audio/c;", "record_bytes": 25 },
+    { "type": 4, "name": "Echo delay (Stereo)", "dex_class": "Lt01;", "record_bytes": 16 },
+    { "type": 6, "name": "Echo delay", "dex_class": "Ls01;", "record_bytes": 16 },
+    { "type": 7, "name": "Equalizer", "dex_class": "Lsofeh/audio/d;", "record_bytes_formula": "12 + 4 * band_count" },
+    { "type": 8, "name": "Flanger (Phaser)", "dex_class": "Lsofeh/audio/e;", "record_bytes": 36 },
+    { "type": 9, "name": "High pass", "dex_class": "Lu01;", "record_bytes": 12 },
+    { "type": 10, "name": "Low pass (SP)", "dex_class": "Lu01;", "record_bytes": 12 },
+    { "type": 15, "name": "Pitch Shift", "dex_class": "Lsofeh/audio/f;", "record_bytes": 12 },
+    { "type": 16, "name": "Robot", "dex_class": "Lx01;", "record_bytes": 12 },
+    { "type": 17, "name": "3D Sound (Stereo)", "dex_class": "Ly01;", "record_bytes": 12 },
+    { "type": 20, "name": "Bass Booster", "dex_class": "Lp01;", "record_bytes": 16 },
+    { "type": 21, "name": "Chorus", "dex_class": "Lq01;", "record_bytes": 32 },
+    { "type": 23, "name": "Distortion", "dex_class": "Lr01;", "record_bytes": 17 },
+    { "type": 29, "name": "Reverb", "dex_class": "Lw01;", "record_bytes": 16 },
+    { "type": 31, "name": "Band Booster", "dex_class": "Lsofeh/audio/b;", "record_bytes": 12 }
+  ]
+}

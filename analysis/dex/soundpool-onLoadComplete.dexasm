@@ -1,0 +1,36 @@
+# classes.dex (Landroid/media/SoundPool; I I)V
+000000 5400c44d                 iget-object              v0, v0, Lb23;->a Lc23;
+000004 54005c4f                 iget-object              v0, v0, Lc23;->c Lb60;
+000008 5401f94d                 iget-object              v1, v0, Lb60;->b Ljava/lang/Object;
+00000c 1f012925                 check-cast               v1, Ljava/util/ArrayList;
+000010 71102ec90200             invoke-static            v2, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+000016 0c02                     move-result-object       v2
+000018 6e2038cc2100             invoke-virtual           v1, v2, Ljava/util/ArrayList;->indexOf(Ljava/lang/Object;)I
+00001e 0a01                     move-result              v1
+000020 3a013900                 if-ltz                   v1, +039h
+000024 5402fa4d                 iget-object              v2, v0, Lb60;->c Ljava/lang/Object;
+000028 1f022925                 check-cast               v2, Ljava/util/ArrayList;
+00002c 6e2036cc1200             invoke-virtual           v2, v1, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+000032 0c02                     move-result-object       v2
+000034 1f027724                 check-cast               v2, Ljava/lang/String;
+000038 6e10c2c90200             invoke-virtual           v2, Ljava/lang/String;->isEmpty()Z
+00003e 0a02                     move-result              v2
+000040 39022000                 if-nez                   v2, +020h
+000044 22027924                 new-instance             v2, Ljava/lang/StringBuilder;
+000048 7010e8c90200             invoke-direct            v2, Ljava/lang/StringBuilder;-><init>()V
+00004e 5403fa4d                 iget-object              v3, v0, Lb60;->c Ljava/lang/Object;
+000052 1f032925                 check-cast               v3, Ljava/util/ArrayList;
+000056 6e2036cc1300             invoke-virtual           v3, v1, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+00005c 0c03                     move-result-object       v3
+00005e 1f037724                 check-cast               v3, Ljava/lang/String;
+000062 6e20f5c93200             invoke-virtual           v2, v3, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+000068 1a03bc11                 const-string             v3, ".wav"
+00006c 6e20f5c93200             invoke-virtual           v2, v3, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+000072 6e1003ca0200             invoke-virtual           v2, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+000078 0c02                     move-result-object       v2
+00007a 7110de4b0200             invoke-static            v2, Lbp3;->e(Ljava/lang/String;)V
+000080 5400fa4d                 iget-object              v0, v0, Lb60;->c Ljava/lang/Object;
+000084 1f002925                 check-cast               v0, Ljava/util/ArrayList;
+000088 1a024711                 const-string             v2, "."
+00008c 6e3043cc1002             invoke-virtual           v0, v1, v2, Ljava/util/ArrayList;->set(I Ljava/lang/Object;)Ljava/lang/Object;
+000092 0e00                     return-void              

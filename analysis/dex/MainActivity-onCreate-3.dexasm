@@ -1,0 +1,972 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/android/MainActivity;->onCreate(Landroid/os/Bundle;)V
+# registers=33 incoming_words=2
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  08011f00                 move-object/from16       v1, v31
+000004  750220011f00             invoke-super/range       v31 ... v32, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+00000a  1208                     const/4                  v8, 0
+00000c  6e1015010100             invoke-virtual           v1, Landroid/app/Activity;->getWindow()Landroid/view/Window;
+000012  0c00                     move-result-object       v0
+000014  7120d7448000             invoke-static            v0, v8, Lj30;->O(Landroid/view/Window; Z)V
+00001a  14001c000c7f             const                    v0, 2131492892
+000020  6e202e010100             invoke-virtual           v1, v0, Landroid/app/Activity;->setContentView(I)V
+000026  5b111e34                 iput-object              v1, v1, Lsofeh/android/MainActivity;->r4 Lsofeh/android/MainActivity;
+00002a  13001c00                 const/16                 v0, 28
+00002e  6e10f5010100             invoke-virtual           v1, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+000034  0c02                     move-result-object       v2
+000036  6e10f6010100             invoke-virtual           v1, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+00003c  0c03                     move-result-object       v3
+00003e  6e3047023208             invoke-virtual           v2, v3, v8, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String; I)Landroid/content/pm/PackageInfo;
+000044  0c02                     move-result-object       v2
+000046  5422b400                 iget-object              v2, v2, Landroid/content/pm/PackageInfo;->versionName Ljava/lang/String;
+00004a  5b12d933                 iput-object              v2, v1, Lsofeh/android/MainActivity;->j Ljava/lang/String;
+00004e  6002da00                 sget                     v2, Landroid/os/Build$VERSION;->SDK_INT I
+000052  34021900                 if-lt                    v2, v0, +019h
+000056  6e10f5010100             invoke-virtual           v1, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+00005c  0c02                     move-result-object       v2
+00005e  6e10f6010100             invoke-virtual           v1, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+000064  0c03                     move-result-object       v3
+000066  6e3047023208             invoke-virtual           v2, v3, v8, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String; I)Landroid/content/pm/PackageInfo;
+00006c  0c02                     move-result-object       v2
+00006e  7110f1060200             invoke-static            v2, Las4;->b(Landroid/content/pm/PackageInfo;)J
+000074  0b02                     move-result-wide         v2
+000076  7120d8463200             invoke-static            v2, v3, Ljava/lang/Math;->toIntExact(J)I
+00007c  0a02                     move-result              v2
+00007e  5912e933                 iput                     v2, v1, Lsofeh/android/MainActivity;->l I
+000082  2811                     goto                     +11h
+000084  6e10f5010100             invoke-virtual           v1, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+00008a  0c02                     move-result-object       v2
+00008c  6e10f6010100             invoke-virtual           v1, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+000092  0c03                     move-result-object       v3
+000094  6e3047023208             invoke-virtual           v2, v3, v8, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String; I)Landroid/content/pm/PackageInfo;
+00009a  0c02                     move-result-object       v2
+00009c  5222b300                 iget                     v2, v2, Landroid/content/pm/PackageInfo;->versionCode I
+0000a0  5912e933                 iput                     v2, v1, Lsofeh/android/MainActivity;->l I
+0000a4  1209                     const/4                  v9, 0
+0000a6  1a020269                 const-string             v2, "vibrator"
+0000aa  6e20fb012100             invoke-virtual           v1, v2, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
+0000b0  0c02                     move-result-object       v2
+0000b2  1f026d01                 check-cast               v2, Landroid/os/Vibrator;
+0000b6  5b122e34                 iput-object              v2, v1, Lsofeh/android/MainActivity;->t4 Landroid/os/Vibrator;
+0000ba  2803                     goto                     +3h
+0000bc  5b192e34                 iput-object              v9, v1, Lsofeh/android/MainActivity;->t4 Landroid/os/Vibrator;
+0000c0  7110b9040100             invoke-static            v1, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
+0000c6  0c02                     move-result-object       v2
+0000c8  5b12e233                 iput-object              v2, v1, Lsofeh/android/MainActivity;->k0 Landroid/content/SharedPreferences;
+0000cc  6e2012018100             invoke-virtual           v1, v8, Landroid/app/Activity;->getPreferences(I)Landroid/content/SharedPreferences;
+0000d2  0c02                     move-result-object       v2
+0000d4  5b12ea33                 iput-object              v2, v1, Lsofeh/android/MainActivity;->l0 Landroid/content/SharedPreferences;
+0000d8  5412e233                 iget-object              v2, v1, Lsofeh/android/MainActivity;->k0 Landroid/content/SharedPreferences;
+0000dc  721036020200             invoke-interface         v2, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+0000e2  0c02                     move-result-object       v2
+0000e4  5b12f233                 iput-object              v2, v1, Lsofeh/android/MainActivity;->m0 Landroid/content/SharedPreferences$Editor;
+0000e8  5412ea33                 iget-object              v2, v1, Lsofeh/android/MainActivity;->l0 Landroid/content/SharedPreferences;
+0000ec  721036020200             invoke-interface         v2, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+0000f2  0c02                     move-result-object       v2
+0000f4  5b12fa33                 iput-object              v2, v1, Lsofeh/android/MainActivity;->n0 Landroid/content/SharedPreferences$Editor;
+0000f8  6e1015010100             invoke-virtual           v1, Landroid/app/Activity;->getWindow()Landroid/view/Window;
+0000fe  0c02                     move-result-object       v2
+000100  6e10e9050200             invoke-virtual           v2, Landroid/view/Window;->getDecorView()Landroid/view/View;
+000106  0c02                     move-result-object       v2
+000108  22036a0f                 new-instance             v3, Li5;
+00010c  70309b431300             invoke-direct            v3, v1, v0, Li5;-><init>(Ljava/lang/Object; B)V
+000112  1604c800                 const-wide/16            v4, 200
+000116  6e4096053254             invoke-virtual           v2, v3, v4, v5, Landroid/view/View;->postDelayed(Ljava/lang/Runnable; J)Z
+00011c  22004f02                 new-instance             v0, Lb60;
+000120  7010e6460000             invoke-direct            v0, Ljava/lang/Object;-><init>()V
+000126  2202c110                 new-instance             v2, Ljava/util/ArrayList;
+00012a  7010ae480200             invoke-direct            v2, Ljava/util/ArrayList;-><init>()V
+000130  5b025c01                 iput-object              v2, v0, Lb60;->b Ljava/lang/Object;
+000134  2202c110                 new-instance             v2, Ljava/util/ArrayList;
+000138  7010ae480200             invoke-direct            v2, Ljava/util/ArrayList;-><init>()V
+00013e  5b025d01                 iput-object              v2, v0, Lb60;->c Ljava/lang/Object;
+000142  5b095e01                 iput-object              v9, v0, Lb60;->d Ljava/lang/Object;
+000146  5b095f01                 iput-object              v9, v0, Lb60;->e Ljava/lang/Object;
+00014a  5b096001                 iput-object              v9, v0, Lb60;->f Ljava/lang/Object;
+00014e  5b096101                 iput-object              v9, v0, Lb60;->g Ljava/lang/Object;
+000152  22025a17                 new-instance             v2, Lx13;
+000156  7010e6460200             invoke-direct            v2, Ljava/lang/Object;-><init>()V
+00015c  2203680e                 new-instance             v3, Lew;
+000160  126a                     const/4                  v10, 6
+000162  7030d23fa308             invoke-direct            v3, v10, v8, Lew;-><init>(B Z)V
+000168  2204c110                 new-instance             v4, Ljava/util/ArrayList;
+00016c  7010ae480400             invoke-direct            v4, Ljava/util/ArrayList;-><init>()V
+000172  5b349623                 iput-object              v4, v3, Lew;->b Ljava/util/ArrayList;
+000176  5b23543b                 iput-object              v3, v2, Lx13;->a Lew;
+00017a  1a0b0000                 const-string             v11, ""
+00017e  5b2b553b                 iput-object              v11, v2, Lx13;->b Ljava/lang/String;
+000182  5b2b563b                 iput-object              v11, v2, Lx13;->c Ljava/lang/String;
+000186  5928573b                 iput                     v8, v2, Lx13;->d I
+00018a  5928583b                 iput                     v8, v2, Lx13;->e I
+00018e  5b2b593b                 iput-object              v11, v2, Lx13;->f Ljava/lang/String;
+000192  121c                     const/4                  v12, 1
+000194  5c2c5a3b                 iput-boolean             v12, v2, Lx13;->g Z
+000198  1a037f44                 const-string             v3, "audio"
+00019c  6e2014013100             invoke-virtual           v1, v3, Landroid/app/Activity;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
+0001a2  0c03                     move-result-object       v3
+0001a4  1f030c01                 check-cast               v3, Landroid/media/AudioManager;
+0001a8  1a04c243                 const-string             v4, "android.media.property.OUTPUT_SAMPLE_RATE"
+0001ac  6e205b034300             invoke-virtual           v3, v4, Landroid/media/AudioManager;->getProperty(Ljava/lang/String;)Ljava/lang/String;
+0001b2  0c04                     move-result-object       v4
+0001b4  5b24553b                 iput-object              v4, v2, Lx13;->b Ljava/lang/String;
+0001b8  1a04c143                 const-string             v4, "android.media.property.OUTPUT_FRAMES_PER_BUFFER"
+0001bc  6e205b034300             invoke-virtual           v3, v4, Landroid/media/AudioManager;->getProperty(Ljava/lang/String;)Ljava/lang/String;
+0001c2  0c03                     move-result-object       v3
+0001c4  5b23563b                 iput-object              v3, v2, Lx13;->c Ljava/lang/String;
+0001c8  2203a102                 new-instance             v3, Lc23;
+0001cc  70309d080301             invoke-direct            v3, v0, v1, Lc23;-><init>(Lb60; Lsofeh/android/MainActivity;)V
+0001d2  5420543b                 iget-object              v0, v2, Lx13;->a Lew;
+0001d6  54009623                 iget-object              v0, v0, Lew;->b Ljava/util/ArrayList;
+0001da  6e20b2483000             invoke-virtual           v0, v3, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+0001e0  5b122634                 iput-object              v2, v1, Lsofeh/android/MainActivity;->s4 Lx13;
+0001e4  71105f6b0100             invoke-static            v1, Lxs1;->a(Landroid/app/Activity;)Ljava/lang/String;
+0001ea  0c00                     move-result-object       v0
+0001ec  5b107933                 iput-object              v0, v1, Lsofeh/android/MainActivity;->W3 Ljava/lang/String;
+0001f0  62025427                 sget-object              v2, Ljava/io/File;->separator Ljava/lang/String;
+0001f4  6e201b472000             invoke-virtual           v0, v2, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
+0001fa  0a00                     move-result              v0
+0001fc  38000a00                 if-eqz                   v0, +00ah
+000200  54107933                 iget-object              v0, v1, Lsofeh/android/MainActivity;->W3 Ljava/lang/String;
+000204  7130676e8c00             invoke-static            v12, v8, v0, Lzy4;->i(I I Ljava/lang/String;)Ljava/lang/String;
+00020a  0c00                     move-result-object       v0
+00020c  5b107933                 iput-object              v0, v1, Lsofeh/android/MainActivity;->W3 Ljava/lang/String;
+000210  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+000214  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+00021a  54137933                 iget-object              v3, v1, Lsofeh/android/MainActivity;->W3 Ljava/lang/String;
+00021e  1a042e32                 const-string             v4, "ORG"
+000222  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000228  0c00                     move-result-object       v0
+00022a  5b107233                 iput-object              v0, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+00022e  7120ce6c8100             invoke-static            v1, v8, Lys1;->j(Lsofeh/android/MainActivity; I)I
+000234  0a00                     move-result              v0
+000236  39004800                 if-nez                   v0, +048h
+00023a  71005e040000             invoke-static            Landroid/os/Environment;->getExternalStorageDirectory()Ljava/io/File;
+000240  0c00                     move-result-object       v0
+000242  6e10ad450000             invoke-virtual           v0, Ljava/io/File;->getPath()Ljava/lang/String;
+000248  0c00                     move-result-object       v0
+00024a  5b107233                 iput-object              v0, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+00024e  6e201b472000             invoke-virtual           v0, v2, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
+000254  0a00                     move-result              v0
+000256  38000a00                 if-eqz                   v0, +00ah
+00025a  54107233                 iget-object              v0, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+00025e  7130676e8c00             invoke-static            v12, v8, v0, Lzy4;->i(I I Ljava/lang/String;)Ljava/lang/String;
+000264  0c00                     move-result-object       v0
+000266  5b107233                 iput-object              v0, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+00026a  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+00026e  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+000274  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+000278  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+00027e  0c00                     move-result-object       v0
+000280  5b107233                 iput-object              v0, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+000284  5410e233                 iget-object              v0, v1, Lsofeh/android/MainActivity;->k0 Landroid/content/SharedPreferences;
+000288  1a034260                 const-string             v3, "root_folder"
+00028c  72303b02300b             invoke-interface         v0, v3, v11, Landroid/content/SharedPreferences;->getString(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000292  0c00                     move-result-object       v0
+000294  2204e90f                 new-instance             v4, Ljava/io/File;
+000298  7020a0450400             invoke-direct            v4, v0, Ljava/io/File;-><init>(Ljava/lang/String;)V
+00029e  6e10a7450400             invoke-virtual           v4, Ljava/io/File;->exists()Z
+0002a4  0a00                     move-result              v0
+0002a6  38001000                 if-eqz                   v0, +010h
+0002aa  6e10ae450400             invoke-virtual           v4, Ljava/io/File;->isDirectory()Z
+0002b0  0a00                     move-result              v0
+0002b2  38000a00                 if-eqz                   v0, +00ah
+0002b6  5410e233                 iget-object              v0, v1, Lsofeh/android/MainActivity;->k0 Landroid/content/SharedPreferences;
+0002ba  72303b02300b             invoke-interface         v0, v3, v11, Landroid/content/SharedPreferences;->getString(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0002c0  0c00                     move-result-object       v0
+0002c2  5b107233                 iput-object              v0, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+0002c6  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+0002ca  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+0002d0  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+0002d4  1a04e014                 const-string             v4, "Instrument"
+0002d8  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0002de  0c00                     move-result-object       v0
+0002e0  5b108733                 iput-object              v0, v1, Lsofeh/android/MainActivity;->Y3 Ljava/lang/String;
+0002e4  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+0002e8  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+0002ee  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+0002f2  1a043e38                 const-string             v4, "System"
+0002f6  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0002fc  0c00                     move-result-object       v0
+0002fe  5b108e33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->Z3 Ljava/lang/String;
+000302  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+000306  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+00030c  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+000310  1a04e537                 const-string             v4, "Style"
+000314  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+00031a  0c00                     move-result-object       v0
+00031c  5b109633                 iput-object              v0, v1, Lsofeh/android/MainActivity;->a4 Ljava/lang/String;
+000320  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+000324  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+00032a  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+00032e  1a043333                 const-string             v4, "Pad"
+000332  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000338  0c00                     move-result-object       v0
+00033a  5b109e33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->b4 Ljava/lang/String;
+00033e  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+000342  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+000348  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+00034c  1a044d37                 const-string             v4, "Skin"
+000350  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000356  0c00                     move-result-object       v0
+000358  5b10a633                 iput-object              v0, v1, Lsofeh/android/MainActivity;->c4 Ljava/lang/String;
+00035c  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+000360  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+000366  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+00036a  1a04f530                 const-string             v4, "Model"
+00036e  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000374  0c00                     move-result-object       v0
+000376  5b10ae33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->d4 Ljava/lang/String;
+00037a  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+00037e  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+000384  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+000388  1a04030d                 const-string             v4, "Chord"
+00038c  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000392  0c00                     move-result-object       v0
+000394  5b10b633                 iput-object              v0, v1, Lsofeh/android/MainActivity;->e4 Ljava/lang/String;
+000398  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+00039c  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+0003a2  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+0003a6  1a046114                 const-string             v4, "Import"
+0003aa  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0003b0  0c00                     move-result-object       v0
+0003b2  5b108033                 iput-object              v0, v1, Lsofeh/android/MainActivity;->X3 Ljava/lang/String;
+0003b6  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+0003ba  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+0003c0  54137933                 iget-object              v3, v1, Lsofeh/android/MainActivity;->W3 Ljava/lang/String;
+0003c4  1a043e07                 const-string             v4, ".temp"
+0003c8  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0003ce  0c00                     move-result-object       v0
+0003d0  5b10be33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;
+0003d4  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+0003d8  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+0003de  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+0003e2  1a04da36                 const-string             v4, "Script"
+0003e6  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0003ec  0c00                     move-result-object       v0
+0003ee  5b10c633                 iput-object              v0, v1, Lsofeh/android/MainActivity;->g4 Ljava/lang/String;
+0003f2  22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+0003f6  701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+0003fc  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+000400  1a041c16                 const-string             v4, "KeyboardSet"
+000404  7140813f3042             invoke-static            v0, v3, v2, v4, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+00040a  0c00                     move-result-object       v0
+00040c  5b10ce33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->h4 Ljava/lang/String;
+000410  2200e90f                 new-instance             v0, Ljava/io/File;
+000414  54137933                 iget-object              v3, v1, Lsofeh/android/MainActivity;->W3 Ljava/lang/String;
+000418  7020a0453000             invoke-direct            v0, v3, Ljava/io/File;-><init>(Ljava/lang/String;)V
+00041e  71102a080000             invoke-static            v0, Lbp3;->n(Ljava/io/File;)V
+000424  2200e90f                 new-instance             v0, Ljava/io/File;
+000428  54137233                 iget-object              v3, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+00042c  7020a0453000             invoke-direct            v0, v3, Ljava/io/File;-><init>(Ljava/lang/String;)V
+000432  71102a080000             invoke-static            v0, Lbp3;->n(Ljava/io/File;)V
+000438  2207e90f                 new-instance             v7, Ljava/io/File;
+00043c  54138733                 iget-object              v3, v1, Lsofeh/android/MainActivity;->Y3 Ljava/lang/String;
+000440  7020a0453700             invoke-direct            v7, v3, Ljava/io/File;-><init>(Ljava/lang/String;)V
+000446  71102a080700             invoke-static            v7, Lbp3;->n(Ljava/io/File;)V
+00044c  220de90f                 new-instance             v13, Ljava/io/File;
+000450  54138e33                 iget-object              v3, v1, Lsofeh/android/MainActivity;->Z3 Ljava/lang/String;
+000454  7020a0453d00             invoke-direct            v13, v3, Ljava/io/File;-><init>(Ljava/lang/String;)V
+00045a  71102a080d00             invoke-static            v13, Lbp3;->n(Ljava/io/File;)V
+000460  220ee90f                 new-instance             v14, Ljava/io/File;
+000464  54139633                 iget-object              v3, v1, Lsofeh/android/MainActivity;->a4 Ljava/lang/String;
+000468  7020a0453e00             invoke-direct            v14, v3, Ljava/io/File;-><init>(Ljava/lang/String;)V
+00046e  71102a080e00             invoke-static            v14, Lbp3;->n(Ljava/io/File;)V
+000474  220fe90f                 new-instance             v15, Ljava/io/File;
+000478  54139e33                 iget-object              v3, v1, Lsofeh/android/MainActivity;->b4 Ljava/lang/String;
+00047c  7020a0453f00             invoke-direct            v15, v3, Ljava/io/File;-><init>(Ljava/lang/String;)V
+000482  71102a080f00             invoke-static            v15, Lbp3;->n(Ljava/io/File;)V
+000488  2203e90f                 new-instance             v3, Ljava/io/File;
+00048c  5414a633                 iget-object              v4, v1, Lsofeh/android/MainActivity;->c4 Ljava/lang/String;
+000490  7020a0454300             invoke-direct            v3, v4, Ljava/io/File;-><init>(Ljava/lang/String;)V
+000496  71102a080300             invoke-static            v3, Lbp3;->n(Ljava/io/File;)V
+00049c  2204e90f                 new-instance             v4, Ljava/io/File;
+0004a0  5415ae33                 iget-object              v5, v1, Lsofeh/android/MainActivity;->d4 Ljava/lang/String;
+0004a4  7020a0455400             invoke-direct            v4, v5, Ljava/io/File;-><init>(Ljava/lang/String;)V
+0004aa  71102a080400             invoke-static            v4, Lbp3;->n(Ljava/io/File;)V
+0004b0  2205e90f                 new-instance             v5, Ljava/io/File;
+0004b4  5416b633                 iget-object              v6, v1, Lsofeh/android/MainActivity;->e4 Ljava/lang/String;
+0004b8  7020a0456500             invoke-direct            v5, v6, Ljava/io/File;-><init>(Ljava/lang/String;)V
+0004be  71102a080500             invoke-static            v5, Lbp3;->n(Ljava/io/File;)V
+0004c4  2206e90f                 new-instance             v6, Ljava/io/File;
+0004c8  54198033                 iget-object              v9, v1, Lsofeh/android/MainActivity;->X3 Ljava/lang/String;
+0004cc  7020a0459600             invoke-direct            v6, v9, Ljava/io/File;-><init>(Ljava/lang/String;)V
+0004d2  71102a080600             invoke-static            v6, Lbp3;->n(Ljava/io/File;)V
+0004d8  2206e90f                 new-instance             v6, Ljava/io/File;
+0004dc  5419be33                 iget-object              v9, v1, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;
+0004e0  7020a0459600             invoke-direct            v6, v9, Ljava/io/File;-><init>(Ljava/lang/String;)V
+0004e6  71102a080600             invoke-static            v6, Lbp3;->n(Ljava/io/File;)V
+0004ec  2209e90f                 new-instance             v9, Ljava/io/File;
+0004f0  541ac633                 iget-object              v10, v1, Lsofeh/android/MainActivity;->g4 Ljava/lang/String;
+0004f4  7020a045a900             invoke-direct            v9, v10, Ljava/io/File;-><init>(Ljava/lang/String;)V
+0004fa  71102a080900             invoke-static            v9, Lbp3;->n(Ljava/io/File;)V
+000500  220ae90f                 new-instance             v10, Ljava/io/File;
+000504  541cce33                 iget-object              v12, v1, Lsofeh/android/MainActivity;->h4 Ljava/lang/String;
+000508  7020a045ca00             invoke-direct            v10, v12, Ljava/io/File;-><init>(Ljava/lang/String;)V
+00050e  71102a080a00             invoke-static            v10, Lbp3;->n(Ljava/io/File;)V
+000514  220c4a12                 new-instance             v12, Lk82;
+000518  703020526c08             invoke-direct            v12, v6, v8, Lk82;-><init>(Ljava/io/File; B)V
+00051e  62062834                 sget-object              v6, Lsofeh/android/MainActivity;->s6 Ljava/util/concurrent/ExecutorService;
+000522  7220234ac600             invoke-interface         v6, v12, Ljava/util/concurrent/Executor;->execute(Ljava/lang/Runnable;)V
+000528  22064210                 new-instance             v6, Ljava/lang/StringBuilder;
+00052c  701052470600             invoke-direct            v6, Ljava/lang/StringBuilder;-><init>()V
+000532  541c7233                 iget-object              v12, v1, Lsofeh/android/MainActivity;->V3 Ljava/lang/String;
+000536  1a08f00e                 const-string             v8, "Default.Template"
+00053a  7140813fc682             invoke-static            v6, v12, v2, v8, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000540  0c02                     move-result-object       v2
+000542  5b12d633                 iput-object              v2, v1, Lsofeh/android/MainActivity;->i4 Ljava/lang/String;
+000546  0702                     move-object              v2, v0
+000548  22000715                 new-instance             v0, Lr31;
+00054c  1406a700127f             const                    v6, 2131886247
+000552  6e20f9016100             invoke-virtual           v1, v6, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000558  0c06                     move-result-object       v6
+00055a  0758                     move-object              v8, v5
+00055c  13052391                 const/16                 v5, -28381
+000560  073c                     move-object              v12, v3
+000562  0763                     move-object              v3, v6
+000564  1206                     const/4                  v6, 0
+000566  08120400                 move-object/from16       v18, v4
+00056a  1a04f106                 const-string             v4, ".Music"
+00056e  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+000574  5b103d34                 iput-object              v0, v1, Lsofeh/android/MainActivity;->v3 Lr31;
+000578  22036715                 new-instance             v3, Ls82;
+00057c  13041600                 const/16                 v4, 22
+000580  7030655f1304             invoke-direct            v3, v1, v4, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000586  6e20405e3000             invoke-virtual           v0, v3, Lr31;->c(Lq31;)V
+00058c  22000715                 new-instance             v0, Lr31;
+000590  1403aa00127f             const                    v3, 2131886250
+000596  6e20f9013100             invoke-virtual           v1, v3, Landroid/content/Context;->getString(I)Ljava/lang/String;
+00059c  0c03                     move-result-object       v3
+00059e  1216                     const/4                  v6, 1
+0005a0  1a04f706                 const-string             v4, ".Set;.Template;.Music"
+0005a4  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+0005aa  5b104534                 iput-object              v0, v1, Lsofeh/android/MainActivity;->w3 Lr31;
+0005ae  22036715                 new-instance             v3, Ls82;
+0005b2  13041700                 const/16                 v4, 23
+0005b6  7030655f1304             invoke-direct            v3, v1, v4, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+0005bc  6e20405e3000             invoke-virtual           v0, v3, Lr31;->c(Lq31;)V
+0005c2  22000715                 new-instance             v0, Lr31;
+0005c6  14037f00127f             const                    v3, 2131886207
+0005cc  6e20f9013100             invoke-virtual           v1, v3, Landroid/content/Context;->getString(I)Ljava/lang/String;
+0005d2  0c03                     move-result-object       v3
+0005d4  1206                     const/4                  v6, 0
+0005d6  1a044f07                 const-string             v4, ".zip"
+0005da  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+0005e0  5b104d34                 iput-object              v0, v1, Lsofeh/android/MainActivity;->x3 Lr31;
+0005e4  22036715                 new-instance             v3, Ls82;
+0005e8  13041800                 const/16                 v4, 24
+0005ec  7030655f1304             invoke-direct            v3, v1, v4, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+0005f2  6e20405e3000             invoke-virtual           v0, v3, Lr31;->c(Lq31;)V
+0005f8  22000715                 new-instance             v0, Lr31;
+0005fc  1403e200127f             const                    v3, 2131886306
+000602  6e20f9013100             invoke-virtual           v1, v3, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000608  0c03                     move-result-object       v3
+00060a  1a044707                 const-string             v4, ".wav;.ogg;.mp3;.aac;.amr"
+00060e  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+000614  08130200                 move-object/from16       v19, v2
+000618  5b105534                 iput-object              v0, v1, Lsofeh/android/MainActivity;->y3 Lr31;
+00061c  22026715                 new-instance             v2, Ls82;
+000620  1203                     const/4                  v3, 0
+000622  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000628  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+00062e  22000715                 new-instance             v0, Lr31;
+000632  14028f00127f             const                    v2, 2131886223
+000638  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+00063e  0c03                     move-result-object       v3
+000640  1405ffa15aff             const                    v5, -10837505
+000646  1216                     const/4                  v6, 1
+000648  1a04ed06                 const-string             v4, ".Instrument;.wav;.ogg;.mp3;.aac;.amr"
+00064c  0772                     move-object              v2, v7
+00064e  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+000654  5b105d34                 iput-object              v0, v1, Lsofeh/android/MainActivity;->z3 Lr31;
+000658  22036715                 new-instance             v3, Ls82;
+00065c  1214                     const/4                  v4, 1
+00065e  7030655f1304             invoke-direct            v3, v1, v4, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000664  6e20405e3000             invoke-virtual           v0, v3, Lr31;->c(Lq31;)V
+00066a  22000715                 new-instance             v0, Lr31;
+00066e  14038f00127f             const                    v3, 2131886223
+000674  6e20f9013100             invoke-virtual           v1, v3, Landroid/content/Context;->getString(I)Ljava/lang/String;
+00067a  0c03                     move-result-object       v3
+00067c  1a04ec06                 const-string             v4, ".Instrument;.sf2;.wav;.ogg;.mp3;.aac;.amr"
+000680  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+000686  5b10d732                 iput-object              v0, v1, Lsofeh/android/MainActivity;->A3 Lr31;
+00068a  22026715                 new-instance             v2, Ls82;
+00068e  1223                     const/4                  v3, 2
+000690  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000696  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+00069c  22000715                 new-instance             v0, Lr31;
+0006a0  1402db00127f             const                    v2, 2131886299
+0006a6  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+0006ac  0c03                     move-result-object       v3
+0006ae  140516aa80ff             const                    v5, -8345066
+0006b4  1a04fd06                 const-string             v4, ".System"
+0006b8  07d2                     move-object              v2, v13
+0006ba  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+0006c0  5b10df32                 iput-object              v0, v1, Lsofeh/android/MainActivity;->B3 Lr31;
+0006c4  22036715                 new-instance             v3, Ls82;
+0006c8  1234                     const/4                  v4, 3
+0006ca  7030655f1304             invoke-direct            v3, v1, v4, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+0006d0  6e20405e3000             invoke-virtual           v0, v3, Lr31;->c(Lq31;)V
+0006d6  22000715                 new-instance             v0, Lr31;
+0006da  1403db00127f             const                    v3, 2131886299
+0006e0  6e20f9013100             invoke-virtual           v1, v3, Landroid/content/Context;->getString(I)Ljava/lang/String;
+0006e6  0c03                     move-result-object       v3
+0006e8  1a04fd06                 const-string             v4, ".System"
+0006ec  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+0006f2  5b10e732                 iput-object              v0, v1, Lsofeh/android/MainActivity;->C3 Lr31;
+0006f6  22026715                 new-instance             v2, Ls82;
+0006fa  1243                     const/4                  v3, 4
+0006fc  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000702  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000708  22000715                 new-instance             v0, Lr31;
+00070c  1402d200127f             const                    v2, 2131886290
+000712  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000718  0c03                     move-result-object       v3
+00071a  14055252ffff             const                    v5, -44462
+000720  1a04fc06                 const-string             v4, ".Style;.Rhythm;.Pad;.wav;.ogg;.mp3;.aac;.amr"
+000724  07e2                     move-object              v2, v14
+000726  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+00072c  0727                     move-object              v7, v2
+00072e  5b10ef32                 iput-object              v0, v1, Lsofeh/android/MainActivity;->D3 Lr31;
+000732  22026715                 new-instance             v2, Ls82;
+000736  1253                     const/4                  v3, 5
+000738  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+00073e  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000744  22000715                 new-instance             v0, Lr31;
+000748  14029a00127f             const                    v2, 2131886234
+00074e  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000754  0c03                     move-result-object       v3
+000756  1a04f306                 const-string             v4, ".Pad;.wav;.ogg;.mp3;.aac;.amr"
+00075a  07f2                     move-object              v2, v15
+00075c  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+000762  5b10f732                 iput-object              v0, v1, Lsofeh/android/MainActivity;->E3 Lr31;
+000766  22036715                 new-instance             v3, Ls82;
+00076a  1264                     const/4                  v4, 6
+00076c  7030655f1304             invoke-direct            v3, v1, v4, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000772  6e20405e3000             invoke-virtual           v0, v3, Lr31;->c(Lq31;)V
+000778  22000715                 new-instance             v0, Lr31;
+00077c  1403d700127f             const                    v3, 2131886295
+000782  6e20f9013100             invoke-virtual           v1, v3, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000788  0c03                     move-result-object       v3
+00078a  1a04f306                 const-string             v4, ".Pad;.wav;.ogg;.mp3;.aac;.amr"
+00078e  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+000794  072d                     move-object              v13, v2
+000796  5b100733                 iput-object              v0, v1, Lsofeh/android/MainActivity;->G3 Lr31;
+00079a  22026715                 new-instance             v2, Ls82;
+00079e  1273                     const/4                  v3, 7
+0007a0  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+0007a6  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+0007ac  22000715                 new-instance             v0, Lr31;
+0007b0  1402d700127f             const                    v2, 2131886295
+0007b6  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+0007bc  0c03                     move-result-object       v3
+0007be  1206                     const/4                  v6, 0
+0007c0  1a04f606                 const-string             v4, ".Section"
+0007c4  0772                     move-object              v2, v7
+0007c6  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+0007cc  072e                     move-object              v14, v2
+0007ce  5b10ff32                 iput-object              v0, v1, Lsofeh/android/MainActivity;->F3 Lr31;
+0007d2  22026715                 new-instance             v2, Ls82;
+0007d6  13030800                 const/16                 v3, 8
+0007da  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+0007e0  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+0007e6  22000715                 new-instance             v0, Lr31;
+0007ea  1402d000127f             const                    v2, 2131886288
+0007f0  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+0007f6  0c03                     move-result-object       v3
+0007f8  1405a050ffff             const                    v5, -44896
+0007fe  1216                     const/4                  v6, 1
+000800  1a04f306                 const-string             v4, ".Pad;.wav;.ogg;.mp3;.aac;.amr"
+000804  07d2                     move-object              v2, v13
+000806  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+00080c  5b100f33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->H3 Lr31;
+000810  22026715                 new-instance             v2, Ls82;
+000814  13030900                 const/16                 v3, 9
+000818  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+00081e  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000824  22000715                 new-instance             v0, Lr31;
+000828  1402dc00127f             const                    v2, 2131886300
+00082e  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000834  0c03                     move-result-object       v3
+000836  1405ffa15aff             const                    v5, -10837505
+00083c  1206                     const/4                  v6, 0
+00083e  1a04fe06                 const-string             v4, ".Track"
+000842  08021300                 move-object/from16       v2, v19
+000846  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+00084c  5b101733                 iput-object              v0, v1, Lsofeh/android/MainActivity;->I3 Lr31;
+000850  22026715                 new-instance             v2, Ls82;
+000854  13030a00                 const/16                 v3, 10
+000858  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+00085e  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000864  22000715                 new-instance             v0, Lr31;
+000868  1402ce00127f             const                    v2, 2131886286
+00086e  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000874  0c03                     move-result-object       v3
+000876  1216                     const/4                  v6, 1
+000878  1217                     const/4                  v7, 1
+00087a  13052391                 const/16                 v5, -28381
+00087e  1a04f906                 const-string             v4, ".Skin;.Skinz"
+000882  07c2                     move-object              v2, v12
+000884  76083d5e0000             invoke-direct/range      v0 ... v7, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z Z)V
+00088a  5b101e33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->J3 Lr31;
+00088e  22026715                 new-instance             v2, Ls82;
+000892  13030b00                 const/16                 v3, 11
+000896  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+00089c  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+0008a2  22000715                 new-instance             v0, Lr31;
+0008a6  1206                     const/4                  v6, 0
+0008a8  1a03c30a                 const-string             v3, "Audio Player"
+0008ac  1a044707                 const-string             v4, ".wav;.ogg;.mp3;.aac;.amr"
+0008b0  08021300                 move-object/from16       v2, v19
+0008b4  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+0008ba  0727                     move-object              v7, v2
+0008bc  5b102533                 iput-object              v0, v1, Lsofeh/android/MainActivity;->K3 Lr31;
+0008c0  22026715                 new-instance             v2, Ls82;
+0008c4  13030c00                 const/16                 v3, 12
+0008c8  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+0008ce  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+0008d4  22000715                 new-instance             v0, Lr31;
+0008d8  1402c900127f             const                    v2, 2131886281
+0008de  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+0008e4  0c02                     move-result-object       v2
+0008e6  70403b5e1027             invoke-direct            v0, v1, v7, v2, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String;)V
+0008ec  5b102c33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->L3 Lr31;
+0008f0  22026715                 new-instance             v2, Ls82;
+0008f4  13030d00                 const/16                 v3, 13
+0008f8  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+0008fe  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000904  22000715                 new-instance             v0, Lr31;
+000908  1402a000127f             const                    v2, 2131886240
+00090e  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000914  0c02                     move-result-object       v2
+000916  70403b5e1027             invoke-direct            v0, v1, v7, v2, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String;)V
+00091c  5b103333                 iput-object              v0, v1, Lsofeh/android/MainActivity;->M3 Lr31;
+000920  22026715                 new-instance             v2, Ls82;
+000924  13030e00                 const/16                 v3, 14
+000928  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+00092e  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000934  22000715                 new-instance             v0, Lr31;
+000938  1a031030                 const-string             v3, "MIDI Model"
+00093c  1a04ef06                 const-string             v4, ".Model"
+000940  08021200                 move-object/from16       v2, v18
+000944  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+00094a  5b103a33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->N3 Lr31;
+00094e  22026715                 new-instance             v2, Ls82;
+000952  13030f00                 const/16                 v3, 15
+000956  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+00095c  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000962  22000715                 new-instance             v0, Lr31;
+000966  14055252ffff             const                    v5, -44462
+00096c  1a03030d                 const-string             v3, "Chord"
+000970  1a04e906                 const-string             v4, ".Chord"
+000974  0782                     move-object              v2, v8
+000976  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+00097c  5b104133                 iput-object              v0, v1, Lsofeh/android/MainActivity;->O3 Lr31;
+000980  22026715                 new-instance             v2, Ls82;
+000984  13031000                 const/16                 v3, 16
+000988  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+00098e  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000994  22000715                 new-instance             v0, Lr31;
+000998  1402d200127f             const                    v2, 2131886290
+00099e  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+0009a4  0c03                     move-result-object       v3
+0009a6  1a04fb06                 const-string             v4, ".Style;.Rhythm"
+0009aa  07e2                     move-object              v2, v14
+0009ac  76073c5e0000             invoke-direct/range      v0 ... v6, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z)V
+0009b2  5b104833                 iput-object              v0, v1, Lsofeh/android/MainActivity;->P3 Lr31;
+0009b6  54104833                 iget-object              v0, v1, Lsofeh/android/MainActivity;->P3 Lr31;
+0009ba  22026715                 new-instance             v2, Ls82;
+0009be  13031100                 const/16                 v3, 17
+0009c2  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+0009c8  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+0009ce  22000715                 new-instance             v0, Lr31;
+0009d2  14027100127f             const                    v2, 2131886193
+0009d8  6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+0009de  0c03                     move-result-object       v3
+0009e0  0772                     move-object              v2, v7
+0009e2  1217                     const/4                  v7, 1
+0009e4  13052391                 const/16                 v5, -28381
+0009e8  1a040000                 const-string             v4, ""
+0009ec  76083d5e0000             invoke-direct/range      v0 ... v7, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z Z)V
+0009f2  08130200                 move-object/from16       v19, v2
+0009f6  5b104f33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->Q3 Lr31;
+0009fa  54104f33                 iget-object              v0, v1, Lsofeh/android/MainActivity;->Q3 Lr31;
+0009fe  22026715                 new-instance             v2, Ls82;
+000a02  13031200                 const/16                 v3, 18
+000a06  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000a0c  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000a12  22000715                 new-instance             v0, Lr31;
+000a16  1207                     const/4                  v7, 0
+000a18  140516aa80ff             const                    v5, -8345066
+000a1e  1a03da36                 const-string             v3, "Script"
+000a22  1a04f506                 const-string             v4, ".Script"
+000a26  0792                     move-object              v2, v9
+000a28  76083d5e0000             invoke-direct/range      v0 ... v7, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z Z)V
+000a2e  5b105633                 iput-object              v0, v1, Lsofeh/android/MainActivity;->R3 Lr31;
+000a32  54105633                 iget-object              v0, v1, Lsofeh/android/MainActivity;->R3 Lr31;
+000a36  22026715                 new-instance             v2, Ls82;
+000a3a  13031300                 const/16                 v3, 19
+000a3e  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000a44  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000a4a  22000715                 new-instance             v0, Lr31;
+000a4e  14055252ffff             const                    v5, -44462
+000a54  1a031330                 const-string             v3, "MIDI file"
+000a58  1a042207                 const-string             v4, ".mid;.midi"
+000a5c  08021300                 move-object/from16       v2, v19
+000a60  76083d5e0000             invoke-direct/range      v0 ... v7, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z Z)V
+000a66  5b105d33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->S3 Lr31;
+000a6a  54105d33                 iget-object              v0, v1, Lsofeh/android/MainActivity;->S3 Lr31;
+000a6e  22030413                 new-instance             v3, Lmb2;
+000a72  7010e6460300             invoke-direct            v3, Ljava/lang/Object;-><init>()V
+000a78  6e20405e3000             invoke-virtual           v0, v3, Lr31;->c(Lq31;)V
+000a7e  22000715                 new-instance             v0, Lr31;
+000a82  13052391                 const/16                 v5, -28381
+000a86  1a032a11                 const-string             v3, "FX file"
+000a8a  1a04ea06                 const-string             v4, ".Filter"
+000a8e  76083d5e0000             invoke-direct/range      v0 ... v7, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z Z)V
+000a94  5b106433                 iput-object              v0, v1, Lsofeh/android/MainActivity;->T3 Lr31;
+000a98  54106433                 iget-object              v0, v1, Lsofeh/android/MainActivity;->T3 Lr31;
+000a9c  22026715                 new-instance             v2, Ls82;
+000aa0  13031400                 const/16                 v3, 20
+000aa4  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000aaa  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000ab0  22000715                 new-instance             v0, Lr31;
+000ab4  1405ffa15aff             const                    v5, -10837505
+000aba  1a031416                 const-string             v3, "Keyboard Set"
+000abe  1a04ee06                 const-string             v4, ".KeyboardSet"
+000ac2  07a2                     move-object              v2, v10
+000ac4  76083d5e0000             invoke-direct/range      v0 ... v7, Lr31;-><init>(Lsofeh/android/MainActivity; Ljava/io/File; Ljava/lang/String; Ljava/lang/String; I Z Z)V
+000aca  5b106b33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->U3 Lr31;
+000ace  54106b33                 iget-object              v0, v1, Lsofeh/android/MainActivity;->U3 Lr31;
+000ad2  22026715                 new-instance             v2, Ls82;
+000ad6  13031500                 const/16                 v3, 21
+000ada  7030655f1203             invoke-direct            v2, v1, v3, Ls82;-><init>(Lsofeh/android/MainActivity; B)V
+000ae0  6e20405e2000             invoke-virtual           v0, v2, Lr31;->c(Lq31;)V
+000ae6  22005801                 new-instance             v0, Landroid/os/Handler;
+000aea  701060040000             invoke-direct            v0, Landroid/os/Handler;-><init>()V
+000af0  5b102d34                 iput-object              v0, v1, Lsofeh/android/MainActivity;->t3 Landroid/os/Handler;
+000af4  22000316                 new-instance             v0, Lt82;
+000af8  1264                     const/4                  v4, 6
+000afa  7030a8641004             invoke-direct            v0, v1, v4, Lt82;-><init>(Lsofeh/android/MainActivity; B)V
+000b00  5b103534                 iput-object              v0, v1, Lsofeh/android/MainActivity;->u3 Lt82;
+000b04  2200e400                 new-instance             v0, Landroid/graphics/Paint;
+000b08  7010d7020000             invoke-direct            v0, Landroid/graphics/Paint;-><init>()V
+000b0e  5b104433                 iput-object              v0, v1, Lsofeh/android/MainActivity;->P Landroid/graphics/Paint;
+000b12  2200e100                 new-instance             v0, Landroid/graphics/Matrix;
+000b16  7010cb020000             invoke-direct            v0, Landroid/graphics/Matrix;-><init>()V
+000b1c  5b104b33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->Q Landroid/graphics/Matrix;
+000b20  6200f731                 sget-object              v0, Lrl4;->a Lql4;
+000b24  6e10ea460000             invoke-virtual           v0, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+000b2a  62000231                 sget-object              v0, Lql4;->a Lql4;
+000b2e  62000331                 sget-object              v0, Lql4;->b Lsl4;
+000b32  6e10ea460000             invoke-virtual           v0, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+000b38  6002da00                 sget                     v2, Landroid/os/Build$VERSION;->SDK_INT I
+000b3c  13032200                 const/16                 v3, 34
+000b40  34320500                 if-lt                    v2, v3, +005h
+000b44  62027d37                 sget-object              v2, Lti1;->m Lti1;
+000b48  280a                     goto                     +ah
+000b4a  13031e00                 const/16                 v3, 30
+000b4e  34320500                 if-lt                    v2, v3, +005h
+000b52  62022731                 sget-object              v2, Lqs0;->m Lqs0;
+000b56  2803                     goto                     +3h
+000b58  62020002                 sget-object              v2, Lc14;->n Lc14;
+000b5c  5400c932                 iget-object              v0, v0, Lsl4;->b Ldl0;
+000b60  723078651200             invoke-interface         v2, v1, v0, Ltl4;->g(Lsofeh/android/MainActivity; Ldl0;)Lpl4;
+000b66  0c00                     move-result-object       v0
+000b68  54002030                 iget-object              v0, v0, Lpl4;->a Liq;
+000b6c  2202e900                 new-instance             v2, Landroid/graphics/Rect;
+000b70  5203b626                 iget                     v3, v0, Liq;->a I
+000b74  5204b726                 iget                     v4, v0, Liq;->b I
+000b78  5205b826                 iget                     v5, v0, Liq;->c I
+000b7c  5200b926                 iget                     v0, v0, Liq;->d I
+000b80  7050eb023254             invoke-direct            v2, v3, v4, v5, v0, Landroid/graphics/Rect;-><init>(I I I I)V
+000b86  6e10f1020200             invoke-virtual           v2, Landroid/graphics/Rect;->width()I
+000b8c  0a00                     move-result              v0
+000b8e  6e10ec020200             invoke-virtual           v2, Landroid/graphics/Rect;->height()I
+000b94  0a03                     move-result              v3
+000b96  7120c7463000             invoke-static            v0, v3, Ljava/lang/Math;->max(I I)I
+000b9c  0a00                     move-result              v0
+000b9e  59106033                 iput                     v0, v1, Lsofeh/android/MainActivity;->T I
+000ba2  6e10f1020200             invoke-virtual           v2, Landroid/graphics/Rect;->width()I
+000ba8  0a00                     move-result              v0
+000baa  6e10ec020200             invoke-virtual           v2, Landroid/graphics/Rect;->height()I
+000bb0  0a02                     move-result              v2
+000bb2  7120cb462000             invoke-static            v0, v2, Ljava/lang/Math;->min(I I)I
+000bb8  0a00                     move-result              v0
+000bba  59106733                 iput                     v0, v1, Lsofeh/android/MainActivity;->U I
+000bbe  52106033                 iget                     v0, v1, Lsofeh/android/MainActivity;->T I
+000bc2  8200                     int-to-float             v0, v0
+000bc4  52126733                 iget                     v2, v1, Lsofeh/android/MainActivity;->U I
+000bc8  8222                     int-to-float             v2, v2
+000bca  c920                     div-float/2addr          v0, v2
+000bcc  8902                     float-to-double          v2, v0
+000bce  5a127533                 iput-wide                v2, v1, Lsofeh/android/MainActivity;->W D
+000bd2  52106033                 iget                     v0, v1, Lsofeh/android/MainActivity;->T I
+000bd6  52126733                 iget                     v2, v1, Lsofeh/android/MainActivity;->U I
+000bda  7120c7462000             invoke-static            v0, v2, Ljava/lang/Math;->max(I I)I
+000be0  0a00                     move-result              v0
+000be2  8200                     int-to-float             v0, v0
+000be4  52126033                 iget                     v2, v1, Lsofeh/android/MainActivity;->T I
+000be8  52136733                 iget                     v3, v1, Lsofeh/android/MainActivity;->U I
+000bec  7120cb463200             invoke-static            v2, v3, Ljava/lang/Math;->min(I I)I
+000bf2  0a02                     move-result              v2
+000bf4  8222                     int-to-float             v2, v2
+000bf6  c920                     div-float/2addr          v0, v2
+000bf8  1402cdcccc3f             const                    v2, 1070386381
+000bfe  2e000002                 cmpg-float               v0, v0, v2
+000c02  3b000400                 if-gez                   v0, +004h
+000c06  1210                     const/4                  v0, 1
+000c08  2802                     goto                     +2h
+000c0a  1200                     const/4                  v0, 0
+000c0c  5c107c33                 iput-boolean             v0, v1, Lsofeh/android/MainActivity;->X Z
+000c10  6e10f7010100             invoke-virtual           v1, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+000c16  0c00                     move-result-object       v0
+000c18  6e1064020000             invoke-virtual           v0, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+000c1e  0c00                     move-result-object       v0
+000c20  52126033                 iget                     v2, v1, Lsofeh/android/MainActivity;->T I
+000c24  8222                     int-to-float             v2, v2
+000c26  5203f300                 iget                     v3, v0, Landroid/util/DisplayMetrics;->xdpi F
+000c2a  c932                     div-float/2addr          v2, v3
+000c2c  8922                     float-to-double          v2, v2
+000c2e  19040040                 const-wide/high16        v4, 4611686018427387904
+000c32  7140ce463254             invoke-static            v2, v3, v4, v5, Ljava/lang/Math;->pow(D D)D
+000c38  0b02                     move-result-wide         v2
+000c3a  52166733                 iget                     v6, v1, Lsofeh/android/MainActivity;->U I
+000c3e  8266                     int-to-float             v6, v6
+000c40  5200f400                 iget                     v0, v0, Landroid/util/DisplayMetrics;->ydpi F
+000c44  c906                     div-float/2addr          v6, v0
+000c46  8966                     float-to-double          v6, v6
+000c48  7140ce467654             invoke-static            v6, v7, v4, v5, Ljava/lang/Math;->pow(D D)D
+000c4e  0b04                     move-result-wide         v4
+000c50  cb24                     add-double/2addr         v4, v2
+000c52  7120d4465400             invoke-static            v4, v5, Ljava/lang/Math;->sqrt(D)D
+000c58  0b02                     move-result-wide         v2
+000c5a  5a126e33                 iput-wide                v2, v1, Lsofeh/android/MainActivity;->V D
+000c5e  22009416                 new-instance             v0, Lus3;
+000c62  52126033                 iget                     v2, v1, Lsofeh/android/MainActivity;->T I
+000c66  52136733                 iget                     v3, v1, Lsofeh/android/MainActivity;->U I
+000c6a  7010e6460000             invoke-direct            v0, Ljava/lang/Object;-><init>()V
+000c70  13040f00                 const/16                 v4, 15
+000c74  5904aa38                 iput                     v4, v0, Lus3;->a I
+000c78  1264                     const/4                  v4, 6
+000c7a  5904ac38                 iput                     v4, v0, Lus3;->b I
+000c7e  1224                     const/4                  v4, 2
+000c80  5904ae38                 iput                     v4, v0, Lus3;->c I
+000c84  1214                     const/4                  v4, 1
+000c86  5904b038                 iput                     v4, v0, Lus3;->d I
+000c8a  13043200                 const/16                 v4, 50
+000c8e  5904b238                 iput                     v4, v0, Lus3;->e I
+000c92  13045000                 const/16                 v4, 80
+000c96  5904b438                 iput                     v4, v0, Lus3;->f I
+000c9a  13040f00                 const/16                 v4, 15
+000c9e  5904b638                 iput                     v4, v0, Lus3;->g I
+000ca2  13040a00                 const/16                 v4, 10
+000ca6  5904b838                 iput                     v4, v0, Lus3;->h I
+000caa  2204c110                 new-instance             v4, Ljava/util/ArrayList;
+000cae  7010ae480400             invoke-direct            v4, Ljava/util/ArrayList;-><init>()V
+000cb4  5b04ba38                 iput-object              v4, v0, Lus3;->i Ljava/util/ArrayList;
+000cb8  1204                     const/4                  v4, 0
+000cba  5904bc38                 iput                     v4, v0, Lus3;->j I
+000cbe  5904be38                 iput                     v4, v0, Lus3;->k I
+000cc2  1405f0f000ff             const                    v5, -16715536
+000cc8  1406a0a0a0ff             const                    v6, -6250336
+000cce  1407303030ff             const                    v7, -13619152
+000cd4  14080040ffff             const                    v8, -49152
+000cda  244050188765             filled-new-array         v7, v8, v5, v6, [I
+000ce0  0c05                     move-result-object       v5
+000ce2  5b05d838                 iput-object              v5, v0, Lus3;->x [I
+000ce6  5904da38                 iput                     v4, v0, Lus3;->y I
+000cea  1215                     const/4                  v5, 1
+000cec  5905db38                 iput                     v5, v0, Lus3;->z I
+000cf0  5c049738                 iput-boolean             v4, v0, Lus3;->H Z
+000cf4  5902d038                 iput                     v2, v0, Lus3;->t I
+000cf8  5903d238                 iput                     v3, v0, Lus3;->u I
+000cfc  1224                     const/4                  v4, 2
+000cfe  36430600                 if-gt                    v3, v4, +006h
+000d02  db020202                 div-int/lit8             v2, v2, 2
+000d06  5902d238                 iput                     v2, v0, Lus3;->u I
+000d0a  13021400                 const/16                 v2, 20
+000d0e  23224f18                 new-array                v2, v2, [F
+000d12  26027b010000             fill-array-data          v2, +000017bh
+000d18  5b029c38                 iput-object              v2, v0, Lus3;->M [F
+000d1c  1232                     const/4                  v2, 3
+000d1e  23225918                 new-array                v2, v2, [Landroid/graphics/Paint;
+000d22  5b029d38                 iput-object              v2, v0, Lus3;->N [Landroid/graphics/Paint;
+000d26  1203                     const/4                  v3, 0
+000d28  5b039e38                 iput-object              v3, v0, Lus3;->O Landroid/graphics/Bitmap;
+000d2c  5b039f38                 iput-object              v3, v0, Lus3;->P Landroid/graphics/Bitmap;
+000d30  5b03a038                 iput-object              v3, v0, Lus3;->Q Landroid/graphics/Bitmap;
+000d34  5b03a138                 iput-object              v3, v0, Lus3;->R Landroid/graphics/Bitmap;
+000d38  5b03a238                 iput-object              v3, v0, Lus3;->S Landroid/graphics/Bitmap;
+000d3c  5b03a338                 iput-object              v3, v0, Lus3;->T Landroid/graphics/Bitmap;
+000d40  5b03a438                 iput-object              v3, v0, Lus3;->U Landroid/graphics/Bitmap;
+000d44  5b03a538                 iput-object              v3, v0, Lus3;->V Landroid/graphics/Bitmap;
+000d48  5b03a638                 iput-object              v3, v0, Lus3;->W Landroid/graphics/Bitmap;
+000d4c  5b03a738                 iput-object              v3, v0, Lus3;->X Landroid/graphics/Bitmap;
+000d50  5b03a838                 iput-object              v3, v0, Lus3;->Y Landroid/graphics/Bitmap;
+000d54  5b03a938                 iput-object              v3, v0, Lus3;->Z Landroid/graphics/Bitmap;
+000d58  5b03ab38                 iput-object              v3, v0, Lus3;->a0 Landroid/graphics/Bitmap;
+000d5c  5b03ad38                 iput-object              v3, v0, Lus3;->b0 Landroid/graphics/Bitmap;
+000d60  5b03af38                 iput-object              v3, v0, Lus3;->c0 Landroid/graphics/Bitmap;
+000d64  5b03b138                 iput-object              v3, v0, Lus3;->d0 Landroid/graphics/Bitmap;
+000d68  5b03b338                 iput-object              v3, v0, Lus3;->e0 Landroid/graphics/Bitmap;
+000d6c  5b03b538                 iput-object              v3, v0, Lus3;->f0 Landroid/graphics/Bitmap;
+000d70  5b03b738                 iput-object              v3, v0, Lus3;->g0 Landroid/graphics/Bitmap;
+000d74  1a1d0000                 const-string             v29, ""
+000d78  1a1e0000                 const-string             v30, ""
+000d7c  1a120000                 const-string             v18, ""
+000d80  1a130000                 const-string             v19, ""
+000d84  1a140000                 const-string             v20, ""
+000d88  1a150000                 const-string             v21, ""
+000d8c  1a160000                 const-string             v22, ""
+000d90  1a170000                 const-string             v23, ""
+000d94  1a180000                 const-string             v24, ""
+000d98  1a190000                 const-string             v25, ""
+000d9c  1a1a0000                 const-string             v26, ""
+000da0  1a1b0000                 const-string             v27, ""
+000da4  1a1c0000                 const-string             v28, ""
+000da8  250dc6181200             filled-new-array/range   v18 ... v30, [Ljava/lang/String;
+000dae  0c03                     move-result-object       v3
+000db0  5b03b938                 iput-object              v3, v0, Lus3;->h0 [Ljava/lang/String;
+000db4  13032b00                 const/16                 v3, 43
+000db8  23345018                 new-array                v4, v3, [I
+000dbc  260452010000             fill-array-data          v4, +0000152h
+000dc2  5b04bb38                 iput-object              v4, v0, Lus3;->i0 [I
+000dc6  23335818                 new-array                v3, v3, [Landroid/graphics/Bitmap;
+000dca  5b03bd38                 iput-object              v3, v0, Lus3;->j0 [Landroid/graphics/Bitmap;
+000dce  13030900                 const/16                 v3, 9
+000dd2  23335018                 new-array                v3, v3, [I
+000dd6  26039f010000             fill-array-data          v3, +000019fh
+000ddc  5b03bf38                 iput-object              v3, v0, Lus3;->k0 [I
+000de0  13030900                 const/16                 v3, 9
+000de4  23335818                 new-array                v3, v3, [Landroid/graphics/Bitmap;
+000de8  5b03c138                 iput-object              v3, v0, Lus3;->l0 [Landroid/graphics/Bitmap;
+000dec  1203                     const/4                  v3, 0
+000dee  5c03c738                 iput-boolean             v3, v0, Lus3;->o0 Z
+000df2  5b0bc938                 iput-object              v11, v0, Lus3;->p0 Ljava/lang/String;
+000df6  2203e900                 new-instance             v3, Landroid/graphics/Rect;
+000dfa  7010ea020300             invoke-direct            v3, Landroid/graphics/Rect;-><init>()V
+000e00  5b03d738                 iput-object              v3, v0, Lus3;->w0 Landroid/graphics/Rect;
+000e04  2203e900                 new-instance             v3, Landroid/graphics/Rect;
+000e08  7010ea020300             invoke-direct            v3, Landroid/graphics/Rect;-><init>()V
+000e0e  5b03d938                 iput-object              v3, v0, Lus3;->x0 Landroid/graphics/Rect;
+000e12  5b019a38                 iput-object              v1, v0, Lus3;->K Lsofeh/android/MainActivity;
+000e16  6e10f7010100             invoke-virtual           v1, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+000e1c  0c03                     move-result-object       v3
+000e1e  5b039938                 iput-object              v3, v0, Lus3;->J Landroid/content/res/Resources;
+000e22  1203                     const/4                  v3, 0
+000e24  5b039838                 iput-object              v3, v0, Lus3;->I Landroid/graphics/Canvas;
+000e28  2203e400                 new-instance             v3, Landroid/graphics/Paint;
+000e2c  7010d7020300             invoke-direct            v3, Landroid/graphics/Paint;-><init>()V
+000e32  5b039b38                 iput-object              v3, v0, Lus3;->L Landroid/graphics/Paint;
+000e36  2203e400                 new-instance             v3, Landroid/graphics/Paint;
+000e3a  7010d7020300             invoke-direct            v3, Landroid/graphics/Paint;-><init>()V
+000e40  13110000                 const/16                 v17, 0
+000e44  4d030211                 aput-object              v3, v2, v17
+000e48  2203e400                 new-instance             v3, Landroid/graphics/Paint;
+000e4c  7010d7020300             invoke-direct            v3, Landroid/graphics/Paint;-><init>()V
+000e52  13100100                 const/16                 v16, 1
+000e56  4d030210                 aput-object              v3, v2, v16
+000e5a  2203e400                 new-instance             v3, Landroid/graphics/Paint;
+000e5e  7010d7020300             invoke-direct            v3, Landroid/graphics/Paint;-><init>()V
+000e64  1224                     const/4                  v4, 2
+000e66  4d030204                 aput-object              v3, v2, v4
+000e6a  5b10f133                 iput-object              v0, v1, Lsofeh/android/MainActivity;->m Lus3;
+000e6e  22003516                 new-instance             v0, Ltp2;
+000e72  70108d650000             invoke-direct            v0, Ltp2;-><init>()V
+000e78  1a02e90e                 const-string             v2, "Default 61 Key"
+000e7c  5b029c37                 iput-object              v2, v0, Ltp2;->e Ljava/io/Serializable;
+000e80  13023d00                 const/16                 v2, 61
+000e84  59029937                 iput                     v2, v0, Ltp2;->b I
+000e88  13022400                 const/16                 v2, 36
+000e8c  59029a37                 iput                     v2, v0, Ltp2;->c I
+000e90  13021100                 const/16                 v2, 17
+000e94  59029b37                 iput                     v2, v0, Ltp2;->d I
+000e98  5b0b9d37                 iput-object              v11, v0, Ltp2;->f Ljava/lang/Object;
+000e9c  2202c110                 new-instance             v2, Ljava/util/ArrayList;
+000ea0  7010ae480200             invoke-direct            v2, Ljava/util/ArrayList;-><init>()V
+000ea6  5b029e37                 iput-object              v2, v0, Ltp2;->g Ljava/lang/Object;
+000eaa  5b10f933                 iput-object              v0, v1, Lsofeh/android/MainActivity;->n Ltp2;
+000eae  14008301097f             const                    v0, 2131296643
+000eb4  6e200b010100             invoke-virtual           v1, v0, Landroid/app/Activity;->findViewById(I)Landroid/view/View;
+000eba  0c00                     move-result-object       v0
+000ebc  1f000702                 check-cast               v0, Landroid/widget/ImageView;
+000ec0  5b101333                 iput-object              v0, v1, Lsofeh/android/MainActivity;->I Landroid/widget/ImageView;
+000ec4  14008401097f             const                    v0, 2131296644
+000eca  6e200b010100             invoke-virtual           v1, v0, Landroid/app/Activity;->findViewById(I)Landroid/view/View;
+000ed0  0c00                     move-result-object       v0
+000ed2  1f000702                 check-cast               v0, Landroid/widget/ImageView;
+000ed6  5b100b33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->H Landroid/widget/ImageView;
+000eda  14008601097f             const                    v0, 2131296646
+000ee0  6e200b010100             invoke-virtual           v1, v0, Landroid/app/Activity;->findViewById(I)Landroid/view/View;
+000ee6  0c00                     move-result-object       v0
+000ee8  1f000702                 check-cast               v0, Landroid/widget/ImageView;
+000eec  5b101a33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->J Landroid/widget/ImageView;
+000ef0  52126033                 iget                     v2, v1, Lsofeh/android/MainActivity;->T I
+000ef4  db020214                 div-int/lit8             v2, v2, 20
+000ef8  59122133                 iput                     v2, v1, Lsofeh/android/MainActivity;->K I
+000efc  6e1072050000             invoke-virtual           v0, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
+000f02  0c00                     move-result-object       v0
+000f04  52122133                 iget                     v2, v1, Lsofeh/android/MainActivity;->K I
+000f08  5902fa00                 iput                     v2, v0, Landroid/view/ViewGroup$LayoutParams;->width I
+000f0c  54101a33                 iget-object              v0, v1, Lsofeh/android/MainActivity;->J Landroid/widget/ImageView;
+000f10  6e1072050000             invoke-virtual           v0, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
+000f16  0c00                     move-result-object       v0
+000f18  52122133                 iget                     v2, v1, Lsofeh/android/MainActivity;->K I
+000f1c  5902f900                 iput                     v2, v0, Landroid/view/ViewGroup$LayoutParams;->height I
+000f20  54101a33                 iget-object              v0, v1, Lsofeh/android/MainActivity;->J Landroid/widget/ImageView;
+000f24  13020800                 const/16                 v2, 8
+000f28  6e207a062000             invoke-virtual           v0, v2, Landroid/widget/ImageView;->setVisibility(I)V
+000f2e  54101a33                 iget-object              v0, v1, Lsofeh/android/MainActivity;->J Landroid/widget/ImageView;
+000f32  2202cb0e                 new-instance             v2, Lg51;
+000f36  1223                     const/4                  v3, 2
+000f38  70305f411203             invoke-direct            v2, v1, v3, Lg51;-><init>(Ljava/lang/Object; B)V
+000f3e  6e20b7052000             invoke-virtual           v0, v2, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
+000f44  6e100d600100             invoke-virtual           v1, Lsofeh/android/MainActivity;->I()V
+000f4a  1214                     const/4                  v4, 1
+000f4c  6e200c604100             invoke-virtual           v1, v4, Lsofeh/android/MainActivity;->H1(Z)V
+000f52  6e103d600100             invoke-virtual           v1, Lsofeh/android/MainActivity;->Y()V
+000f58  6e1044600100             invoke-virtual           v1, Lsofeh/android/MainActivity;->a0()V
+000f5e  6e109c600100             invoke-virtual           v1, Lsofeh/android/MainActivity;->y0()V
+000f64  6e1015010100             invoke-virtual           v1, Landroid/app/Activity;->getWindow()Landroid/view/Window;
+000f6a  0c00                     move-result-object       v0
+000f6c  6e10e9050000             invoke-virtual           v0, Landroid/view/Window;->getDecorView()Landroid/view/View;
+000f72  0c00                     move-result-object       v0
+000f74  5b106533                 iput-object              v0, v1, Lsofeh/android/MainActivity;->T4 Landroid/view/View;
+000f78  22025f13                 new-instance             v2, Lnb2;
+000f7c  1203                     const/4                  v3, 0
+000f7e  70304f561203             invoke-direct            v2, v1, v3, Lnb2;-><init>(Ljava/lang/Object; B)V
+000f84  5b127333                 iput-object              v2, v1, Lsofeh/android/MainActivity;->V4 Lnb2;
+000f88  6e2061052000             invoke-virtual           v0, v2, Landroid/view/View;->addOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
+000f8e  2200260e                 new-instance             v0, Le5;
+000f92  1252                     const/4                  v2, 5
+000f94  70309f3e1002             invoke-direct            v0, v1, v2, Le5;-><init>(Ljava/lang/Object; B)V
+000f9a  5b106c33                 iput-object              v0, v1, Lsofeh/android/MainActivity;->U4 Le5;
+000f9e  54106533                 iget-object              v0, v1, Lsofeh/android/MainActivity;->T4 Landroid/view/View;
+000fa2  6e107e050000             invoke-virtual           v0, Landroid/view/View;->getViewTreeObserver()Landroid/view/ViewTreeObserver;
+000fa8  0c00                     move-result-object       v0
+000faa  54126c33                 iget-object              v2, v1, Lsofeh/android/MainActivity;->U4 Le5;
+000fae  6e20db052000             invoke-virtual           v0, v2, Landroid/view/ViewTreeObserver;->addOnGlobalLayoutListener(Landroid/view/ViewTreeObserver$OnGlobalLayoutListener;)V
+000fb4  1a003d59                 const-string             v0, "menu/pm"
+000fb8  54120234                 iget-object              v2, v1, Lsofeh/android/MainActivity;->o0 Ljava/lang/String;
+000fbc  7130636b0102             invoke-static            v1, v0, v2, Lxs1;->e(Lsofeh/android/MainActivity; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000fc2  0c00                     move-result-object       v0
+000fc4  1a02d740                 const-string             v2, "\r?\n"
+000fc8  6e2034472000             invoke-virtual           v0, v2, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+000fce  0c00                     move-result-object       v0
+000fd0  13110000                 const/16                 v17, 0
+000fd4  46020011                 aget-object              v2, v0, v17
+000fd8  62035701                 sget-object              v3, Lb44;->a Ljava/lang/String;
+000fdc  1a04da40                 const-string             v4, "\|"
+000fe0  6e3033474203             invoke-virtual           v2, v4, v3, Ljava/lang/String;->replaceAll(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000fe6  13100100                 const/16                 v16, 1
+000fea  46020010                 aget-object              v2, v0, v16
+000fee  6e3033474203             invoke-virtual           v2, v4, v3, Ljava/lang/String;->replaceAll(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+000ff4  0c02                     move-result-object       v2
+000ff6  5b125e34                 iput-object              v2, v1, Lsofeh/android/MainActivity;->z4 Ljava/lang/String;
+000ffa  1221                     const/4                  v1, 2
+000ffc  46000001                 aget-object              v0, v0, v1
+001000  6e3033474003             invoke-virtual           v0, v4, v3, Ljava/lang/String;->replaceAll(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+001006  0e00                     return-void              
+001008  00030400140000000000803f00000000000000000000000000000000000000000000803f00000000000000000000000000000000000000000000803f00000000000000000000000000000000000000000000803f00000000 fill-array-data-payload  b'\x00\x00\x80?\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80?\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80?\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80?\x00\x00\x00\x00' | \x00\x00\x80\x3f\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x3f\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x3f\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x3f\x00\x00\x00\x00
+001060  000304002b000000bb01087fb401087fa001087fb201087f9e01087fb101087fb901087fb601087f9f01087f9b01087f9d01087fba01087fb501087fbe01087fae01087faf01087fac01087fad01087fa901087faa01087fab01087fbc01087fbd01087fa801087f9c01087f9601087f9a01087f9901087fb801087fb301087f9801087fb701087fb001087fa101087fa201087fa301087fa401087fa501087fa601087fa701087f9401087f9501087f9701087f fill-array-data-payload  b'\xbb\x01\x08\x7f\xb4\x01\x08\x7f\xa0\x01\x08\x7f\xb2\x01\x08\x7f\x9e\x01\x08\x7f\xb1\x01\x08\x7f\xb9\x01\x08\x7f\xb6\x01\x08\x7f\x9f\x01\x08\x7f\x9b\x01\x08\x7f\x9d\x01\x08\x7f\xba\x01\x08\x7f\xb5\x01\x08\x7f\xbe\x01\x08\x7f\xae\x01\x08\x7f\xaf\x01\x08\x7f\xac\x01\x08\x7f\xad\x01\x08\x7f\xa9\x01\x08\x7f\xaa\x01\x08\x7f\xab\x01\x08\x7f\xbc\x01\x08\x7f\xbd\x01\x08\x7f\xa8\x01\x08\x7f\x9c\x01\x08\x7f\x96\x01\x08\x7f\x9a\x01\x08\x7f\x99\x01\x08\x7f\xb8\x01\x08\x7f\xb3\x01\x08\x7f\x98\x01\x08\x7f\xb7\x01\x08\x7f\xb0\x01\x08\x7f\xa1\x01\x08\x7f\xa2\x01\x08\x7f\xa3\x01\x08\x7f\xa4\x01\x08\x7f\xa5\x01\x08\x7f\xa6\x01\x08\x7f\xa7\x01\x08\x7f\x94\x01\x08\x7f\x95\x01\x08\x7f\x97\x01\x08\x7f' | \xbb\x01\x08\x7f\xb4\x01\x08\x7f\xa0\x01\x08\x7f\xb2\x01\x08\x7f\x9e\x01\x08\x7f\xb1\x01\x08\x7f\xb9\x01\x08\x7f\xb6\x01\x08\x7f\x9f\x01\x08\x7f\x9b\x01\x08\x7f\x9d\x01\x08\x7f\xba\x01\x08\x7f\xb5\x01\x08\x7f\xbe\x01\x08\x7f\xae\x01\x08\x7f\xaf\x01\x08\x7f\xac\x01\x08\x7f\xad\x01\x08\x7f\xa9\x01\x08\x7f\xaa\x01\x08\x7f\xab\x01\x08\x7f\xbc\x01\x08\x7f\xbd\x01\x08\x7f\xa8\x01\x08\x7f\x9c\x01\x08\x7f\x96\x01\x08\x7f\x9a\x01\x08\x7f\x99\x01\x08\x7f\xb8\x01\x08\x7f\xb3\x01\x08\x7f\x98\x01\x08\x7f\xb7\x01\x08\x7f\xb0\x01\x08\x7f\xa1\x01\x08\x7f\xa2\x01\x08\x7f\xa3\x01\x08\x7f\xa4\x01\x08\x7f\xa5\x01\x08\x7f\xa6\x01\x08\x7f\xa7\x01\x08\x7f\x94\x01\x08\x7f\x95\x01\x08\x7f\x97\x01\x08\x7f
+001114  0003040009000000cd01087fcb01087fca01087fcf01087fd101087fcc01087fc901087fce01087fd001087f fill-array-data-payload  b'\xcd\x01\x08\x7f\xcb\x01\x08\x7f\xca\x01\x08\x7f\xcf\x01\x08\x7f\xd1\x01\x08\x7f\xcc\x01\x08\x7f\xc9\x01\x08\x7f\xce\x01\x08\x7f\xd0\x01\x08\x7f' | \xcd\x01\x08\x7f\xcb\x01\x08\x7f\xca\x01\x08\x7f\xcf\x01\x08\x7f\xd1\x01\x08\x7f\xcc\x01\x08\x7f\xc9\x01\x08\x7f\xce\x01\x08\x7f\xd0\x01\x08\x7f

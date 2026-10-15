@@ -1,0 +1,18 @@
+{
+  "source_asset": "assets/Constant.Instrument",
+  "instrument_index": 0,
+  "instrument": "Constant",
+  "sound_index": 0,
+  "sound": "Primary",
+  "note": 12,
+  "section": "Syncro Crash",
+  "sample_rate": 44100,
+  "channels": 1,
+  "samples_per_channel": 204847,
+  "pcm_bytes": 409694,
+  "wave_index": 0,
+  "loop": 0,
+  "loop_start": 0,
+  "loop_end": 204846,
+  "output": "analysis\\extracted-audio\\constant-syncro-crash.wav"
+}

@@ -1,0 +1,200 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/music/Music;-><init>(Lx13; Lsofeh/music/Music$Listener;)V
+# registers=14 incoming_words=3
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  12f0                     const/4                  v0, -1
+000002  1201                     const/4                  v1, 0
+000004  7040f662cb01             invoke-direct            v11, v12, v1, v0, Lsofeh/music/MusicObject;-><init>(Lx13; Lsofeh/music/Music; I)V
+00000a  1210                     const/4                  v0, 1
+00000c  5cb06d35                 iput-boolean             v0, v11, Lsofeh/music/Music;->MsgVersion Z
+000010  1202                     const/4                  v2, 0
+000012  5cb26435                 iput-boolean             v2, v11, Lsofeh/music/Music;->LiveStyleMix Z
+000016  5cb26235                 iput-boolean             v2, v11, Lsofeh/music/Music;->LiveStyleFree Z
+00001a  5cb26135                 iput-boolean             v2, v11, Lsofeh/music/Music;->LiveStyleAdditive Z
+00001e  13030a00                 const/16                 v3, 10
+000022  59b3bb35                 iput                     v3, v11, Lsofeh/music/Music;->fMaxMusicChannel I
+000026  13030e00                 const/16                 v3, 14
+00002a  59b3bc35                 iput                     v3, v11, Lsofeh/music/Music;->fMaxRhythmChannel I
+00002e  1303e803                 const/16                 v3, 1000
+000032  59b3e435                 iput                     v3, v11, Lsofeh/music/Music;->rhythmScale I
+000036  1223                     const/4                  v3, 2
+000038  59b3d235                 iput                     v3, v11, Lsofeh/music/Music;->fPitchSpeed I
+00003c  1a040000                 const-string             v4, ""
+000040  5bb4b035                 iput-object              v4, v11, Lsofeh/music/Music;->fInfoPassword Ljava/lang/String;
+000044  5bb1b335                 iput-object              v1, v11, Lsofeh/music/Music;->fInfoUser [Ljava/lang/String;
+000048  5cb0d135                 iput-boolean             v0, v11, Lsofeh/music/Music;->fPasswordOk Z
+00004c  59b2d835                 iput                     v2, v11, Lsofeh/music/Music;->fStereoMode I
+000050  13057800                 const/16                 v5, 120
+000054  59b5da35                 iput                     v5, v11, Lsofeh/music/Music;->fTempo I
+000058  59b2d435                 iput                     v2, v11, Lsofeh/music/Music;->fRecordCounter I
+00005c  5cb2db35                 iput-boolean             v2, v11, Lsofeh/music/Music;->fTempoLock Z
+000060  13067300                 const/16                 v6, 115
+000064  23664c18                 new-array                v6, v6, [B
+000068  5bb6d535                 iput-object              v6, v11, Lsofeh/music/Music;->fReserved [B
+00006c  5cb0e335                 iput-boolean             v0, v11, Lsofeh/music/Music;->nativeMem Z
+000070  5bb17935                 iput-object              v1, v11, Lsofeh/music/Music;->WaveListLength [I
+000074  5bb17635                 iput-object              v1, v11, Lsofeh/music/Music;->WaveAList [[S
+000078  5bb17735                 iput-object              v1, v11, Lsofeh/music/Music;->WaveBList [Ljava/nio/ByteBuffer;
+00007c  5cb27835                 iput-boolean             v2, v11, Lsofeh/music/Music;->WaveListIsEnable Z
+000080  5cb25d35                 iput-boolean             v2, v11, Lsofeh/music/Music;->GroupFXTest Z
+000084  13063200                 const/16                 v6, 50
+000088  59b6c035                 iput                     v6, v11, Lsofeh/music/Music;->fMetronomeVolume I
+00008c  1266                     const/4                  v6, 6
+00008e  59b6bd35                 iput                     v6, v11, Lsofeh/music/Music;->fMetronomeLevel I
+000092  1246                     const/4                  v6, 4
+000094  59b6c135                 iput                     v6, v11, Lsofeh/music/Music;->fMetronomeX I
+000098  59b6c235                 iput                     v6, v11, Lsofeh/music/Music;->fMetronomeY I
+00009c  5cb2c635                 iput-boolean             v2, v11, Lsofeh/music/Music;->fModified Z
+0000a0  13060001                 const/16                 v6, 256
+0000a4  23672419                 new-array                v7, v6, [Z
+0000a8  5bb7b835                 iput-object              v7, v11, Lsofeh/music/Music;->fKeySet [Z
+0000ac  23672419                 new-array                v7, v6, [Z
+0000b0  5bb79035                 iput-object              v7, v11, Lsofeh/music/Music;->fChordKeySet [Z
+0000b4  170700ca9a3b             const-wide/32            v7, 1000000000
+0000ba  5ab7a335                 iput-wide                v7, v11, Lsofeh/music/Music;->fFadeVolume J
+0000be  16070000                 const-wide/16            v7, 0
+0000c2  5ab7a235                 iput-wide                v7, v11, Lsofeh/music/Music;->fFadeValue J
+0000c6  59b2a135                 iput                     v2, v11, Lsofeh/music/Music;->fFadeDelay I
+0000ca  5bb1d035                 iput-object              v1, v11, Lsofeh/music/Music;->fOutThread Ljava/lang/Thread;
+0000ce  5bb1ad35                 iput-object              v1, v11, Lsofeh/music/Music;->fInThread Ljava/lang/Thread;
+0000d2  5cb2b535                 iput-boolean             v2, v11, Lsofeh/music/Music;->fIsOpenSL Z
+0000d6  5cb2b635                 iput-boolean             v2, v11, Lsofeh/music/Music;->fIsOpenSLRecord Z
+0000da  1a09fa0b                 const-string             v9, "CHECKING..."
+0000de  5bb9c835                 iput-object              v9, v11, Lsofeh/music/Music;->fOpenSL Ljava/lang/String;
+0000e2  140980bb0000             const                    v9, 48000
+0000e8  59b9cf35                 iput                     v9, v11, Lsofeh/music/Music;->fOutSampleRate I
+0000ec  13091000                 const/16                 v9, 16
+0000f0  5db9ca35                 iput-byte                v9, v11, Lsofeh/music/Music;->fOutBitsPerSample B
+0000f4  5db3ce35                 iput-byte                v3, v11, Lsofeh/music/Music;->fOutChannels B
+0000f8  59b9cc35                 iput                     v9, v11, Lsofeh/music/Music;->fOutBufferCount I
+0000fc  130ac05d                 const/16                 v10, 24000
+000100  59baac35                 iput                     v10, v11, Lsofeh/music/Music;->fInSampleRate I
+000104  5db9a835                 iput-byte                v9, v11, Lsofeh/music/Music;->fInBitsPerSample B
+000108  5db0ab35                 iput-byte                v0, v11, Lsofeh/music/Music;->fInChannels B
+00010c  59b0c335                 iput                     v0, v11, Lsofeh/music/Music;->fMixerMusic I
+000110  59b0c535                 iput                     v0, v11, Lsofeh/music/Music;->fMixerWave I
+000114  59b2c435                 iput                     v2, v11, Lsofeh/music/Music;->fMixerRhythm I
+000118  5cb0b935                 iput-boolean             v0, v11, Lsofeh/music/Music;->fLoopTempo Z
+00011c  59b29935                 iput                     v2, v11, Lsofeh/music/Music;->fChordType I
+000120  59b28e35                 iput                     v2, v11, Lsofeh/music/Music;->fChordControl I
+000124  59b39335                 iput                     v3, v11, Lsofeh/music/Music;->fChordQuality I
+000128  1239                     const/4                  v9, 3
+00012a  59b99535                 iput                     v9, v11, Lsofeh/music/Music;->fChordScan I
+00012e  5cb09135                 iput-boolean             v0, v11, Lsofeh/music/Music;->fChordMemory Z
+000132  5cb09635                 iput-boolean             v0, v11, Lsofeh/music/Music;->fChordSyncStart Z
+000136  5cb29735                 iput-boolean             v2, v11, Lsofeh/music/Music;->fChordSyncStop Z
+00013a  59b2a635                 iput                     v2, v11, Lsofeh/music/Music;->fGroupPlayChangeMethod I
+00013e  59b2b735                 iput                     v2, v11, Lsofeh/music/Music;->fKeyConnectionMethod I
+000142  13091500                 const/16                 v9, 21
+000146  23992419                 new-array                v9, v9, [Z
+00014a  2609f3000000             fill-array-data          v9, +00000f3h
+000150  5bb9d635                 iput-object              v9, v11, Lsofeh/music/Music;->fSTSChanges [Z
+000154  59b2ba35                 iput                     v2, v11, Lsofeh/music/Music;->fLowLatencyMethod I
+000158  5bb18735                 iput-object              v1, v11, Lsofeh/music/Music;->bufML [J
+00015c  5bb18835                 iput-object              v1, v11, Lsofeh/music/Music;->bufMR [J
+000160  5bb18b35                 iput-object              v1, v11, Lsofeh/music/Music;->bufWL [J
+000164  5bb18c35                 iput-object              v1, v11, Lsofeh/music/Music;->bufWR [J
+000168  5bb18935                 iput-object              v1, v11, Lsofeh/music/Music;->bufRL [J
+00016c  5bb18a35                 iput-object              v1, v11, Lsofeh/music/Music;->bufRR [J
+000170  5bb18535                 iput-object              v1, v11, Lsofeh/music/Music;->bufCL [J
+000174  5bb18635                 iput-object              v1, v11, Lsofeh/music/Music;->bufCR [J
+000178  5ab7dd35                 iput-wide                v7, v11, Lsofeh/music/Music;->globalReverb J
+00017c  59b2a535                 iput                     v2, v11, Lsofeh/music/Music;->fGlobalReverbLevel I
+000180  59b28f35                 iput                     v2, v11, Lsofeh/music/Music;->fChordCount I
+000184  2369c618                 new-array                v9, v6, [Ljava/lang/String;
+000188  5bb99235                 iput-object              v9, v11, Lsofeh/music/Music;->fChordName [Ljava/lang/String;
+00018c  23335018                 new-array                v3, v3, [I
+000190  13090c00                 const/16                 v9, 12
+000194  4b090300                 aput                     v9, v3, v0
+000198  4b060302                 aput                     v6, v3, v2
+00019c  62066027                 sget-object              v6, Ljava/lang/Short;->TYPE Ljava/lang/Class;
+0001a0  7120b2473600             invoke-static            v6, v3, Ljava/lang/reflect/Array;->newInstance(Ljava/lang/Class; [I)Ljava/lang/Object;
+0001a6  0c03                     move-result-object       v3
+0001a8  1f032919                 check-cast               v3, [[S
+0001ac  5bb39435                 iput-object              v3, v11, Lsofeh/music/Music;->fChordScale [[S
+0001b0  1303000c                 const/16                 v3, 3072
+0001b4  23335018                 new-array                v3, v3, [I
+0001b8  5bb39835                 iput-object              v3, v11, Lsofeh/music/Music;->fChordTable [I
+0001bc  5bb18d35                 iput-object              v1, v11, Lsofeh/music/Music;->fCallback Lsofeh/music/Music$Listener;
+0001c0  2203c60d                 new-instance             v3, Ld34;
+0001c4  7010e6460300             invoke-direct            v3, Ljava/lang/Object;-><init>()V
+0001ca  2206c110                 new-instance             v6, Ljava/util/ArrayList;
+0001ce  7010ae480600             invoke-direct            v6, Ljava/util/ArrayList;-><init>()V
+0001d4  5b365b22                 iput-object              v6, v3, Ld34;->a Ljava/util/ArrayList;
+0001d8  5bb3d735                 iput-object              v3, v11, Lsofeh/music/Music;->fScriptTimer Ld34;
+0001dc  5bbbea35                 iput-object              v11, v11, Lsofeh/music/MusicObject;->fMusic Lsofeh/music/Music;
+0001e0  390c0300                 if-nez                   v12, +003h
+0001e4  0e00                     return-void              
+0001e6  5bbd8d35                 iput-object              v13, v11, Lsofeh/music/Music;->fCallback Lsofeh/music/Music$Listener;
+0001ea  620d5535                 sget-object              v13, Lsofeh/music/Music;->ChordDuals [I
+0001ee  7120da482d00             invoke-static            v13, v2, Ljava/util/Arrays;->fill([I I)V
+0001f4  54cc543b                 iget-object              v12, v12, Lx13;->a Lew;
+0001f8  220dcc17                 new-instance             v13, Lyd1;
+0001fc  13031100                 const/16                 v3, 17
+000200  7020336c3d00             invoke-direct            v13, v3, Lyd1;-><init>(B)V
+000206  6e20d63fdc00             invoke-virtual           v12, v13, Lew;->i(Ly42;)V
+00020c  5cb2c935                 iput-boolean             v2, v11, Lsofeh/music/Music;->fOutActive Z
+000210  5cb2a735                 iput-boolean             v2, v11, Lsofeh/music/Music;->fInActive Z
+000214  59b2d835                 iput                     v2, v11, Lsofeh/music/Music;->fStereoMode I
+000218  59b5da35                 iput                     v5, v11, Lsofeh/music/Music;->fTempo I
+00021c  220cfd17                 new-instance             v12, Lz01;
+000220  70103d6d0c00             invoke-direct            v12, Lz01;-><init>()V
+000226  5bbc9d35                 iput-object              v12, v11, Lsofeh/music/Music;->fFXMusic Lz01;
+00022a  220d5315                 new-instance             v13, Ls01;
+00022e  7010255f0d00             invoke-direct            v13, Ls01;-><init>()V
+000234  5cd0f52c                 iput-boolean             v0, v13, Ln01;->d Z
+000238  6e203e6ddc00             invoke-virtual           v12, v13, Lz01;->a(Ln01;)V
+00023e  220cac17                 new-instance             v12, Ly01;
+000242  7010ab6b0c00             invoke-direct            v12, Ly01;-><init>()V
+000248  5cc2f52c                 iput-boolean             v2, v12, Ln01;->d Z
+00024c  54bd9d35                 iget-object              v13, v11, Lsofeh/music/Music;->fFXMusic Lz01;
+000250  6e203e6dcd00             invoke-virtual           v13, v12, Lz01;->a(Ln01;)V
+000256  220cfd17                 new-instance             v12, Lz01;
+00025a  70103d6d0c00             invoke-direct            v12, Lz01;-><init>()V
+000260  5bbc9f35                 iput-object              v12, v11, Lsofeh/music/Music;->fFXWave Lz01;
+000264  5cc0ec3c                 iput-boolean             v0, v12, Lz01;->j Z
+000268  220d5315                 new-instance             v13, Ls01;
+00026c  7010255f0d00             invoke-direct            v13, Ls01;-><init>()V
+000272  5cd0f52c                 iput-boolean             v0, v13, Ln01;->d Z
+000276  6e203e6ddc00             invoke-virtual           v12, v13, Lz01;->a(Ln01;)V
+00027c  220c9a13                 new-instance             v12, Lo01;
+000280  701080570c00             invoke-direct            v12, Lo01;-><init>()V
+000286  5cc2f52c                 iput-boolean             v2, v12, Ln01;->d Z
+00028a  54bd9f35                 iget-object              v13, v11, Lsofeh/music/Music;->fFXWave Lz01;
+00028e  6e203e6dcd00             invoke-virtual           v13, v12, Lz01;->a(Ln01;)V
+000294  220cfd17                 new-instance             v12, Lz01;
+000298  70103d6d0c00             invoke-direct            v12, Lz01;-><init>()V
+00029e  5bbca035                 iput-object              v12, v11, Lsofeh/music/Music;->fFXWaveMic Lz01;
+0002a2  220cfd17                 new-instance             v12, Lz01;
+0002a6  70103d6d0c00             invoke-direct            v12, Lz01;-><init>()V
+0002ac  5bbc9e35                 iput-object              v12, v11, Lsofeh/music/Music;->fFXRhythm Lz01;
+0002b0  220d5b14                 new-instance             v13, Lp01;
+0002b4  7010fb5b0d00             invoke-direct            v13, Lp01;-><init>()V
+0002ba  5cd0f52c                 iput-boolean             v0, v13, Ln01;->d Z
+0002be  6e203e6ddc00             invoke-virtual           v12, v13, Lz01;->a(Ln01;)V
+0002c4  220cac17                 new-instance             v12, Ly01;
+0002c8  7010ab6b0c00             invoke-direct            v12, Ly01;-><init>()V
+0002ce  5cc2f52c                 iput-boolean             v2, v12, Ln01;->d Z
+0002d2  54bd9e35                 iget-object              v13, v11, Lsofeh/music/Music;->fFXRhythm Lz01;
+0002d6  6e203e6dcd00             invoke-virtual           v13, v12, Lz01;->a(Ln01;)V
+0002dc  220cba15                 new-instance             v12, Lsofeh/music/Instruments;
+0002e0  54bdec35                 iget-object              v13, v11, Lsofeh/music/MusicObject;->fPlatform Lx13;
+0002e4  70307861dc0b             invoke-direct            v12, v13, v11, Lsofeh/music/Instruments;-><init>(Lx13; Lsofeh/music/Music;)V
+0002ea  5bbcb435                 iput-object              v12, v11, Lsofeh/music/Music;->fInstruments Lsofeh/music/Instruments;
+0002ee  220ccd15                 new-instance             v12, Lsofeh/music/Systems;
+0002f2  54bdec35                 iget-object              v13, v11, Lsofeh/music/MusicObject;->fPlatform Lx13;
+0002f6  70303963dc0b             invoke-direct            v12, v13, v11, Lsofeh/music/Systems;-><init>(Lx13; Lsofeh/music/Music;)V
+0002fc  5bbcd935                 iput-object              v12, v11, Lsofeh/music/Music;->fSystems Lsofeh/music/Systems;
+000300  220cd415                 new-instance             v12, Lsofeh/music/Tracks;
+000304  54bdec35                 iget-object              v13, v11, Lsofeh/music/MusicObject;->fPlatform Lx13;
+000308  70309f63dc0b             invoke-direct            v12, v13, v11, Lsofeh/music/Tracks;-><init>(Lx13; Lsofeh/music/Music;)V
+00030e  5bbcdc35                 iput-object              v12, v11, Lsofeh/music/Music;->fTracks Lsofeh/music/Tracks;
+000312  59b2d335                 iput                     v2, v11, Lsofeh/music/Music;->fPlayMode I
+000316  5bb4a435                 iput-object              v4, v11, Lsofeh/music/Music;->fFileName Ljava/lang/String;
+00031a  5ab7c735                 iput-wide                v7, v11, Lsofeh/music/Music;->fNow J
+00031e  5cb2be35                 iput-boolean             v2, v11, Lsofeh/music/Music;->fMetronomeLong Z
+000322  5cb2bf35                 iput-boolean             v2, v11, Lsofeh/music/Music;->fMetronomeShort Z
+000326  5bb1a935                 iput-object              v1, v11, Lsofeh/music/Music;->fInBuffer [S
+00032a  5bb1cb35                 iput-object              v1, v11, Lsofeh/music/Music;->fOutBuffer [S
+00032e  0e00                     return-void              
+000330  000301001500000000000000000000010101010100010101010101010000 fill-array-data-payload  b'\x00\x00\x00\x00\x00\x00\x00\x01\x01\x01\x01\x01\x00\x01\x01\x01\x01\x01\x01\x01\x00\x00' | \x00\x00\x00\x00\x00\x00\x00\x01\x01\x01\x01\x01\x00\x01\x01\x01\x01\x01\x01\x01\x00\x00

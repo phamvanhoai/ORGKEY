@@ -1,0 +1,368 @@
+{
+  "asset": "assets/empty.Template",
+  "size": 313042,
+  "parsed_to_eof": true,
+  "signature": "Music Studio Music",
+  "music": {
+    "offset": 32,
+    "name": "",
+    "version": "1.2.4",
+    "description": "",
+    "group": 65535
+  },
+  "info": {
+    "album": "",
+    "type": "",
+    "copyright": "",
+    "reserved": 0,
+    "stereo_mode": 0,
+    "tempo": 100,
+    "record_counter": 0,
+    "tempo_lock": true
+  },
+  "summary": {
+    "wave_slots": 0,
+    "waves": 0,
+    "wave_bytes": 0,
+    "instruments": 2,
+    "systems": 1,
+    "tracks": 14,
+    "events": 0,
+    "event_types": {},
+    "embedded_sample_events": 0,
+    "track_groups": 1
+  },
+  "music_fx": [
+    {
+      "offset": 201,
+      "values": [
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100
+      ],
+      "enabled": false,
+      "flag": false,
+      "modules": [
+        {
+          "offset": 253,
+          "type": 6,
+          "bytes": 16
+        }
+      ],
+      "bytes": 68
+    },
+    {
+      "offset": 269,
+      "values": [
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100
+      ],
+      "enabled": false,
+      "flag": true,
+      "modules": [
+        {
+          "offset": 321,
+          "type": 6,
+          "bytes": 16
+        }
+      ],
+      "bytes": 68
+    },
+    {
+      "offset": 337,
+      "values": [
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100
+      ],
+      "enabled": false,
+      "flag": false,
+      "modules": [
+        {
+          "offset": 389,
+          "type": 20,
+          "bytes": 16
+        }
+      ],
+      "bytes": 68
+    }
+  ],
+  "instruments": [
+    {
+      "offset": 424,
+      "bytes": 60405,
+      "name": "-",
+      "group": 0,
+      "type": 1,
+      "family": 0,
+      "modes": [
+        "Default mode"
+      ],
+      "sounds": [
+        "Primary"
+      ],
+      "sections": 2
+    },
+    {
+      "offset": 60829,
+      "bytes": 238470,
+      "name": "Piano (LOW)",
+      "group": 0,
+      "type": 0,
+      "family": 0,
+      "modes": [],
+      "sounds": [
+        "Primary"
+      ],
+      "sections": 1
+    }
+  ],
+  "systems": [
+    {
+      "offset": 299318,
+      "bytes": 246,
+      "name": "Normal",
+      "start_key": 0,
+      "selected_keys": 0,
+      "tuning": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "tracks": [
+    {
+      "offset": 299583,
+      "bytes": 957,
+      "name": "Master",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 300540,
+      "bytes": 955,
+      "name": "Up 1",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 1,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 301495,
+      "bytes": 955,
+      "name": "Up 2",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 1,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 302450,
+      "bytes": 955,
+      "name": "Up 3",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 1,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 303405,
+      "bytes": 954,
+      "name": "Low",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 1,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 304359,
+      "bytes": 957,
+      "name": "Rhythm",
+      "group": 0,
+      "type": 3,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 305316,
+      "bytes": 955,
+      "name": "Wave",
+      "group": 0,
+      "type": 2,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 306271,
+      "bytes": 955,
+      "name": "Bass",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 307226,
+      "bytes": 957,
+      "name": "Acc. 1",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 308183,
+      "bytes": 957,
+      "name": "Acc. 2",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 309140,
+      "bytes": 957,
+      "name": "Acc. 3",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 310097,
+      "bytes": 957,
+      "name": "Acc. 4",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 311054,
+      "bytes": 957,
+      "name": "Acc. 5",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    },
+    {
+      "offset": 312011,
+      "bytes": 955,
+      "name": "Drum",
+      "group": 0,
+      "type": 1,
+      "kind": 0,
+      "system": 0,
+      "instrument": 0,
+      "sts_count": 13,
+      "sts_enabled": 1,
+      "events": 0
+    }
+  ],
+  "track_groups": [
+    {
+      "offset": 312970,
+      "bytes": 72,
+      "group": 0,
+      "parent": -1,
+      "name": "Music",
+      "section": 0,
+      "type": 0,
+      "tempo": 0,
+      "meter": [
+        0,
+        0
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "path": "assets/Default.Template",
+    "size": 67848221,
+    "signature_prefix": "Music Studio Music",
+    "metadata_length": 7,
+    "metadata_hex": "0d312e342e360d",
+    "name": "",
+    "version": "1.4.6",
+    "description": "",
+    "group": 65535,
+    "payload_offset": 47
+  },
+  {
+    "path": "assets/empty.Template",
+    "size": 313042,
+    "signature_prefix": "Music Studio Music",
+    "metadata_length": 7,
+    "metadata_hex": "0d312e322e340d",
+    "name": "",
+    "version": "1.2.4",
+    "description": "",
+    "group": 65535,
+    "payload_offset": 47
+  },
+  {
+    "path": "assets/Constant.Instrument",
+    "size": 469845,
+    "signature_prefix": "Music Studio Instrument",
+    "metadata_length": 15,
+    "metadata_hex": "436f6e7374616e740d312e342e320d",
+    "name": "Constant",
+    "version": "1.4.2",
+    "description": "",
+    "group": 0,
+    "payload_offset": 55
+  },
+  {
+    "path": "assets/Sound.Instrument",
+    "size": 2965539,
+    "signature_prefix": "Music Studio Instrument",
+    "metadata_length": 12,
+    "metadata_hex": "536f756e640d312e342e320d",
+    "name": "Sound",
+    "version": "1.4.2",
+    "description": "",
+    "group": 0,
+    "payload_offset": 52
+  }
+]

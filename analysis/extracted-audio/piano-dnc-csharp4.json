@@ -1,0 +1,18 @@
+{
+  "source_asset": "assets/Default.Template",
+  "instrument_index": 1,
+  "instrument": "Piano DNC",
+  "sound_index": 0,
+  "sound": "Primary",
+  "note": 61,
+  "section": "XP-C#4",
+  "sample_rate": 44100,
+  "channels": 1,
+  "samples_per_channel": 77309,
+  "pcm_bytes": 154618,
+  "wave_index": 2639,
+  "loop": 2,
+  "loop_start": 57579,
+  "loop_end": 77308,
+  "output": "analysis\\extracted-audio\\piano-dnc-csharp4.wav"
+}

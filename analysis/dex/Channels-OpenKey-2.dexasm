@@ -1,0 +1,648 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/music/Channels;->OpenKey(I I I I I I I I I I I I I I I I I I I I I I Z I I)V
+# registers=57 incoming_words=26
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  08001f00                 move-object/from16       v0, v31
+000004  02012700                 move/from16              v1, v39
+000008  5402ea34                 iget-object              v2, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+00000c  5422b435                 iget-object              v2, v2, Lsofeh/music/Music;->fInstruments Lsofeh/music/Instruments;
+000010  02032500                 move/from16              v3, v37
+000014  6e207d613200             invoke-virtual           v2, v3, Lsofeh/music/Instruments;->Get(I)Lsofeh/music/Instrument;
+00001a  0c04                     move-result-object       v4
+00001c  e1022310                 shr-int/lit8             v2, v35, 16
+000020  8f22                     int-to-short             v2, v2
+000022  90022802                 add-int                  v2, v40, v2
+000026  1403ffff0000             const                    v3, 65535
+00002c  95032303                 and-int                  v3, v35, v3
+000030  5205eb34                 iget                     v5, v0, Lsofeh/music/Channels;->fType I
+000034  5406ea34                 iget-object              v6, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+000038  13096400                 const/16                 v9, 100
+00003c  39050e00                 if-nez                   v5, +00eh
+000040  54659d35                 iget-object              v5, v6, Lsofeh/music/Music;->fFXMusic Lz01;
+000044  5255e53c                 iget                     v5, v5, Lz01;->c I
+000048  b095                     add-int/2addr            v5, v9
+00004a  7120cb465900             invoke-static            v9, v5, Ljava/lang/Math;->min(I I)I
+000050  0a05                     move-result              v5
+000052  b235                     mul-int/2addr            v5, v3
+000054  b395                     div-int/2addr            v5, v9
+000056  2833                     goto                     +33h
+000058  54659e35                 iget-object              v5, v6, Lsofeh/music/Music;->fFXRhythm Lz01;
+00005c  5255e43c                 iget                     v5, v5, Lz01;->b I
+000060  b253                     mul-int/2addr            v3, v5
+000062  54659d35                 iget-object              v5, v6, Lsofeh/music/Music;->fFXMusic Lz01;
+000066  5255e53c                 iget                     v5, v5, Lz01;->c I
+00006a  d9050564                 rsub-int/lit8            v5, v5, 100
+00006e  7120cb465900             invoke-static            v9, v5, Ljava/lang/Math;->min(I I)I
+000074  0a05                     move-result              v5
+000076  b235                     mul-int/2addr            v5, v3
+000078  d3551027                 div-int/lit16            v5, v5, 10000
+00007c  56433435                 iget-byte                v3, v4, Lsofeh/music/Instrument;->fType B
+000080  5406ea34                 iget-object              v6, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+000084  39031000                 if-nez                   v3, +010h
+000088  54639e35                 iget-object              v3, v6, Lsofeh/music/Music;->fFXRhythm Lz01;
+00008c  5233e53c                 iget                     v3, v3, Lz01;->c I
+000090  d9030364                 rsub-int/lit8            v3, v3, 100
+000094  7120cb463900             invoke-static            v9, v3, Ljava/lang/Math;->min(I I)I
+00009a  0a03                     move-result              v3
+00009c  b253                     mul-int/2addr            v3, v5
+00009e  db050364                 div-int/lit8             v5, v3, 100
+0000a2  280d                     goto                     +dh
+0000a4  54639e35                 iget-object              v3, v6, Lsofeh/music/Music;->fFXRhythm Lz01;
+0000a8  5233e53c                 iget                     v3, v3, Lz01;->c I
+0000ac  b093                     add-int/2addr            v3, v9
+0000ae  7120cb463900             invoke-static            v9, v3, Ljava/lang/Math;->min(I I)I
+0000b4  0a03                     move-result              v3
+0000b6  b253                     mul-int/2addr            v3, v5
+0000b8  db050364                 div-int/lit8             v5, v3, 100
+0000bc  5203eb34                 iget                     v3, v0, Lsofeh/music/Channels;->fType I
+0000c0  1266                     const/4                  v6, 6
+0000c2  34630700                 if-lt                    v3, v6, +007h
+0000c6  02032200                 move/from16              v3, v34
+0000ca  1206                     const/4                  v6, 0
+0000cc  1207                     const/4                  v7, 0
+0000ce  283b                     goto                     +3bh
+0000d0  5406e534                 iget-object              v6, v0, Lsofeh/music/Channels;->fFXs Lz01;
+0000d4  5267e83c                 iget                     v7, v6, Lz01;->f I
+0000d8  5408ea34                 iget-object              v8, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+0000dc  548b9d35                 iget-object              v11, v8, Lsofeh/music/Music;->fFXMusic Lz01;
+0000e0  52bce83c                 iget                     v12, v11, Lz01;->f I
+0000e4  b0c7                     add-int/2addr            v7, v12
+0000e6  90070729                 add-int                  v7, v7, v41
+0000ea  526ce93c                 iget                     v12, v6, Lz01;->g I
+0000ee  560dee34                 iget-byte                v13, v0, Lsofeh/music/Channels;->tempOctaveMove B
+0000f2  b0dc                     add-int/2addr            v12, v13
+0000f4  900c0c2a                 add-int                  v12, v12, v42
+0000f8  39030600                 if-nez                   v3, +006h
+0000fc  52b3e93c                 iget                     v3, v11, Lz01;->g I
+000100  b03c                     add-int/2addr            v12, v3
+000102  2806                     goto                     +6h
+000104  54839e35                 iget-object              v3, v8, Lsofeh/music/Music;->fFXRhythm Lz01;
+000108  5233e93c                 iget                     v3, v3, Lz01;->g I
+00010c  28fa                     goto                     -6h
+00010e  56433435                 iget-byte                v3, v4, Lsofeh/music/Instrument;->fType B
+000112  39031400                 if-nez                   v3, +014h
+000116  da0c0c0c                 mul-int/lit8             v12, v12, 12
+00011a  b07c                     add-int/2addr            v12, v7
+00011c  90030c22                 add-int                  v3, v12, v34
+000120  5266e63c                 iget                     v6, v6, Lz01;->d I
+000124  52b8e63c                 iget                     v8, v11, Lz01;->d I
+000128  b086                     add-int/2addr            v6, v8
+00012a  9006062b                 add-int                  v6, v6, v43
+00012e  021e0700                 move/from16              v30, v7
+000132  0167                     move                     v7, v6
+000134  02061e00                 move/from16              v6, v30
+000138  2806                     goto                     +6h
+00013a  02032200                 move/from16              v3, v34
+00013e  0176                     move                     v6, v7
+000140  02072b00                 move/from16              v7, v43
+000144  122b                     const/4                  v11, 2
+000146  12fc                     const/4                  v12, -1
+000148  121d                     const/4                  v13, 1
+00014a  3a038c00                 if-ltz                   v3, +08ch
+00014e  13088000                 const/16                 v8, 128
+000152  35838800                 if-ge                    v3, v8, +088h
+000156  544e3335                 iget-object              v14, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+00015a  460e0e20                 aget-object              v14, v14, v32
+00015e  56ef2635                 iget-byte                v15, v14, Lsofeh/music/InstSnd;->PitchMode B
+000162  13107f00                 const/16                 v16, 127
+000166  380f5a00                 if-eqz                   v15, +05ah
+00016a  32df0f00                 if-eq                    v15, v13, +00fh
+00016e  32bf0400                 if-eq                    v15, v11, +004h
+000172  29007800                 goto/16                  +078h
+000176  6e2068613e00             invoke-virtual           v14, v3, Lsofeh/music/InstSnd;->SectionExists(I)Z
+00017c  0a08                     move-result              v8
+00017e  38087200                 if-eqz                   v8, +072h
+000182  013f                     move                     v15, v3
+000184  29007000                 goto/16                  +070h
+000188  120e                     const/4                  v14, 0
+00018a  358e1000                 if-ge                    v14, v8, +010h
+00018e  544f3335                 iget-object              v15, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+000192  460f0f20                 aget-object              v15, v15, v32
+000196  6e206861ef00             invoke-virtual           v15, v14, Lsofeh/music/InstSnd;->SectionExists(I)Z
+00019c  0a0f                     move-result              v15
+00019e  380f0300                 if-eqz                   v15, +003h
+0001a2  2805                     goto                     +5h
+0001a4  d80e0e01                 add-int/lit8             v14, v14, 1
+0001a8  28f1                     goto                     -fh
+0001aa  01ce                     move                     v14, v12
+0001ac  020f1000                 move/from16              v15, v16
+0001b0  3a0f1300                 if-ltz                   v15, +013h
+0001b4  544a3335                 iget-object              v10, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+0001b8  460a0a20                 aget-object              v10, v10, v32
+0001bc  6e206861fa00             invoke-virtual           v10, v15, Lsofeh/music/InstSnd;->SectionExists(I)Z
+0001c2  0a0a                     move-result              v10
+0001c4  380a0600                 if-eqz                   v10, +006h
+0001c8  b1ef                     sub-int/2addr            v15, v14
+0001ca  d80e0f01                 add-int/lit8             v14, v15, 1
+0001ce  2804                     goto                     +4h
+0001d0  d80f0fff                 add-int/lit8             v15, v15, -1
+0001d4  28ee                     goto                     -12h
+0001d6  3d0e4600                 if-lez                   v14, +046h
+0001da  120a                     const/4                  v10, 0
+0001dc  930f080e                 div-int                  v15, v8, v14
+0001e0  36fa1a00                 if-gt                    v10, v15, +01ah
+0001e4  544f3335                 iget-object              v15, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+0001e8  460f0f20                 aget-object              v15, v15, v32
+0001ec  6e2068613f00             invoke-virtual           v15, v3, Lsofeh/music/InstSnd;->SectionExists(I)Z
+0001f2  0a0f                     move-result              v15
+0001f4  390f0e00                 if-nez                   v15, +00eh
+0001f8  b0e3                     add-int/2addr            v3, v14
+0001fa  34830800                 if-lt                    v3, v8, +008h
+0001fe  910f030e                 sub-int                  v15, v3, v14
+000202  3a0f0400                 if-ltz                   v15, +004h
+000206  01f3                     move                     v3, v15
+000208  28fb                     goto                     -5h
+00020a  d80a0a01                 add-int/lit8             v10, v10, 1
+00020e  28e7                     goto                     -19h
+000210  0138                     move                     v8, v3
+000212  2802                     goto                     +2h
+000214  01c8                     move                     v8, v12
+000216  018f                     move                     v15, v8
+000218  2826                     goto                     +26h
+00021a  01cf                     move                     v15, v12
+00021c  020a1000                 move/from16              v10, v16
+000220  120e                     const/4                  v14, 0
+000222  358e2100                 if-ge                    v14, v8, +021h
+000226  54483335                 iget-object              v8, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+00022a  46080820                 aget-object              v8, v8, v32
+00022e  6e206861e800             invoke-virtual           v8, v14, Lsofeh/music/InstSnd;->SectionExists(I)Z
+000234  0a08                     move-result              v8
+000236  38081000                 if-eqz                   v8, +010h
+00023a  9108030e                 sub-int                  v8, v3, v14
+00023e  7110b9460800             invoke-static            v8, Ljava/lang/Math;->abs(I)I
+000244  0a0b                     move-result              v11
+000246  35ab0800                 if-ge                    v11, v10, +008h
+00024a  7110b9460800             invoke-static            v8, Ljava/lang/Math;->abs(I)I
+000250  0a08                     move-result              v8
+000252  018a                     move                     v10, v8
+000254  01ef                     move                     v15, v14
+000256  d80e0e01                 add-int/lit8             v14, v14, 1
+00025a  13088000                 const/16                 v8, 128
+00025e  122b                     const/4                  v11, 2
+000260  28e1                     goto                     -1fh
+000262  01cf                     move                     v15, v12
+000264  32cf2703                 if-eq                    v15, v12, +327h
+000268  54483335                 iget-object              v8, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+00026c  46080820                 aget-object              v8, v8, v32
+000270  54882935                 iget-object              v8, v8, Lsofeh/music/InstSnd;->fList [Lsofeh/music/InstSec;
+000274  460a080f                 aget-object              v10, v8, v15
+000278  3b010300                 if-gez                   v1, +003h
+00027c  7b11                     neg-int                  v1, v1
+00027e  52483535                 iget                     v8, v4, Lsofeh/music/Instrument;->fVolume I
+000282  38080a00                 if-eqz                   v8, +00ah
+000286  52ab2035                 iget                     v11, v10, Lsofeh/music/InstSec;->Volume I
+00028a  380b0600                 if-eqz                   v11, +006h
+00028e  b281                     mul-int/2addr            v1, v8
+000290  b2b1                     mul-int/2addr            v1, v11
+000292  d3111027                 div-int/lit16            v1, v1, 10000
+000296  52482f35                 iget                     v8, v4, Lsofeh/music/Instrument;->fPan I
+00029a  b082                     add-int/2addr            v2, v8
+00029c  52a81d35                 iget                     v8, v10, Lsofeh/music/InstSec;->Pan I
+0002a0  b082                     add-int/2addr            v2, v8
+0002a2  b251                     mul-int/2addr            v1, v5
+0002a4  d9050264                 rsub-int/lit8            v5, v2, 100
+0002a8  7120cb465900             invoke-static            v9, v5, Ljava/lang/Math;->min(I I)I
+0002ae  0a05                     move-result              v5
+0002b0  b215                     mul-int/2addr            v5, v1
+0002b2  d35b1027                 div-int/lit16            v11, v5, 10000
+0002b6  b092                     add-int/2addr            v2, v9
+0002b8  7120cb462900             invoke-static            v9, v2, Ljava/lang/Math;->min(I I)I
+0002be  0a02                     move-result              v2
+0002c0  b212                     mul-int/2addr            v2, v1
+0002c2  d32e1027                 div-int/lit16            v14, v2, 10000
+0002c6  3b2f0900                 if-gez                   v47, +009h
+0002ca  54413335                 iget-object              v1, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+0002ce  46010120                 aget-object              v1, v1, v32
+0002d2  56112235                 iget-byte                v1, v1, Lsofeh/music/InstSnd;->Attack B
+0002d6  2803                     goto                     +3h
+0002d8  02012f00                 move/from16              v1, v47
+0002dc  3b300900                 if-gez                   v48, +009h
+0002e0  54423335                 iget-object              v2, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+0002e4  46020220                 aget-object              v2, v2, v32
+0002e8  56222435                 iget-byte                v2, v2, Lsofeh/music/InstSnd;->Decay B
+0002ec  2803                     goto                     +3h
+0002ee  02023000                 move/from16              v2, v48
+0002f2  3b310900                 if-gez                   v49, +009h
+0002f6  54453335                 iget-object              v5, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+0002fa  46050520                 aget-object              v5, v5, v32
+0002fe  56552835                 iget-byte                v5, v5, Lsofeh/music/InstSnd;->Sustain B
+000302  2803                     goto                     +3h
+000304  02053100                 move/from16              v5, v49
+000308  3b320900                 if-gez                   v50, +009h
+00030c  54483335                 iget-object              v8, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+000310  46080820                 aget-object              v8, v8, v32
+000314  56882735                 iget-byte                v8, v8, Lsofeh/music/InstSnd;->Release B
+000318  2803                     goto                     +3h
+00031a  02083200                 move/from16              v8, v50
+00031e  540ce534                 iget-object              v12, v0, Lsofeh/music/Channels;->fFXs Lz01;
+000322  52ccea3c                 iget                     v12, v12, Lz01;->h I
+000326  b2c8                     mul-int/2addr            v8, v12
+000328  540cea34                 iget-object              v12, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+00032c  54cc9d35                 iget-object              v12, v12, Lsofeh/music/Music;->fFXMusic Lz01;
+000330  52ccea3c                 iget                     v12, v12, Lz01;->h I
+000334  b2c8                     mul-int/2addr            v8, v12
+000336  d3881027                 div-int/lit16            v8, v8, 10000
+00033a  37980400                 if-le                    v8, v9, +004h
+00033e  019c                     move                     v12, v9
+000340  2802                     goto                     +2h
+000342  018c                     move                     v12, v8
+000344  3b330b00                 if-gez                   v51, +00bh
+000348  54483335                 iget-object              v8, v4, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+00034c  46080820                 aget-object              v8, v8, v32
+000350  55882335                 iget-boolean             v8, v8, Lsofeh/music/InstSnd;->AutoRelease Z
+000354  02130800                 move/from16              v19, v8
+000358  2803                     goto                     +3h
+00035a  02133300                 move/from16              v19, v51
+00035e  5408e434                 iget-object              v8, v0, Lsofeh/music/Channels;->fEffects [Lsofeh/music/Effect;
+000362  4608080d                 aget-object              v8, v8, v13
+000366  6e1046610800             invoke-virtual           v8, Lsofeh/music/Effect;->getMode()B
+00036c  0a08                     move-result              v8
+00036e  13090f00                 const/16                 v9, 15
+000372  37982d00                 if-le                    v8, v9, +02dh
+000376  3b342b00                 if-gez                   v52, +02bh
+00037a  5408e434                 iget-object              v8, v0, Lsofeh/music/Channels;->fEffects [Lsofeh/music/Effect;
+00037e  38082700                 if-eqz                   v8, +027h
+000382  4608080d                 aget-object              v8, v8, v13
+000386  38082300                 if-eqz                   v8, +023h
+00038a  5588ef34                 iget-boolean             v8, v8, Lsofeh/music/Effect;->Enable Z
+00038e  38081f00                 if-eqz                   v8, +01fh
+000392  02082e00                 move/from16              v8, v46
+000396  0119                     move                     v9, v1
+000398  02150200                 move/from16              v21, v2
+00039c  02160500                 move/from16              v22, v5
+0003a0  02012000                 move/from16              v1, v32
+0003a4  02022100                 move/from16              v2, v33
+0003a8  02052600                 move/from16              v5, v38
+0003ac  76093a610000             invoke-direct/range      v0 ... v8, Lsofeh/music/Channels;->_Connection(I I I Lsofeh/music/Instrument; I I I I)Z
+0003b2  0a10                     move-result              v16
+0003b4  0742                     move-object              v2, v4
+0003b6  0151                     move                     v1, v5
+0003b8  38101c00                 if-eqz                   v16, +01ch
+0003bc  29007b02                 goto/16                  +27bh
+0003c0  0742                     move-object              v2, v4
+0003c2  0151                     move                     v1, v5
+0003c4  02053500                 move/from16              v5, v53
+0003c8  29006c00                 goto/16                  +06ch
+0003cc  0119                     move                     v9, v1
+0003ce  02150200                 move/from16              v21, v2
+0003d2  0742                     move-object              v2, v4
+0003d4  02160500                 move/from16              v22, v5
+0003d8  02012600                 move/from16              v1, v38
+0003dc  280a                     goto                     +ah
+0003de  0119                     move                     v9, v1
+0003e0  02150200                 move/from16              v21, v2
+0003e4  0742                     move-object              v2, v4
+0003e6  02160500                 move/from16              v22, v5
+0003ea  02012600                 move/from16              v1, v38
+0003ee  28eb                     goto                     -15h
+0003f0  6e103c610000             invoke-virtual           v0, Lsofeh/music/Channels;->lastChannel()Lsofeh/music/Channel;
+0003f6  0c04                     move-result-object       v4
+0003f8  5405e434                 iget-object              v5, v0, Lsofeh/music/Channels;->fEffects [Lsofeh/music/Effect;
+0003fc  38054600                 if-eqz                   v5, +046h
+000400  4605050d                 aget-object              v5, v5, v13
+000404  38054200                 if-eqz                   v5, +042h
+000408  5558ef34                 iget-boolean             v8, v5, Lsofeh/music/Effect;->Enable Z
+00040c  38083e00                 if-eqz                   v8, +03eh
+000410  5408e634                 iget-object              v8, v0, Lsofeh/music/Channels;->fList [Lsofeh/music/Channel;
+000414  38083a00                 if-eqz                   v8, +03ah
+000418  38043800                 if-eqz                   v4, +038h
+00041c  6e1049610500             invoke-virtual           v5, Lsofeh/music/Effect;->getStopByRelease()Z
+000422  0a05                     move-result              v5
+000424  38050600                 if-eqz                   v5, +006h
+000428  55458734                 iget-boolean             v5, v4, Lsofeh/music/Channel;->Close Z
+00042c  39052e00                 if-nez                   v5, +02eh
+000430  5405e434                 iget-object              v5, v0, Lsofeh/music/Channels;->fEffects [Lsofeh/music/Effect;
+000434  4605050d                 aget-object              v5, v5, v13
+000438  6e1043610500             invoke-virtual           v5, Lsofeh/music/Effect;->getByPedal()Z
+00043e  0a05                     move-result              v5
+000440  38050400                 if-eqz                   v5, +004h
+000444  382e2200                 if-eqz                   v46, +022h
+000448  3b340500                 if-gez                   v52, +005h
+00044c  52449034                 iget                     v4, v4, Lsofeh/music/Channel;->Key I
+000450  2803                     goto                     +3h
+000452  02043400                 move/from16              v4, v52
+000456  3c350b00                 if-gtz                   v53, +00bh
+00045a  5405e434                 iget-object              v5, v0, Lsofeh/music/Channels;->fEffects [Lsofeh/music/Effect;
+00045e  4605050d                 aget-object              v5, v5, v13
+000462  6e1047610500             invoke-virtual           v5, Lsofeh/music/Effect;->getSpeed()I
+000468  0a05                     move-result              v5
+00046a  2803                     goto                     +3h
+00046c  02053500                 move/from16              v5, v53
+000470  5408e434                 iget-object              v8, v0, Lsofeh/music/Channels;->fEffects [Lsofeh/music/Effect;
+000474  4608080d                 aget-object              v8, v8, v13
+000478  6e1046610800             invoke-virtual           v8, Lsofeh/music/Effect;->getMode()B
+00047e  0a08                     move-result              v8
+000480  37d80800                 if-le                    v8, v13, +008h
+000484  01d8                     move                     v8, v13
+000486  2806                     goto                     +6h
+000488  02043400                 move/from16              v4, v52
+00048c  02053500                 move/from16              v5, v53
+000490  1208                     const/4                  v8, 0
+000492  02190400                 move/from16              v25, v4
+000496  02180800                 move/from16              v24, v8
+00049a  02170500                 move/from16              v23, v5
+00049e  2806                     goto                     +6h
+0004a0  13180000                 const/16                 v24, 0
+0004a4  1319ffff                 const/16                 v25, -1
+0004a8  28f9                     goto                     -7h
+0004aa  52a41f35                 iget                     v4, v10, Lsofeh/music/InstSec;->Tune I
+0004ae  b074                     add-int/2addr            v4, v7
+0004b0  5405ea34                 iget-object              v5, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+0004b4  5455d935                 iget-object              v5, v5, Lsofeh/music/Music;->fSystems Lsofeh/music/Systems;
+0004b8  6e203f631500             invoke-virtual           v5, v1, Lsofeh/music/Systems;->Get(I)Lsofeh/music/System_;
+0004be  0c05                     move-result-object       v5
+0004c0  54552536                 iget-object              v5, v5, Lsofeh/music/System_;->fTable Lsofeh/music/SystemTable;
+0004c4  54552136                 iget-object              v5, v5, Lsofeh/music/SystemTable;->Table [D
+0004c8  56283435                 iget-byte                v8, v2, Lsofeh/music/Instrument;->fType B
+0004cc  39080500                 if-nez                   v8, +005h
+0004d0  02100d00                 move/from16              v16, v13
+0004d4  2803                     goto                     +3h
+0004d6  13100000                 const/16                 v16, 0
+0004da  1911c040                 const-wide/high16        v17, 4665729213955833856
+0004de  01e8                     move                     v8, v14
+0004e0  014e                     move                     v14, v4
+0004e2  0184                     move                     v4, v8
+0004e4  01f8                     move                     v8, v15
+0004e6  075f                     move-object              v15, v5
+0004e8  01c5                     move                     v5, v12
+0004ea  018c                     move                     v12, v8
+0004ec  01b8                     move                     v8, v11
+0004ee  013b                     move                     v11, v3
+0004f0  01d3                     move                     v3, v13
+0004f2  016d                     move                     v13, v6
+0004f4  1226                     const/4                  v6, 2
+0004f6  7708f9610b00             invoke-static/range      v11 ... v18, Lsofeh/music/Music;->KeyToPitchEx(I I I I [D Z D)D
+0004fc  0b0e                     move-result-wide         v14
+0004fe  021a0d00                 move/from16              v26, v13
+000502  54ad2135                 iget-object              v13, v10, Lsofeh/music/InstSec;->WaveData Lsofeh/music/WaveData;
+000506  52ddd036                 iget                     v13, v13, Lsofeh/music/WaveData;->SampleRate I
+00050a  02250400                 move/from16              v37, v4
+00050e  83d3                     int-to-double            v3, v13
+000510  cd3e                     mul-double/2addr         v14, v3
+000512  5403ea34                 iget-object              v3, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+000516  5233cf35                 iget                     v3, v3, Lsofeh/music/Music;->fOutSampleRate I
+00051a  8333                     int-to-double            v3, v3
+00051c  ce3e                     div-double/2addr         v14, v3
+00051e  7120d246fe00             invoke-static            v14, v15, Ljava/lang/Math;->round(D)J
+000524  0b03                     move-result-wide         v3
+000526  8433                     long-to-int              v3, v3
+000528  8d94                     int-to-byte              v4, v9
+00052a  02091500                 move/from16              v9, v21
+00052e  8d99                     int-to-byte              v9, v9
+000530  020d1600                 move/from16              v13, v22
+000534  8ddd                     int-to-byte              v13, v13
+000536  8d55                     int-to-byte              v5, v5
+000538  38130400                 if-eqz                   v19, +004h
+00053c  121e                     const/4                  v14, 1
+00053e  2802                     goto                     +2h
+000540  120e                     const/4                  v14, 0
+000542  540fe534                 iget-object              v15, v0, Lsofeh/music/Channels;->fFXs Lz01;
+000546  55ffeb3c                 iget-boolean             v15, v15, Lz01;->i Z
+00054a  08100200                 move-object/from16       v16, v2
+00054e  1222                     const/4                  v2, 2
+000550  02012100                 move/from16              v1, v33
+000554  02062c00                 move/from16              v6, v44
+000558  02112e00                 move/from16              v17, v46
+00055c  02133600                 move/from16              v19, v54
+000560  02143700                 move/from16              v20, v55
+000564  021c0700                 move/from16              v28, v7
+000568  08120a00                 move-object/from16       v18, v10
+00056c  081b1000                 move-object/from16       v27, v16
+000570  13156400                 const/16                 v21, 100
+000574  02072400                 move/from16              v7, v36
+000578  02102d00                 move/from16              v16, v45
+00057c  014a                     move                     v10, v4
+00057e  01c4                     move                     v4, v12
+000580  01dc                     move                     v12, v13
+000582  015d                     move                     v13, v5
+000584  0135                     move                     v5, v3
+000586  01b3                     move                     v3, v11
+000588  019b                     move                     v11, v9
+00058a  02092500                 move/from16              v9, v37
+00058e  741531610000             invoke-virtual/range     v0 ... v20, Lsofeh/music/Channels;->Open(I I I I I I I I I B B B B Z Z I I Lsofeh/music/InstSec; Z I)V
+000594  02013800                 move/from16              v1, v56
+000598  0185                     move                     v5, v8
+00059a  02081100                 move/from16              v8, v17
+00059e  08021200                 move-object/from16       v2, v18
+0005a2  1226                     const/4                  v6, 2
+0005a4  3761d500                 if-le                    v1, v6, +0d5h
+0005a8  db04030c                 div-int/lit8             v4, v3, 12
+0005ac  1236                     const/4                  v6, 3
+0005ae  3464d000                 if-lt                    v4, v6, +0d0h
+0005b2  13060900                 const/16                 v6, 9
+0005b6  3664cc00                 if-gt                    v4, v6, +0cch
+0005ba  6e103c610000             invoke-virtual           v0, Lsofeh/music/Channels;->lastChannel()Lsofeh/music/Channel;
+0005c0  0c06                     move-result-object       v6
+0005c2  1247                     const/4                  v7, 4
+0005c4  33710700                 if-ne                    v1, v7, +007h
+0005c8  38060500                 if-eqz                   v6, +005h
+0005cc  1201                     const/4                  v1, 0
+0005ce  5961a334                 iput                     v1, v6, Lsofeh/music/Channel;->dVolumeStarter F
+0005d2  02071c00                 move/from16              v7, v28
+0005d6  8271                     int-to-float             v1, v7
+0005d8  15060046                 const/high16             v6, 1174405120
+0005dc  c961                     div-float/2addr          v1, v6
+0005de  1506803f                 const/high16             v6, 1065353216
+0005e2  c661                     add-float/2addr          v1, v6
+0005e4  02062c00                 move/from16              v6, v44
+0005e8  8266                     int-to-float             v6, v6
+0005ea  c861                     mul-float/2addr          v1, v6
+0005ec  15067a44                 const/high16             v6, 1148846080
+0005f0  c961                     div-float/2addr          v1, v6
+0005f2  5406e534                 iget-object              v6, v0, Lsofeh/music/Channels;->fFXs Lz01;
+0005f6  526ae53c                 iget                     v10, v6, Lz01;->c I
+0005fa  5266e43c                 iget                     v6, v6, Lz01;->b I
+0005fe  3d0a0c00                 if-lez                   v10, +00ch
+000602  920b0506                 mul-int                  v11, v5, v6
+000606  d9050a64                 rsub-int/lit8            v5, v10, 100
+00060a  b2b5                     mul-int/2addr            v5, v11
+00060c  db050564                 div-int/lit8             v5, v5, 100
+000610  920e0906                 mul-int                  v14, v9, v6
+000614  2809                     goto                     +9h
+000616  b265                     mul-int/2addr            v5, v6
+000618  920e0906                 mul-int                  v14, v9, v6
+00061c  d80a0a64                 add-int/lit8             v10, v10, 100
+000620  b2ea                     mul-int/2addr            v10, v14
+000622  db0e0a64                 div-int/lit8             v14, v10, 100
+000626  5406ea34                 iget-object              v6, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+00062a  5469ec35                 iget-object              v9, v6, Lsofeh/music/MusicObject;->fPlatform Lx13;
+00062e  546a9d35                 iget-object              v10, v6, Lsofeh/music/Music;->fFXMusic Lz01;
+000632  52aae43c                 iget                     v10, v10, Lz01;->b I
+000636  b2a5                     mul-int/2addr            v5, v10
+000638  8255                     int-to-float             v5, v5
+00063a  140b0024f449             const                    v11, 1240736768
+000640  c9b5                     div-float/2addr          v5, v11
+000642  b2ae                     mul-int/2addr            v14, v10
+000644  82ea                     int-to-float             v10, v14
+000646  c9ba                     div-float/2addr          v10, v11
+000648  dc03030c                 rem-int/lit8             v3, v3, 12
+00064c  dc0b1a0c                 rem-int/lit8             v11, v26, 12
+000650  5466d935                 iget-object              v6, v6, Lsofeh/music/Music;->fSystems Lsofeh/music/Systems;
+000654  020c2600                 move/from16              v12, v38
+000658  6e203f63c600             invoke-virtual           v6, v12, Lsofeh/music/Systems;->Get(I)Lsofeh/music/System_;
+00065e  0c06                     move-result-object       v6
+000660  54662536                 iget-object              v6, v6, Lsofeh/music/System_;->fTable Lsofeh/music/SystemTable;
+000664  54662136                 iget-object              v6, v6, Lsofeh/music/SystemTable;->Table [D
+000668  080d1b00                 move-object/from16       v13, v27
+00066c  56de3435                 iget-byte                v14, v13, Lsofeh/music/Instrument;->fType B
+000670  390e0800                 if-nez                   v14, +008h
+000674  121e                     const/4                  v14, 1
+000676  022f0300                 move/from16              v47, v3
+00067a  02220400                 move/from16              v34, v4
+00067e  2803                     goto                     +3h
+000680  120e                     const/4                  v14, 0
+000682  28fa                     goto                     -6h
+000684  8913                     float-to-double          v3, v1
+000686  1201                     const/4                  v1, 0
+000688  120f                     const/4                  v15, 0
+00068a  02300100                 move/from16              v48, v1
+00068e  05350300                 move-wide/from16         v53, v3
+000692  08330600                 move-object/from16       v51, v6
+000696  02310b00                 move/from16              v49, v11
+00069a  02340e00                 move/from16              v52, v14
+00069e  02320f00                 move/from16              v50, v15
+0006a2  7708f9612f00             invoke-static/range      v47 ... v54, Lsofeh/music/Music;->KeyToPitchEx(I I I I [D Z D)D
+0006a8  0b03                     move-result-wide         v3
+0006aa  8c31                     double-to-float          v1, v3
+0006ac  5493543b                 iget-object              v3, v9, Lx13;->a Lew;
+0006b0  6e10ea460300             invoke-virtual           v3, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+0006b6  2204c110                 new-instance             v4, Ljava/util/ArrayList;
+0006ba  54339623                 iget-object              v3, v3, Lew;->b Ljava/util/ArrayList;
+0006be  7020b0483400             invoke-direct            v4, v3, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
+0006c4  6e10bf480400             invoke-virtual           v4, Ljava/util/ArrayList;->size()I
+0006ca  0a03                     move-result              v3
+0006cc  1206                     const/4                  v6, 0
+0006ce  35363d00                 if-ge                    v6, v3, +03dh
+0006d2  6e20b6486400             invoke-virtual           v4, v6, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+0006d8  0c09                     move-result-object       v9
+0006da  d8060601                 add-int/lit8             v6, v6, 1
+0006de  1f09a102                 check-cast               v9, Lc23;
+0006e2  121b                     const/4                  v11, 1
+0006e4  d80e22ff                 add-int/lit8             v14, v34, -1
+0006e8  54990902                 iget-object              v9, v9, Lc23;->c Lb60;
+0006ec  549f5c01                 iget-object              v15, v9, Lb60;->b Ljava/lang/Object;
+0006f0  1f0fc110                 check-cast               v15, Ljava/util/ArrayList;
+0006f4  021d0b00                 move/from16              v29, v11
+0006f8  6e10bf480f00             invoke-virtual           v15, Ljava/util/ArrayList;->size()I
+0006fe  0a0b                     move-result              v11
+000700  35bee7ff                 if-ge                    v14, v11, -019h
+000704  54995b01                 iget-object              v9, v9, Lb60;->a Ljava/lang/Object;
+000708  1f091701                 check-cast               v9, Landroid/media/SoundPool;
+00070c  6e20b648ef00             invoke-virtual           v15, v14, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+000712  0c0b                     move-result-object       v11
+000714  1f0b2810                 check-cast               v11, Ljava/lang/Integer;
+000718  6e1099460b00             invoke-virtual           v11, Ljava/lang/Integer;->intValue()I
+00071e  0a0b                     move-result              v11
+000720  120e                     const/4                  v14, 0
+000722  120f                     const/4                  v15, 0
+000724  022d0100                 move/from16              v45, v1
+000728  02290500                 move/from16              v41, v5
+00072c  08270900                 move-object/from16       v39, v9
+000730  022a0a00                 move/from16              v42, v10
+000734  02280b00                 move/from16              v40, v11
+000738  022b0e00                 move/from16              v43, v14
+00073c  022c0f00                 move/from16              v44, v15
+000740  740796032700             invoke-virtual/range     v39 ... v45, Landroid/media/SoundPool;->play(I F F I I F)I
+000746  28c4                     goto                     -3ch
+000748  131d0100                 const/16                 v29, 1
+00074c  2808                     goto                     +8h
+00074e  020c2600                 move/from16              v12, v38
+000752  080d1b00                 move-object/from16       v13, v27
+000756  02071c00                 move/from16              v7, v28
+00075a  28f7                     goto                     -9h
+00075c  6e103c610000             invoke-virtual           v0, Lsofeh/music/Channels;->lastChannel()Lsofeh/music/Channel;
+000762  0c01                     move-result-object       v1
+000764  3801a700                 if-eqz                   v1, +0a7h
+000768  3a190500                 if-ltz                   v25, +005h
+00076c  020a1d00                 move/from16              v10, v29
+000770  2802                     goto                     +2h
+000772  120a                     const/4                  v10, 0
+000774  5c1a9134                 iput-boolean             v10, v1, Lsofeh/music/Channel;->KeyConnection Z
+000778  380a9d00                 if-eqz                   v10, +09dh
+00077c  38180e00                 if-eqz                   v24, +00eh
+000780  56231835                 iget-byte                v3, v2, Lsofeh/music/InstSec;->Loop B
+000784  3d030a00                 if-lez                   v3, +00ah
+000788  52231a35                 iget                     v3, v2, Lsofeh/music/InstSec;->LoopStart I
+00078c  8133                     int-to-long              v3, v3
+00078e  16050020                 const-wide/16            v5, 8192
+000792  bd53                     mul-long/2addr           v3, v5
+000794  5a139734                 iput-wide                v3, v1, Lsofeh/music/Channel;->Position J
+000798  02032100                 move/from16              v3, v33
+00079c  59138e34                 iput                     v3, v1, Lsofeh/music/Channel;->ID I
+0007a0  1203                     const/4                  v3, 0
+0007a2  5c138734                 iput-boolean             v3, v1, Lsofeh/music/Channel;->Close Z
+0007a6  59189334                 iput                     v8, v1, Lsofeh/music/Channel;->Pedal I
+0007aa  52148634                 iget                     v4, v1, Lsofeh/music/Channel;->BaseKey I
+0007ae  52251f35                 iget                     v5, v2, Lsofeh/music/InstSec;->Tune I
+0007b2  b075                     add-int/2addr            v5, v7
+0007b4  5406ea34                 iget-object              v6, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+0007b8  5466d935                 iget-object              v6, v6, Lsofeh/music/Music;->fSystems Lsofeh/music/Systems;
+0007bc  6e203f63c600             invoke-virtual           v6, v12, Lsofeh/music/Systems;->Get(I)Lsofeh/music/System_;
+0007c2  0c06                     move-result-object       v6
+0007c4  54662536                 iget-object              v6, v6, Lsofeh/music/System_;->fTable Lsofeh/music/SystemTable;
+0007c8  54662136                 iget-object              v6, v6, Lsofeh/music/SystemTable;->Table [D
+0007cc  56d73435                 iget-byte                v7, v13, Lsofeh/music/Instrument;->fType B
+0007d0  39070500                 if-nez                   v7, +005h
+0007d4  020a1d00                 move/from16              v10, v29
+0007d8  2802                     goto                     +2h
+0007da  013a                     move                     v10, v3
+0007dc  1907c040                 const-wide/high16        v7, 4665729213955833856
+0007e0  02220400                 move/from16              v34, v4
+0007e4  02240500                 move/from16              v36, v5
+0007e8  08250600                 move-object/from16       v37, v6
+0007ec  05270700                 move-wide/from16         v39, v7
+0007f0  02260a00                 move/from16              v38, v10
+0007f4  02211900                 move/from16              v33, v25
+0007f8  02231a00                 move/from16              v35, v26
+0007fc  7708f9612100             invoke-static/range      v33 ... v40, Lsofeh/music/Music;->KeyToPitchEx(I I I I [D Z D)D
+000802  0b03                     move-result-wide         v3
+000804  54222135                 iget-object              v2, v2, Lsofeh/music/InstSec;->WaveData Lsofeh/music/WaveData;
+000808  5222d036                 iget                     v2, v2, Lsofeh/music/WaveData;->SampleRate I
+00080c  8325                     int-to-double            v5, v2
+00080e  cd53                     mul-double/2addr         v3, v5
+000810  5402ea34                 iget-object              v2, v0, Lsofeh/music/Channels;->fMusic Lsofeh/music/Music;
+000814  5222cf35                 iget                     v2, v2, Lsofeh/music/Music;->fOutSampleRate I
+000818  8325                     int-to-double            v5, v2
+00081a  ce53                     div-double/2addr         v3, v5
+00081c  7120d2464300             invoke-static            v3, v4, Ljava/lang/Math;->round(D)J
+000822  0b02                     move-result-wide         v2
+000824  8422                     long-to-int              v2, v2
+000826  5912a934                 iput                     v2, v1, Lsofeh/music/Channel;->iKeyConnectionPitch I
+00082a  5912ae34                 iput                     v2, v1, Lsofeh/music/Channel;->iPitch I
+00082e  8323                     int-to-double            v3, v2
+000830  5a139f34                 iput-wide                v3, v1, Lsofeh/music/Channel;->dPitch D
+000834  5a13a434                 iput-wide                v3, v1, Lsofeh/music/Channel;->diPitch D
+000838  52139534                 iget                     v3, v1, Lsofeh/music/Channel;->Pitch I
+00083c  b123                     sub-int/2addr            v3, v2
+00083e  92030317                 mul-int                  v3, v3, v23
+000842  da03030a                 mul-int/lit8             v3, v3, 10
+000846  d3330020                 div-int/lit16            v3, v3, 8192
+00084a  5913aa34                 iput                     v3, v1, Lsofeh/music/Channel;->iKeyConnectionSpeed I
+00084e  39173200                 if-nez                   v23, +032h
+000852  5400e434                 iget-object              v0, v0, Lsofeh/music/Channels;->fEffects [Lsofeh/music/Effect;
+000856  4600001d                 aget-object              v0, v0, v29
+00085a  6e1046610000             invoke-virtual           v0, Lsofeh/music/Effect;->getMode()B
+000860  0a00                     move-result              v0
+000862  020b1d00                 move/from16              v11, v29
+000866  32b00300                 if-eq                    v0, v11, +003h
+00086a  2824                     goto                     +24h
+00086c  16020000                 const-wide/16            v2, 0
+000870  5a129734                 iput-wide                v2, v1, Lsofeh/music/Channel;->Position J
+000874  54d03335                 iget-object              v0, v13, Lsofeh/music/Instrument;->fSndList [Lsofeh/music/InstSnd;
+000878  46000020                 aget-object              v0, v0, v32
+00087c  55002335                 iget-boolean             v0, v0, Lsofeh/music/InstSnd;->AutoRelease Z
+000880  38001000                 if-eqz                   v0, +010h
+000884  5210a734                 iget                     v0, v1, Lsofeh/music/Channel;->iFirstVolumeL I
+000888  59109b34                 iput                     v0, v1, Lsofeh/music/Channel;->VolumeL I
+00088c  5212a834                 iget                     v2, v1, Lsofeh/music/Channel;->iFirstVolumeR I
+000890  59129e34                 iput                     v2, v1, Lsofeh/music/Channel;->VolumeR I
+000894  8200                     int-to-float             v0, v0
+000896  5910a134                 iput                     v0, v1, Lsofeh/music/Channel;->dVolumeL F
+00089a  8220                     int-to-float             v0, v2
+00089c  5910a234                 iput                     v0, v1, Lsofeh/music/Channel;->dVolumeR F
+0008a0  52109534                 iget                     v0, v1, Lsofeh/music/Channel;->Pitch I
+0008a4  5910ae34                 iput                     v0, v1, Lsofeh/music/Channel;->iPitch I
+0008a8  8302                     int-to-double            v2, v0
+0008aa  5a129f34                 iput-wide                v2, v1, Lsofeh/music/Channel;->dPitch D
+0008ae  5a12a434                 iput-wide                v2, v1, Lsofeh/music/Channel;->diPitch D
+0008b2  0e00                     return-void              

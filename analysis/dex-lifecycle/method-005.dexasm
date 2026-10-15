@@ -1,0 +1,408 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/android/MainActivity;->V(Ljava/lang/String; Z)V
+# Addresses in bytes; branch deltas in code units.
+000000 08012000                 move-object/from16       v1, v32
+000004 6e101d600100             invoke-virtual           v1, Lsofeh/android/MainActivity;->N0()Z
+00000a 0a00                     move-result              v0
+00000c 38000400                 if-eqz                   v0, +004h
+000010 29005303                 goto/16                  +353h
+000014 5410b833                 iget-object              v0, v1, Lsofeh/android/MainActivity;->e6 Landroid/app/AlertDialog;
+000018 38000a00                 if-eqz                   v0, +00ah
+00001c 6e105c010000             invoke-virtual           v0, Landroid/app/Dialog;->isShowing()Z
+000022 0a00                     move-result              v0
+000024 38000400                 if-eqz                   v0, +004h
+000028 29004703                 goto/16                  +347h
+00002c 126b                     const/4                  v11, 6
+00002e 6e204f60b100             invoke-virtual           v1, v11, Lsofeh/android/MainActivity;->d(I)V
+000034 120c                     const/4                  v12, 0
+000036 6e202a60c100             invoke-virtual           v1, v12, Lsofeh/android/MainActivity;->R1(Z)I
+00003c 22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+000040 701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+000046 5412b933                 iget-object              v2, v1, Lsofeh/android/MainActivity;->f Ljava/lang/String;
+00004a 6e205f472000             invoke-virtual           v0, v2, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+000050 1a036907                 const-string             v3, "/download/org/"
+000054 6e205f473000             invoke-virtual           v0, v3, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+00005a 6e106b470000             invoke-virtual           v0, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+000060 0c0a                     move-result-object       v10
+000062 1a006a07                 const-string             v0, "/download/prmm/"
+000066 71207e3f0200             invoke-static            v2, v0, Lep4;->l(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+00006c 0c09                     move-result-object       v9
+00006e 1a00ba49                 const-string             v0, "download2.en"
+000072 6e2019470a00             invoke-virtual           v10, v0, Ljava/lang/String;->concat(Ljava/lang/String;)Ljava/lang/String;
+000078 0c02                     move-result-object       v2
+00007a 22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+00007e 701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+000084 54137933                 iget-object              v3, v1, Lsofeh/android/MainActivity;->W3 Ljava/lang/String;
+000088 6e205f473000             invoke-virtual           v0, v3, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+00008e 62035427                 sget-object              v3, Ljava/io/File;->separator Ljava/lang/String;
+000092 1a04b849                 const-string             v4, "download.en"
+000096 7130803f3004             invoke-static            v0, v3, v4, Lep4;->n(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+00009c 0c04                     move-result-object       v4
+00009e 22004210                 new-instance             v0, Ljava/lang/StringBuilder;
+0000a2 701052470000             invoke-direct            v0, Ljava/lang/StringBuilder;-><init>()V
+0000a8 5415be33                 iget-object              v5, v1, Lsofeh/android/MainActivity;->f4 Ljava/lang/String;
+0000ac 1a06b949                 const-string             v6, "download.temp"
+0000b0 7140813f5063             invoke-static            v0, v5, v3, v6, Lep4;->o(Ljava/lang/StringBuilder; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0000b6 0c03                     move-result-object       v3
+0000b8 220dc110                 new-instance             v13, Ljava/util/ArrayList;
+0000bc 7010ae480d00             invoke-direct            v13, Ljava/util/ArrayList;-><init>()V
+0000c2 2206680e                 new-instance             v6, Lew;
+0000c6 130e0800                 const/16                 v14, 8
+0000ca 7030d23fe60c             invoke-direct            v6, v14, v12, Lew;-><init>(B Z)V
+0000d0 2200c110                 new-instance             v0, Ljava/util/ArrayList;
+0000d4 7010ae480000             invoke-direct            v0, Ljava/util/ArrayList;-><init>()V
+0000da 5b609623                 iput-object              v0, v6, Lew;->b Ljava/util/ArrayList;
+0000de 220fc110                 new-instance             v15, Ljava/util/ArrayList;
+0000e2 7010ae480f00             invoke-direct            v15, Ljava/util/ArrayList;-><init>()V
+0000e8 2210c110                 new-instance             v16, Ljava/util/ArrayList;
+0000ec 7601ae481000             invoke-direct/range      v16, Ljava/util/ArrayList;-><init>()V
+0000f2 39220800                 if-nez                   v34, +008h
+0000f6 711023080400             invoke-static            v4, Lbp3;->f(Ljava/lang/String;)Z
+0000fc 0a00                     move-result              v0
+0000fe 39002500                 if-nez                   v0, +025h
+000102 7110c76c0100             invoke-static            v1, Lys1;->e(Landroid/content/Context;)Z
+000108 0a00                     move-result              v0
+00010a 38001f00                 if-eqz                   v0, +01fh
+00010e 22050f18                 new-instance             v5, Lz72;
+000112 70207f6d1500             invoke-direct            v5, v1, Lz72;-><init>(Lsofeh/android/MainActivity;)V
+000118 595c043d                 iput                     v12, v5, Lz72;->a I
+00011c 14004001127f             const                    v0, 2131886400
+000122 6e20f9010100             invoke-virtual           v1, v0, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000128 0c00                     move-result-object       v0
+00012a 6e20816d0500             invoke-virtual           v5, v0, Lz72;->j(Ljava/lang/String;)V
+000130 6e10836d0500             invoke-virtual           v5, Lz72;->l()V
+000136 22005a13                 new-instance             v0, Lna2;
+00013a 76063e560000             invoke-direct/range      v0 ... v5, Lna2;-><init>(Lsofeh/android/MainActivity; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String; Lz72;)V
+000140 6e1092470000             invoke-virtual           v0, Ljava/lang/Thread;->start()V
+000146 0e00                     return-void              
+000148 711023080400             invoke-static            v4, Lbp3;->f(Ljava/lang/String;)Z
+00014e 0a00                     move-result              v0
+000150 38008a00                 if-eqz                   v0, +08ah
+000154 71102d080400             invoke-static            v4, Lbp3;->r(Ljava/lang/String;)Ljava/lang/String;
+00015a 0c00                     move-result-object       v0
+00015c 1a02d740                 const-string             v2, "\r?\n"
+000160 6e2034472000             invoke-virtual           v0, v2, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+000166 0c00                     move-result-object       v0
+000168 7110c3480000             invoke-static            v0, Ljava/util/Arrays;->asList([Ljava/lang/Object;)Ljava/util/List;
+00016e 0c00                     move-result-object       v0
+000170 6e20b3480d00             invoke-virtual           v13, v0, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
+000176 1a000000                 const-string             v0, ""
+00017a 01c2                     move                     v2, v12
+00017c 6e10bf480d00             invoke-virtual           v13, Ljava/util/ArrayList;->size()I
+000182 0a03                     move-result              v3
+000184 b3b3                     div-int/2addr            v3, v11
+000186 1a041501                 const-string             v4, " "
+00018a 35322300                 if-ge                    v2, v3, +023h
+00018e da030206                 mul-int/lit8             v3, v2, 6
+000192 6e20b6483d00             invoke-virtual           v13, v3, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+000198 0c05                     move-result-object       v5
+00019a 1f054010                 check-cast               v5, Ljava/lang/String;
+00019e 6e2036474500             invoke-virtual           v5, v4, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0001a4 0a04                     move-result              v4
+0001a6 38040d00                 if-eqz                   v4, +00dh
+0001aa 6e20b6483d00             invoke-virtual           v13, v3, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+0001b0 0c00                     move-result-object       v0
+0001b2 1f004010                 check-cast               v0, Ljava/lang/String;
+0001b6 6e1041470000             invoke-virtual           v0, Ljava/lang/String;->trim()Ljava/lang/String;
+0001bc 0c00                     move-result-object       v0
+0001be 2806                     goto                     +6h
+0001c0 d8030305                 add-int/lit8             v3, v3, 5
+0001c4 6e30be483d00             invoke-virtual           v13, v3, v0, Ljava/util/ArrayList;->set(I Ljava/lang/Object;)Ljava/lang/Object;
+0001ca d8020201                 add-int/lit8             v2, v2, 1
+0001ce 28d7                     goto                     -29h
+0001d0 01c0                     move                     v0, v12
+0001d2 6e10bf480d00             invoke-virtual           v13, Ljava/util/ArrayList;->size()I
+0001d8 0a02                     move-result              v2
+0001da b3b2                     div-int/2addr            v2, v11
+0001dc 35204400                 if-ge                    v0, v2, +044h
+0001e0 da020006                 mul-int/lit8             v2, v0, 6
+0001e4 6e20b6482d00             invoke-virtual           v13, v2, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+0001ea 0c03                     move-result-object       v3
+0001ec 1f034010                 check-cast               v3, Ljava/lang/String;
+0001f0 6e2036474300             invoke-virtual           v3, v4, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+0001f6 0a03                     move-result              v3
+0001f8 39033300                 if-nez                   v3, +033h
+0001fc d8030202                 add-int/lit8             v3, v2, 2
+000200 6e20b6483d00             invoke-virtual           v13, v3, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+000206 0c05                     move-result-object       v5
+000208 1f054010                 check-cast               v5, Ljava/lang/String;
+00020c 1a07db53                 const-string             v7, "http://"
+000210 6e2036477500             invoke-virtual           v5, v7, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000216 0a05                     move-result              v5
+000218 39051000                 if-nez                   v5, +010h
+00021c 6e20b6483d00             invoke-virtual           v13, v3, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+000222 0c03                     move-result-object       v3
+000224 1f034010                 check-cast               v3, Ljava/lang/String;
+000228 1a05e253                 const-string             v5, "https://"
+00022c 6e2036475300             invoke-virtual           v3, v5, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+000232 0a03                     move-result              v3
+000234 38031500                 if-eqz                   v3, +015h
+000238 6e20bb482d00             invoke-virtual           v13, v2, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+00023e 6e20bb482d00             invoke-virtual           v13, v2, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+000244 6e20bb482d00             invoke-virtual           v13, v2, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+00024a 6e20bb482d00             invoke-virtual           v13, v2, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+000250 6e20bb482d00             invoke-virtual           v13, v2, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+000256 6e20bb482d00             invoke-virtual           v13, v2, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+00025c 28bb                     goto                     -45h
+00025e d8000001                 add-int/lit8             v0, v0, 1
+000262 28b8                     goto                     -48h
+000264 22006600                 new-instance             v0, Landroid/app/AlertDialog$Builder;
+000268 54121e34                 iget-object              v2, v1, Lsofeh/android/MainActivity;->r4 Lsofeh/android/MainActivity;
+00026c 70203e012000             invoke-direct            v0, v2, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
+000272 6e1010010100             invoke-virtual           v1, Landroid/app/Activity;->getLayoutInflater()Landroid/view/LayoutInflater;
+000278 0c02                     move-result-object       v2
+00027a 14034b000c7f             const                    v3, 2131492939
+000280 1204                     const/4                  v4, 0
+000282 6e403d0532c4             invoke-virtual           v2, v3, v4, v12, Landroid/view/LayoutInflater;->inflate(I Landroid/view/ViewGroup; Z)Landroid/view/View;
+000288 0c02                     move-result-object       v2
+00028a 12f3                     const/4                  v3, -1
+00028c 6e209e053200             invoke-virtual           v2, v3, Landroid/view/View;->setBackgroundColor(I)V
+000292 1403e600097f             const                    v3, 2131296486
+000298 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+00029e 0c03                     move-result-object       v3
+0002a0 0734                     move-object              v4, v3
+0002a2 1f040b02                 check-cast               v4, Landroid/widget/ListView;
+0002a6 1403c500097f             const                    v3, 2131296453
+0002ac 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+0002b2 0c03                     move-result-object       v3
+0002b4 08110300                 move-object/from16       v17, v3
+0002b8 1f110702                 check-cast               v17, Landroid/widget/ImageView;
+0002bc 14034901097f             const                    v3, 2131296585
+0002c2 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+0002c8 0c03                     move-result-object       v3
+0002ca 08120300                 move-object/from16       v18, v3
+0002ce 1f120702                 check-cast               v18, Landroid/widget/ImageView;
+0002d2 14033601097f             const                    v3, 2131296566
+0002d8 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+0002de 0c03                     move-result-object       v3
+0002e0 08130300                 move-object/from16       v19, v3
+0002e4 1f130702                 check-cast               v19, Landroid/widget/ImageView;
+0002e8 14038a00097f             const                    v3, 2131296394
+0002ee 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+0002f4 0c03                     move-result-object       v3
+0002f6 08140300                 move-object/from16       v20, v3
+0002fa 1f140702                 check-cast               v20, Landroid/widget/ImageView;
+0002fe 14034402097f             const                    v3, 2131296836
+000304 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+00030a 0c03                     move-result-object       v3
+00030c 08150300                 move-object/from16       v21, v3
+000310 1f150702                 check-cast               v21, Landroid/widget/ImageView;
+000314 14034f02097f             const                    v3, 2131296847
+00031a 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+000320 0c03                     move-result-object       v3
+000322 08160300                 move-object/from16       v22, v3
+000326 1f160702                 check-cast               v22, Landroid/widget/ImageView;
+00032a 1403a300097f             const                    v3, 2131296419
+000330 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+000336 0c03                     move-result-object       v3
+000338 08170300                 move-object/from16       v23, v3
+00033c 1f170702                 check-cast               v23, Landroid/widget/ImageView;
+000340 1403e400097f             const                    v3, 2131296484
+000346 6e2066053200             invoke-virtual           v2, v3, Landroid/view/View;->findViewById(I)Landroid/view/View;
+00034c 0c03                     move-result-object       v3
+00034e 1f03ff01                 check-cast               v3, Landroid/widget/CheckBox;
+000352 1405e700097f             const                    v5, 2131296487
+000358 6e2066055200             invoke-virtual           v2, v5, Landroid/view/View;->findViewById(I)Landroid/view/View;
+00035e 0c05                     move-result-object       v5
+000360 1f05ff01                 check-cast               v5, Landroid/widget/CheckBox;
+000364 1407df00097f             const                    v7, 2131296479
+00036a 6e2066057200             invoke-virtual           v2, v7, Landroid/view/View;->findViewById(I)Landroid/view/View;
+000370 0c07                     move-result-object       v7
+000372 1f071102                 check-cast               v7, Landroid/widget/RadioGroup;
+000376 1408e900097f             const                    v8, 2131296489
+00037c 6e2066058200             invoke-virtual           v2, v8, Landroid/view/View;->findViewById(I)Landroid/view/View;
+000382 0c08                     move-result-object       v8
+000384 1f081902                 check-cast               v8, Landroid/widget/TextView;
+000388 140be500097f             const                    v11, 2131296485
+00038e 6e206605b200             invoke-virtual           v2, v11, Landroid/view/View;->findViewById(I)Landroid/view/View;
+000394 0c0b                     move-result-object       v11
+000396 1f0b1902                 check-cast               v11, Landroid/widget/TextView;
+00039a 140edd00097f             const                    v14, 2131296477
+0003a0 6e206605e200             invoke-virtual           v2, v14, Landroid/view/View;->findViewById(I)Landroid/view/View;
+0003a6 0c0e                     move-result-object       v14
+0003a8 1f0e1902                 check-cast               v14, Landroid/widget/TextView;
+0003ac 140cde00097f             const                    v12, 2131296478
+0003b2 6e206605c200             invoke-virtual           v2, v12, Landroid/view/View;->findViewById(I)Landroid/view/View;
+0003b8 0c0c                     move-result-object       v12
+0003ba 1f0c1902                 check-cast               v12, Landroid/widget/TextView;
+0003be 08220000                 move-object/from16       v34, v0
+0003c2 1200                     const/4                  v0, 0
+0003c4 5c10e833                 iput-boolean             v0, v1, Lsofeh/android/MainActivity;->k6 Z
+0003c8 22001317                 new-instance             v0, Lwa2;
+0003cc 08180200                 move-object/from16       v24, v2
+0003d0 08022000                 move-object/from16       v2, v32
+0003d4 08190700                 move-object/from16       v25, v7
+0003d8 0747                     move-object              v7, v4
+0003da 07f4                     move-object              v4, v15
+0003dc 081a0e00                 move-object/from16       v26, v14
+0003e0 075e                     move-object              v14, v5
+0003e2 08051000                 move-object/from16       v5, v16
+0003e6 08101a00                 move-object/from16       v16, v26
+0003ea 081b0800                 move-object/from16       v27, v8
+0003ee 081a1800                 move-object/from16       v26, v24
+0003f2 08082100                 move-object/from16       v8, v33
+0003f6 08180c00                 move-object/from16       v24, v12
+0003fa 07dc                     move-object              v12, v13
+0003fc 073d                     move-object              v13, v3
+0003fe 07f3                     move-object              v3, v15
+000400 080f2200                 move-object/from16       v15, v34
+000404 08220b00                 move-object/from16       v34, v11
+000408 080b1900                 move-object/from16       v11, v25
+00040c 760b44690000             invoke-direct/range      v0 ... v10, Lwa2;-><init>(Lsofeh/android/MainActivity; Lsofeh/android/MainActivity; Ljava/util/ArrayList; Ljava/util/ArrayList; Ljava/util/ArrayList; Lew; Landroid/widget/ListView; Ljava/lang/String; Ljava/lang/String; Ljava/lang/String;)V
+000412 0762                     move-object              v2, v6
+000414 5b10c033                 iput-object              v0, v1, Lsofeh/android/MainActivity;->f6 Lwa2;
+000418 6e2080060700             invoke-virtual           v7, v0, Landroid/widget/ListView;->setAdapter(Landroid/widget/ListAdapter;)V
+00041e 1210                     const/4                  v0, 1
+000420 6e206a060d00             invoke-virtual           v13, v0, Landroid/widget/CompoundButton;->setChecked(Z)V
+000426 6e206a060e00             invoke-virtual           v14, v0, Landroid/widget/CompoundButton;->setChecked(Z)V
+00042c 13040800                 const/16                 v4, 8
+000430 6e20c3054d00             invoke-virtual           v13, v4, Landroid/view/View;->setVisibility(I)V
+000436 6e20c3054e00             invoke-virtual           v14, v4, Landroid/view/View;->setVisibility(I)V
+00043c 22046f17                 new-instance             v4, Lxa2;
+000440 1206                     const/4                  v6, 0
+000442 7056d46ad4be             invoke-direct            v4, v13, v14, v11, v6, Lxa2;-><init>(Landroid/widget/CheckBox; Landroid/widget/CheckBox; Landroid/widget/RadioGroup; B)V
+000448 6e20b2054d00             invoke-virtual           v13, v4, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+00044e 22046f17                 new-instance             v4, Lxa2;
+000452 7050d46ad4be             invoke-direct            v4, v13, v14, v11, v0, Lxa2;-><init>(Landroid/widget/CheckBox; Landroid/widget/CheckBox; Landroid/widget/RadioGroup; B)V
+000458 6e20b2054e00             invoke-virtual           v14, v4, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+00045e 0104                     move                     v4, v0
+000460 2200c517                 new-instance             v0, Lya2;
+000464 081d2200                 move-object/from16       v29, v34
+000468 0774                     move-object              v4, v7
+00046a 081c0f00                 move-object/from16       v28, v15
+00046e 081e1000                 move-object/from16       v30, v16
+000472 08061200                 move-object/from16       v6, v18
+000476 08071300                 move-object/from16       v7, v19
+00047a 08081400                 move-object/from16       v8, v20
+00047e 08091500                 move-object/from16       v9, v21
+000482 080a1600                 move-object/from16       v10, v22
+000486 081f1800                 move-object/from16       v31, v24
+00048a 073f                     move-object              v15, v3
+00048c 08100500                 move-object/from16       v16, v5
+000490 07b3                     move-object              v3, v11
+000492 08051100                 move-object/from16       v5, v17
+000496 080b1700                 move-object/from16       v11, v23
+00049a 76111d6c0000             invoke-direct/range      v0 ... v16, Lya2;-><init>(Lsofeh/android/MainActivity; Lew; Landroid/widget/RadioGroup; Landroid/widget/ListView; Landroid/widget/ImageView; Landroid/widget/ImageView; Landroid/widget/ImageView; Landroid/widget/ImageView; Landroid/widget/ImageView; Landroid/widget/ImageView; Landroid/widget/ImageView; Ljava/util/ArrayList; Landroid/widget/CheckBox; Landroid/widget/CheckBox; Ljava/util/ArrayList; Ljava/util/ArrayList;)V
+0004a0 6e20b2050300             invoke-virtual           v3, v0, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+0004a6 22001918                 new-instance             v0, Lza2;
+0004aa 70209a6d3000             invoke-direct            v0, v3, Lza2;-><init>(Landroid/widget/RadioGroup;)V
+0004b0 6e2096060300             invoke-virtual           v3, v0, Landroid/widget/RadioGroup;->setOnCheckedChangeListener(Landroid/widget/RadioGroup$OnCheckedChangeListener;)V
+0004b6 7100ed040000             invoke-static            Landroid/text/method/LinkMovementMethod;->getInstance()Landroid/text/method/MovementMethod;
+0004bc 0c00                     move-result-object       v0
+0004be 08081b00                 move-object/from16       v8, v27
+0004c2 6e20af060800             invoke-virtual           v8, v0, Landroid/widget/TextView;->setMovementMethod(Landroid/text/method/MovementMethod;)V
+0004c8 2200b402                 new-instance             v0, Lca2;
+0004cc 1244                     const/4                  v4, 4
+0004ce 7030f2081004             invoke-direct            v0, v1, v4, Lca2;-><init>(Lsofeh/android/MainActivity; B)V
+0004d4 6e20b2050800             invoke-virtual           v8, v0, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+0004da 7100ed040000             invoke-static            Landroid/text/method/LinkMovementMethod;->getInstance()Landroid/text/method/MovementMethod;
+0004e0 0c00                     move-result-object       v0
+0004e2 080b1d00                 move-object/from16       v11, v29
+0004e6 6e20af060b00             invoke-virtual           v11, v0, Landroid/widget/TextView;->setMovementMethod(Landroid/text/method/MovementMethod;)V
+0004ec 2200b402                 new-instance             v0, Lca2;
+0004f0 1255                     const/4                  v5, 5
+0004f2 7030f2081005             invoke-direct            v0, v1, v5, Lca2;-><init>(Lsofeh/android/MainActivity; B)V
+0004f8 6e20b2050b00             invoke-virtual           v11, v0, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+0004fe 7100ed040000             invoke-static            Landroid/text/method/LinkMovementMethod;->getInstance()Landroid/text/method/MovementMethod;
+000504 0c00                     move-result-object       v0
+000506 080e1e00                 move-object/from16       v14, v30
+00050a 6e20af060e00             invoke-virtual           v14, v0, Landroid/widget/TextView;->setMovementMethod(Landroid/text/method/MovementMethod;)V
+000510 2200b402                 new-instance             v0, Lca2;
+000514 1266                     const/4                  v6, 6
+000516 7030f2081006             invoke-direct            v0, v1, v6, Lca2;-><init>(Lsofeh/android/MainActivity; B)V
+00051c 6e20b2050e00             invoke-virtual           v14, v0, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+000522 7100ed040000             invoke-static            Landroid/text/method/LinkMovementMethod;->getInstance()Landroid/text/method/MovementMethod;
+000528 0c00                     move-result-object       v0
+00052a 080c1f00                 move-object/from16       v12, v31
+00052e 6e20af060c00             invoke-virtual           v12, v0, Landroid/widget/TextView;->setMovementMethod(Landroid/text/method/MovementMethod;)V
+000534 6e20c3054c00             invoke-virtual           v12, v4, Landroid/view/View;->setVisibility(I)V
+00053a 6e20d2055300             invoke-virtual           v3, v5, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
+000540 0c00                     move-result-object       v0
+000542 1f000f02                 check-cast               v0, Landroid/widget/RadioButton;
+000546 1216                     const/4                  v6, 1
+000548 6e206a066000             invoke-virtual           v0, v6, Landroid/widget/CompoundButton;->setChecked(Z)V
+00054e 6e1094050300             invoke-virtual           v3, Landroid/view/View;->performClick()Z
+000554 54209623                 iget-object              v0, v2, Lew;->b Ljava/util/ArrayList;
+000558 6e10bf480000             invoke-virtual           v0, Ljava/util/ArrayList;->size()I
+00055e 0a00                     move-result              v0
+000560 39000900                 if-nez                   v0, +009h
+000564 6e20d2055300             invoke-virtual           v3, v5, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
+00056a 0c00                     move-result-object       v0
+00056c 6e20c3054000             invoke-virtual           v0, v4, Landroid/view/View;->setVisibility(I)V
+000572 740128472100             invoke-virtual/range     v33, Ljava/lang/String;->isEmpty()Z
+000578 0a00                     move-result              v0
+00057a 123c                     const/4                  v12, 3
+00057c 38000400                 if-eqz                   v0, +004h
+000580 1200                     const/4                  v0, 0
+000582 2802                     goto                     +2h
+000584 01c0                     move                     v0, v12
+000586 6e20d2050300             invoke-virtual           v3, v0, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
+00058c 0c00                     move-result-object       v0
+00058e 1f000f02                 check-cast               v0, Landroid/widget/RadioButton;
+000592 6e206a066000             invoke-virtual           v0, v6, Landroid/widget/CompoundButton;->setChecked(Z)V
+000598 6e1094050300             invoke-virtual           v3, Landroid/view/View;->performClick()Z
+00059e 08001a00                 move-object/from16       v0, v26
+0005a2 080f1c00                 move-object/from16       v15, v28
+0005a6 6e2051010f00             invoke-virtual           v15, v0, Landroid/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/app/AlertDialog$Builder;
+0005ac 6e1052010f00             invoke-virtual           v15, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
+0005b2 0c00                     move-result-object       v0
+0005b4 5b10b833                 iput-object              v0, v1, Lsofeh/android/MainActivity;->e6 Landroid/app/AlertDialog;
+0005b8 7110b7560000             invoke-static            v0, Lnj3;->a(Landroid/app/AlertDialog;)V
+0005be 5410b833                 iget-object              v0, v1, Lsofeh/android/MainActivity;->e6 Landroid/app/AlertDialog;
+0005c2 2202d60d                 new-instance             v2, Lda2;
+0005c6 7030bb3d120c             invoke-direct            v2, v1, v12, Lda2;-><init>(Lsofeh/android/MainActivity; B)V
+0005cc 6e205d012000             invoke-virtual           v0, v2, Landroid/app/Dialog;->setOnCancelListener(Landroid/content/DialogInterface$OnCancelListener;)V
+0005d2 5410b833                 iget-object              v0, v1, Lsofeh/android/MainActivity;->e6 Landroid/app/AlertDialog;
+0005d6 6e105b010000             invoke-virtual           v0, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
+0005dc 0c00                     move-result-object       v0
+0005de 38001e00                 if-eqz                   v0, +01eh
+0005e2 2202f300                 new-instance             v2, Landroid/graphics/drawable/ColorDrawable;
+0005e6 1204                     const/4                  v4, 0
+0005e8 70200a034200             invoke-direct            v2, v4, Landroid/graphics/drawable/ColorDrawable;-><init>(I)V
+0005ee 6e20ec052000             invoke-virtual           v0, v2, Landroid/view/Window;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+0005f4 1402e100087f             const                    v2, 2131230945
+0005fa 6e20ed052000             invoke-virtual           v0, v2, Landroid/view/Window;->setBackgroundDrawableResource(I)V
+000600 52126033                 iget                     v2, v1, Lsofeh/android/MainActivity;->T I
+000604 8222                     int-to-float             v2, v2
+000606 14059a99593f             const                    v5, 1062836634
+00060c c852                     mul-float/2addr          v2, v5
+00060e 8722                     float-to-int             v2, v2
+000610 12e5                     const/4                  v5, -2
+000612 6e30ef052005             invoke-virtual           v0, v2, v5, Landroid/view/Window;->setLayout(I I)V
+000618 2802                     goto                     +2h
+00061a 1204                     const/4                  v4, 0
+00061c 7110c76c0100             invoke-static            v1, Lys1;->e(Landroid/content/Context;)Z
+000622 0a00                     move-result              v0
+000624 39001600                 if-nez                   v0, +016h
+000628 14008500127f             const                    v0, 2131886213
+00062e 6e20f9010100             invoke-virtual           v1, v0, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000634 0c00                     move-result-object       v0
+000636 14023e01127f             const                    v2, 2131886398
+00063c 6e20f9012100             invoke-virtual           v1, v2, Landroid/content/Context;->getString(I)Ljava/lang/String;
+000642 0c02                     move-result-object       v2
+000644 14054101087f             const                    v5, 2131231041
+00064a 7140cc6c1520             invoke-static            v5, v1, v0, v2, Lys1;->h(I Landroid/app/Activity; Ljava/lang/String; Ljava/lang/String;)V
+000650 5510f033                 iget-boolean             v0, v1, Lsofeh/android/MainActivity;->l6 Z
+000654 38000400                 if-eqz                   v0, +004h
+000658 5c14f033                 iput-boolean             v4, v1, Lsofeh/android/MainActivity;->l6 Z
+00065c 6e1095060300             invoke-virtual           v3, Landroid/widget/RadioGroup;->getCheckedRadioButtonId()I
+000662 0a00                     move-result              v0
+000664 1402e800097f             const                    v2, 2131296488
+00066a 33200800                 if-ne                    v0, v2, +008h
+00066e 1400e100097f             const                    v0, 2131296481
+000674 6e2094060300             invoke-virtual           v3, v0, Landroid/widget/RadioGroup;->check(I)V
+00067a 6e20d7054300             invoke-virtual           v3, v4, Landroid/view/ViewGroup;->removeViewAt(I)V
+000680 55109133                 iget-boolean             v0, v1, Lsofeh/android/MainActivity;->a Z
+000684 33601900                 if-ne                    v0, v6, +019h
+000688 6000da00                 sget                     v0, Landroid/os/Build$VERSION;->SDK_INT I
+00068c 13022100                 const/16                 v2, 33
+000690 34201300                 if-lt                    v0, v2, +013h
+000694 1a00d643                 const-string             v0, "android.permission.POST_NOTIFICATIONS"
+000698 6e20e5010100             invoke-virtual           v1, v0, Landroid/content/Context;->checkSelfPermission(Ljava/lang/String;)I
+00069e 0a02                     move-result              v2
+0006a0 38020b00                 if-eqz                   v2, +00bh
+0006a4 2410c6180000             filled-new-array         v0, [Ljava/lang/String;
+0006aa 0c00                     move-result-object       v0
+0006ac 13021427                 const/16                 v2, 10004
+0006b0 6e302b010102             invoke-virtual           v1, v0, v2, Landroid/app/Activity;->requestPermissions([Ljava/lang/String; I)V
+0006b6 0e00                     return-void              

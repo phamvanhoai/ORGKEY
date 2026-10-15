@@ -1,0 +1,16 @@
+00003270 __cxa_finalize@plt
+00003280 __cxa_atexit@plt
+00003290 __register_atfork@plt
+000032a0 malloc@plt
+000032b0 memset@plt
+000032c0 free@plt
+000032d0 smbPitchShiftFlush@plt
+000032e0 smbPitchShiftCopy@plt
+000032f0 memmove@plt
+00003300 smbPitchShift@plt
+00003310 cos@plt
+00003320 smbFft@plt
+00003330 atan2@plt
+00003340 sincos@plt
+00003350 log@plt
+00003360 strlen@plt

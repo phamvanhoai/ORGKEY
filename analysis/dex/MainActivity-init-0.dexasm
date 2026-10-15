@@ -1,0 +1,441 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/android/MainActivity;-><init>()V
+# registers=33 incoming_words=1
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  08002000                 move-object/from16       v0, v32
+000004  701009010000             invoke-direct            v0, Landroid/app/Activity;-><init>()V
+00000a  1211                     const/4                  v1, 1
+00000c  5c019133                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->a Z
+000010  5c01b133                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->e Z
+000014  1a02ec53                 const-string             v2, "https://dl.sofeh.com"
+000018  5b02b933                 iput-object              v2, v0, Lsofeh/android/MainActivity;->f Ljava/lang/String;
+00001c  1a025466                 const-string             v2, "support@sofeh.com"
+000020  5b02c133                 iput-object              v2, v0, Lsofeh/android/MainActivity;->g Ljava/lang/String;
+000024  1a020000                 const-string             v2, ""
+000028  5b02c933                 iput-object              v2, v0, Lsofeh/android/MainActivity;->h Ljava/lang/String;
+00002c  5b02d133                 iput-object              v2, v0, Lsofeh/android/MainActivity;->i Ljava/lang/String;
+000030  5b02d933                 iput-object              v2, v0, Lsofeh/android/MainActivity;->j Ljava/lang/String;
+000034  5b02e133                 iput-object              v2, v0, Lsofeh/android/MainActivity;->k Ljava/lang/String;
+000038  1203                     const/4                  v3, 0
+00003a  5903e933                 iput                     v3, v0, Lsofeh/android/MainActivity;->l I
+00003e  1204                     const/4                  v4, 0
+000040  5b04f133                 iput-object              v4, v0, Lsofeh/android/MainActivity;->m Lus3;
+000044  5b04f933                 iput-object              v4, v0, Lsofeh/android/MainActivity;->n Ltp2;
+000048  5b040134                 iput-object              v4, v0, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00004c  5b040934                 iput-object              v4, v0, Lsofeh/android/MainActivity;->p Landroid/media/MediaRecorder;
+000050  59031134                 iput                     v3, v0, Lsofeh/android/MainActivity;->q I
+000054  5b042134                 iput-object              v4, v0, Lsofeh/android/MainActivity;->s Landroid/media/MediaPlayer;
+000058  5b042934                 iput-object              v4, v0, Lsofeh/android/MainActivity;->t Landroid/media/MediaPlayer;
+00005c  5b043134                 iput-object              v4, v0, Lsofeh/android/MainActivity;->u Landroid/media/MediaPlayer;
+000060  5d033934                 iput-byte                v3, v0, Lsofeh/android/MainActivity;->v B
+000064  1505803f                 const/high16             v5, 1065353216
+000068  59054134                 iput                     v5, v0, Lsofeh/android/MainActivity;->w F
+00006c  59034934                 iput                     v3, v0, Lsofeh/android/MainActivity;->x I
+000070  5c033633                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->N Z
+000074  5b044b33                 iput-object              v4, v0, Lsofeh/android/MainActivity;->Q Landroid/graphics/Matrix;
+000078  5b045233                 iput-object              v4, v0, Lsofeh/android/MainActivity;->R Landroid/speech/tts/TextToSpeech;
+00007c  13050c00                 const/16                 v5, 12
+000080  23564f18                 new-array                v6, v5, [F
+000084  260626030000             fill-array-data          v6, +0000326h
+00008a  5b065933                 iput-object              v6, v0, Lsofeh/android/MainActivity;->S [F
+00008e  13060001                 const/16                 v6, 256
+000092  23672419                 new-array                v7, v6, [Z
+000096  5b07aa33                 iput-object              v7, v0, Lsofeh/android/MainActivity;->d0 [Z
+00009a  23672419                 new-array                v7, v6, [Z
+00009e  5b07b233                 iput-object              v7, v0, Lsofeh/android/MainActivity;->e0 [Z
+0000a2  23675018                 new-array                v7, v6, [I
+0000a6  5b07ba33                 iput-object              v7, v0, Lsofeh/android/MainActivity;->f0 [I
+0000aa  23674f18                 new-array                v7, v6, [F
+0000ae  5b07c233                 iput-object              v7, v0, Lsofeh/android/MainActivity;->g0 [F
+0000b2  23674f18                 new-array                v7, v6, [F
+0000b6  5b07ca33                 iput-object              v7, v0, Lsofeh/android/MainActivity;->h0 [F
+0000ba  23674f18                 new-array                v7, v6, [F
+0000be  5b07d233                 iput-object              v7, v0, Lsofeh/android/MainActivity;->i0 [F
+0000c2  23674f18                 new-array                v7, v6, [F
+0000c6  5b07da33                 iput-object              v7, v0, Lsofeh/android/MainActivity;->j0 [F
+0000ca  1a07064a                 const-string             v7, "en"
+0000ce  5b070234                 iput-object              v7, v0, Lsofeh/android/MainActivity;->o0 Ljava/lang/String;
+0000d2  5c030a34                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->p0 Z
+0000d6  1237                     const/4                  v7, 3
+0000d8  59071234                 iput                     v7, v0, Lsofeh/android/MainActivity;->q0 I
+0000dc  5c011a34                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->r0 Z
+0000e0  5c032234                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->s0 Z
+0000e4  5c032a34                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->t0 Z
+0000e8  5c033234                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->u0 Z
+0000ec  5c013a34                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->v0 Z
+0000f0  5c014234                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->w0 Z
+0000f4  5c014a34                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->x0 Z
+0000f8  5c035234                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->y0 Z
+0000fc  59015a34                 iput                     v1, v0, Lsofeh/android/MainActivity;->z0 I
+000100  1258                     const/4                  v8, 5
+000102  5908d432                 iput                     v8, v0, Lsofeh/android/MainActivity;->A0 I
+000106  13099600                 const/16                 v9, 150
+00010a  5909dc32                 iput                     v9, v0, Lsofeh/android/MainActivity;->B0 I
+00010e  1309d007                 const/16                 v9, 2000
+000112  5909e432                 iput                     v9, v0, Lsofeh/android/MainActivity;->C0 I
+000116  5c01ec32                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->D0 Z
+00011a  5907f432                 iput                     v7, v0, Lsofeh/android/MainActivity;->E0 I
+00011e  5c01fc32                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->F0 Z
+000122  5c010433                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->G0 Z
+000126  59010c33                 iput                     v1, v0, Lsofeh/android/MainActivity;->H0 I
+00012a  13094b00                 const/16                 v9, 75
+00012e  59091433                 iput                     v9, v0, Lsofeh/android/MainActivity;->I0 I
+000132  13090e00                 const/16                 v9, 14
+000136  59091b33                 iput                     v9, v0, Lsofeh/android/MainActivity;->J0 I
+00013a  59032233                 iput                     v3, v0, Lsofeh/android/MainActivity;->K0 I
+00013e  5c012933                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->L0 Z
+000142  59033033                 iput                     v3, v0, Lsofeh/android/MainActivity;->M0 I
+000146  122a                     const/4                  v10, 2
+000148  590a3733                 iput                     v10, v0, Lsofeh/android/MainActivity;->N0 I
+00014c  5c033e33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->O0 Z
+000150  5c034533                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->P0 Z
+000154  590a4c33                 iput                     v10, v0, Lsofeh/android/MainActivity;->Q0 I
+000158  5c035333                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->R0 Z
+00015c  590a5a33                 iput                     v10, v0, Lsofeh/android/MainActivity;->S0 I
+000160  124b                     const/4                  v11, 4
+000162  590b6133                 iput                     v11, v0, Lsofeh/android/MainActivity;->T0 I
+000166  59036833                 iput                     v3, v0, Lsofeh/android/MainActivity;->U0 I
+00016a  130c6400                 const/16                 v12, 100
+00016e  590c6f33                 iput                     v12, v0, Lsofeh/android/MainActivity;->V0 I
+000172  590b7633                 iput                     v11, v0, Lsofeh/android/MainActivity;->W0 I
+000176  59077d33                 iput                     v7, v0, Lsofeh/android/MainActivity;->X0 I
+00017a  59018433                 iput                     v1, v0, Lsofeh/android/MainActivity;->Y0 I
+00017e  5c038b33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->Z0 Z
+000182  5c039333                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->a1 Z
+000186  59039b33                 iput                     v3, v0, Lsofeh/android/MainActivity;->b1 I
+00018a  130d4c1d                 const/16                 v13, 7500
+00018e  590da333                 iput                     v13, v0, Lsofeh/android/MainActivity;->c1 I
+000192  130ddc05                 const/16                 v13, 1500
+000196  590dab33                 iput                     v13, v0, Lsofeh/android/MainActivity;->d1 I
+00019a  590ab333                 iput                     v10, v0, Lsofeh/android/MainActivity;->e1 I
+00019e  5c03bb33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->f1 Z
+0001a2  590ac333                 iput                     v10, v0, Lsofeh/android/MainActivity;->g1 I
+0001a6  126d                     const/4                  v13, 6
+0001a8  590dcb33                 iput                     v13, v0, Lsofeh/android/MainActivity;->h1 I
+0001ac  130d3200                 const/16                 v13, 50
+0001b0  590dd333                 iput                     v13, v0, Lsofeh/android/MainActivity;->i1 I
+0001b4  130d0800                 const/16                 v13, 8
+0001b8  590ddb33                 iput                     v13, v0, Lsofeh/android/MainActivity;->j1 I
+0001bc  590be333                 iput                     v11, v0, Lsofeh/android/MainActivity;->k1 I
+0001c0  590beb33                 iput                     v11, v0, Lsofeh/android/MainActivity;->l1 I
+0001c4  5c01f333                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->m1 Z
+0001c8  5c03fb33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->n1 Z
+0001cc  59010334                 iput                     v1, v0, Lsofeh/android/MainActivity;->o1 I
+0001d0  59030b34                 iput                     v3, v0, Lsofeh/android/MainActivity;->p1 I
+0001d4  5c031334                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->q1 Z
+0001d8  5c031b34                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->r1 Z
+0001dc  59032334                 iput                     v3, v0, Lsofeh/android/MainActivity;->s1 I
+0001e0  59032b34                 iput                     v3, v0, Lsofeh/android/MainActivity;->t1 I
+0001e4  130e2800                 const/16                 v14, 40
+0001e8  590e3334                 iput                     v14, v0, Lsofeh/android/MainActivity;->u1 I
+0001ec  5c033b34                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->v1 Z
+0001f0  59034334                 iput                     v3, v0, Lsofeh/android/MainActivity;->w1 I
+0001f4  590a4b34                 iput                     v10, v0, Lsofeh/android/MainActivity;->x1 I
+0001f8  5c035334                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->y1 Z
+0001fc  59015b34                 iput                     v1, v0, Lsofeh/android/MainActivity;->z1 I
+000200  5901d532                 iput                     v1, v0, Lsofeh/android/MainActivity;->A1 I
+000204  5908dd32                 iput                     v8, v0, Lsofeh/android/MainActivity;->B1 I
+000208  590ae532                 iput                     v10, v0, Lsofeh/android/MainActivity;->C1 I
+00020c  130e8000                 const/16                 v14, 128
+000210  590eed32                 iput                     v14, v0, Lsofeh/android/MainActivity;->D1 I
+000214  140f44ac0000             const                    v15, 44100
+00021a  590ff532                 iput                     v15, v0, Lsofeh/android/MainActivity;->E1 I
+00021e  590afd32                 iput                     v10, v0, Lsofeh/android/MainActivity;->F1 I
+000222  590a0533                 iput                     v10, v0, Lsofeh/android/MainActivity;->G1 I
+000226  13064001                 const/16                 v6, 320
+00022a  59060d33                 iput                     v6, v0, Lsofeh/android/MainActivity;->H1 I
+00022e  140680bb0000             const                    v6, 48000
+000234  59061533                 iput                     v6, v0, Lsofeh/android/MainActivity;->I1 I
+000238  59011c33                 iput                     v1, v0, Lsofeh/android/MainActivity;->J1 I
+00023c  59012333                 iput                     v1, v0, Lsofeh/android/MainActivity;->K1 I
+000240  59032a33                 iput                     v3, v0, Lsofeh/android/MainActivity;->L1 I
+000244  13060a00                 const/16                 v6, 10
+000248  59063133                 iput                     v6, v0, Lsofeh/android/MainActivity;->M1 I
+00024c  59093833                 iput                     v9, v0, Lsofeh/android/MainActivity;->N1 I
+000250  59033f33                 iput                     v3, v0, Lsofeh/android/MainActivity;->O1 I
+000254  590f4633                 iput                     v15, v0, Lsofeh/android/MainActivity;->P1 I
+000258  59034d33                 iput                     v3, v0, Lsofeh/android/MainActivity;->Q1 I
+00025c  59015433                 iput                     v1, v0, Lsofeh/android/MainActivity;->R1 I
+000260  59015b33                 iput                     v1, v0, Lsofeh/android/MainActivity;->S1 I
+000264  59036233                 iput                     v3, v0, Lsofeh/android/MainActivity;->T1 I
+000268  59036933                 iput                     v3, v0, Lsofeh/android/MainActivity;->U1 I
+00026c  59037033                 iput                     v3, v0, Lsofeh/android/MainActivity;->V1 I
+000270  5c037733                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->W1 Z
+000274  59037e33                 iput                     v3, v0, Lsofeh/android/MainActivity;->X1 I
+000278  5c038533                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->Y1 Z
+00027c  5b028c33                 iput-object              v2, v0, Lsofeh/android/MainActivity;->Z1 Ljava/lang/String;
+000280  5d0b9433                 iput-byte                v11, v0, Lsofeh/android/MainActivity;->a2 B
+000284  5d0b9c33                 iput-byte                v11, v0, Lsofeh/android/MainActivity;->b2 B
+000288  5908a433                 iput                     v8, v0, Lsofeh/android/MainActivity;->c2 I
+00028c  5907ac33                 iput                     v7, v0, Lsofeh/android/MainActivity;->d2 I
+000290  12f6                     const/4                  v6, -1
+000292  5906b433                 iput                     v6, v0, Lsofeh/android/MainActivity;->e2 I
+000296  13072000                 const/16                 v7, 32
+00029a  5907bc33                 iput                     v7, v0, Lsofeh/android/MainActivity;->f2 I
+00029e  5903c433                 iput                     v3, v0, Lsofeh/android/MainActivity;->g2 I
+0002a2  5c03cc33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->h2 Z
+0002a6  5c01d433                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->i2 Z
+0002aa  5903dc33                 iput                     v3, v0, Lsofeh/android/MainActivity;->j2 I
+0002ae  5c03e433                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->k2 Z
+0002b2  5c03ec33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->l2 Z
+0002b6  5c03f433                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->m2 Z
+0002ba  5c03fc33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->n2 Z
+0002be  5c030434                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->o2 Z
+0002c2  59030c34                 iput                     v3, v0, Lsofeh/android/MainActivity;->p2 I
+0002c6  59031434                 iput                     v3, v0, Lsofeh/android/MainActivity;->q2 I
+0002ca  59031c34                 iput                     v3, v0, Lsofeh/android/MainActivity;->r2 I
+0002ce  59032434                 iput                     v3, v0, Lsofeh/android/MainActivity;->s2 I
+0002d2  5b023c34                 iput-object              v2, v0, Lsofeh/android/MainActivity;->v2 Ljava/lang/String;
+0002d6  590c4434                 iput                     v12, v0, Lsofeh/android/MainActivity;->w2 I
+0002da  59034c34                 iput                     v3, v0, Lsofeh/android/MainActivity;->x2 I
+0002de  5c035434                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->y2 Z
+0002e2  5c035c34                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->z2 Z
+0002e6  5903d632                 iput                     v3, v0, Lsofeh/android/MainActivity;->A2 I
+0002ea  5903de32                 iput                     v3, v0, Lsofeh/android/MainActivity;->B2 I
+0002ee  5908e632                 iput                     v8, v0, Lsofeh/android/MainActivity;->C2 I
+0002f2  5908ee32                 iput                     v8, v0, Lsofeh/android/MainActivity;->D2 I
+0002f6  5903f632                 iput                     v3, v0, Lsofeh/android/MainActivity;->E2 I
+0002fa  16070000                 const-wide/16            v7, 0
+0002fe  5a070e33                 iput-wide                v7, v0, Lsofeh/android/MainActivity;->H2 J
+000302  5b021633                 iput-object              v2, v0, Lsofeh/android/MainActivity;->I2 Ljava/lang/String;
+000306  5b021d33                 iput-object              v2, v0, Lsofeh/android/MainActivity;->J2 Ljava/lang/String;
+00030a  5b022433                 iput-object              v2, v0, Lsofeh/android/MainActivity;->K2 Ljava/lang/String;
+00030e  220fc110                 new-instance             v15, Ljava/util/ArrayList;
+000312  7010ae480f00             invoke-direct            v15, Ljava/util/ArrayList;-><init>()V
+000318  5b0f2b33                 iput-object              v15, v0, Lsofeh/android/MainActivity;->L2 Ljava/util/ArrayList;
+00031c  23df5018                 new-array                v15, v13, [I
+000320  5b0f3233                 iput-object              v15, v0, Lsofeh/android/MainActivity;->M2 [I
+000324  23df5018                 new-array                v15, v13, [I
+000328  5b0f3933                 iput-object              v15, v0, Lsofeh/android/MainActivity;->N2 [I
+00032c  23df5018                 new-array                v15, v13, [I
+000330  5b0f4033                 iput-object              v15, v0, Lsofeh/android/MainActivity;->O2 [I
+000334  220fc110                 new-instance             v15, Ljava/util/ArrayList;
+000338  7010ae480f00             invoke-direct            v15, Ljava/util/ArrayList;-><init>()V
+00033e  5b0f4733                 iput-object              v15, v0, Lsofeh/android/MainActivity;->P2 Ljava/util/ArrayList;
+000342  220fc110                 new-instance             v15, Ljava/util/ArrayList;
+000346  7010ae480f00             invoke-direct            v15, Ljava/util/ArrayList;-><init>()V
+00034c  5b0f4e33                 iput-object              v15, v0, Lsofeh/android/MainActivity;->Q2 Ljava/util/ArrayList;
+000350  59065533                 iput                     v6, v0, Lsofeh/android/MainActivity;->R2 I
+000354  59015c33                 iput                     v1, v0, Lsofeh/android/MainActivity;->S2 I
+000358  59036333                 iput                     v3, v0, Lsofeh/android/MainActivity;->T2 I
+00035c  59016a33                 iput                     v1, v0, Lsofeh/android/MainActivity;->U2 I
+000360  59067133                 iput                     v6, v0, Lsofeh/android/MainActivity;->V2 I
+000364  59067833                 iput                     v6, v0, Lsofeh/android/MainActivity;->W2 I
+000368  59067f33                 iput                     v6, v0, Lsofeh/android/MainActivity;->X2 I
+00036c  59038d33                 iput                     v3, v0, Lsofeh/android/MainActivity;->Z2 I
+000370  59039533                 iput                     v3, v0, Lsofeh/android/MainActivity;->a3 I
+000374  5c03ad33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->d3 Z
+000378  5906b533                 iput                     v6, v0, Lsofeh/android/MainActivity;->e3 I
+00037c  5b04bd33                 iput-object              v4, v0, Lsofeh/android/MainActivity;->f3 Ljava/util/Timer;
+000380  5903c533                 iput                     v3, v0, Lsofeh/android/MainActivity;->g3 I
+000384  5903cd33                 iput                     v3, v0, Lsofeh/android/MainActivity;->h3 I
+000388  5903d533                 iput                     v3, v0, Lsofeh/android/MainActivity;->i3 I
+00038c  5906dd33                 iput                     v6, v0, Lsofeh/android/MainActivity;->j3 I
+000390  5903e533                 iput                     v3, v0, Lsofeh/android/MainActivity;->k3 I
+000394  5903ed33                 iput                     v3, v0, Lsofeh/android/MainActivity;->l3 I
+000398  5906fd33                 iput                     v6, v0, Lsofeh/android/MainActivity;->n3 I
+00039c  5c030534                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->o3 Z
+0003a0  23ef2419                 new-array                v15, v14, [Z
+0003a4  5b0f0d34                 iput-object              v15, v0, Lsofeh/android/MainActivity;->p3 [Z
+0003a8  23ee2419                 new-array                v14, v14, [Z
+0003ac  5b0e1534                 iput-object              v14, v0, Lsofeh/android/MainActivity;->q3 [Z
+0003b0  130e3000                 const/16                 v14, 48
+0003b4  23ef2419                 new-array                v15, v14, [Z
+0003b8  5b0f1d34                 iput-object              v15, v0, Lsofeh/android/MainActivity;->r3 [Z
+0003bc  5b02de33                 iput-object              v2, v0, Lsofeh/android/MainActivity;->j4 Ljava/lang/String;
+0003c0  5c03ee33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->l4 Z
+0003c4  5c03f633                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->m4 Z
+0003c8  5c03fe33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->n4 Z
+0003cc  5c030634                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->o4 Z
+0003d0  5c030e34                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->p4 Z
+0003d4  5c031634                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->q4 Z
+0003d8  5b042e34                 iput-object              v4, v0, Lsofeh/android/MainActivity;->t4 Landroid/os/Vibrator;
+0003dc  5b043634                 iput-object              v4, v0, Lsofeh/android/MainActivity;->u4 Landroid/app/AlertDialog;
+0003e0  5b043e34                 iput-object              v4, v0, Lsofeh/android/MainActivity;->v4 Landroid/app/AlertDialog;
+0003e4  5b044634                 iput-object              v4, v0, Lsofeh/android/MainActivity;->w4 Landroid/app/AlertDialog;
+0003e8  59034e34                 iput                     v3, v0, Lsofeh/android/MainActivity;->x4 I
+0003ec  59035634                 iput                     v3, v0, Lsofeh/android/MainActivity;->y4 I
+0003f0  5b025e34                 iput-object              v2, v0, Lsofeh/android/MainActivity;->z4 Ljava/lang/String;
+0003f4  5a07d832                 iput-wide                v7, v0, Lsofeh/android/MainActivity;->A4 J
+0003f8  5903e032                 iput                     v3, v0, Lsofeh/android/MainActivity;->B4 I
+0003fc  5b04e832                 iput-object              v4, v0, Lsofeh/android/MainActivity;->C4 Landroid/widget/Toast;
+000400  5b04f032                 iput-object              v4, v0, Lsofeh/android/MainActivity;->D4 Landroid/widget/FrameLayout;
+000404  5c01f832                 iput-boolean             v1, v0, Lsofeh/android/MainActivity;->E4 Z
+000408  59010033                 iput                     v1, v0, Lsofeh/android/MainActivity;->F4 I
+00040c  59010833                 iput                     v1, v0, Lsofeh/android/MainActivity;->G4 I
+000410  59011033                 iput                     v1, v0, Lsofeh/android/MainActivity;->H4 I
+000414  590d1833                 iput                     v13, v0, Lsofeh/android/MainActivity;->I4 I
+000418  5c031f33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->J4 Z
+00041c  5c032633                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->K4 Z
+000420  5c032d33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->L4 Z
+000424  5c033433                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->M4 Z
+000428  5c033b33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->N4 Z
+00042c  5c034233                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->O4 Z
+000430  5c034933                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->P4 Z
+000434  5c035033                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->Q4 Z
+000438  5a075733                 iput-wide                v7, v0, Lsofeh/android/MainActivity;->R4 J
+00043c  5c035e33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->S4 Z
+000440  5c037a33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->W4 Z
+000444  590a8133                 iput                     v10, v0, Lsofeh/android/MainActivity;->X4 I
+000448  131e0000                 const/16                 v30, 0
+00044c  131f0000                 const/16                 v31, 0
+000450  13100000                 const/16                 v16, 0
+000454  13110000                 const/16                 v17, 0
+000458  13120000                 const/16                 v18, 0
+00045c  13130000                 const/16                 v19, 0
+000460  13140000                 const/16                 v20, 0
+000464  13150000                 const/16                 v21, 0
+000468  13160000                 const/16                 v22, 0
+00046c  13170000                 const/16                 v23, 0
+000470  13180000                 const/16                 v24, 0
+000474  13190000                 const/16                 v25, 0
+000478  131a0000                 const/16                 v26, 0
+00047c  131b0000                 const/16                 v27, 0
+000480  131c0000                 const/16                 v28, 0
+000484  131d0000                 const/16                 v29, 0
+000488  251016191000             filled-new-array/range   v16 ... v31, [Lvs3;
+00048e  0c0d                     move-result-object       v13
+000490  5b0d8833                 iput-object              v13, v0, Lsofeh/android/MainActivity;->Y4 [Lvs3;
+000494  5c038f33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->Z4 Z
+000498  5c039733                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->a5 Z
+00049c  220d4f00                 new-instance             v13, Lae;
+0004a0  7030c5000d0a             invoke-direct            v13, v0, v10, Lae;-><init>(Ljava/lang/Object; B)V
+0004a6  5b0d9f33                 iput-object              v13, v0, Lsofeh/android/MainActivity;->b5 Lae;
+0004aa  5c03a733                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->c5 Z
+0004ae  590caf33                 iput                     v12, v0, Lsofeh/android/MainActivity;->d5 I
+0004b2  5c03bf33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->f5 Z
+0004b6  5c03c733                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->g5 Z
+0004ba  5c03d733                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->i5 Z
+0004be  5c03df33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->j5 Z
+0004c2  5c03ef33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->l5 Z
+0004c6  5c03f733                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->m5 Z
+0004ca  5c03ff33                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->n5 Z
+0004ce  220a5801                 new-instance             v10, Landroid/os/Handler;
+0004d2  71007c040000             invoke-static            Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+0004d8  0c0c                     move-result-object       v12
+0004da  70206104ca00             invoke-direct            v10, v12, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+0004e0  5b0a0734                 iput-object              v10, v0, Lsofeh/android/MainActivity;->o5 Landroid/os/Handler;
+0004e4  5b040f34                 iput-object              v4, v0, Lsofeh/android/MainActivity;->p5 Lz01;
+0004e8  5d011734                 iput-byte                v1, v0, Lsofeh/android/MainActivity;->q5 B
+0004ec  1a1cc53e                 const-string             v28, "Wave"
+0004f0  1a1d6f35                 const-string             v29, "Rhythm"
+0004f4  1a107530                 const-string             v16, "Master"
+0004f8  1a11983b                 const-string             v17, "Up 1"
+0004fc  1a12993b                 const-string             v18, "Up 2"
+000500  1a139a3b                 const-string             v19, "Up 3"
+000504  1a14d52b                 const-string             v20, "Low"
+000508  1a158c0b                 const-string             v21, "Bass"
+00050c  1a16a709                 const-string             v22, "Acc. 1"
+000510  1a17a809                 const-string             v23, "Acc. 2"
+000514  1a18a909                 const-string             v24, "Acc. 3"
+000518  1a19aa09                 const-string             v25, "Acc. 4"
+00051c  1a1aab09                 const-string             v26, "Acc. 5"
+000520  1a1b4c0f                 const-string             v27, "Drum"
+000524  250ec6181000             filled-new-array/range   v16 ... v29, [Ljava/lang/String;
+00052a  0c01                     move-result-object       v1
+00052c  5b012734                 iput-object              v1, v0, Lsofeh/android/MainActivity;->s5 [Ljava/lang/String;
+000530  5b022f34                 iput-object              v2, v0, Lsofeh/android/MainActivity;->t5 Ljava/lang/String;
+000534  5b023734                 iput-object              v2, v0, Lsofeh/android/MainActivity;->u5 Ljava/lang/String;
+000538  5b043f34                 iput-object              v4, v0, Lsofeh/android/MainActivity;->v5 Landroid/widget/EditText;
+00053c  13011500                 const/16                 v1, 21
+000540  130a1600                 const/16                 v10, 22
+000544  130c0b00                 const/16                 v12, 11
+000548  244050181ca5             filled-new-array         v12, v1, v5, v10, [I
+00054e  0c10                     move-result-object       v16
+000550  13011700                 const/16                 v1, 23
+000554  13051800                 const/16                 v5, 24
+000558  130a0d00                 const/16                 v10, 13
+00055c  244050181a59             filled-new-array         v10, v1, v9, v5, [I
+000562  0c11                     move-result-object       v17
+000564  13011000                 const/16                 v1, 16
+000568  13051a00                 const/16                 v5, 26
+00056c  13090f00                 const/16                 v9, 15
+000570  130a1900                 const/16                 v10, 25
+000574  24405018a951             filled-new-array         v9, v10, v1, v5, [I
+00057a  0c12                     move-result-object       v18
+00057c  13011200                 const/16                 v1, 18
+000580  13051c00                 const/16                 v5, 28
+000584  13091100                 const/16                 v9, 17
+000588  130a1b00                 const/16                 v10, 27
+00058c  24405018a951             filled-new-array         v9, v10, v1, v5, [I
+000592  0c13                     move-result-object       v19
+000594  13012900                 const/16                 v1, 41
+000598  13052a00                 const/16                 v5, 42
+00059c  13091f00                 const/16                 v9, 31
+0005a0  130b2000                 const/16                 v11, 32
+0005a4  24405018195b             filled-new-array         v9, v1, v11, v5, [I
+0005aa  0c14                     move-result-object       v20
+0005ac  13012200                 const/16                 v1, 34
+0005b0  13052c00                 const/16                 v5, 44
+0005b4  13092100                 const/16                 v9, 33
+0005b8  130a2b00                 const/16                 v10, 43
+0005bc  24405018a951             filled-new-array         v9, v10, v1, v5, [I
+0005c2  0c15                     move-result-object       v21
+0005c4  13012400                 const/16                 v1, 36
+0005c8  13052e00                 const/16                 v5, 46
+0005cc  13092300                 const/16                 v9, 35
+0005d0  130a2d00                 const/16                 v10, 45
+0005d4  24405018a951             filled-new-array         v9, v10, v1, v5, [I
+0005da  0c16                     move-result-object       v22
+0005dc  13012f00                 const/16                 v1, 47
+0005e0  13052600                 const/16                 v5, 38
+0005e4  13092500                 const/16                 v9, 37
+0005e8  2440501819e5             filled-new-array         v9, v1, v5, v14, [I
+0005ee  0c17                     move-result-object       v23
+0005f0  250826191000             filled-new-array/range   v16 ... v23, [[I
+0005f6  0c01                     move-result-object       v1
+0005f8  5b014734                 iput-object              v1, v0, Lsofeh/android/MainActivity;->w5 [[I
+0005fc  1a1e1930                 const-string             v30, "MIDI|Connect to MIDI devices"
+000600  1a1fa509                 const-string             v31, "About|App info"
+000604  1a108532                 const-string             v16, "Open ...|Load a Music, Set ..."
+000608  1a11162b                 const-string             v17, "Load a Set|Load a Set from file"
+00060c  1a12d036                 const-string             v18, "Save ...|Save a Music, Set ..."
+000610  1a13d136                 const-string             v19, "Save as Set|Save Set to file"
+000614  1a14d20e                 const-string             v20, "Data Manager|Download Set, Rhythm, ..."
+000618  1a15b53b                 const-string             v21, "User Chord|User-defined chords"
+00061c  1a165137                 const-string             v22, "Skin|Change theme"
+000620  1a171b37                 const-string             v23, "Setting|App preferences"
+000624  1a180d37                 const-string             v24, "Set ...|Control the Set"
+000628  1a19643e                 const-string             v25, "Volume / FX|Keyboard, Style, Mic."
+00062c  1a1a1731                 const-string             v26, "Music Info|Title, Album, Artist, ..."
+000630  1a1bcd10                 const-string             v27, "Export to MP3|Save Music to MP3"
+000634  1a1c3b34                 const-string             v28, "Q.T.|Custom system"
+000638  1a1db630                 const-string             v29, "Mic.|Turn on Microphone"
+00063c  2510c6181000             filled-new-array/range   v16 ... v31, [Ljava/lang/String;
+000642  0c01                     move-result-object       v1
+000644  5b014f34                 iput-object              v1, v0, Lsofeh/android/MainActivity;->x5 [Ljava/lang/String;
+000648  5c03e932                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->C5 Z
+00064c  5c03f132                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->D5 Z
+000650  5c03f932                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->E5 Z
+000654  5c030133                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->F5 Z
+000658  5c030933                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->G5 Z
+00065c  5c031133                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->H5 Z
+000660  13010001                 const/16                 v1, 256
+000664  23112419                 new-array                v1, v1, [Z
+000668  5b011933                 iput-object              v1, v0, Lsofeh/android/MainActivity;->I5 [Z
+00066c  5b042033                 iput-object              v4, v0, Lsofeh/android/MainActivity;->J5 Lo92;
+000670  5b042733                 iput-object              v4, v0, Lsofeh/android/MainActivity;->K5 Ljp/kshoji/driver/midi/device/MidiOutputDevice;
+000674  5b022e33                 iput-object              v2, v0, Lsofeh/android/MainActivity;->L5 Ljava/lang/String;
+000678  5b043533                 iput-object              v4, v0, Lsofeh/android/MainActivity;->M5 Ljp/kshoji/blemidi/central/BleMidiCentralProvider;
+00067c  5b043c33                 iput-object              v4, v0, Lsofeh/android/MainActivity;->N5 Ljp/kshoji/blemidi/central/BleMidiCentralProvider;
+000680  5b044333                 iput-object              v4, v0, Lsofeh/android/MainActivity;->O5 Ljp/kshoji/blemidi/device/MidiOutputDevice;
+000684  22017014                 new-instance             v1, Lp92;
+000688  7020535c0100             invoke-direct            v1, v0, Lp92;-><init>(Lsofeh/android/MainActivity;)V
+00068e  5b015133                 iput-object              v1, v0, Lsofeh/android/MainActivity;->Q5 Lp92;
+000692  59036633                 iput                     v3, v0, Lsofeh/android/MainActivity;->T5 I
+000696  5b04a833                 iput-object              v4, v0, Lsofeh/android/MainActivity;->c6 Landroid/widget/EditText;
+00069a  5a07b033                 iput-wide                v7, v0, Lsofeh/android/MainActivity;->d6 J
+00069e  5903d033                 iput                     v3, v0, Lsofeh/android/MainActivity;->h6 I
+0006a2  5906d833                 iput                     v6, v0, Lsofeh/android/MainActivity;->i6 I
+0006a6  5d03e033                 iput-byte                v3, v0, Lsofeh/android/MainActivity;->j6 B
+0006aa  5c03f033                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->l6 Z
+0006ae  13010900                 const/16                 v1, 9
+0006b2  2311c618                 new-array                v1, v1, [Ljava/lang/String;
+0006b6  5b01f833                 iput-object              v1, v0, Lsofeh/android/MainActivity;->m6 [Ljava/lang/String;
+0006ba  5c030034                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->n6 Z
+0006be  5b040834                 iput-object              v4, v0, Lsofeh/android/MainActivity;->o6 Landroid/app/AlertDialog;
+0006c2  5b041034                 iput-object              v4, v0, Lsofeh/android/MainActivity;->p6 Lm92;
+0006c6  5c031834                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->q6 Z
+0006ca  5c032034                 iput-boolean             v3, v0, Lsofeh/android/MainActivity;->r6 Z
+0006ce  0e00                     return-void              
+0006d0  000304000c0000000000000048e1fa3e000000001f856b3e00000000000000005c8f023f000000003333b33e000000003d0a573e00000000 fill-array-data-payload  b'\x00\x00\x00\x00H\xe1\xfa>\x00\x00\x00\x00\x1f\x85k>\x00\x00\x00\x00\x00\x00\x00\x00\\\x8f\x02?\x00\x00\x00\x0033\xb3>\x00\x00\x00\x00=\nW>\x00\x00\x00\x00' | \x00\x00\x00\x00\x48\xe1\xfa\x3e\x00\x00\x00\x00\x1f\x85\x6b\x3e\x00\x00\x00\x00\x00\x00\x00\x00\x5c\x8f\x02\x3f\x00\x00\x00\x00\x33\x33\xb3\x3e\x00\x00\x00\x00\x3d\x0a\x57\x3e\x00\x00\x00\x00

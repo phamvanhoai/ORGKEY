@@ -1,0 +1,194 @@
+[
+  {
+    "tag": "PreferenceScreen",
+    "attributes": {
+      "title": {
+        "type": "0x1",
+        "value": "0x7f120020"
+      }
+    }
+  },
+  {
+    "tag": "PreferenceCategory",
+    "attributes": {
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201fc"
+      }
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030038"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201fd"
+      },
+      "key": "output_music",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030039"
+      }
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030038"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201ff"
+      },
+      "key": "output_wave",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030039"
+      }
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030038"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201fe"
+      },
+      "key": "output_rhythm",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030039"
+      }
+    }
+  },
+  {
+    "tag": "PreferenceCategory",
+    "attributes": {
+      "title": "Polyphony"
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030046"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201fd"
+      },
+      "key": "max_music_channel",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030047"
+      }
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030046"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201fe"
+      },
+      "key": "max_rhythm_channel",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030047"
+      }
+    }
+  },
+  {
+    "tag": "PreferenceCategory",
+    "attributes": {
+      "title": " "
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030010"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201cd"
+      },
+      "key": "global_reverb",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030011"
+      }
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030051"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f120232"
+      },
+      "key": "output_samplerate",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030052"
+      }
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030040"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201bb"
+      },
+      "key": "output_buf",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030041"
+      }
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": {
+        "type": "0x1",
+        "value": "0x7f030022"
+      },
+      "title": {
+        "type": "0x1",
+        "value": "0x7f1201e3"
+      },
+      "key": "output_low_latency",
+      "entryValues": {
+        "type": "0x1",
+        "value": "0x7f030023"
+      }
+    }
+  }
+]

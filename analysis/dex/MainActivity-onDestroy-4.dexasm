@@ -1,0 +1,33 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/android/MainActivity;->onDestroy()V
+# registers=4 incoming_words=1
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  6e1043600300             invoke-virtual           v3, Lsofeh/android/MainActivity;->a()V
+000006  6f1021010300             invoke-super             v3, Landroid/app/Activity;->onDestroy()V
+00000c  6e1056600300             invoke-virtual           v3, Lsofeh/android/MainActivity;->e1()V
+000012  54303533                 iget-object              v0, v3, Lsofeh/android/MainActivity;->M5 Ljp/kshoji/blemidi/central/BleMidiCentralProvider;
+000016  38000500                 if-eqz                   v0, +005h
+00001a  6e10064c0000             invoke-virtual           v0, Ljp/kshoji/blemidi/central/BleMidiCentralProvider;->stopScanDevice()V
+000020  1200                     const/4                  v0, 0
+000022  5b303533                 iput-object              v0, v3, Lsofeh/android/MainActivity;->M5 Ljp/kshoji/blemidi/central/BleMidiCentralProvider;
+000026  1200                     const/4                  v0, 0
+000028  5c30f932                 iput-boolean             v0, v3, Lsofeh/android/MainActivity;->E5 Z
+00002c  5c300133                 iput-boolean             v0, v3, Lsofeh/android/MainActivity;->F5 Z
+000030  54311933                 iget-object              v1, v3, Lsofeh/android/MainActivity;->I5 [Z
+000034  7120df480100             invoke-static            v1, v0, Ljava/util/Arrays;->fill([Z Z)V
+00003a  54310134                 iget-object              v1, v3, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00003e  1212                     const/4                  v2, 1
+000040  6e3095612100             invoke-virtual           v1, v2, v0, Lsofeh/music/Music;->CloseAllChannels(Z Z)V
+000046  6e1030600300             invoke-virtual           v3, Lsofeh/android/MainActivity;->T1()V
+00004c  54307333                 iget-object              v0, v3, Lsofeh/android/MainActivity;->V4 Lnb2;
+000050  38000700                 if-eqz                   v0, +007h
+000054  54316533                 iget-object              v1, v3, Lsofeh/android/MainActivity;->T4 Landroid/view/View;
+000058  6e2098050100             invoke-virtual           v1, v0, Landroid/view/View;->removeOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
+00005e  54306c33                 iget-object              v0, v3, Lsofeh/android/MainActivity;->U4 Le5;
+000062  38000d00                 if-eqz                   v0, +00dh
+000066  54306533                 iget-object              v0, v3, Lsofeh/android/MainActivity;->T4 Landroid/view/View;
+00006a  6e107e050000             invoke-virtual           v0, Landroid/view/View;->getViewTreeObserver()Landroid/view/ViewTreeObserver;
+000070  0c00                     move-result-object       v0
+000072  54336c33                 iget-object              v3, v3, Lsofeh/android/MainActivity;->U4 Le5;
+000076  6e20e1053000             invoke-virtual           v0, v3, Landroid/view/ViewTreeObserver;->removeOnGlobalLayoutListener(Landroid/view/ViewTreeObserver$OnGlobalLayoutListener;)V
+00007c  0e00                     return-void              

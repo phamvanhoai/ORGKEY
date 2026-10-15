@@ -1,0 +1,132 @@
+[
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": [
+        "High Performance",
+        "Balanced",
+        "High Quality (Powerful devices)",
+        "Best Quality (Very powerful devices)"
+      ],
+      "title": "Keyboard",
+      "key": "output_music",
+      "entryValues": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ]
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": [
+        "High Performance",
+        "Balanced",
+        "High Quality (Powerful devices)",
+        "Best Quality (Very powerful devices)"
+      ],
+      "title": "Microphone",
+      "key": "output_wave",
+      "entryValues": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ]
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": [
+        "High Performance",
+        "Balanced",
+        "High Quality (Powerful devices)",
+        "Best Quality (Very powerful devices)"
+      ],
+      "title": "Style",
+      "key": "output_rhythm",
+      "entryValues": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ]
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": [
+        "48000 Hz, 16 bits, stereo",
+        "44100 Hz, 16 bits, stereo",
+        "32000 Hz, 16 bits, stereo",
+        "24000 Hz, 16 bits, stereo",
+        "22050 Hz, 16 bits, stereo",
+        "16000 Hz, 16 bits, stereo",
+        "12000 Hz, 16 bits, stereo",
+        "11025 Hz, 16 bits, stereo",
+        "8000 Hz, 16 bits, stereo"
+      ],
+      "title": "Output wave type",
+      "key": "output_samplerate",
+      "entryValues": [
+        "48000",
+        "44100",
+        "32000",
+        "24000",
+        "22050",
+        "16000",
+        "12000",
+        "11025",
+        "8000"
+      ]
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": [
+        "Auto",
+        "Very Fast",
+        "Fast",
+        "Normal",
+        "Slow",
+        "Very Slow"
+      ],
+      "title": "Touch performance",
+      "key": "output_buf",
+      "entryValues": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    }
+  },
+  {
+    "tag": "ListPreference",
+    "attributes": {
+      "entries": [
+        "Disabled",
+        "Real (OpenSL Method 1)",
+        "Real (OpenSL Method 2)",
+        "Play an additional sound",
+        "Play recorded note"
+      ],
+      "title": "Low-latency method",
+      "key": "output_low_latency",
+      "entryValues": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  }
+]

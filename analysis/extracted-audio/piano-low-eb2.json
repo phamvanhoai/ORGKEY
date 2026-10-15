@@ -1,0 +1,18 @@
+{
+  "source_asset": "assets/empty.Template",
+  "instrument_index": 1,
+  "instrument": "Piano (LOW)",
+  "sound_index": 0,
+  "sound": "Primary",
+  "note": 63,
+  "section": "EB2             ",
+  "sample_rate": 44100,
+  "channels": 1,
+  "samples_per_channel": 119109,
+  "pcm_bytes": 238218,
+  "wave_index": 0,
+  "loop": 2,
+  "loop_start": 79077,
+  "loop_end": 119094,
+  "output": "analysis\\extracted-audio\\piano-low-eb2.wav"
+}

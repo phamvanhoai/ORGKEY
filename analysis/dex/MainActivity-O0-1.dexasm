@@ -1,0 +1,699 @@
+# classes3.dex SHA-256: 94b5c8e042e4e3bda38c3682eafa88375e06644e6f887dd6e77a4e30b005d38e
+# Lsofeh/android/MainActivity;->O0()V
+# registers=9 incoming_words=1
+# Addresses are BYTES; branch deltas printed by decoder are CODE UNITS (2 bytes).
+000000  1a00fe64                 const-string             v0, "shortcut_mode"
+000004  52815b33                 iget                     v1, v8, Lsofeh/android/MainActivity;->S1 I
+000008  6e3088601800             invoke-virtual           v8, v1, v0, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00000e  0a00                     move-result              v0
+000010  59805b33                 iput                     v0, v8, Lsofeh/android/MainActivity;->S1 I
+000014  1a008259                 const-string             v0, "mini_kbd_mode"
+000018  52816233                 iget                     v1, v8, Lsofeh/android/MainActivity;->T1 I
+00001c  6e3088601800             invoke-virtual           v8, v1, v0, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000022  0a00                     move-result              v0
+000024  59806233                 iput                     v0, v8, Lsofeh/android/MainActivity;->T1 I
+000028  1a009565                 const-string             v0, "split_mode"
+00002c  52816933                 iget                     v1, v8, Lsofeh/android/MainActivity;->U1 I
+000030  6e3088601800             invoke-virtual           v8, v1, v0, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000036  0a00                     move-result              v0
+000038  59806933                 iput                     v0, v8, Lsofeh/android/MainActivity;->U1 I
+00003c  1a009465                 const-string             v0, "split_count"
+000040  52817033                 iget                     v1, v8, Lsofeh/android/MainActivity;->V1 I
+000044  6e3088601800             invoke-virtual           v8, v1, v0, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00004a  0a00                     move-result              v0
+00004c  59807033                 iput                     v0, v8, Lsofeh/android/MainActivity;->V1 I
+000050  1a00b856                 const-string             v0, "keyboard_mode"
+000054  52817e33                 iget                     v1, v8, Lsofeh/android/MainActivity;->X1 I
+000058  6e3088601800             invoke-virtual           v8, v1, v0, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00005e  0a00                     move-result              v0
+000060  59807e33                 iput                     v0, v8, Lsofeh/android/MainActivity;->X1 I
+000064  1a001f66                 const-string             v0, "style_kbdset"
+000068  55818533                 iget-boolean             v1, v8, Lsofeh/android/MainActivity;->Y1 Z
+00006c  6e308e600801             invoke-virtual           v8, v0, v1, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000072  0a00                     move-result              v0
+000074  5c808533                 iput-boolean             v0, v8, Lsofeh/android/MainActivity;->Y1 Z
+000078  1a002b67                 const-string             v0, "tot_mode"
+00007c  52815c33                 iget                     v1, v8, Lsofeh/android/MainActivity;->S2 I
+000080  6e3088601800             invoke-virtual           v8, v1, v0, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000086  0a00                     move-result              v0
+000088  59805c33                 iput                     v0, v8, Lsofeh/android/MainActivity;->S2 I
+00008c  1a007366                 const-string             v0, "system_mode"
+000090  52816333                 iget                     v1, v8, Lsofeh/android/MainActivity;->T2 I
+000094  6e3088601800             invoke-virtual           v8, v1, v0, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00009a  0a00                     move-result              v0
+00009c  59806333                 iput                     v0, v8, Lsofeh/android/MainActivity;->T2 I
+0000a0  1a007b65                 const-string             v0, "slider_mode"
+0000a4  52816a33                 iget                     v1, v8, Lsofeh/android/MainActivity;->U2 I
+0000a8  6e3088601800             invoke-virtual           v8, v1, v0, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0000ae  0a00                     move-result              v0
+0000b0  59806a33                 iput                     v0, v8, Lsofeh/android/MainActivity;->U2 I
+0000b4  1200                     const/4                  v0, 0
+0000b6  0101                     move                     v1, v0
+0000b8  62025735                 sget-object              v2, Lsofeh/music/Music;->ChordSingles [I
+0000bc  2123                     array-length             v3, v2
+0000be  35311500                 if-ge                    v1, v3, +015h
+0000c2  1a039168                 const-string             v3, "user_chord_single"
+0000c6  71207c3f3100             invoke-static            v1, v3, Lep4;->j(I Ljava/lang/String;)Ljava/lang/String;
+0000cc  0c03                     move-result-object       v3
+0000ce  62045735                 sget-object              v4, Lsofeh/music/Music;->ChordSingles [I
+0000d2  44040401                 aget                     v4, v4, v1
+0000d6  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0000dc  0a03                     move-result              v3
+0000de  4b030201                 aput                     v3, v2, v1
+0000e2  d8010101                 add-int/lit8             v1, v1, 1
+0000e6  28e9                     goto                     -17h
+0000e8  1a010000                 const-string             v1, ""
+0000ec  1a029068                 const-string             v2, "user_chord_dual"
+0000f0  6e308b602801             invoke-virtual           v8, v2, v1, Lsofeh/android/MainActivity;->s1(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0000f6  0c01                     move-result-object       v1
+0000f8  1a031501                 const-string             v3, " "
+0000fc  6e2034473100             invoke-virtual           v1, v3, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+000102  0c01                     move-result-object       v1
+000104  0103                     move                     v3, v0
+000106  2114                     array-length             v4, v1
+000108  35432c00                 if-ge                    v3, v4, +02ch
+00010c  46040103                 aget-object              v4, v1, v3
+000110  62055701                 sget-object              v5, Lb44;->a Ljava/lang/String;
+000114  12f5                     const/4                  v5, -1
+000116  71109c460400             invoke-static            v4, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+00011c  0a04                     move-result              v4
+00011e  2802                     goto                     +2h
+000120  0154                     move                     v4, v5
+000122  32541c00                 if-eq                    v4, v5, +01ch
+000126  62055535                 sget-object              v5, Lsofeh/music/Music;->ChordDuals [I
+00012a  22064210                 new-instance             v6, Ljava/lang/StringBuilder;
+00012e  702055472600             invoke-direct            v6, v2, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+000134  46070103                 aget-object              v7, v1, v3
+000138  6e205f477600             invoke-virtual           v6, v7, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+00013e  6e106b470600             invoke-virtual           v6, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+000144  0c06                     move-result-object       v6
+000146  62075535                 sget-object              v7, Lsofeh/music/Music;->ChordDuals [I
+00014a  44070704                 aget                     v7, v7, v4
+00014e  6e3088607806             invoke-virtual           v8, v7, v6, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000154  0a06                     move-result              v6
+000156  4b060504                 aput                     v6, v5, v4
+00015a  d8030301                 add-int/lit8             v3, v3, 1
+00015e  28d4                     goto                     -2ch
+000160  54810234                 iget-object              v1, v8, Lsofeh/android/MainActivity;->o0 Ljava/lang/String;
+000164  6e1028470100             invoke-virtual           v1, Ljava/lang/String;->isEmpty()Z
+00016a  0a01                     move-result              v1
+00016c  38011800                 if-eqz                   v1, +018h
+000170  6e10f7010800             invoke-virtual           v8, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+000176  0c01                     move-result-object       v1
+000178  6e1062020100             invoke-virtual           v1, Landroid/content/res/Resources;->getConfiguration()Landroid/content/res/Configuration;
+00017e  0c01                     move-result-object       v1
+000180  6e105f020100             invoke-virtual           v1, Landroid/content/res/Configuration;->getLocales()Landroid/os/LocaleList;
+000186  0c01                     move-result-object       v1
+000188  6e2079040100             invoke-virtual           v1, v0, Landroid/os/LocaleList;->get(I)Ljava/util/Locale;
+00018e  0c01                     move-result-object       v1
+000190  6e1089490100             invoke-virtual           v1, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
+000196  0c01                     move-result-object       v1
+000198  5b810234                 iput-object              v1, v8, Lsofeh/android/MainActivity;->o0 Ljava/lang/String;
+00019c  1a013a58                 const-string             v1, "locale"
+0001a0  54820234                 iget-object              v2, v8, Lsofeh/android/MainActivity;->o0 Ljava/lang/String;
+0001a4  6e308b601802             invoke-virtual           v8, v1, v2, Lsofeh/android/MainActivity;->s1(Ljava/lang/String; Ljava/lang/String;)Ljava/lang/String;
+0001aa  0c01                     move-result-object       v1
+0001ac  5b810234                 iput-object              v1, v8, Lsofeh/android/MainActivity;->o0 Ljava/lang/String;
+0001b0  7120cb6c1800             invoke-static            v8, v1, Lys1;->g(Landroid/app/Activity; Ljava/lang/String;)V
+0001b6  1a019d44                 const-string             v1, "auto_save"
+0001ba  55820a34                 iget-boolean             v2, v8, Lsofeh/android/MainActivity;->p0 Z
+0001be  6e308e601802             invoke-virtual           v8, v1, v2, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0001c4  0a01                     move-result              v1
+0001c6  5c810a34                 iput-boolean             v1, v8, Lsofeh/android/MainActivity;->p0 Z
+0001ca  1a01ff65                 const-string             v1, "stop_onchange"
+0001ce  52821234                 iget                     v2, v8, Lsofeh/android/MainActivity;->q0 I
+0001d2  6e3088602801             invoke-virtual           v8, v2, v1, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0001d8  0a01                     move-result              v1
+0001da  59811234                 iput                     v1, v8, Lsofeh/android/MainActivity;->q0 I
+0001de  1a014760                 const-string             v1, "rotation"
+0001e2  55821a34                 iget-boolean             v2, v8, Lsofeh/android/MainActivity;->r0 Z
+0001e6  6e308e601802             invoke-virtual           v8, v1, v2, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0001ec  0a01                     move-result              v1
+0001ee  5c811a34                 iput-boolean             v1, v8, Lsofeh/android/MainActivity;->r0 Z
+0001f2  1a01145d                 const-string             v1, "orientation"
+0001f6  55822234                 iget-boolean             v2, v8, Lsofeh/android/MainActivity;->s0 Z
+0001fa  6e308e601802             invoke-virtual           v8, v1, v2, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000200  0a01                     move-result              v1
+000202  5c812234                 iput-boolean             v1, v8, Lsofeh/android/MainActivity;->s0 Z
+000206  1a01c960                 const-string             v1, "screen_on"
+00020a  55822a34                 iget-boolean             v2, v8, Lsofeh/android/MainActivity;->t0 Z
+00020e  6e308e601802             invoke-virtual           v8, v1, v2, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000214  0a01                     move-result              v1
+000216  5c812a34                 iput-boolean             v1, v8, Lsofeh/android/MainActivity;->t0 Z
+00021a  1a018c66                 const-string             v1, "talkback"
+00021e  55823234                 iget-boolean             v2, v8, Lsofeh/android/MainActivity;->u0 Z
+000222  6e308e601802             invoke-virtual           v8, v1, v2, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000228  0a01                     move-result              v1
+00022a  5c813234                 iput-boolean             v1, v8, Lsofeh/android/MainActivity;->u0 Z
+00022e  1221                     const/4                  v1, 2
+000230  1212                     const/4                  v2, 1
+000232  22039c00                 new-instance             v3, Landroid/content/ComponentName;
+000236  6e1092600800             invoke-virtual           v8, Lsofeh/android/MainActivity;->v()Ljava/lang/Class;
+00023c  0c04                     move-result-object       v4
+00023e  7030cf018304             invoke-direct            v3, v8, v4, Landroid/content/ComponentName;-><init>(Landroid/content/Context; Ljava/lang/Class;)V
+000244  1a04a260                 const-string             v4, "safe_mode"
+000248  6e308e604800             invoke-virtual           v8, v4, v0, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+00024e  0a04                     move-result              v4
+000250  38040a00                 if-eqz                   v4, +00ah
+000254  6e10f5010800             invoke-virtual           v8, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+00025a  0c04                     move-result-object       v4
+00025c  6e404e023422             invoke-virtual           v4, v3, v2, v2, Landroid/content/pm/PackageManager;->setComponentEnabledSetting(Landroid/content/ComponentName; I I)V
+000262  2808                     goto                     +8h
+000264  6e10f5010800             invoke-virtual           v8, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+00026a  0c04                     move-result-object       v4
+00026c  6e404e023421             invoke-virtual           v4, v3, v1, v2, Landroid/content/pm/PackageManager;->setComponentEnabledSetting(Landroid/content/ComponentName; I I)V
+000272  1a03b753                 const-string             v3, "hk_back_btn"
+000276  55843a34                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->v0 Z
+00027a  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000280  0a03                     move-result              v3
+000282  5c833a34                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->v0 Z
+000286  1a03b953                 const-string             v3, "hk_menu_btn"
+00028a  55844234                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->w0 Z
+00028e  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000294  0a03                     move-result              v3
+000296  5c834234                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->w0 Z
+00029a  1a03b853                 const-string             v3, "hk_immersive"
+00029e  55844a34                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->x0 Z
+0002a2  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0002a8  0a03                     move-result              v3
+0002aa  5c834a34                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->x0 Z
+0002ae  1a03805d                 const-string             v3, "path_filedialog"
+0002b2  55845234                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->y0 Z
+0002b6  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0002bc  0a03                     move-result              v3
+0002be  5c835234                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->y0 Z
+0002c2  1a030069                 const-string             v3, "vibrate"
+0002c6  52845a34                 iget                     v4, v8, Lsofeh/android/MainActivity;->z0 I
+0002ca  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0002d0  0a03                     move-result              v3
+0002d2  59835a34                 iput                     v3, v8, Lsofeh/android/MainActivity;->z0 I
+0002d6  1a030169                 const-string             v3, "vibrate_time"
+0002da  5284d432                 iget                     v4, v8, Lsofeh/android/MainActivity;->A0 I
+0002de  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0002e4  0a03                     move-result              v3
+0002e6  5983d432                 iput                     v3, v8, Lsofeh/android/MainActivity;->A0 I
+0002ea  1a03ab59                 const-string             v3, "monitor_contrast"
+0002ee  5284dc32                 iget                     v4, v8, Lsofeh/android/MainActivity;->B0 I
+0002f2  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0002f8  0a03                     move-result              v3
+0002fa  5983dc32                 iput                     v3, v8, Lsofeh/android/MainActivity;->B0 I
+0002fe  1a03ae59                 const-string             v3, "monitor_timeout"
+000302  5284e432                 iget                     v4, v8, Lsofeh/android/MainActivity;->C0 I
+000306  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00030c  0a03                     move-result              v3
+00030e  5983e432                 iput                     v3, v8, Lsofeh/android/MainActivity;->C0 I
+000312  1a03aa59                 const-string             v3, "monitor_colored"
+000316  5584ec32                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->D0 Z
+00031a  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000320  0a03                     move-result              v3
+000322  5c83ec32                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->D0 Z
+000326  1a03ad59                 const-string             v3, "monitor_tabs"
+00032a  5284f432                 iget                     v4, v8, Lsofeh/android/MainActivity;->E0 I
+00032e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000334  0a03                     move-result              v3
+000336  5983f432                 iput                     v3, v8, Lsofeh/android/MainActivity;->E0 I
+00033a  1a03ac59                 const-string             v3, "monitor_drum"
+00033e  5584fc32                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->F0 Z
+000342  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000348  0a03                     move-result              v3
+00034a  5c83fc32                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->F0 Z
+00034e  1a03a959                 const-string             v3, "monitor_chord"
+000352  55840433                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->G0 Z
+000356  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+00035c  0a03                     move-result              v3
+00035e  5c830433                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->G0 Z
+000362  1a03cd57                 const-string             v3, "light_mode"
+000366  52840c33                 iget                     v4, v8, Lsofeh/android/MainActivity;->H0 I
+00036a  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000370  0a03                     move-result              v3
+000372  59830c33                 iput                     v3, v8, Lsofeh/android/MainActivity;->H0 I
+000376  1a03ce57                 const-string             v3, "light_speed"
+00037a  52841433                 iget                     v4, v8, Lsofeh/android/MainActivity;->I0 I
+00037e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000384  0a03                     move-result              v3
+000386  59831433                 iput                     v3, v8, Lsofeh/android/MainActivity;->I0 I
+00038a  1a03af56                 const-string             v3, "key_count"
+00038e  52841b33                 iget                     v4, v8, Lsofeh/android/MainActivity;->J0 I
+000392  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000398  0a03                     move-result              v3
+00039a  59831b33                 iput                     v3, v8, Lsofeh/android/MainActivity;->J0 I
+00039e  1a03b356                 const-string             v3, "key_start"
+0003a2  52842233                 iget                     v4, v8, Lsofeh/android/MainActivity;->K0 I
+0003a6  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0003ac  0a03                     move-result              v3
+0003ae  59832233                 iput                     v3, v8, Lsofeh/android/MainActivity;->K0 I
+0003b2  1a03b256                 const-string             v3, "key_show"
+0003b6  55842933                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->L0 Z
+0003ba  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0003c0  0a03                     move-result              v3
+0003c2  5c832933                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->L0 Z
+0003c6  1a03b456                 const-string             v3, "key_text"
+0003ca  52843033                 iget                     v4, v8, Lsofeh/android/MainActivity;->M0 I
+0003ce  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0003d4  0a03                     move-result              v3
+0003d6  59833033                 iput                     v3, v8, Lsofeh/android/MainActivity;->M0 I
+0003da  1a03b156                 const-string             v3, "key_quality"
+0003de  52843733                 iget                     v4, v8, Lsofeh/android/MainActivity;->N0 I
+0003e2  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0003e8  0a03                     move-result              v3
+0003ea  59833733                 iput                     v3, v8, Lsofeh/android/MainActivity;->N0 I
+0003ee  1a033867                 const-string             v3, "touch_response"
+0003f2  55843e33                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->O0 Z
+0003f6  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0003fc  0a03                     move-result              v3
+0003fe  5c833e33                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->O0 Z
+000402  1a031f45                 const-string             v3, "black_area"
+000406  55844533                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->P0 Z
+00040a  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000410  0a03                     move-result              v3
+000412  5c834533                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->P0 Z
+000416  1a032045                 const-string             v3, "black_size"
+00041a  52844c33                 iget                     v4, v8, Lsofeh/android/MainActivity;->Q0 I
+00041e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000424  0a03                     move-result              v3
+000426  59834c33                 iput                     v3, v8, Lsofeh/android/MainActivity;->Q0 I
+00042a  1a036d58                 const-string             v3, "lower_as_upper"
+00042e  55845333                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->R0 Z
+000432  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000438  0a03                     move-result              v3
+00043a  5c835333                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->R0 Z
+00043e  1a03f964                 const-string             v3, "shake_pitch"
+000442  52845a33                 iget                     v4, v8, Lsofeh/android/MainActivity;->S0 I
+000446  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00044c  0a03                     move-result              v3
+00044e  59835a33                 iput                     v3, v8, Lsofeh/android/MainActivity;->S0 I
+000452  1a03c149                 const-string             v3, "drag_pitch"
+000456  52846133                 iget                     v4, v8, Lsofeh/android/MainActivity;->T0 I
+00045a  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000460  0a03                     move-result              v3
+000462  59836133                 iput                     v3, v8, Lsofeh/android/MainActivity;->T0 I
+000466  1a03905d                 const-string             v3, "pc_skin_mode"
+00046a  52846833                 iget                     v4, v8, Lsofeh/android/MainActivity;->U0 I
+00046e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000474  0a03                     move-result              v3
+000476  59836833                 iput                     v3, v8, Lsofeh/android/MainActivity;->U0 I
+00047a  1a036d59                 const-string             v3, "midi_sensitivity"
+00047e  52846f33                 iget                     v4, v8, Lsofeh/android/MainActivity;->V0 I
+000482  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000488  0a03                     move-result              v3
+00048a  59836f33                 iput                     v3, v8, Lsofeh/android/MainActivity;->V0 I
+00048e  1a036959                 const-string             v3, "midi_aftertouch_sens"
+000492  52847633                 iget                     v4, v8, Lsofeh/android/MainActivity;->W0 I
+000496  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00049c  0a03                     move-result              v3
+00049e  59837633                 iput                     v3, v8, Lsofeh/android/MainActivity;->W0 I
+0004a2  1a036b59                 const-string             v3, "midi_direction"
+0004a6  52847d33                 iget                     v4, v8, Lsofeh/android/MainActivity;->X0 I
+0004aa  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0004b0  0a03                     move-result              v3
+0004b2  59837d33                 iput                     v3, v8, Lsofeh/android/MainActivity;->X0 I
+0004b6  1a036e59                 const-string             v3, "midi_skin_mode"
+0004ba  52848433                 iget                     v4, v8, Lsofeh/android/MainActivity;->Y0 I
+0004be  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0004c4  0a03                     move-result              v3
+0004c6  59838433                 iput                     v3, v8, Lsofeh/android/MainActivity;->Y0 I
+0004ca  1a036a59                 const-string             v3, "midi_channel_octave"
+0004ce  55848b33                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->Z0 Z
+0004d2  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0004d8  0a03                     move-result              v3
+0004da  5c838b33                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->Z0 Z
+0004de  1a036c59                 const-string             v3, "midi_live_octave"
+0004e2  55849333                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->a1 Z
+0004e6  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0004ec  0a03                     move-result              v3
+0004ee  5c839333                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->a1 Z
+0004f2  1a03ae56                 const-string             v3, "key_connection"
+0004f6  52849b33                 iget                     v4, v8, Lsofeh/android/MainActivity;->b1 I
+0004fa  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000500  0a03                     move-result              v3
+000502  59839b33                 iput                     v3, v8, Lsofeh/android/MainActivity;->b1 I
+000506  1a038f4b                 const-string             v3, "fade_time"
+00050a  5284a333                 iget                     v4, v8, Lsofeh/android/MainActivity;->c1 I
+00050e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000514  0a03                     move-result              v3
+000516  5983a333                 iput                     v3, v8, Lsofeh/android/MainActivity;->c1 I
+00051a  1a038e4b                 const-string             v3, "fade_delay"
+00051e  5284ab33                 iget                     v4, v8, Lsofeh/android/MainActivity;->d1 I
+000522  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000528  0a03                     move-result              v3
+00052a  5983ab33                 iput                     v3, v8, Lsofeh/android/MainActivity;->d1 I
+00052e  1a03dd5d                 const-string             v3, "pitchbend_range"
+000532  5284b333                 iget                     v4, v8, Lsofeh/android/MainActivity;->e1 I
+000536  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00053c  0a03                     move-result              v3
+00053e  5983b333                 iput                     v3, v8, Lsofeh/android/MainActivity;->e1 I
+000542  1a03dc5d                 const-string             v3, "pitchbend_lock"
+000546  5584bb33                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->f1 Z
+00054a  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000550  0a03                     move-result              v3
+000552  5c83bb33                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->f1 Z
+000556  1a03df5d                 const-string             v3, "pitchspeed"
+00055a  5284c333                 iget                     v4, v8, Lsofeh/android/MainActivity;->g1 I
+00055e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000564  0a03                     move-result              v3
+000566  5983c333                 iput                     v3, v8, Lsofeh/android/MainActivity;->g1 I
+00056a  1a033a60                 const-string             v3, "ribbon_range"
+00056e  5284cb33                 iget                     v4, v8, Lsofeh/android/MainActivity;->h1 I
+000572  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000578  0a03                     move-result              v3
+00057a  5983cb33                 iput                     v3, v8, Lsofeh/android/MainActivity;->h1 I
+00057e  1a035859                 const-string             v3, "metronome_volume"
+000582  5284d333                 iget                     v4, v8, Lsofeh/android/MainActivity;->i1 I
+000586  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00058c  0a03                     move-result              v3
+00058e  5983d333                 iput                     v3, v8, Lsofeh/android/MainActivity;->i1 I
+000592  1a035759                 const-string             v3, "metronome_level"
+000596  5284db33                 iget                     v4, v8, Lsofeh/android/MainActivity;->j1 I
+00059a  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0005a0  0a03                     move-result              v3
+0005a2  5983db33                 iput                     v3, v8, Lsofeh/android/MainActivity;->j1 I
+0005a6  1a035959                 const-string             v3, "metronome_x"
+0005aa  5284e333                 iget                     v4, v8, Lsofeh/android/MainActivity;->k1 I
+0005ae  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0005b4  0a03                     move-result              v3
+0005b6  5983e333                 iput                     v3, v8, Lsofeh/android/MainActivity;->k1 I
+0005ba  1a035a59                 const-string             v3, "metronome_y"
+0005be  5284eb33                 iget                     v4, v8, Lsofeh/android/MainActivity;->l1 I
+0005c2  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0005c8  0a03                     move-result              v3
+0005ca  5983eb33                 iput                     v3, v8, Lsofeh/android/MainActivity;->l1 I
+0005ce  1a033760                 const-string             v3, "rhythm_loop_tempo"
+0005d2  5584f333                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->m1 Z
+0005d6  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0005dc  0a03                     move-result              v3
+0005de  5c83f333                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->m1 Z
+0005e2  1a033560                 const-string             v3, "rhythm_loop_multi"
+0005e6  5584fb33                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->n1 Z
+0005ea  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0005f0  0a03                     move-result              v3
+0005f2  5c83fb33                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->n1 Z
+0005f6  1a033660                 const-string             v3, "rhythm_loop_scale"
+0005fa  52840334                 iget                     v4, v8, Lsofeh/android/MainActivity;->o1 I
+0005fe  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000604  0a03                     move-result              v3
+000606  59830334                 iput                     v3, v8, Lsofeh/android/MainActivity;->o1 I
+00060a  1a033360                 const-string             v3, "rhythm_change"
+00060e  52840b34                 iget                     v4, v8, Lsofeh/android/MainActivity;->p1 I
+000612  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000618  0a03                     move-result              v3
+00061a  59830b34                 iput                     v3, v8, Lsofeh/android/MainActivity;->p1 I
+00061e  1a033460                 const-string             v3, "rhythm_loop_double"
+000622  55841334                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->q1 Z
+000626  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+00062c  0a03                     move-result              v3
+00062e  5c831334                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->q1 Z
+000632  1a033260                 const-string             v3, "rhythm_auto_tempolock"
+000636  55841b34                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->r1 Z
+00063a  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000640  0a03                     move-result              v3
+000642  5c831b34                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->r1 Z
+000646  1a034646                 const-string             v3, "chords_type"
+00064a  52842334                 iget                     v4, v8, Lsofeh/android/MainActivity;->s1 I
+00064e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000654  0a03                     move-result              v3
+000656  59832334                 iput                     v3, v8, Lsofeh/android/MainActivity;->s1 I
+00065a  1a034246                 const-string             v3, "chord_synchro"
+00065e  52842b34                 iget                     v4, v8, Lsofeh/android/MainActivity;->t1 I
+000662  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000668  0a03                     move-result              v3
+00066a  59832b34                 iput                     v3, v8, Lsofeh/android/MainActivity;->t1 I
+00066e  1a034346                 const-string             v3, "chord_synchro_sound"
+000672  52843334                 iget                     v4, v8, Lsofeh/android/MainActivity;->u1 I
+000676  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00067c  0a03                     move-result              v3
+00067e  59833334                 iput                     v3, v8, Lsofeh/android/MainActivity;->u1 I
+000682  1a034446                 const-string             v3, "chord_synchro_stop_pads"
+000686  55843b34                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->v1 Z
+00068a  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000690  0a03                     move-result              v3
+000692  5c833b34                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->v1 Z
+000696  1a033e46                 const-string             v3, "chord_ctrl"
+00069a  52844334                 iget                     v4, v8, Lsofeh/android/MainActivity;->w1 I
+00069e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0006a4  0a03                     move-result              v3
+0006a6  59834334                 iput                     v3, v8, Lsofeh/android/MainActivity;->w1 I
+0006aa  1a034046                 const-string             v3, "chord_qual"
+0006ae  52844b34                 iget                     v4, v8, Lsofeh/android/MainActivity;->x1 I
+0006b2  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0006b8  0a03                     move-result              v3
+0006ba  59834b34                 iput                     v3, v8, Lsofeh/android/MainActivity;->x1 I
+0006be  1a033f46                 const-string             v3, "chord_inst"
+0006c2  55845334                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->y1 Z
+0006c6  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+0006cc  0a03                     move-result              v3
+0006ce  5c835334                 iput-boolean             v3, v8, Lsofeh/android/MainActivity;->y1 Z
+0006d2  1a035c59                 const-string             v3, "mic_src"
+0006d6  52845b34                 iget                     v4, v8, Lsofeh/android/MainActivity;->z1 I
+0006da  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0006e0  0a03                     move-result              v3
+0006e2  59835b34                 iput                     v3, v8, Lsofeh/android/MainActivity;->z1 I
+0006e6  1a035b59                 const-string             v3, "mic_channels"
+0006ea  5284d532                 iget                     v4, v8, Lsofeh/android/MainActivity;->A1 I
+0006ee  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0006f4  0a03                     move-result              v3
+0006f6  5983d532                 iput                     v3, v8, Lsofeh/android/MainActivity;->A1 I
+0006fa  1a032c5f                 const-string             v3, "recorder_quality"
+0006fe  5284dd32                 iget                     v4, v8, Lsofeh/android/MainActivity;->B1 I
+000702  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000708  0a03                     move-result              v3
+00070a  5983dd32                 iput                     v3, v8, Lsofeh/android/MainActivity;->B1 I
+00070e  1a032b5f                 const-string             v3, "recorder_channels"
+000712  5284e532                 iget                     v4, v8, Lsofeh/android/MainActivity;->C1 I
+000716  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00071c  0a03                     move-result              v3
+00071e  5983e532                 iput                     v3, v8, Lsofeh/android/MainActivity;->C1 I
+000722  1a032a5f                 const-string             v3, "recorder_bitrate"
+000726  5284ed32                 iget                     v4, v8, Lsofeh/android/MainActivity;->D1 I
+00072a  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000730  0a03                     move-result              v3
+000732  5983ed32                 iput                     v3, v8, Lsofeh/android/MainActivity;->D1 I
+000736  1a032d5f                 const-string             v3, "recorder_samplerate"
+00073a  5284f532                 iget                     v4, v8, Lsofeh/android/MainActivity;->E1 I
+00073e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000744  0a03                     move-result              v3
+000746  5983f532                 iput                     v3, v8, Lsofeh/android/MainActivity;->E1 I
+00074a  1a03ba59                 const-string             v3, "mp3_quality"
+00074e  5284fd32                 iget                     v4, v8, Lsofeh/android/MainActivity;->F1 I
+000752  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000758  0a03                     move-result              v3
+00075a  5983fd32                 iput                     v3, v8, Lsofeh/android/MainActivity;->F1 I
+00075e  1a03b959                 const-string             v3, "mp3_channels"
+000762  52840533                 iget                     v4, v8, Lsofeh/android/MainActivity;->G1 I
+000766  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00076c  0a03                     move-result              v3
+00076e  59830533                 iput                     v3, v8, Lsofeh/android/MainActivity;->G1 I
+000772  1a03b859                 const-string             v3, "mp3_bitrate"
+000776  52840d33                 iget                     v4, v8, Lsofeh/android/MainActivity;->H1 I
+00077a  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000780  0a03                     move-result              v3
+000782  59830d33                 iput                     v3, v8, Lsofeh/android/MainActivity;->H1 I
+000786  1a03bb59                 const-string             v3, "mp3_samplerate"
+00078a  52841533                 iget                     v4, v8, Lsofeh/android/MainActivity;->I1 I
+00078e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000794  0a03                     move-result              v3
+000796  59831533                 iput                     v3, v8, Lsofeh/android/MainActivity;->I1 I
+00079a  1a03355d                 const-string             v3, "output_music"
+00079e  52841c33                 iget                     v4, v8, Lsofeh/android/MainActivity;->J1 I
+0007a2  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0007a8  0a03                     move-result              v3
+0007aa  59831c33                 iput                     v3, v8, Lsofeh/android/MainActivity;->J1 I
+0007ae  1a03395d                 const-string             v3, "output_wave"
+0007b2  52842333                 iget                     v4, v8, Lsofeh/android/MainActivity;->K1 I
+0007b6  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0007bc  0a03                     move-result              v3
+0007be  59832333                 iput                     v3, v8, Lsofeh/android/MainActivity;->K1 I
+0007c2  1a03375d                 const-string             v3, "output_rhythm"
+0007c6  52842a33                 iget                     v4, v8, Lsofeh/android/MainActivity;->L1 I
+0007ca  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0007d0  0a03                     move-result              v3
+0007d2  59832a33                 iput                     v3, v8, Lsofeh/android/MainActivity;->L1 I
+0007d6  1a031b59                 const-string             v3, "max_music_channel"
+0007da  52843133                 iget                     v4, v8, Lsofeh/android/MainActivity;->M1 I
+0007de  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0007e4  0a03                     move-result              v3
+0007e6  59833133                 iput                     v3, v8, Lsofeh/android/MainActivity;->M1 I
+0007ea  1a031e59                 const-string             v3, "max_rhythm_channel"
+0007ee  52843833                 iget                     v4, v8, Lsofeh/android/MainActivity;->N1 I
+0007f2  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0007f8  0a03                     move-result              v3
+0007fa  59833833                 iput                     v3, v8, Lsofeh/android/MainActivity;->N1 I
+0007fe  1a032f53                 const-string             v3, "global_reverb"
+000802  52843f33                 iget                     v4, v8, Lsofeh/android/MainActivity;->O1 I
+000806  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+00080c  0a03                     move-result              v3
+00080e  59833f33                 iput                     v3, v8, Lsofeh/android/MainActivity;->O1 I
+000812  1a03385d                 const-string             v3, "output_samplerate"
+000816  52844633                 iget                     v4, v8, Lsofeh/android/MainActivity;->P1 I
+00081a  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000820  0a03                     move-result              v3
+000822  59834633                 iput                     v3, v8, Lsofeh/android/MainActivity;->P1 I
+000826  1a03335d                 const-string             v3, "output_buf"
+00082a  52844d33                 iget                     v4, v8, Lsofeh/android/MainActivity;->Q1 I
+00082e  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000834  0a03                     move-result              v3
+000836  59834d33                 iput                     v3, v8, Lsofeh/android/MainActivity;->Q1 I
+00083a  1a03345d                 const-string             v3, "output_low_latency"
+00083e  52845433                 iget                     v4, v8, Lsofeh/android/MainActivity;->R1 I
+000842  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000848  0a03                     move-result              v3
+00084a  59835433                 iput                     v3, v8, Lsofeh/android/MainActivity;->R1 I
+00084e  54830134                 iget-object              v3, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000852  39031900                 if-nez                   v3, +019h
+000856  2203c015                 new-instance             v3, Lsofeh/music/Music;
+00085a  54842634                 iget-object              v4, v8, Lsofeh/android/MainActivity;->s4 Lx13;
+00085e  22056f15                 new-instance             v5, Lsb2;
+000862  7020975f8500             invoke-direct            v5, v8, Lsb2;-><init>(Lsofeh/android/MainActivity;)V
+000868  70308d614305             invoke-direct            v3, v4, v5, Lsofeh/music/Music;-><init>(Lx13; Lsofeh/music/Music$Listener;)V
+00086e  5b830134                 iput-object              v3, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000872  1a04030d                 const-string             v4, "Chord"
+000876  7120626b4800             invoke-static            v8, v4, Lxs1;->d(Landroid/content/Context; Ljava/lang/String;)Ljava/lang/String;
+00087c  0c04                     move-result-object       v4
+00087e  6e2092614300             invoke-virtual           v3, v4, Lsofeh/music/Music;->ChordTable(Ljava/lang/String;)V
+000884  54830134                 iget-object              v3, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000888  5c30b635                 iput-boolean             v0, v3, Lsofeh/music/Music;->fIsOpenSLRecord Z
+00088c  5534c935                 iget-boolean             v4, v3, Lsofeh/music/Music;->fOutActive Z
+000890  39040b00                 if-nez                   v4, +00bh
+000894  52844633                 iget                     v4, v8, Lsofeh/android/MainActivity;->P1 I
+000898  13051000                 const/16                 v5, 16
+00089c  52864d33                 iget                     v6, v8, Lsofeh/android/MainActivity;->Q1 I
+0008a0  6e560d624315             invoke-virtual           v3, v4, v5, v1, v6, Lsofeh/music/Music;->OutFormatSet(I I I I)V
+0008a6  54830134                 iget-object              v3, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0008aa  5284c333                 iget                     v4, v8, Lsofeh/android/MainActivity;->g1 I
+0008ae  5934d235                 iput                     v4, v3, Lsofeh/music/Music;->fPitchSpeed I
+0008b2  5284d333                 iget                     v4, v8, Lsofeh/android/MainActivity;->i1 I
+0008b6  5934c035                 iput                     v4, v3, Lsofeh/music/Music;->fMetronomeVolume I
+0008ba  5284db33                 iget                     v4, v8, Lsofeh/android/MainActivity;->j1 I
+0008be  5934bd35                 iput                     v4, v3, Lsofeh/music/Music;->fMetronomeLevel I
+0008c2  5284e333                 iget                     v4, v8, Lsofeh/android/MainActivity;->k1 I
+0008c6  5934c135                 iput                     v4, v3, Lsofeh/music/Music;->fMetronomeX I
+0008ca  5284eb33                 iget                     v4, v8, Lsofeh/android/MainActivity;->l1 I
+0008ce  5934c235                 iput                     v4, v3, Lsofeh/music/Music;->fMetronomeY I
+0008d2  5584f333                 iget-boolean             v4, v8, Lsofeh/android/MainActivity;->m1 Z
+0008d6  5c34b935                 iput-boolean             v4, v3, Lsofeh/music/Music;->fLoopTempo Z
+0008da  52842334                 iget                     v4, v8, Lsofeh/android/MainActivity;->s1 I
+0008de  59349935                 iput                     v4, v3, Lsofeh/music/Music;->fChordType I
+0008e2  37140400                 if-le                    v4, v1, +004h
+0008e6  59329935                 iput                     v2, v3, Lsofeh/music/Music;->fChordType I
+0008ea  52814334                 iget                     v1, v8, Lsofeh/android/MainActivity;->w1 I
+0008ee  59318e35                 iput                     v1, v3, Lsofeh/music/Music;->fChordControl I
+0008f2  52814b34                 iget                     v1, v8, Lsofeh/android/MainActivity;->x1 I
+0008f6  59319335                 iput                     v1, v3, Lsofeh/music/Music;->fChordQuality I
+0008fa  52810b34                 iget                     v1, v8, Lsofeh/android/MainActivity;->p1 I
+0008fe  5931a635                 iput                     v1, v3, Lsofeh/music/Music;->fGroupPlayChangeMethod I
+000902  52819b33                 iget                     v1, v8, Lsofeh/android/MainActivity;->b1 I
+000906  5931b735                 iput                     v1, v3, Lsofeh/music/Music;->fKeyConnectionMethod I
+00090a  52811c33                 iget                     v1, v8, Lsofeh/android/MainActivity;->J1 I
+00090e  5931c335                 iput                     v1, v3, Lsofeh/music/Music;->fMixerMusic I
+000912  52812333                 iget                     v1, v8, Lsofeh/android/MainActivity;->K1 I
+000916  5931c535                 iput                     v1, v3, Lsofeh/music/Music;->fMixerWave I
+00091a  52812a33                 iget                     v1, v8, Lsofeh/android/MainActivity;->L1 I
+00091e  5931c435                 iput                     v1, v3, Lsofeh/music/Music;->fMixerRhythm I
+000922  52813133                 iget                     v1, v8, Lsofeh/android/MainActivity;->M1 I
+000926  5931bb35                 iput                     v1, v3, Lsofeh/music/Music;->fMaxMusicChannel I
+00092a  52813833                 iget                     v1, v8, Lsofeh/android/MainActivity;->N1 I
+00092e  13044000                 const/16                 v4, 64
+000932  7120cb464100             invoke-static            v1, v4, Ljava/lang/Math;->min(I I)I
+000938  0a01                     move-result              v1
+00093a  5931bc35                 iput                     v1, v3, Lsofeh/music/Music;->fMaxRhythmChannel I
+00093e  54810134                 iget-object              v1, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000942  52833f33                 iget                     v3, v8, Lsofeh/android/MainActivity;->O1 I
+000946  5913a535                 iput                     v3, v1, Lsofeh/music/Music;->fGlobalReverbLevel I
+00094a  52835433                 iget                     v3, v8, Lsofeh/android/MainActivity;->R1 I
+00094e  5913ba35                 iput                     v3, v1, Lsofeh/music/Music;->fLowLatencyMethod I
+000952  1a036966                 const-string             v3, "sync_start"
+000956  55149635                 iget-boolean             v4, v1, Lsofeh/music/Music;->fChordSyncStart Z
+00095a  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000960  0a03                     move-result              v3
+000962  5c139635                 iput-boolean             v3, v1, Lsofeh/music/Music;->fChordSyncStart Z
+000966  54810134                 iget-object              v1, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00096a  1a036a66                 const-string             v3, "sync_stop"
+00096e  55149735                 iget-boolean             v4, v1, Lsofeh/music/Music;->fChordSyncStop Z
+000972  6e308e603804             invoke-virtual           v8, v3, v4, Lsofeh/android/MainActivity;->t1(Ljava/lang/String; Z)Z
+000978  0a03                     move-result              v3
+00097a  5c139735                 iput-boolean             v3, v1, Lsofeh/music/Music;->fChordSyncStop Z
+00097e  54810134                 iget-object              v1, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+000982  1a034146                 const-string             v3, "chord_scan"
+000986  52149535                 iget                     v4, v1, Lsofeh/music/Music;->fChordScan I
+00098a  6e3088604803             invoke-virtual           v8, v4, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+000990  0a03                     move-result              v3
+000992  59139535                 iput                     v3, v1, Lsofeh/music/Music;->fChordScan I
+000996  54810134                 iget-object              v1, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+00099a  5411d635                 iget-object              v1, v1, Lsofeh/music/Music;->fSTSChanges [Z
+00099e  711068070100             invoke-static            v1, Lb44;->a([Z)I
+0009a4  0a01                     move-result              v1
+0009a6  1a031b66                 const-string             v3, "sts_changes"
+0009aa  6e3088601803             invoke-virtual           v8, v1, v3, Lsofeh/android/MainActivity;->r1(I Ljava/lang/String;)I
+0009b0  0a01                     move-result              v1
+0009b2  54830134                 iget-object              v3, v8, Lsofeh/android/MainActivity;->o Lsofeh/music/Music;
+0009b6  5433d635                 iget-object              v3, v3, Lsofeh/music/Music;->fSTSChanges [Z
+0009ba  0104                     move                     v4, v0
+0009bc  2135                     array-length             v5, v3
+0009be  35540f00                 if-ge                    v4, v5, +00fh
+0009c2  98050204                 shl-int                  v5, v2, v4
+0009c6  b515                     and-int/2addr            v5, v1
+0009c8  38050400                 if-eqz                   v5, +004h
+0009cc  0125                     move                     v5, v2
+0009ce  2802                     goto                     +2h
+0009d0  0105                     move                     v5, v0
+0009d2  4e050304                 aput-boolean             v5, v3, v4
+0009d6  d8040401                 add-int/lit8             v4, v4, 1
+0009da  28f1                     goto                     -fh
+0009dc  54813d34                 iget-object              v1, v8, Lsofeh/android/MainActivity;->v3 Lr31;
+0009e0  55835234                 iget-boolean             v3, v8, Lsofeh/android/MainActivity;->y0 Z
+0009e4  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+0009e8  54814534                 iget-object              v1, v8, Lsofeh/android/MainActivity;->w3 Lr31;
+0009ec  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+0009f0  54814d34                 iget-object              v1, v8, Lsofeh/android/MainActivity;->x3 Lr31;
+0009f4  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+0009f8  54815534                 iget-object              v1, v8, Lsofeh/android/MainActivity;->y3 Lr31;
+0009fc  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a00  54815d34                 iget-object              v1, v8, Lsofeh/android/MainActivity;->z3 Lr31;
+000a04  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a08  5481d732                 iget-object              v1, v8, Lsofeh/android/MainActivity;->A3 Lr31;
+000a0c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a10  5481df32                 iget-object              v1, v8, Lsofeh/android/MainActivity;->B3 Lr31;
+000a14  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a18  5481e732                 iget-object              v1, v8, Lsofeh/android/MainActivity;->C3 Lr31;
+000a1c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a20  5481ef32                 iget-object              v1, v8, Lsofeh/android/MainActivity;->D3 Lr31;
+000a24  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a28  5481f732                 iget-object              v1, v8, Lsofeh/android/MainActivity;->E3 Lr31;
+000a2c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a30  5481ff32                 iget-object              v1, v8, Lsofeh/android/MainActivity;->F3 Lr31;
+000a34  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a38  54810733                 iget-object              v1, v8, Lsofeh/android/MainActivity;->G3 Lr31;
+000a3c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a40  54810f33                 iget-object              v1, v8, Lsofeh/android/MainActivity;->H3 Lr31;
+000a44  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a48  54811733                 iget-object              v1, v8, Lsofeh/android/MainActivity;->I3 Lr31;
+000a4c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a50  54811e33                 iget-object              v1, v8, Lsofeh/android/MainActivity;->J3 Lr31;
+000a54  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a58  54812533                 iget-object              v1, v8, Lsofeh/android/MainActivity;->K3 Lr31;
+000a5c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a60  54812c33                 iget-object              v1, v8, Lsofeh/android/MainActivity;->L3 Lr31;
+000a64  5c127f31                 iput-boolean             v2, v1, Lr31;->e Z
+000a68  54813333                 iget-object              v1, v8, Lsofeh/android/MainActivity;->M3 Lr31;
+000a6c  5c127f31                 iput-boolean             v2, v1, Lr31;->e Z
+000a70  54813a33                 iget-object              v1, v8, Lsofeh/android/MainActivity;->N3 Lr31;
+000a74  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a78  54814133                 iget-object              v1, v8, Lsofeh/android/MainActivity;->O3 Lr31;
+000a7c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a80  54814833                 iget-object              v1, v8, Lsofeh/android/MainActivity;->P3 Lr31;
+000a84  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a88  54814f33                 iget-object              v1, v8, Lsofeh/android/MainActivity;->Q3 Lr31;
+000a8c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a90  54815633                 iget-object              v1, v8, Lsofeh/android/MainActivity;->R3 Lr31;
+000a94  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000a98  54815d33                 iget-object              v1, v8, Lsofeh/android/MainActivity;->S3 Lr31;
+000a9c  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000aa0  54816433                 iget-object              v1, v8, Lsofeh/android/MainActivity;->T3 Lr31;
+000aa4  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000aa8  54816b33                 iget-object              v1, v8, Lsofeh/android/MainActivity;->U3 Lr31;
+000aac  5c137f31                 iput-boolean             v3, v1, Lr31;->e Z
+000ab0  55817a33                 iget-boolean             v1, v8, Lsofeh/android/MainActivity;->W4 Z
+000ab4  38010700                 if-eqz                   v1, +007h
+000ab8  5481f233                 iget-object              v1, v8, Lsofeh/android/MainActivity;->m0 Landroid/content/SharedPreferences$Editor;
+000abc  72102d020100             invoke-interface         v1, Landroid/content/SharedPreferences$Editor;->commit()Z
+000ac2  5c807a33                 iput-boolean             v0, v8, Lsofeh/android/MainActivity;->W4 Z
+000ac6  0e00                     return-void              
