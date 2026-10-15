@@ -12,7 +12,7 @@
 | --- | --- |
 | `fLowLatencyMethod == 1`, OpenSL khởi động thành công | Gọi `NOpenSL.Start(this, ...)`. Sau khi nền tảng báo sẵn sàng, hàm trả về mà không khởi chạy `fOutThread`. |
 | `fLowLatencyMethod == 2`, OpenSL khởi động thành công | Gọi `NOpenSL.Start(null, ...)`, chạy thread Java; mỗi vòng gọi `ProcessOut(false)` rồi `Write` hoặc `MixWrite`. |
-| Không dùng OpenSL hoặc Start thất bại | Tạo cấu hình nền tảng qua `fx2`; thread đi qua dispatcher với `zd1`. Chưa đọc thân hai lớp này để xác định đầy đủ backend fallback. |
+| Không dùng OpenSL hoặc Start thất bại | `fx2` tạo và gọi `play()` trên `AudioTrack`; thread đi qua `zd1` case 16 để `ProcessOut(false)` rồi `AudioTrack.write(...)`. |
 
 Hai chế độ OpenSL phụ thuộc cả các chuỗi thông số nền tảng `fPlatform.b/c`; giá trị mode đơn lẻ không bảo đảm OpenSL được chọn. Có ghi trực tiếp ra file nếu `fDirectRecordWriter` khác null.
 
@@ -51,4 +51,4 @@ Callback này ngắn hơn: kiểm tra trạng thái, enqueue slot hiện tại, 
 
 Đã xác định nơi buffer đi vào OpenSL queue cho cả hai callback. Nhánh thu âm, recorder queue và vòng `ProcessIn → MixPut/MixWrite` đã được nối tiếp trong [OPENSL-RECORDING.md](OPENSL-RECORDING.md). Enqueue thành công không tự chứng minh lúc nào mẫu đến DAC/loa. Cần kiểm chứng runtime để đo latency, underrun và mức sử dụng CPU; chưa có số đo cho các yếu tố đó.
 
-Bước tiếp theo độc lập với thiết bị: đọc `fx2/zd1` để nối fallback AudioTrack, và kiểm tra cấu hình Java đặt `fLowLatencyMethod`. Bước kiểm chứng runtime cần điện thoại hoặc emulator thực sự kết nối.
+`fx2/zd1` và nơi cấu hình `fLowLatencyMethod` đã được nối trong [nhánh fallback AudioTrack](FALLBACK-AUDIOTRACK.md) và [cài đặt âm thanh](CAI-DAT-AM-THANH.md). Bộ thu [kiểm chứng runtime](RUNTIME-VALIDATION.md) đã sẵn sàng; bước còn lại cần điện thoại hoặc emulator thực sự kết nối.

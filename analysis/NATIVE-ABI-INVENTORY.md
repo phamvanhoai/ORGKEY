@@ -9,4 +9,4 @@ APK chứa 58 file `.so`:
 | `x86` | 11 |
 | `x86_64` | 11 |
 
-Các symbol JNI đã lập bảng thuộc hai thư viện âm thanh `libnmusic.so` và `libnopensl.so` trên ARM64. Các file còn lại là thư viện xử lý hiệu ứng, codec hoặc SDK bên thứ ba; tên file không đủ để gán chắc chức năng nếu chưa disassemble từng ABI. Vì vậy inventory này xác nhận độ rộng ABI của APK, còn bằng chứng thuật toán native hiện tập trung ở ARM64.
+Chín thư viện âm thanh ORG có đủ cả bốn ABI. AppLovin và AndroidX DataStore cũng có đủ bốn; bảy thư viện Pangle/ByteDance chỉ có ARM64 và ARM32. Toàn bộ 58 ELF đã được phân loại và kiểm kê symbol/import trong [báo cáo native bên thứ ba](THIRD-PARTY-NATIVE.md); 75 JNI `sofeh` đã được tách assembly riêng trên mỗi ABI.

@@ -48,8 +48,11 @@
 - [Phân tích native audio](NATIVE-AUDIO.md)
 - [Coverage native](NATIVE-COVERAGE.md)
 - [Sở hữu thư viện](NATIVE-OWNERSHIP.md)
+- [Native SDK bên thứ ba](THIRD-PARTY-NATIVE.md)
 - [ABI inventory](NATIVE-ABI-INVENTORY.md)
 - [So sánh JNI giữa ABI](NATIVE-ABI-JNI-COMPARISON.md)
+- [Disassembly JNI trên toàn bộ ABI](NATIVE-ALL-ABI-DISASSEMBLY.md)
+- [Phân loại phần cuối symbol ARM32](ARM32-TAIL-CLASSIFICATION.md)
 - [Symbol ARM64](NATIVE-ARM64-SYMBOL-INVENTORY.md)
 - [Danh sách JNI](NATIVE-JNI-SYMBOLS.md)
 - [Coverage JNI](NATIVE-JNI-COVERAGE-GAPS.md)
@@ -59,6 +62,9 @@
 - [Hiệu ứng native](NATIVE-EFFECT-JNI.md)
 - [Kích thước hàm hiệu ứng](NATIVE-EFFECT-SIZES.md)
 - [SF2 và LAME](NSF2-LAME-JNI.md)
+- [Kiểm chứng runtime qua ADB](RUNTIME-VALIDATION.md)
+- [Kết quả runtime APK 2026.10.01](RUNTIME-RESULT-2026.md)
+- [Kết quả runtime bản 2023.1.0.4](RUNTIME-RESULT-2023.md)
 
 ## Pitch shift
 

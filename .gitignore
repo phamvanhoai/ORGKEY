@@ -1,0 +1,9 @@
+/tools/
+/analysis/runtime/
+/analysis/runtime-installed/
+/orgx/.gradle/
+/orgx/local.properties
+/orgx/app/build/
+/tools/android-sdk/
+/tools/*.zip
+/tools/gradle-*/

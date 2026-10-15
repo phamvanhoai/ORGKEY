@@ -1,0 +1,122 @@
+{
+  "abi": "armeabi-v7a",
+  "total_tail_bytes": 118,
+  "regions": [
+    {
+      "symbol": "Java_sofeh_audio_NEqualizer_build",
+      "tail_offset": 736,
+      "tail_address": 2512,
+      "byte_count": 20,
+      "classification": "floating-point-constant-pool",
+      "raw_hex": "00b808460050c3450060ea4500401c460ad7233c",
+      "little_endian_u32": [
+        1174976512,
+        1170427904,
+        1172987904,
+        1176256512,
+        1008981770
+      ],
+      "little_endian_float32": [
+        8750.0,
+        6250.0,
+        7500.0,
+        10000.0,
+        0.009999999776482582
+      ]
+    },
+    {
+      "symbol": "Java_sofeh_audio_NGVerb_setroomsize",
+      "tail_offset": 344,
+      "tail_address": 6928,
+      "byte_count": 56,
+      "classification": "floating-point-constant-pool",
+      "raw_hex": "85ebd13e9a99993e52b81e3e000000000500c0b40500c0b40500c0b40500c0b404ad403b3ee8213f8104353f7d05513f8fc2753f8fc275bf",
+      "little_endian_u32": [
+        1053944709,
+        1050253722,
+        1042200658,
+        0,
+        3032481797,
+        3032481797,
+        3032481797,
+        3032481797,
+        994094340,
+        1059186750,
+        1060439169,
+        1062274429,
+        1064682127,
+        3212165775
+      ],
+      "little_endian_float32": [
+        0.4099999964237213,
+        0.30000001192092896,
+        0.1550000011920929,
+        0.0,
+        -3.576280107608909e-07,
+        -3.576280107608909e-07,
+        -3.576280107608909e-07,
+        -3.576280107608909e-07,
+        0.002940000034868717,
+        0.6324499845504761,
+        0.707099974155426,
+        0.8164899945259094,
+        0.9599999785423279,
+        -0.9599999785423279
+      ]
+    },
+    {
+      "symbol": "Java_sofeh_music_NMusic_code",
+      "tail_offset": 106,
+      "tail_address": 9466,
+      "byte_count": 2,
+      "classification": "padding-sentinel",
+      "raw_hex": "ffff",
+      "little_endian_u32": [],
+      "little_endian_float32": []
+    },
+    {
+      "symbol": "Java_sofeh_audio_NOpenSL_MixWrite",
+      "tail_offset": 616,
+      "tail_address": 3940,
+      "byte_count": 24,
+      "classification": "integer-or-address-literal-pool",
+      "raw_hex": "feffff7fd01f000014b01000f2ae000048ae0800961d0000",
+      "little_endian_u32": [
+        2147483646,
+        8144,
+        1093652,
+        44786,
+        568904,
+        7574
+      ],
+      "little_endian_float32": [
+        null,
+        1.141217469346131e-41,
+        1.532532868105765e-39,
+        6.275855302325126e-41,
+        7.972043015482457e-40,
+        1.0613434568796164e-41
+      ]
+    },
+    {
+      "symbol": "Java_sofeh_music_NSF2_Voice",
+      "tail_offset": 160,
+      "tail_address": 16796,
+      "byte_count": 16,
+      "classification": "integer-or-address-literal-pool",
+      "raw_hex": "fcb70b0000dc05000e2e0000e02d0000",
+      "little_endian_u32": [
+        767996,
+        384000,
+        11790,
+        11744
+      ],
+      "little_endian_float32": [
+        1.0761916154076022e-39,
+        5.3809861030072976e-40,
+        1.6521308894389593e-41,
+        1.6456849165030652e-41
+      ]
+    }
+  ]
+}

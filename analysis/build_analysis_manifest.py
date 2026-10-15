@@ -3,10 +3,16 @@ import hashlib,json
 from pathlib import Path
 
 root=Path(__file__).resolve().parent
-include={'.md','.py','.json','.csv','.asm','.txt','.java','.xml','.bin'}
+include={'.md','.py','.ps1','.json','.csv','.asm','.txt','.java','.xml','.bin'}
 rows=[]
 for path in sorted(root.rglob('*')):
-    if not path.is_file() or path.suffix.lower() not in include or '__pycache__' in path.parts:
+    if (
+        not path.is_file()
+        or path.suffix.lower() not in include
+        or '__pycache__' in path.parts
+        or 'runtime' in path.parts
+        or 'runtime-installed' in path.parts
+    ):
         continue
     if path.name=='analysis-manifest.json':
         continue

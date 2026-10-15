@@ -1,0 +1,59 @@
+abi,library,owner,file_bytes,sha256,elf_class,machine,dynamic_symbols,defined_symbols,undefined_symbols,jni_count,needed
+arm64-v8a,libapminsighta.so,Pangle/ByteDance,102256,4da62be9b09106a077481a376365b861f1ffdc10b03e25362c24bc7c5efafb0c,64,EM_AARCH64,111,1,109,0,liblog.so;libc.so;libm.so;libdl.so
+arm64-v8a,libapminsightb.so,Pangle/ByteDance,124352,229c907fc65dffbf7742ed9a4b83418ac984267da3d81af3c5a5509ef1f3a5c2,64,EM_AARCH64,140,71,68,0,liblog.so;libc.so;libm.so;libdl.so
+arm64-v8a,libapplovin-native-crash-reporter.so,AppLovin,843152,24f7f4250f7c6a7f19634633ba2c2f5d40a6ddfea13d454e2018a113979ba911,64,EM_AARCH64,2139,1994,144,3,libandroid.so;liblog.so;libm.so;libdl.so;libc.so
+arm64-v8a,libbuffer_pgl.so,Pangle/ByteDance,9000,d416381c202993e4a03fd6ae0c5b407f1531f61fc45f518ad5b7f4620d5a2133,64,EM_AARCH64,30,12,17,11,liblog.so;libm.so;libdl.so;libc.so
+arm64-v8a,libdatastore_shared_counter.so,AndroidX DataStore,7112,d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1,64,EM_AARCH64,20,9,10,4,libm.so;libdl.so;libc.so
+arm64-v8a,libfile_lock_pgl.so,Pangle/ByteDance,6312,d14096b150b4b2f21263fdb4f1c61eea3fcd76804c776de2395b13dfbe1d8ca0,64,EM_AARCH64,16,6,9,6,liblog.so;libm.so;libdl.so;libc.so
+arm64-v8a,libnbandbooster.so,ORG/Sofeh audio,27504,800679fa5286d3bf8f6117dc7cd74b413b657f6f9aa4703eaeb7c7b3501e509d,64,EM_AARCH64,11,4,6,4,libc.so;libm.so;libdl.so
+arm64-v8a,libnequalizer.so,ORG/Sofeh audio,40208,8ea1d1bb9a47bdb7f785ccbca268dd7b2758ab07e14e89c818f91f4d0a1581cb,64,EM_AARCH64,15,8,6,8,libc.so;libm.so;libdl.so
+arm64-v8a,libnflanger.so,ORG/Sofeh audio,30616,0367d94dbc3607e1d98b5787c916e98cbc88d73a8aaa5f5653a4955aa92158b2,64,EM_AARCH64,14,6,7,6,libc.so;libm.so;libdl.so
+arm64-v8a,libngverb.so,ORG/Sofeh audio,70704,f7967cfd6f4c70e596e7fa92e524bebcca0029509265993c59ff91bba9a05620,64,EM_AARCH64,45,34,10,14,libc.so;libm.so;libdl.so
+arm64-v8a,libnlame.so,ORG/Sofeh audio,998080,8fdbc059e6be58988d86df4e875f5c17f5ba3b93153afe7ef9c20bbfd409c9f9,64,EM_AARCH64,374,335,38,4,libc.so;libm.so;libdl.so
+arm64-v8a,libnms.so,Pangle/ByteDance,317336,6f980556f17ed029c4c6918027dab07069ebcfb3f0e70b14c4be4e5f1c170b9b,64,EM_AARCH64,47,1,45,0,liblog.so;libm.so;libdl.so;libc.so
+arm64-v8a,libnmusic.so,ORG/Sofeh audio,72880,282be49ee24cb3822cc941fb9003d9259c93cd6ea56238426f4f24b018d78156,64,EM_AARCH64,39,26,12,16,libc.so;libm.so;libdl.so
+arm64-v8a,libnopensl.so,ORG/Sofeh audio,65240,dc900f9de170ec71471d8b5d2ccecc14d0bbb8c1d2346bd6e149467c888b38cf,64,EM_AARCH64,28,9,18,9,liblog.so;libOpenSLES.so;libc.so;libm.so;libdl.so
+arm64-v8a,libnpitchshift.so,ORG/Sofeh audio,49896,25dff5430d9ff9db374fd01ab3fc879c7215eca59ad5e181fa54ca3dbd3b5cc0,64,EM_AARCH64,27,15,11,5,libc.so;libm.so;libdl.so
+arm64-v8a,libnsf2.so,ORG/Sofeh audio,161904,8ea5a2f1833868953a9b4a52525e2544eefc6e94c98e1e9a8c344040d51139df,64,EM_AARCH64,75,52,22,9,libc.so;libm.so;libdl.so
+arm64-v8a,libpglarmor.so,Pangle/ByteDance,68776,69218eb7accd450feb707bfe9fa6533c390a2c0bf63b5c685c5548c18a0fe716,64,EM_AARCH64,15,1,13,1,liblog.so;libz.so;libm.so;libdl.so;libc.so
+arm64-v8a,libtt_ugen_layout.so,Pangle/ByteDance,440672,6356784adf27dac5d18cd14a052d4ab9c161fb74eb4df3d4107d00f2549edeb2,64,EM_AARCH64,760,708,51,0,liblog.so;libm.so;libdl.so;libc.so
+armeabi-v7a,libapminsighta.so,Pangle/ByteDance,85512,2aa0d8454623f7a5eb0041f9a7f1942d0feb52a2d056b683983e8b33422c9c60,32,EM_ARM,108,1,106,0,liblog.so;libc.so;libm.so;libdl.so
+armeabi-v7a,libapminsightb.so,Pangle/ByteDance,100368,1579136b1e44267ee872ce751a5f6b0418a445651971da70f355409ee33a98a4,32,EM_ARM,138,71,66,0,liblog.so;libc.so;libm.so;libdl.so
+armeabi-v7a,libapplovin-native-crash-reporter.so,AppLovin,480384,59720c5f13cf2ab5c31432c860ca230d5667ba58df0511f3a22e0fb89d41c798,32,EM_ARM,2166,2040,125,3,libandroid.so;liblog.so;libm.so;libdl.so;libc.so
+armeabi-v7a,libbuffer_pgl.so,Pangle/ByteDance,6580,1959f8616e7ed8ae3a4c4edc4bb557c55d1fea3de0096b3842e37f42e2e7222a,32,EM_ARM,30,12,17,11,liblog.so;libm.so;libdl.so;libc.so
+armeabi-v7a,libdatastore_shared_counter.so,AndroidX DataStore,4416,716c5d8d2cac8ca0edf65da8f139c7886b726ac79d542a14edeb94994ba6d3dc,32,EM_ARM,18,9,8,4,libm.so;libdl.so;libc.so
+armeabi-v7a,libfile_lock_pgl.so,Pangle/ByteDance,4704,f9e3402f0cff891a4dcf38e7c1876c889b97ab61daa426fe36ca28b28c1fed85,32,EM_ARM,17,6,10,6,liblog.so;libm.so;libdl.so;libc.so
+armeabi-v7a,libnbandbooster.so,ORG/Sofeh audio,26084,785733136117fa69ab2b7908597ad4dc045b883de2775b3018ca8d1de04333cc,32,EM_ARM,11,4,6,4,libc.so;libm.so;libdl.so
+armeabi-v7a,libnequalizer.so,ORG/Sofeh audio,39060,43a844f1021b0ecaefd1ef5590ed454b77eb391a5a623bbafb0e7fc971f4108a,32,EM_ARM,15,8,6,8,libc.so;libm.so;libdl.so
+armeabi-v7a,libnflanger.so,ORG/Sofeh audio,28592,4d4fabc33a8e9d24417f86d86f0e51c250d4ce0cc77fc1056a4f23b59e289534,32,EM_ARM,14,6,7,6,libc.so;libm.so;libdl.so
+armeabi-v7a,libngverb.so,ORG/Sofeh audio,52988,f4be624ae221f556beaa4e0e3c9dd6b359e44e97d630f47aa9e74fe9a3990748,32,EM_ARM,46,34,11,14,libc.so;libm.so;libdl.so
+armeabi-v7a,libnlame.so,ORG/Sofeh audio,785996,2546cbab2bfb92ea24bd6bac3cbb612a6a689c1bc7473807e16c9fd4bd6fec21,32,EM_ARM,384,335,48,4,libc.so;libm.so;libdl.so
+armeabi-v7a,libnms.so,Pangle/ByteDance,209632,e11115b4e83a57c95d50dd42f6ab4dcb8417d73a0ab7ce95d0a70b413477a61e,32,EM_ARM,48,1,46,0,liblog.so;libm.so;libdl.so;libc.so
+armeabi-v7a,libnmusic.so,ORG/Sofeh audio,62316,bd2a4a0e17aaa14c558d5f96ba1ac387097bd96c2bdd771c287261dd8fdcc77e,32,EM_ARM,40,26,13,16,libc.so;libm.so;libdl.so
+armeabi-v7a,libnopensl.so,ORG/Sofeh audio,50844,84027a5e2c443984c6607df964e90cb12f7218ac735e77863d230b3995694b1f,32,EM_ARM,29,9,19,9,liblog.so;libOpenSLES.so;libc.so;libm.so;libdl.so
+armeabi-v7a,libnpitchshift.so,ORG/Sofeh audio,43828,a256c79829a2f84e4ab770889138f15e5541e0c39859a13df5d7082bfdb693c3,32,EM_ARM,28,15,12,5,libc.so;libm.so;libdl.so
+armeabi-v7a,libnsf2.so,ORG/Sofeh audio,108284,b134503a08050b5d58cdbb50dc53828aca777de7c0dac969b6dd3e110defa039,32,EM_ARM,78,52,25,9,libc.so;libm.so;libdl.so
+armeabi-v7a,libpglarmor.so,Pangle/ByteDance,47100,26c29311485d8a9306761ed7451f6e7bbe5a6681b459698d838c6ff20e4d3722,32,EM_ARM,16,1,14,1,liblog.so;libz.so;libm.so;libdl.so;libc.so
+armeabi-v7a,libtt_ugen_layout.so,Pangle/ByteDance,342084,368f2e815971bcecb8804d23c8f1e54e758923630d247e9c2d54d090fb2495ed,32,EM_ARM,744,699,44,0,liblog.so;libm.so;libdl.so;libc.so
+x86,libapplovin-native-crash-reporter.so,AppLovin,835960,01dab6691c1bf648ca66896b35e7cc9cb91f8e1d5473b21d7fcbf7b23a35ba78,32,EM_386,2124,1995,128,3,libandroid.so;liblog.so;libm.so;libdl.so;libc.so
+x86,libdatastore_shared_counter.so,AndroidX DataStore,5148,cd4a1649e2c8350703146f94a6ee2bf4c3c8c9f172159f805b61a4a2abdf0659,32,EM_386,17,9,7,4,libm.so;libdl.so;libc.so
+x86,libnbandbooster.so,ORG/Sofeh audio,24384,159fe53c87c1728336b9ffd53d5f471b91d6cddbc89effb302ce8435a0f64a40,32,EM_386,11,4,6,4,libc.so;libm.so;libdl.so
+x86,libnequalizer.so,ORG/Sofeh audio,36520,0c7dfba2ccd6a4c88a74500c5b3ecac4f88ff3e4abb681dafc117af7ee94b44b,32,EM_386,15,8,6,8,libc.so;libm.so;libdl.so
+x86,libnflanger.so,ORG/Sofeh audio,27524,358a7d5d8ff8336f0dff81448c92ca52cbb50537d20bc26689308d57c3842482,32,EM_386,14,6,7,6,libc.so;libm.so;libdl.so
+x86,libngverb.so,ORG/Sofeh audio,55232,8412ca981b3be45bccdf4d07aff9e3554c36594cb309f6bb73e3c87705155f48,32,EM_386,45,34,10,14,libc.so;libm.so;libdl.so
+x86,libnlame.so,ORG/Sofeh audio,821872,f3c34506fef42c63a66723f1c2244513e7809249892d190415173b1669bbf30f,32,EM_386,377,335,41,4,libc.so;libm.so;libdl.so
+x86,libnmusic.so,ORG/Sofeh audio,60132,051762c43873d3b1e8d0eb96eb91cd82ffbc3e9ca211006f6977da7afa2b80a2,32,EM_386,39,26,12,16,libc.so;libm.so;libdl.so
+x86,libnopensl.so,ORG/Sofeh audio,55532,81e6220973b454100123e9259f13717edc34b683f704a7e2f342ff6424ed7706,32,EM_386,28,9,18,9,liblog.so;libOpenSLES.so;libc.so;libm.so;libdl.so
+x86,libnpitchshift.so,ORG/Sofeh audio,42512,4b9d17ea2c347096a6285494e18c00ebbd50a630c337141ab53c3b787fc2b7fb,32,EM_386,27,15,11,5,libc.so;libm.so;libdl.so
+x86,libnsf2.so,ORG/Sofeh audio,140280,452e13279ac07ceb7c0366072a52f65dedf77b845331b27d58ba4be9865cb7a5,32,EM_386,75,52,22,9,libc.so;libm.so;libdl.so
+x86_64,libapplovin-native-crash-reporter.so,AppLovin,873464,cc13d41e9a0bddbd8d848085b9b4b404757d4209c0537d9d9de9512bc2763e0b,64,EM_X86_64,2133,1988,144,3,libandroid.so;liblog.so;libm.so;libdl.so;libc.so
+x86_64,libdatastore_shared_counter.so,AndroidX DataStore,6224,fb6c9208988c49ae94943bc3236fa763ba584722e044fa4ea9a12d2941027105,64,EM_X86_64,17,9,7,4,libm.so;libdl.so;libc.so
+x86_64,libnbandbooster.so,ORG/Sofeh audio,26960,d26716a4c20ffc01c78a57e125ea92d8c7d3caf71b1c31026ce42124b3dc20f2,64,EM_X86_64,11,4,6,4,libc.so;libm.so;libdl.so
+x86_64,libnequalizer.so,ORG/Sofeh audio,40560,5bb0dc8806216597eac5b39540e6e15563919ae6c029617a4d93d22790a8596c,64,EM_X86_64,15,8,6,8,libc.so;libm.so;libdl.so
+x86_64,libnflanger.so,ORG/Sofeh audio,30968,d2a7cec8840993d6dc944a3f0999a7fe2667decd0004b0e78fc4f98b33ea053e,64,EM_X86_64,14,6,7,6,libc.so;libm.so;libdl.so
+x86_64,libngverb.so,ORG/Sofeh audio,66240,8fd68c89616a094decd0ad7f229e0d8e89656b29446477be056c19051fc5f443,64,EM_X86_64,45,34,10,14,libc.so;libm.so;libdl.so
+x86_64,libnlame.so,ORG/Sofeh audio,1000104,c8c23e1ac39d47f5c16086af1b35f9b73085cced6666201a650c2d70b5da1d47,64,EM_X86_64,374,335,38,4,libc.so;libm.so;libdl.so
+x86_64,libnmusic.so,ORG/Sofeh audio,70216,792e4ca002affd7fa432bd2a8dbf94dc31b829ef32123a5954dd6e376627e35c,64,EM_X86_64,39,26,12,16,libc.so;libm.so;libdl.so
+x86_64,libnopensl.so,ORG/Sofeh audio,63256,1cfbadb3f31bae35f1aa6bc7a994af95d242e75b680f26a661a4b66c2a61f23f,64,EM_X86_64,28,9,18,9,liblog.so;libOpenSLES.so;libc.so;libm.so;libdl.so
+x86_64,libnpitchshift.so,ORG/Sofeh audio,48000,2b07803806c26b8fb41dfd381a8c34b4f05d5cd476aabd180d5113a56462a43a,64,EM_X86_64,27,15,11,5,libc.so;libm.so;libdl.so
+x86_64,libnsf2.so,ORG/Sofeh audio,165688,b145c2ce82b69909417b8510a31da8408b7f0696fd62ab62f1ed49c7c76ec3b8,64,EM_X86_64,75,52,22,9,libc.so;libm.so;libdl.so

@@ -9,4 +9,4 @@
 | `x86` | 9 | 75 | Có |
 | `x86_64` | 9 | 75 | Có |
 
-Danh sách tên JNI giống hệt giữa bốn ABI. Do đó coverage ARM64 bao phủ đầy đủ bề mặt API JNI của các kiến trúc còn lại, dù phần triển khai lệnh máy có thể khác và chưa được disassemble riêng trên ARM32/x86/x86_64.
+Danh sách tên JNI giống hệt giữa bốn ABI. Phần triển khai lệnh máy của cả 75 hàm trên từng ABI đã được tách riêng trong [báo cáo disassembly toàn ABI](NATIVE-ALL-ABI-DISASSEMBLY.md).

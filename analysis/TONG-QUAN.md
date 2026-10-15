@@ -68,9 +68,9 @@ Mục lục toàn bộ báo cáo: [INDEX.md](INDEX.md). Manifest kiểm chứng 
 
 Đã lập [bảng coverage tài nguyên](ASSET-COVERAGE.md), phân biệt các định dạng ứng dụng đã parse đến EOF, tài nguyên văn bản đã kiểm kê và dữ liệu SDK không thuộc logic riêng của ORG.
 
-Đã bổ sung [coverage native](NATIVE-COVERAGE.md): xác nhận 32 JNI symbol của `libnmusic.so` và `libnopensl.so` trên ARM64, trong đó 25 symbol được đánh dấu defined; các ABI khác và phần thân chưa disassemble toàn bộ vẫn còn giới hạn.
+Đã bổ sung [coverage native](NATIVE-COVERAGE.md): xác nhận 32 JNI symbol của `libnmusic.so` và `libnopensl.so` trên ARM64, trong đó 25 symbol được đánh dấu defined; toàn bộ 75 JNI lõi sau đó đã được tách trên cả bốn ABI.
 
-Đã lập [inventory ABI native](NATIVE-ABI-INVENTORY.md): 58 thư viện `.so` phân bố trên `arm64-v8a`, `armeabi-v7a`, `x86` và `x86_64`; phần disassembly chi tiết hiện tập trung ở ARM64.
+Đã lập [inventory ABI native](NATIVE-ABI-INVENTORY.md): 58 thư viện `.so` phân bố trên `arm64-v8a`, `armeabi-v7a`, `x86` và `x86_64`; [disassembly JNI toàn ABI](NATIVE-ALL-ABI-DISASSEMBLY.md) có 300 file cho 75 JNI trên mỗi kiến trúc.
 
 Đã lập [danh sách symbol JNI native](NATIVE-JNI-SYMBOLS.md), gồm 16 hàm channel/mix/bộ nhớ của `libnmusic.so` và 9 hàm phát/ghi OpenSL của `libnopensl.so`, kèm các symbol OpenSL xuất khẩu.
 
@@ -92,11 +92,19 @@ Mục lục toàn bộ báo cáo: [INDEX.md](INDEX.md). Manifest kiểm chứng 
 
 Đã lập [bảng sở hữu native](NATIVE-OWNERSHIP.md): 9 thư viện có JNI `Java_sofeh_*` thuộc đường âm thanh ORG; phần còn lại được tách sang AndroidX, AppLovin và Pangle/ByteDance.
 
+Đã kiểm kê [toàn bộ native SDK bên thứ ba](THIRD-PARTY-NATIVE.md): 58/58 ELF đã có nhóm sở hữu, SHA-256, ABI, symbol, JNI, import và `DT_NEEDED`; bảy thư viện Pangle chỉ có bản ARM, còn AppLovin và AndroidX có đủ bốn ABI.
+
+Đã thực hiện [kiểm chứng runtime đúng APK 2026](RUNTIME-RESULT-2026.md): hash bản cài khớp file phân tích; xác nhận nạp `libnmusic/libnopensl`, OpenSL fast track stereo 48 kHz, buffer 960 frame, latency 41 ms, 0 underrun ở track ứng dụng và không crash. Sau khi cấp quyền micro, `AudioRecord` mono 48 kHz thu thành công 92.160 frame với input latency khoảng 30,17 ms; output monitor mono cũng xuất hiện. UID ứng dụng có lưu lượng mạng trong khoảng đo.
+
+Người dùng đã xác nhận xuất MP3 thành công trên đúng bản 2026; pipeline LAME đã được nối đầy đủ ở mức tĩnh. Không có thiết bị MIDI phần cứng trong môi trường kiểm thử, nên MIDI được ghi là không áp dụng thay vì coi là hạng mục chưa hoàn tất.
+
 Đã lập [bảng khoảng trống JNI ARM64](NATIVE-JNI-COVERAGE-GAPS.md): LAME và PitchShift đã có assembly cho toàn bộ JNI; các module khác còn chủ yếu wrapper nhỏ/getter/setter, riêng NMusic còn 15 wrapper chưa tách file riêng.
 
 Đã chạy [dump_all_sofeh_jni.py](dump_all_sofeh_jni.py), tạo thêm 44 bản assembly; hiện toàn bộ JNI `Java_sofeh_*` của 9 thư viện âm thanh ARM64 đều có file riêng trong `analysis/native/`.
 
 Đã [so sánh JNI giữa bốn ABI](NATIVE-ABI-JNI-COMPARISON.md): ARM64, ARM32, x86 và x86_64 đều có cùng 9 thư viện `sofeh` và cùng 75 tên JNI; coverage ARM64 bao phủ toàn bộ bề mặt API native.
+
+Đã tách [assembly JNI trên toàn bộ ABI](NATIVE-ALL-ABI-DISASSEMBLY.md): 300 thân symbol, 82.942 byte và 21.899 lệnh. [Phần cuối năm symbol ARM32](ARM32-TAIL-CLASSIFICATION.md) gồm 118 byte pool hằng số/literal, dữ liệu hoặc padding đã được giữ nguyên và phân loại riêng.
 
 Đã kiểm tra [cấu trúc chữ ký APK](APK-SIGNATURE.md): không có JAR/v1, có `APK Sig Block 42` với scheme v2, không thấy ID v3; xác minh mật mã signer vẫn cần `apksigner`.
 
@@ -106,7 +114,7 @@ Mục lục toàn bộ báo cáo: [INDEX.md](INDEX.md). Manifest kiểm chứng 
 
 Đã disassemble toàn bộ `.text` của ELF `dic`: 756 byte/245 lệnh x86, entry `0x550`; PLT chỉ có `__libc_init`, `__cxa_atexit`, `printf` và stack-check failure.
 
-Đã chạy [kiểm chứng tái lập](VALIDATION.md): 24 script Python đều hợp lệ; các parser Skin, Menu, Chord, native inventory, so sánh ABI và disassembler `dic` chạy lại không lỗi.
+Đã chạy [kiểm chứng tái lập](VALIDATION.md): các script Python đều hợp lệ; các parser Skin, Menu, Chord, native inventory, so sánh ABI và disassembler chạy lại không lỗi.
 
 Đã xếp hạng [symbol native theo kích thước](NATIVE-SYMBOL-SIZE.md); ba hàm lớn nhất `NMusic_ChannelProcess`, `NOpenSL_Start` và `NOpenSL_MixWrite` hiện đều đã có disassembly đầy đủ. Ba helper nội bộ kế tiếp `NOpenSL_Start` cũng đã được tách riêng.
 
@@ -163,7 +171,7 @@ Phân tích tĩnh bằng REA 6.5.0 và jadx-headless-mcp 0.7.1. Không chạy �
 | Khởi động và giao diện | `SplashActivity`, `SafeActivity`, `MainActivity`; application `sofeh.android.MainApplication` | Đã nối thứ tự intent tĩnh và hai đường vào MainActivity trong [APP-STARTUP.md](APP-STARTUP.md). |
 | Cài đặt | `sofeh.android.setting.SettingActivity`, `SettingFragment0` đến `SettingFragment6` | Có các lớp riêng cho cài đặt. |
 | Mô hình âm nhạc | `sofeh.music.Instrument`, `Channels`, `Track`, `Tracks`, `TrackEvent`, `WaveData`, `Effect` | Đã đọc parser/writer, vòng đời event, track, channel và effect; các báo cáo chuyên đề giữ chi tiết. |
-| Âm thanh native | `sofeh.audio.NOpenSL`, `NEqualizer`, `NFlanger`, `NGVerb`, `NPitchShift`, `Lame`; các file `.so` tương ứng | Đã nối JNI và có assembly cho toàn bộ 75 JNI `Java_sofeh_*` trên ARM64. |
+| Âm thanh native | `sofeh.audio.NOpenSL`, `NEqualizer`, `NFlanger`, `NGVerb`, `NPitchShift`, `Lame`; các file `.so` tương ứng | Đã nối JNI và có assembly riêng cho toàn bộ 75 JNI `Java_sofeh_*` trên cả bốn ABI. |
 | Nhạc cụ và dữ liệu | `Default.Template` (67.848.221 byte), `Sound.Instrument`, `Constant.Instrument`, `Chord`, `data.zip` | Đã giải mã cấu trúc và kiểm tra parser đến EOF cho các template chính. |
 | Giao diện tùy chỉnh | `assets/skin/*.Skin`, `*.Part`, `assets/menu/*` | Có tài nguyên skin và menu nhiều ngôn ngữ. |
 | Quảng cáo và dịch vụ | Các trường Google Ads, AppBrain và FirebaseAnalytics trong MainActivity; thư viện AppLovin và các thành phần quảng cáo trong manifest | Một phần mã APK phục vụ SDK bên thứ ba. |
@@ -191,4 +199,4 @@ Script chọn JDK và JAR trong `%LOCALAPPDATA%\rea\android`, dùng REA phiên b
 - `main-activity.json`: danh mục phương thức và trường của MainActivity, chưa phải mã nguồn phương thức.
 - `archive-inventory.csv`: danh mục file và kích thước trong APK.
 
-Đã xác minh cấu trúc chữ ký v2 và certificate của Sofeh Sunrise; chưa xác minh nguồn gốc chuỗi phân phối từ APKPure. Đã phân tích mã máy ARM64 cho toàn bộ bề mặt JNI `sofeh`, nhưng chưa quan sát hành vi runtime trên thiết bị và chưa disassemble riêng mọi ABI/SDK bên thứ ba. Các kết luận runtime vẫn phải được kiểm chứng động.
+Đã xác minh cấu trúc chữ ký v2 và certificate của Sofeh Sunrise; chưa xác minh nguồn gốc chuỗi phân phối từ APKPure. Đã phân tích mã máy cho toàn bộ bề mặt JNI `sofeh` trên bốn ABI, phân loại riêng 118 byte dữ liệu/padding ARM32, kiểm kê mọi ELF bên thứ ba và chạy đúng APK trên thiết bị. Runtime đã xác nhận khởi động, output OpenSL, thu microphone và monitor output; nội dung/đích mạng, từng chế độ độ trễ và toàn bộ hàm nội bộ SDK bên thứ ba chưa được phân tích động đầy đủ.

@@ -1,15 +1,16 @@
 {
   "summary": {
-    "file_count": 491,
-    "total_bytes": 16370807,
+    "file_count": 805,
+    "total_bytes": 18516047,
     "by_extension": {
-      ".json": 222,
-      ".md": 62,
+      ".json": 225,
+      ".md": 68,
+      ".py": 29,
       ".xml": 1,
-      ".csv": 4,
-      ".py": 26,
+      ".csv": 5,
+      ".ps1": 1,
       ".bin": 1,
-      ".asm": 87,
+      ".asm": 387,
       ".txt": 5,
       ".java": 83
     }
@@ -22,8 +23,13 @@
     },
     {
       "path": "ANALYSIS-MANIFEST.md",
-      "size": 1526,
-      "sha256": "80d60ed559dfade081305c72c2dabe60e08af2110b2829647c8de34d532ef4ed"
+      "size": 1614,
+      "sha256": "775c295ecb0b8fda92604b44656001fbf01907d87f6c14dc2023f27b5d0b0346"
+    },
+    {
+      "path": "analyze_arm32_tails.py",
+      "size": 1865,
+      "sha256": "dcd44b60a78136222ebdc60612623bdde9d8f26cd44bc94a8bbea42221e59598"
     },
     {
       "path": "AndroidManifest.xml",
@@ -49,6 +55,16 @@
       "path": "archive-inventory.csv",
       "size": 46970,
       "sha256": "21a3a814491fc7265e88f6992384357e0e8eba295f6bbf4501de82b22a9bfaae"
+    },
+    {
+      "path": "ARM32-TAIL-CLASSIFICATION.md",
+      "size": 1698,
+      "sha256": "7f6cece27ec7dc80f1a189278acb9b3c843c7248ede46dffc21cc5c155e3982f"
+    },
+    {
+      "path": "arm32-undecoded-tail-analysis.json",
+      "size": 3211,
+      "sha256": "10b2328a70c90d74f8c77a797c748eec1f0f3454282d749255ab70f952f6aa30"
     },
     {
       "path": "ASSET-COVERAGE.md",
@@ -87,8 +103,8 @@
     },
     {
       "path": "build_analysis_manifest.py",
-      "size": 988,
-      "sha256": "a5c040b1d8d1512a04e21e40e0c43c177d218b1012845676cc8ed681b3fbf234"
+      "size": 1107,
+      "sha256": "1508a2a05aa3918398b52801ead925b47d6b85e74adb803d9caab515f5acff16"
     },
     {
       "path": "bundled-data-inventory.json",
@@ -102,13 +118,18 @@
     },
     {
       "path": "CALLBACK-AUDIO.md",
-      "size": 5222,
-      "sha256": "a538407f811062667feb49a5525c890d0b255aeae0460735ba7a9e91a7c58ec2"
+      "size": 5274,
+      "sha256": "e3bb5057c9d42d02e4c8b7c0aeccc96b25336521d1d0b28c1780b53d6bd09144"
     },
     {
       "path": "callback-file-helper.json",
       "size": 13101,
       "sha256": "f2f2d03290b31fd4e368fe5f1f53ff319dc753bb2579f71ffb78e2311027e284"
+    },
+    {
+      "path": "capture_runtime.ps1",
+      "size": 2636,
+      "sha256": "1caf325975ad24635b0ae9a9b033f462b96d0c6d74cfd0a9023518d59b043d5e"
     },
     {
       "path": "channel-close.json",
@@ -304,6 +325,11 @@
       "path": "download-classes.json",
       "size": 1515338,
       "sha256": "7baee97db346ba2c271d73b5b1c7eed4e0cf79d8d14d70b857b0f44afd6c3b27"
+    },
+    {
+      "path": "dump_all_sofeh_abis.py",
+      "size": 4897,
+      "sha256": "38cb01e7fc632706921c7a40d1dd4b97245ef4a7c49c951ddd534e66ca6c1ac4"
     },
     {
       "path": "dump_all_sofeh_jni.py",
@@ -502,8 +528,8 @@
     },
     {
       "path": "INDEX.md",
-      "size": 2918,
-      "sha256": "fff9a4aa4caf21f5bdcd8f025a4a8c6a7e1dd76707315f3e561f6a83ae28fcce"
+      "size": 3302,
+      "sha256": "66a4c8e47fb99796d83aa483140c1ead5493eea2ffecfe4410d8d89abc00c589"
     },
     {
       "path": "inspect_chord_asset.py",
@@ -596,6 +622,11 @@
       "sha256": "1a973b4e7f37fdf1410656c2b5778dc1e26dc46593b42af7e9daa07917b91549"
     },
     {
+      "path": "inventory_native_all.py",
+      "size": 4087,
+      "sha256": "3a3e1a330487b83da89fe246807135e2aa99ba7e097264b84117206ddec0306b"
+    },
+    {
       "path": "inventory_native_arm64.py",
       "size": 848,
       "sha256": "74531eb6a77d958fb58f5bda7e56d3cef20703616b56ac60cbd12059827d35ff"
@@ -682,8 +713,8 @@
     },
     {
       "path": "main-constructor.json",
-      "size": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "size": 169,
+      "sha256": "2625c1cf3c903f84baf94ab0f00179663bf340359627f82fb41b0d43c80e6053"
     },
     {
       "path": "main-init-I.json",
@@ -894,6 +925,1506 @@
       "path": "musicobject-class.json",
       "size": 9457,
       "sha256": "dc4b2835f545f7c00b33345df3a94084f26056d6aaf820365179a5cdc20d03a5"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_Lame_close.asm",
+      "size": 786,
+      "sha256": "f6c971ea60b3361faf5473458f80e9c964ccab79206b945372a5948b883c7ef6"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_Lame_encode.asm",
+      "size": 4143,
+      "sha256": "3cc1f0e0923f288a5aa2847e360668ed698d03b2437cd4f062ecf7f7727adb07"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_Lame_flush.asm",
+      "size": 2124,
+      "sha256": "0dae5188d0fdfa76904904cf3e73066052fce94623467b4cfade35edcfb6e842"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_Lame_init.asm",
+      "size": 2228,
+      "sha256": "af3e3df09308b543ba3f96cc2a243bf4123944adb8c3c68429c27425198264ff"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NBandBooster_build.asm",
+      "size": 2501,
+      "sha256": "807b6c24dee27fbc82c7316d1a4a508e63319d86b4e13a0ddeb9c995e8948f22"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NBandBooster_close.asm",
+      "size": 436,
+      "sha256": "ab98341f37acdf03fdad3bd2b174e3b04bbac84c45957c28d2314df15f622398"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NBandBooster_open.asm",
+      "size": 712,
+      "sha256": "d6fe48f64609e17ad406e71064bcc05d6b70ef94866339ce3388ffd72830b540"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NBandBooster_process.asm",
+      "size": 3054,
+      "sha256": "830ad4ee556c11d83633351a692f1593baa385873b1b432b83c64020ccbc992b"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NEqualizer_band.asm",
+      "size": 399,
+      "sha256": "ea57debf73af8d3aa5e61164a17e89df325edbc87d44ab135647dd7e863e2710"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NEqualizer_bandMove.asm",
+      "size": 793,
+      "sha256": "f55f10ce4f86890e3aabae2be5d9f41b8421733eff0668ebaef15e58f3f365e3"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NEqualizer_build.asm",
+      "size": 9363,
+      "sha256": "0e756c885b11b174a06956a45f4a2472553f09e21bd08077a81b58d1589f1056"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NEqualizer_close.asm",
+      "size": 435,
+      "sha256": "32aa3a79900d7f777807033a17a0a2be0f599f81abbf021ec57bbabaeaffadbb"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NEqualizer_open.asm",
+      "size": 858,
+      "sha256": "b56b2f3edae2ed9a1fd34e79922e66137bcade25c007b016a2b5fecbb6b2611a"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NEqualizer_process.asm",
+      "size": 15051,
+      "sha256": "19d88ea0eeef2a99eddc8fa46e2df961e2ebe9667f39cfe2a09e94c929f3bd3b"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NEqualizer_processLeft.asm",
+      "size": 13768,
+      "sha256": "4a75a28d0d93bafd97bb3bef0ab9550c29eafd5b6a697174ef0d156312e4eca2"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NEqualizer_processRight.asm",
+      "size": 15032,
+      "sha256": "f17600b3e9972f54b69fd5a92eb59dfd7618f5835b6e6ad448f1ce11f42f32b6"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NFlanger_build.asm",
+      "size": 1339,
+      "sha256": "3f80f338fa4ca5d4d0cfefc5afcbf4d0053ae36607746cbbaa38c3fd252830b2"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NFlanger_close.asm",
+      "size": 428,
+      "sha256": "9b15fa2b37a29c613b82acdbe3895be4a6dd41bc80e21b5c2c3aaa3e867afe52"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NFlanger_open.asm",
+      "size": 1005,
+      "sha256": "cb07dde0cecc978a35c0eb85dfa715c7a824dccd5e51f4179f17b6cd48e154fb"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NFlanger_process.asm",
+      "size": 5482,
+      "sha256": "d872f5741896a0b6706ce0297ee5d413d6d9ccd8c0b5712f43042d9173f21bb6"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NFlanger_processLeft.asm",
+      "size": 5532,
+      "sha256": "ef2113e1db2864c611ef4ab83c869e0ad691bd8e9549fa2e97acd093400059ff"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NFlanger_processRight.asm",
+      "size": 2633,
+      "sha256": "78578e85533ccee36496f7c31910b6ee92f8d78622dfce408e656fb0e071ad50"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_close.asm",
+      "size": 427,
+      "sha256": "91e0d4b6bce10c2087ba1ab24960c635755bd3e2e937f5fe42e9cb145be0ec67"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_flush.asm",
+      "size": 427,
+      "sha256": "fd96c5669d92afabeb65474ebc7b899a65b9696881eb889c7a0defe712234a80"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_open.asm",
+      "size": 2082,
+      "sha256": "e1095e8e0150cbfd569a773d97b88893f00347237023c2d6759a7a66bae32a78"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_processLeft.asm",
+      "size": 1509,
+      "sha256": "34eb02b449cb753d21de703c228dfe7fb69cf0e0c723c9d71dd823626930ca55"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_processMono.asm",
+      "size": 2361,
+      "sha256": "05992257d4ab7ce0974710813a3b176d146620a5c5ac53350f05a2f0ce059094"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_processRight.asm",
+      "size": 1510,
+      "sha256": "b11c82566b5c4ed4d4405fbe96b7520d959caf8d155b7bf355296f457d365a89"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_processStereoLeft.asm",
+      "size": 3063,
+      "sha256": "dd57de76110d9d2394b484fe8b27c311c0f2fdc7039b2ce756a7ec39f2875880"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_processStereoRight.asm",
+      "size": 451,
+      "sha256": "3f1813c39deda7024c83335d37488f6f6f042caea8ef9ad50456df88bcac8706"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_setdamping.asm",
+      "size": 809,
+      "sha256": "b24fbdcf7c90ad7b405a99a38decd90c6b4ae9f37ad327b73b365fe2782522a1"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_setearlylevel.asm",
+      "size": 395,
+      "sha256": "3179e5d72b54469b4bcd8ee0b769a4f91e4b8b4ed09bf0fe1da5303e7c932644"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_setinputbandwidth.asm",
+      "size": 609,
+      "sha256": "984801a9aa40ffb184ba8125694be2dc993c56f8566d3bf48ceca728b11d54f9"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_setrevtime.asm",
+      "size": 3575,
+      "sha256": "2e4b7d980f46066990d81d8185411f83decbb849ea4d616de97d5c4c405828c2"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_setroomsize.asm",
+      "size": 6729,
+      "sha256": "3622f9f8a9a487cbab473ab1496444ab59ae7d0b549f48c42ca24dd6f3f0c8d2"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NGVerb_settaillevel.asm",
+      "size": 392,
+      "sha256": "b711690f5fd5fd7b930a53516e5553f31d1269cd516cf2be32dcace8b981d029"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_MixPut.asm",
+      "size": 10779,
+      "sha256": "d399fc3f0c416b872dd9e5e85129059f0528c2785039cf6391bce66289d3a8f1"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_MixWrite.asm",
+      "size": 16159,
+      "sha256": "8c25b0180c71568b0fbeab4460c2e3a4366d8702641c083ea44f19e30a2f2b7a"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_Put.asm",
+      "size": 2259,
+      "sha256": "85bc0812642fb3654d1dab2018071cb4bbabfe999db843c13d1763c8543dca68"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_RecordStart.asm",
+      "size": 3359,
+      "sha256": "83ebea2483f0b75065072c68b9a7456d97f120cdcc8b130d957d137728f49c2f"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_RecordStop.asm",
+      "size": 750,
+      "sha256": "64383678b72cf1d3c36f931eedb01694ed443e0bb884142b1cec3f2c5d761997"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_Start.asm",
+      "size": 34606,
+      "sha256": "2b89abf418ab83a33bceaca483224fd5516c83f9536e35c8507d6f219eb3a0aa"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_Stop.asm",
+      "size": 2491,
+      "sha256": "a7a89b121ac1680c5d62cc3bd87fff0e14d8a86bdf9ea497d601802238ecf101"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_Stoped.asm",
+      "size": 487,
+      "sha256": "3e6b3f14255f46ff83c210630cf6b5598a135967050ddc5bd0fb410816c420eb"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NOpenSL_Write.asm",
+      "size": 8687,
+      "sha256": "24b947f516b05bc6206952bb1d8665dead170fc307f8fa4f413e2facf6731e72"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NPitchShift_close.asm",
+      "size": 437,
+      "sha256": "86995e06e6654daa2622fcb52838b6c1f4ed6746a741b56bc35f3df6a2321530"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NPitchShift_open.asm",
+      "size": 1552,
+      "sha256": "77679a4e18a9942cac456263ca8649c0fd3c060ec8823ec54eedb127277a0459"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NPitchShift_process.asm",
+      "size": 1095,
+      "sha256": "452fa2a98e69f2c05f287a77af83a8825a0e58a52f9b8d4a563e3d736728205f"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NPitchShift_processLeft.asm",
+      "size": 884,
+      "sha256": "2612e5712acea34a378a9102653102ed1693a6b1e3a891bfded3b3bf01d43602"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_audio_NPitchShift_processRight.asm",
+      "size": 941,
+      "sha256": "020cd6e877848f3d651e3425a27788eea337a4dcc39c8f8b78fd269cef64b44f"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_ChannelClose.asm",
+      "size": 434,
+      "sha256": "976543ba393c1818fedf2cd692e13472e68704b30feb216583e850c4c474cf58"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_ChannelCopy.asm",
+      "size": 1130,
+      "sha256": "120fd3dd1a66942452a39b68e4dde2b8431fc5c21aab9474f17c98e4ab01684d"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_ChannelOpen.asm",
+      "size": 1026,
+      "sha256": "73a0f3c2db013e0c88f623315a2dabb12f71b47fd83ab2df342f2e2a3b145025"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_ChannelProcess.asm",
+      "size": 36933,
+      "sha256": "34452b0b995a5c40e45d956964af05fa98951f2a66c6257cb7a7f69caff8ba69"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_ChannelReset.asm",
+      "size": 922,
+      "sha256": "2f57477111fd004e8ac4076de5982d9659eaf2c9549752f8673c154b60b5fe7a"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_code.asm",
+      "size": 3016,
+      "sha256": "caa42b562ab2d0fab6184173b045aa01d76d39d250e070277a886222edd6ef2c"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_FreeMem.asm",
+      "size": 659,
+      "sha256": "4e0884cb1291a228291c167f9aa263dab58f3277df14ac0da777fba577f5fdc9"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_GetMem.asm",
+      "size": 1240,
+      "sha256": "d060c1547b096306118dda11afbfd72ef12f5763d156c2bf4364b5a1bf6d0178"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_MemFromByteArray.asm",
+      "size": 1449,
+      "sha256": "4a05bbe06dbed76c0d5b06bc6248e73163108e5d4449ea79114ee38121c1e1f5"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_MemFromShortArray.asm",
+      "size": 1450,
+      "sha256": "28aab1cc301e8f773b3939f9c530e52c80ad7966a494030ad52eddd595c82b48"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_MemToByteArray.asm",
+      "size": 1447,
+      "sha256": "7c93cf0ed05be4b71641178d75e88f35e531fffd569a7f8d339284ddb67090f1"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_MemToShortArray.asm",
+      "size": 1448,
+      "sha256": "f3875f9fa9fd2b9cb4a8267a3d8652699d4d630ce0f442d446e9ed5d80954068"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_Mix0.asm",
+      "size": 377,
+      "sha256": "ed25cfe06ae2ec082cea6a6347c249451e49cef143a149432e8750231eb10afc"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_Mix1.asm",
+      "size": 634,
+      "sha256": "87b20e6744a21c732515d4d199ddbc522bfc4332a15ad8280309aede32c57327"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_Mix2.asm",
+      "size": 1670,
+      "sha256": "c7e736d9f2b44c0208ca9e85e5a488ae2cccb3c4edf6bba2dc1b97fb02c6d476"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NMusic_SysBits.asm",
+      "size": 330,
+      "sha256": "8c39fcf1d7c037139d634bf56266cb3cbf8700a9663764b4b85b72e245973c7a"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_Close.asm",
+      "size": 486,
+      "sha256": "9aa3be3da2bdca27847ccefce33000806985e4f0e59f8ce7141ffc1a6cc934f0"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_Open.asm",
+      "size": 2508,
+      "sha256": "e1f69d99ea591a1b2021ff93ed12f47acd6092a805a64f87421adf85941f28fb"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_PresetCount.asm",
+      "size": 589,
+      "sha256": "2df3c6bab6d0a89450fd00b2a65b245362fc3f846644d6589f538ca155d12b04"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_PresetName.asm",
+      "size": 1136,
+      "sha256": "ca80f818da8df925387d51660efbb14a345b4f14066bb6be097fca6791af6800"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_Voice.asm",
+      "size": 10759,
+      "sha256": "e0308ffddad419d19ef8e614e7f1777ec89e7fcbc9a33cb1ae32c89df90d1daf"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_VoiceLoop.asm",
+      "size": 326,
+      "sha256": "d0ab1f3087b24d287094209e57e2d767dd2b73e2811223ce104691c6515840ea"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_VoiceLoopEnd.asm",
+      "size": 329,
+      "sha256": "d797dbf7e6d34d563dc619cfe33764333e5dabe791895f1c781520ddf220d3d9"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_VoiceLoopStart.asm",
+      "size": 331,
+      "sha256": "456ec93e980aec63178343cf085f7aa165a8e93f0a53e8a6b3cc57fbd9c052a0"
+    },
+    {
+      "path": "native/abis/arm64-v8a/Java_sofeh_music_NSF2_VoiceSampleRate.asm",
+      "size": 336,
+      "sha256": "01ae8165e491099ad86ddfb521c5afa3aa2639d5046a1be098d664cd4bb4f9d2"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_Lame_close.asm",
+      "size": 792,
+      "sha256": "577664da70b4b48ca7d189e4f5cc11753910f53ee21756c2f77194e608adac4e"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_Lame_encode.asm",
+      "size": 3832,
+      "sha256": "fb0deb2bbdfafd2101024e0fd493f77541dde7c459a97c58a45ee03846f225a1"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_Lame_flush.asm",
+      "size": 2104,
+      "sha256": "ad2a664087f02200514c2cf0053ae7747e224919a7100b2854e5dde2711d0767"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_Lame_init.asm",
+      "size": 2083,
+      "sha256": "6304fd375d5f3d3d9684ae9d8ddf65b6df3b642b429786086e79ef16e5fd0eec"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NBandBooster_build.asm",
+      "size": 3351,
+      "sha256": "cb5d5510ad749393bdc329641d3f2427dc664ac2f6e28dcbafdb694be06e888d"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NBandBooster_close.asm",
+      "size": 481,
+      "sha256": "0138cb721c8188be96f4f6c92ba0af350c976c85ed8381bdf76dc28ddec3f511"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NBandBooster_open.asm",
+      "size": 773,
+      "sha256": "ce36a981c40a5bd86e295785563c04eeaf1296ddf2eeaf31a08fd61badb173c2"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NBandBooster_process.asm",
+      "size": 4947,
+      "sha256": "d1ec755f54983835dbb247a3f48e42fff5f634a3690e7f00ec8698310f32a098"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NEqualizer_band.asm",
+      "size": 496,
+      "sha256": "4cf90971065da22e4c3dd9aa89fb7494cb08ba6eb997a7c9deec543e568c6980"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NEqualizer_bandMove.asm",
+      "size": 1303,
+      "sha256": "22e0d1f2dd942b3e8e19d409c8b1306b5fae5dea07e2cd1bb42645ae310abbec"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NEqualizer_build.asm",
+      "size": 11446,
+      "sha256": "fa5f6d595f366491124cb7a5cb12fa7db612696f158122377a92a835933ce83c"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NEqualizer_close.asm",
+      "size": 479,
+      "sha256": "7a0703115256957402d3c619ff841c8bf407f57a3a9c0d3b15f62a3d4257f20f"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NEqualizer_open.asm",
+      "size": 984,
+      "sha256": "110b3dd8d105998f0f2a2e82d9285758d79560f5ba84f86313bc5b8c93433ba5"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NEqualizer_process.asm",
+      "size": 18518,
+      "sha256": "c0aacd66f51baa73ee2ae06346711cf1732fe315f93bb3fcdd5b779ad98876a8"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NEqualizer_processLeft.asm",
+      "size": 18457,
+      "sha256": "e7de341d243963f7165d9e46c04448c6ae67021ac237a1f3fae2d21234b26202"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NEqualizer_processRight.asm",
+      "size": 18545,
+      "sha256": "d133350d76d29f38360ab7b11f7b2d4d3f6ef6b01d4661fdf6e7e3df871b74e4"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NFlanger_build.asm",
+      "size": 1884,
+      "sha256": "8196ce3d15800a0278d4575e9797705ef59e4a50f59e288b14e1f4c9aea462c7"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NFlanger_close.asm",
+      "size": 473,
+      "sha256": "a1ac3cefd07b0cfcd3760822fef7199fa6ca840b13d3ddf9940142c2c90bad4e"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NFlanger_open.asm",
+      "size": 1503,
+      "sha256": "1ed88c25df5cba9d292f670828242968c2f17600384a19e13002338530152637"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NFlanger_process.asm",
+      "size": 6110,
+      "sha256": "aae1f83a76ddd34127bec1d503c4fb90f541bf569e77eb78df2a5431eb9acffb"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NFlanger_processLeft.asm",
+      "size": 6430,
+      "sha256": "4acf1a1f94d090c8a11b5c2c440a9a28c4903be08ff5bedabcb1da93127363e4"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NFlanger_processRight.asm",
+      "size": 3947,
+      "sha256": "41529c8b51687496ee786f2138ac04c1766c1e193abe8ac71c4fe241a20d12fa"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_close.asm",
+      "size": 471,
+      "sha256": "e3fb619c02195f89f189c0e45ab4e3ec94f5b361cf58e9726232a23c59cf05fd"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_flush.asm",
+      "size": 471,
+      "sha256": "a52e4fcbdac1a863560d06eff0b1d713188a650df84dae0f93e8334c610b53d0"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_open.asm",
+      "size": 1841,
+      "sha256": "f0bc1e3b1fb6c11c113e6456d6d2341299b6cc5485e4849a31171633fb27d6a1"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_processLeft.asm",
+      "size": 2510,
+      "sha256": "b13d786a3e5c769b7386b2141e52177e926903c23c6ffcbb4e66335d1f1dd1c7"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_processMono.asm",
+      "size": 3544,
+      "sha256": "e1e521b0d8d1b6295e28abcebc1156596d1adf07c0ec6eed90affef9a41828af"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_processRight.asm",
+      "size": 2511,
+      "sha256": "b471c0f23e60249181bc70ad852ee21987916dc67af6f90d6cb3e6cab58ecceb"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_processStereoLeft.asm",
+      "size": 4914,
+      "sha256": "412ae4734adeb2834c4b28f77cfc8f6ea30280bffa075ea3211c44b7b753770f"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_processStereoRight.asm",
+      "size": 595,
+      "sha256": "3c30cf55ab309f95dea37c4a8d84e2cebb2cdba4a3eb8a380b2a58acbec2df1f"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_setdamping.asm",
+      "size": 894,
+      "sha256": "58fb457a5826afac09159f4d32974d47087d44adc791ece61294c2b8d1475d81"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_setearlylevel.asm",
+      "size": 488,
+      "sha256": "e3c2496e4c67551f278e083f5def3a86d83a8696c0ea73ba357d17d38d60ed22"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_setinputbandwidth.asm",
+      "size": 747,
+      "sha256": "501ad422fd16eeef110e890d67189e31fde87c4cb77a77bc6092a3a39299c540"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_setrevtime.asm",
+      "size": 3005,
+      "sha256": "f83020e8776eaa380feab79cb324f25fc948e47ec83ef8c72553cd85e536d395"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_setroomsize.asm",
+      "size": 5909,
+      "sha256": "a8caae3aad869f2d6c254a2b60e4a4f5e22720da6e8611f0f1a374d5626a137b"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NGVerb_settaillevel.asm",
+      "size": 485,
+      "sha256": "c5659619117508c7ee43e5e11bc361917890c9fc2708f3c6bd01c3f3b2e0b751"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_MixPut.asm",
+      "size": 8649,
+      "sha256": "e9476c0ec5d7abbe547f3c726589d6fd27926a46a0f621d682f8f74d3b9a5b5c"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_MixWrite.asm",
+      "size": 12699,
+      "sha256": "f1d54a42006d60b2d5e9c9b645809bda2814346da4eb19931d5c3cbad3586aee"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_Put.asm",
+      "size": 2558,
+      "sha256": "c3f63626c63e783c212aa9e3dd316827f87756224a91092c27537b230615f711"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_RecordStart.asm",
+      "size": 3048,
+      "sha256": "a84e35d79eeb88c8501a3f439b9dc55bb3a6122b1e87a1b1a7c461f0b7a6d436"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_RecordStop.asm",
+      "size": 927,
+      "sha256": "38ebcd1947359e4217fec564d06c5692904f72f1691e24a3135ba76e8199a2e6"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_Start.asm",
+      "size": 30102,
+      "sha256": "8b906ae417d6c89df759be4e22f52b9c032287a3aa723a58662d68fe4425ca80"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_Stop.asm",
+      "size": 2254,
+      "sha256": "0ab0cb62a026032fb4e458286b3fcf3acfb0a86477e76978b29d0510fb756dfb"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_Stoped.asm",
+      "size": 680,
+      "sha256": "8887245855090e485dc16cadd33d176931af3e738fed128d2a67c65ce045e0b6"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NOpenSL_Write.asm",
+      "size": 8105,
+      "sha256": "883737cb66838397c7604542330a1fed2c85d5600d3c53f6752cad1c3be7e8e1"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NPitchShift_close.asm",
+      "size": 481,
+      "sha256": "0c300b372bdabc0ea7f9b1f998f46b0ef76ac2135d07a74160fb3fd72659393b"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NPitchShift_open.asm",
+      "size": 677,
+      "sha256": "ead3d319031fe97fb2e71f9406cc6337955e4fe84f972efcb2c944017c50d9fb"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NPitchShift_process.asm",
+      "size": 1589,
+      "sha256": "718475e4cbddc39ca4f84fe4c354fc8ed635d0e823fa426d71cf2054c5860f34"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NPitchShift_processLeft.asm",
+      "size": 1553,
+      "sha256": "0754d00c72a9e8e94bf37493d7280dd80c06b27a1859de6f16999a7ddae0a5ce"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_audio_NPitchShift_processRight.asm",
+      "size": 1606,
+      "sha256": "0d7fa251d06c607603c59948e56a35fd094fc7d25ff3a0a1b64ffc1791d3bf2a"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_ChannelClose.asm",
+      "size": 478,
+      "sha256": "7b693841485fb92a9a8ba6325431ed0e1f1a82cbd2c7e7122d6ce141727e88bb"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_ChannelCopy.asm",
+      "size": 1105,
+      "sha256": "6bbeef4c6ed1359bd7897333d763263882ea3e4c37eba22c40c0fdeaaa47d9a5"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_ChannelOpen.asm",
+      "size": 946,
+      "sha256": "fac8cc454d39675c67d7cba5b05cbdd501b2c887578d64be3c2edb968582b04a"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_ChannelProcess.asm",
+      "size": 46624,
+      "sha256": "bb1554ad6ad7ef58ba2b18a2b6fd3b04f7da3173fb9b9455d9943b00c67db8eb"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_ChannelReset.asm",
+      "size": 837,
+      "sha256": "676da7a99d6998d5c3c88d08c3708fd6fab3ff8adb97381344adfcb3c1fffaef"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_code.asm",
+      "size": 2450,
+      "sha256": "100796d5b0f7e47d286e10c7d3e5b478824579cf197436d8a573031e7476e2aa"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_FreeMem.asm",
+      "size": 630,
+      "sha256": "20faf8fac415c27617d0cc1cac661358a21953b46f0849d314ae222d9068ed3b"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_GetMem.asm",
+      "size": 1145,
+      "sha256": "eca476d49e9200591f3880f01ad6c75c761d1f5a6364224558bbd5efadff3192"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_MemFromByteArray.asm",
+      "size": 1367,
+      "sha256": "9d6425243048456abeac2babc4ee067c13458f554e652e20f58663041c4fb0fa"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_MemFromShortArray.asm",
+      "size": 1368,
+      "sha256": "267aa16555a4d53e017e36bd0eef4da0a614bb13ef8138e82b82d7f206f1cebf"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_MemToByteArray.asm",
+      "size": 1365,
+      "sha256": "96d7af5372950b4a375ad1d35f0e26b1fb7cd4b304b86bbc71e99f35a1f7c082"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_MemToShortArray.asm",
+      "size": 1366,
+      "sha256": "dce9191eb27a46fc33fb7ce21ea4cd7aa22801c0d48a8243800c85dbb70f47f4"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_Mix0.asm",
+      "size": 330,
+      "sha256": "3d82298fd25c0b86d56e7d40e114370730d871fbf75767b0d9cc5651c8f15f32"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_Mix1.asm",
+      "size": 1395,
+      "sha256": "0e8100c8b86299c0b422ebd42a9218efef72bc74c94d4a8cbe2b8ef3dd5a8f22"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_Mix2.asm",
+      "size": 2478,
+      "sha256": "789d9041145af84c3ff737ce5bbe07a65ec45a24a841ec9d28cee2fa234aea29"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NMusic_SysBits.asm",
+      "size": 332,
+      "sha256": "54d32ada3b0b118ba1a9cf903100ac21b96954275060db5f1963ea4ebe93a01f"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_Close.asm",
+      "size": 667,
+      "sha256": "fb6681c826df5f438ce79dad39ba732049e7ee2bdb0548e7ebf26b852169144c"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_Open.asm",
+      "size": 916,
+      "sha256": "ef32c436f6eb219157a12338395d43ac9e2fd5d9b8f9b6bd8a47b49a004da46d"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_PresetCount.asm",
+      "size": 730,
+      "sha256": "e05d6a7b6b2145d55dd8067ea6fedbb19385957aca74144c762fb8c0bb2e0be4"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_PresetName.asm",
+      "size": 1394,
+      "sha256": "f1165c9b86def2662bba43f33cb8f3709c3d94a89ba91d6f975d41ef666ccffd"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_Voice.asm",
+      "size": 3661,
+      "sha256": "14020e4a1afc0b63014e694e040cec4c307081fb51699017ff058f48020361a0"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_VoiceLoop.asm",
+      "size": 327,
+      "sha256": "e894fe53692ed48a06ee182bbe414d0b63601ecc55be4cd94854d933ea152273"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_VoiceLoopEnd.asm",
+      "size": 330,
+      "sha256": "0fa8b2d7aba41a5a880727a5a6201897bbf4b34aabd827cb891af49396397570"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_VoiceLoopStart.asm",
+      "size": 332,
+      "sha256": "c959496dfc78969b26654f7b49f2085f69045945e3167f10bf1ddd4ced298d97"
+    },
+    {
+      "path": "native/abis/armeabi-v7a/Java_sofeh_music_NSF2_VoiceSampleRate.asm",
+      "size": 338,
+      "sha256": "2d6ee1c66e6f88b7270136f72c74e6a76de2b80d693264ed5314f046843c3641"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_Lame_close.asm",
+      "size": 1055,
+      "sha256": "468152de676cef55e13cb096296a10da9a2fb46b96850f33c24fbe5231306531"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_Lame_encode.asm",
+      "size": 4623,
+      "sha256": "6d85664cffcfbb3745328ff2b0007c1c1f6c27bff45922fd9460025918b57d74"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_Lame_flush.asm",
+      "size": 2706,
+      "sha256": "9dd089620517fe58546355ecd63ba6bfc47f8184dd7dc9bd9bef0af9ce736730"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_Lame_init.asm",
+      "size": 3124,
+      "sha256": "9a438c5d0d52faeaf178fc8c11a957da1827f262580a201430d4c3ebc61e01eb"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NBandBooster_build.asm",
+      "size": 3386,
+      "sha256": "ad289b35d95b077a082608959ff318ac0e7b9435daa1efc85f034e6c7aa56af7"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NBandBooster_close.asm",
+      "size": 1151,
+      "sha256": "d8c47e64ff06a27986d2b97edaceceaf6f76a538b885896a388175413628cafe"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NBandBooster_open.asm",
+      "size": 1370,
+      "sha256": "75ac0f58e0bf065a017aff4f44341e50e76d5aa21ca5dad1647b2d75669e4532"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NBandBooster_process.asm",
+      "size": 5888,
+      "sha256": "a07abe2c644dc8711d605aaef4eca1ffc8021ac85172ffc339c4f4a1fc3b1abe"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NEqualizer_band.asm",
+      "size": 958,
+      "sha256": "de80d703275ab0ff840eda151704e2be59c8b9dd07a434011d1b617ce3d930b7"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NEqualizer_bandMove.asm",
+      "size": 1635,
+      "sha256": "9ec63cb99886077b6018928079ffc23b8a8da5aacd028efb3b17442c18a7c941"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NEqualizer_build.asm",
+      "size": 11418,
+      "sha256": "38826a67d87f29f2485c0c1a1187c1e14dfe362429dd55cc18a10e11a97e9192"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NEqualizer_close.asm",
+      "size": 1151,
+      "sha256": "646f7e39832fd45b53e51538370f46aa8da86a075c86cf74918c3819050c6638"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NEqualizer_open.asm",
+      "size": 1577,
+      "sha256": "c60099dc2eba4273faf80fd19ca42bc048e614b1a9d6adb63a76c759d225b70f"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NEqualizer_process.asm",
+      "size": 23683,
+      "sha256": "67e8c8506c0ea6a21babea846b4d0a12ab406d802de67b98be1ebc146e0fa4f4"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NEqualizer_processLeft.asm",
+      "size": 24549,
+      "sha256": "9756739506f8187c9d65caa9c1dee5a21b1f1bd3b900b6c771686db991f735cc"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NEqualizer_processRight.asm",
+      "size": 24629,
+      "sha256": "38457af299d56e5d4042f98c8f0974005f2dd4f86426561db5a1855ae225c655"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NFlanger_build.asm",
+      "size": 2311,
+      "sha256": "8191521007383c1ec1ab1877648cf4cfdce30d39be059c4363a009639965d622"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NFlanger_close.asm",
+      "size": 1145,
+      "sha256": "5d18434f3efc574d70294a32b83b0a7d052a5b878426f97fa6296af330a9b676"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NFlanger_open.asm",
+      "size": 1571,
+      "sha256": "3599a2feda35841a423c49620949124ccac8c348f13d7ae31468d892b4fcb97b"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NFlanger_process.asm",
+      "size": 8377,
+      "sha256": "55bca115130675be784c4455c10aec7ac0b0956a8f19b88506237008391521e3"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NFlanger_processLeft.asm",
+      "size": 9264,
+      "sha256": "726a7be0529cc19bf785031ca7e2527d19b1303c373c765bb06514f3250ff7a0"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NFlanger_processRight.asm",
+      "size": 6583,
+      "sha256": "6aedb270819e1cc525e5f6cb161bb60faf37de26a99bb70eb71cc5727b637f9e"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_close.asm",
+      "size": 1143,
+      "sha256": "821f8532b9add0dbb20df04a1c411ed0f264e439155eedff5da11c057b95db06"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_flush.asm",
+      "size": 1143,
+      "sha256": "8628310e9a1fdc5a78218c76b70e1df9ba078187ba77434fe89bbd26cf53fc55"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_open.asm",
+      "size": 3106,
+      "sha256": "c67c18452febe54f2146b598f63b6a05570d1371a4769214d8a260e90ca4c1e2"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_processLeft.asm",
+      "size": 2767,
+      "sha256": "291e7177b1213852b3439588a19c7e53771300ad61325b7f7887aee711f006ab"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_processMono.asm",
+      "size": 3812,
+      "sha256": "2924a4c1d8adb6f1bd7761002e354125b0e2fb150fa18f0a4c6acb3d1ef9a464"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_processRight.asm",
+      "size": 2768,
+      "sha256": "5c7ff9672322b446223e031bb3230b336669b258af776a3642e2b1c50427b544"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_processStereoLeft.asm",
+      "size": 5489,
+      "sha256": "e4494dd61f22580d68eb4f2730c11082e6b934a085f2863edc9523b3404f8e26"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_processStereoRight.asm",
+      "size": 863,
+      "sha256": "966907990141e7939a410dd458073fa64c6b67ae455d2aa03728140668e6c113"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_setdamping.asm",
+      "size": 1465,
+      "sha256": "a946c05539a31b0622065aeef5ad5cbfc2ea2bfbbe6567d9ab165c80ffbdf8f1"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_setearlylevel.asm",
+      "size": 893,
+      "sha256": "58b34b3933859c1b607660c12c70fb0a3ee7155c1649f294844d9f5c9dafe951"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_setinputbandwidth.asm",
+      "size": 1290,
+      "sha256": "9b2284e380fbd4309185821c77708299b1cb8fea65085592707725dc5e366a5b"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_setrevtime.asm",
+      "size": 5008,
+      "sha256": "15429e396ef373f09892e08aa0f5c2bfa61e44d8972e5c9b85581e8737bbd9a2"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_setroomsize.asm",
+      "size": 9231,
+      "sha256": "75003e6d54ca57b5dc8fd92767c6a1eae1b3faf4426ab1f9ae29c1531f581b06"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NGVerb_settaillevel.asm",
+      "size": 890,
+      "sha256": "d1345335f05ebe38fa419b24792dfa0e6dfa940d8052f3cc17653c1cd7afd4dc"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_MixPut.asm",
+      "size": 14290,
+      "sha256": "f7e71cfecaa521c2cccc15b60a5b372da7c92293a0e744bca7e8358c25f5cf5e"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_MixWrite.asm",
+      "size": 21452,
+      "sha256": "0e5c965a9d0d94d4cf908df08490aefb1c50edda8cfe4925bea44016946d1779"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_Put.asm",
+      "size": 2807,
+      "sha256": "7e41f853de66f628149cdc55ada824b0778e09e802adb5a5c779443ed876b601"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_RecordStart.asm",
+      "size": 8241,
+      "sha256": "94c43178828f76a299cf2f58c3f479020a228380715bb9de9a47f2940ed6f8f5"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_RecordStop.asm",
+      "size": 1347,
+      "sha256": "24886c2c58e096e087a9e6668df57db196deb4c727acb9276ba717fac03d7571"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_Start.asm",
+      "size": 41842,
+      "sha256": "73ec059ce693d3de9e45d42a7da7f9533c48b21ac542051ccbe2fd6a472e90e6"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_Stop.asm",
+      "size": 2902,
+      "sha256": "6c4e3f436761fd85145ad6ddc87fa48bd3f532389c61c3de7c5e795e5353135c"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_Stoped.asm",
+      "size": 773,
+      "sha256": "0ac0f6455252bc30dd509a33f83b27d361a96cb6190227ce4da8623dc64f8128"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NOpenSL_Write.asm",
+      "size": 11999,
+      "sha256": "5c7e522628a5dc88307a7ad3914d693539b4a77a31c1df1135bbed0f46a8587a"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NPitchShift_close.asm",
+      "size": 1153,
+      "sha256": "b4931f4ee3aea853bbb60aaebb0ef3b6b08ad9c3c9d207b98065843f1edd071f"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NPitchShift_open.asm",
+      "size": 2394,
+      "sha256": "71f4ce84cd9800d0397b13b521ceffee47589dab3d49cc0adbc7c91958f9eee6"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NPitchShift_process.asm",
+      "size": 1864,
+      "sha256": "e2011748051f7598d5a41e16e3b308169c7c241c564392a2bafe83b2ed0ec8b7"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NPitchShift_processLeft.asm",
+      "size": 2017,
+      "sha256": "c78617861882fb728935ca41737fbfb91f800411fb24b33f7378310e678ec229"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_audio_NPitchShift_processRight.asm",
+      "size": 2070,
+      "sha256": "62fd751f812b8c2ac48aef2a76032afa990e0bd0e635571009842195e1f0dfc8"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_ChannelClose.asm",
+      "size": 1150,
+      "sha256": "00841a10513294f31df8e69199054171318a3de4cbcceec233d6400a97a3d200"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_ChannelCopy.asm",
+      "size": 2105,
+      "sha256": "e1080eae025effb6b9c0959066fb3d979b0d4429db647bb0b895f7f58940f142"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_ChannelOpen.asm",
+      "size": 1432,
+      "sha256": "814b4c198be787062072e109841d43bf55477f310c2453933494ba9c9d05ed8e"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_ChannelProcess.asm",
+      "size": 64042,
+      "sha256": "8c730a62097b0302c554f2b7928102f4211adfe77e8210ca092190d81f62740c"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_ChannelReset.asm",
+      "size": 1398,
+      "sha256": "1d08be6cfb89e9f7ede16d7762f033bccb27ff2b27901f0ea1223ad570f8123d"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_code.asm",
+      "size": 4525,
+      "sha256": "7deea10e197b388d766dd4c27df65f13eba8b5e25aa45da6d61e9c75125e931f"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_FreeMem.asm",
+      "size": 1297,
+      "sha256": "3563cb8ac9fe28369985981fbfa847861fcf845fe5e7166d4d75cad4c461cce2"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_GetMem.asm",
+      "size": 1740,
+      "sha256": "7f4c48ba88d2220b6fa16d5fbaf5c7f71c8c0ae70df0ec0ef0386bbfb0e2c5a8"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_MemFromByteArray.asm",
+      "size": 1936,
+      "sha256": "876608f4f31a6dcb7a443ce93de1246df854dee4fcdd713d5b9d4435e0ad973d"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_MemFromShortArray.asm",
+      "size": 1937,
+      "sha256": "d372261181a1d145990922369908cf125c4f6f3db4a75b2241da2c5bb5e77513"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_MemToByteArray.asm",
+      "size": 1934,
+      "sha256": "7791816d2453ed694ba776fea6dcc4bfe1495606dc7ac863c0fe48e8ac317f01"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_MemToShortArray.asm",
+      "size": 1935,
+      "sha256": "c5f1c4d50af762ef0bb7b427c2b7926d368d43ac9532a1c9da06926418585d3e"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_Mix0.asm",
+      "size": 650,
+      "sha256": "91e78fcca0706dd79ad252c77ae30e30bfe543cd6caf7431d033d0ddc9d58b4c"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_Mix1.asm",
+      "size": 1495,
+      "sha256": "e5dc95282036398f041b9179dd3f185ffbdad7a92c58639681a18ee713aaba92"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_Mix2.asm",
+      "size": 3010,
+      "sha256": "a791bed865bf6dcb9cdf39ceeddcf4bbedfe79a51ec53ce22e1aff58663c4ee7"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NMusic_SysBits.asm",
+      "size": 568,
+      "sha256": "710e6876b89e8de2c950a5094819cae66998f8a8127f04f3bac6bb9f95828eaa"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_Close.asm",
+      "size": 1073,
+      "sha256": "2832f436831d83ccd7117fd04c02575463537df84f4c8fe18619142b2d8d9185"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_Open.asm",
+      "size": 2991,
+      "sha256": "79e565242fc7cdd646c16a10ad694c67eccd3f6499f0553dc2c669af3e544b11"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_PresetCount.asm",
+      "size": 991,
+      "sha256": "39de17481adaaa5bd7c8271cf22168fff3dff313ed2939d4f4d60d60c8cf7b74"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_PresetName.asm",
+      "size": 2153,
+      "sha256": "4d264d8ac26f9724c39753628062f77f4e6c4726a6660c8e443d782d2f1f21bc"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_Voice.asm",
+      "size": 15168,
+      "sha256": "1d90cf80b17359aebed8a3e690dd4f4301a5957a1acf7869424c6a239a604a58"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_VoiceLoop.asm",
+      "size": 565,
+      "sha256": "b0d39531a35d4bdf64acc34d62bcf60e2eb716d910b8c0065e48ae05616928dc"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_VoiceLoopEnd.asm",
+      "size": 568,
+      "sha256": "6cc1dd845e8ee049268c228ccc6566112e116fc5b7af78c7719ab1d32bb50f6f"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_VoiceLoopStart.asm",
+      "size": 570,
+      "sha256": "dea910709515ada4a50ad4d9c0fd86073a96ebc7e3e3382bb8f59395c9d63ddc"
+    },
+    {
+      "path": "native/abis/x86/Java_sofeh_music_NSF2_VoiceSampleRate.asm",
+      "size": 574,
+      "sha256": "acb003b52258a1065272adc5238f41fcaba2ca61571cbbc3d05813903f373214"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_Lame_close.asm",
+      "size": 606,
+      "sha256": "ac6d39e805bfc679617b4c2aa0af8271ef45661ff6272cbf85ba1cb41407b0f1"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_Lame_encode.asm",
+      "size": 4058,
+      "sha256": "771954a997c31055d190fba21f5daf911936670a255e183916700312c84358c9"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_Lame_flush.asm",
+      "size": 2048,
+      "sha256": "6443f5d48c2384afcec0f1168cec47d8fe76b9679cfc3cecc8927853273ef281"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_Lame_init.asm",
+      "size": 2522,
+      "sha256": "7fb3a60b5190feea308caae0d53c1e534fae5e8a384d7d66f6381745f8f17dbb"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NBandBooster_build.asm",
+      "size": 2554,
+      "sha256": "cf52c1c4ec4d47bf3ecfd330dc92952fe8b122531d474e715c8580b0845be36b"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NBandBooster_close.asm",
+      "size": 478,
+      "sha256": "c3c7778e5b9d6a954e766b471b5e0cb8ee8fe5ef54189339dc07e78bb95bbfae"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NBandBooster_open.asm",
+      "size": 716,
+      "sha256": "89f7fffd0aef93a27d7333ee91b935d1d9cb355b6615270f3c3acda05bd94184"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NBandBooster_process.asm",
+      "size": 4214,
+      "sha256": "903a07990cb86e1fad97a7d3cd8d04172e9db05ab7b6cf53c57c7e06403d9f50"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NEqualizer_band.asm",
+      "size": 496,
+      "sha256": "3f1f0ac6c9f3e24d51ff7c000c60e65fa25f131c1823e92bf64b7c7fbfef9ec0"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NEqualizer_bandMove.asm",
+      "size": 1048,
+      "sha256": "52b61ac39d05099684be5cf0009eb1b5975150afcc160a373815df52079ef979"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NEqualizer_build.asm",
+      "size": 9090,
+      "sha256": "5511c0904bcbbe0a97198f28cf6caa9faad652ff2e918a6db3626a4ceb6fd3e4"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NEqualizer_close.asm",
+      "size": 477,
+      "sha256": "c986a42386c0fcc07d79181ae232c0175ba6206dc1a5278ef3831f2d6b67c5fc"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NEqualizer_open.asm",
+      "size": 963,
+      "sha256": "2b931699f62716a66929b26f74fe725f70ca5fb5a59ac27e9bb83d5073363369"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NEqualizer_process.asm",
+      "size": 16765,
+      "sha256": "bd19690428dc622f199c05ab61abbbeb7cba2792e74d563bc3ea5de37ed7226b"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NEqualizer_processLeft.asm",
+      "size": 16593,
+      "sha256": "4be99d1a7e1bbb30e590ffbc1cded81a795739ad690f6fce347d9c3ede5eaae8"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NEqualizer_processRight.asm",
+      "size": 16679,
+      "sha256": "0baf1d016a9e3898645c1d8533627a1c1bc37cbafd25110a8c5f87ca5973c37d"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NFlanger_build.asm",
+      "size": 1493,
+      "sha256": "289217721c2c2e856b0e4a5db33a29fae9c7bb40cc571ddd3dd0f6826199516f"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NFlanger_close.asm",
+      "size": 471,
+      "sha256": "2ed50d21688851dd7f46a3df56ba9b5832d05a00d7b976d4b1717bfa433e5c65"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NFlanger_open.asm",
+      "size": 957,
+      "sha256": "098f852b02edfc27742d83630f74584fcd22d2f39c95477994ca77f7a73e4958"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NFlanger_process.asm",
+      "size": 7028,
+      "sha256": "f7697f55ee03690a91e404189670f3abcde4499b4ac041e79e1e9bb72a50b857"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NFlanger_processLeft.asm",
+      "size": 7092,
+      "sha256": "7bf183e4d59b038253674d6871de2f6998ca2282e9f05234f4eefa850112c5f7"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NFlanger_processRight.asm",
+      "size": 4495,
+      "sha256": "f73e5d9fce671349cbdf485f060ace75736c8d9a11e7e2fd1a9211dca051aaf6"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_close.asm",
+      "size": 469,
+      "sha256": "3b2fb9cf96550a4e3786f5842fc2ca3aca9a8446ff63b7be1635fc56de420bf3"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_flush.asm",
+      "size": 469,
+      "sha256": "e6b162bb8583dfda8be0e16ac69aa188e5254d30912d76207f219251a82ef446"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_open.asm",
+      "size": 2001,
+      "sha256": "3ab47dc360e563acc76b072d2fc64ffabf8dfeedf538d12267bbb2fc93612d03"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_processLeft.asm",
+      "size": 1642,
+      "sha256": "cf43ad2e28dc75fb420e29705ad9aa7b9308f91ad87c1a26b20819c79ffe3384"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_processMono.asm",
+      "size": 2393,
+      "sha256": "ee5995ac7649e9b00d53324e04160d564bb242216f258cbe191873b35619d576"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_processRight.asm",
+      "size": 1643,
+      "sha256": "920541ab8e466b85d9b705d1396674823a25ad787fb084d89c768a394ba2060b"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_processStereoLeft.asm",
+      "size": 3410,
+      "sha256": "48ec657c461deb5082a5c35184b6498dce5731d4eccb7a076dfe5def36728cef"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_processStereoRight.asm",
+      "size": 421,
+      "sha256": "4ed91940c98e5ffa7c62286fc9092714e83fc3d9f5f25119f88a8dffd2e7e7d7"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_setdamping.asm",
+      "size": 1025,
+      "sha256": "183cb2e8ceb75b8c8ceb3ca663b0bb3e2f32c22398b0fa434f6b4e64c0610152"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_setearlylevel.asm",
+      "size": 449,
+      "sha256": "30864a71833a2ef7025e9dee1f0fe399d7b61ea9934dca89be55ec951cba8e0c"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_setinputbandwidth.asm",
+      "size": 703,
+      "sha256": "4283367323a86af678f202f4fbbe733510d393de3846ff6c11bae4c0d025167f"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_setrevtime.asm",
+      "size": 3583,
+      "sha256": "2d217e0210c85fe1f080c0ebb266ff49fbb02f041ab899787a8f28dfe7d35ada"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_setroomsize.asm",
+      "size": 6569,
+      "sha256": "81d3136958eabb2e20ce88ee535785c0190c57a4c8570e4429f13968236f1ea9"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NGVerb_settaillevel.asm",
+      "size": 446,
+      "sha256": "d45cb9ff26158a3ef58dc67a9db4fa76d6339bc133c1d7201c846a61d8395d45"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_MixPut.asm",
+      "size": 10724,
+      "sha256": "0df91ce212cd39485008671d502b930174036ad25dd82ab986bfb0d64fd597f8"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_MixWrite.asm",
+      "size": 16390,
+      "sha256": "a3c85282ca108e38afc6a0ee39b01009f0e403b32a871f04a8976589ccb48dbb"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_Put.asm",
+      "size": 2182,
+      "sha256": "ffc5a5cadd6252ceaa6859f789c9c87d2178cc4d3c5c5b29eefe3473f9af3d46"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_RecordStart.asm",
+      "size": 5960,
+      "sha256": "fa87ffbd2465a495b9d9b75d8bc522a75d3e209155cd26b829e4eab8f861ddde"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_RecordStop.asm",
+      "size": 734,
+      "sha256": "3d4a752981d51cc4792e0e796bb2724f21664f1b42e76ea570c6324ae556443f"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_Start.asm",
+      "size": 31884,
+      "sha256": "c81c8557d2b101c41aac5dfddc76727abf226bb7aa05e41ab3d667689ac09082"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_Stop.asm",
+      "size": 2050,
+      "sha256": "6fb32e8c312a00fdb371f4396149bf6a5310584b902c16174e7bcc8087360c88"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_Stoped.asm",
+      "size": 392,
+      "sha256": "b553ec69fd9a329d674602ce5d23d57ad2005156daf054219809e0652387b7c8"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NOpenSL_Write.asm",
+      "size": 8838,
+      "sha256": "ab67eb792007c0c5dba7504c25b3d5ee44498a36d607191e525451dcc7c53ec9"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NPitchShift_close.asm",
+      "size": 479,
+      "sha256": "e3141a4975efa46cfdc2decec5c05a787f529620ffd570d32a7b730741561b46"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NPitchShift_open.asm",
+      "size": 1518,
+      "sha256": "fa697565098b6b5f1c711037d73cf8c6a468c071e8b8f34d9d19d867cdffb250"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NPitchShift_process.asm",
+      "size": 1026,
+      "sha256": "8f01ec8d873337a4af3f2eaa23e07df99e4ae5425f62376862460f8e4737d589"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NPitchShift_processLeft.asm",
+      "size": 851,
+      "sha256": "01c578d906c2e756b49ae9604b77ba6d4e9bbb126d6ba229624078cf89a612a2"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_audio_NPitchShift_processRight.asm",
+      "size": 904,
+      "sha256": "d45a77ccff82db5ccf2332cbacca245ac2a15a2cf12d3d64bbdd35801e238605"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_ChannelClose.asm",
+      "size": 476,
+      "sha256": "e46b2de9fd7fcaa74e8d4cb91cd0b13eb1ad761f7dd4b8384f74a01d14812dec"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_ChannelCopy.asm",
+      "size": 1498,
+      "sha256": "fcd832224a051cfab7912486ffae54859d7c3185de425d91fdc94c5894b56a50"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_ChannelOpen.asm",
+      "size": 1000,
+      "sha256": "fac339b3fc04e020be20fe4188e6393df2bcc8a661f74e1b951fa22046d7121e"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_ChannelProcess.asm",
+      "size": 43809,
+      "sha256": "930fd6c348828de1029ef8042088d4084a8b164d17d5287045d8fe5337767882"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_ChannelReset.asm",
+      "size": 989,
+      "sha256": "6027951756786df34a6fec7d1405aabf556b2b3aad6e55b78c8c6a3aa4ede9ff"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_code.asm",
+      "size": 3363,
+      "sha256": "ff01f1868068b3610743f822b7fd2b53ecb59961a46ccf86a1a3be2d31ce2bed"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_FreeMem.asm",
+      "size": 645,
+      "sha256": "3456c8baffb3c42a077943a13ba03fb45774e0f59b8efce0692eb16805332adc"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_GetMem.asm",
+      "size": 1293,
+      "sha256": "3d2bc55e12b3b2161028d43bf973a6c54e05cff392f94c8f39a31cebcf069d49"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_MemFromByteArray.asm",
+      "size": 1521,
+      "sha256": "853d042108f33aa935fa819c106370e76ff400e378970ae40a811b988dea80e2"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_MemFromShortArray.asm",
+      "size": 1522,
+      "sha256": "97ff6f9961f7efd3392851350f997455db9888d21f5f0c95e92694f4c0ceec7b"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_MemToByteArray.asm",
+      "size": 1519,
+      "sha256": "e474a9f8a10578911746ae73b5a0daa2fbc0401759baef4483da1b63b05651e8"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_MemToShortArray.asm",
+      "size": 1520,
+      "sha256": "58bb40397efb0228a390dd686e1544abae4fddf6635c1fb12dc2078c8ab6d1cd"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_Mix0.asm",
+      "size": 372,
+      "sha256": "c948c2772698456c6630c2b1081bec3168e7d33db3e1208e91d8b98662a59339"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_Mix1.asm",
+      "size": 752,
+      "sha256": "a385a1122080cad60855a604cd68d879e4bbf249e99e3942cfd0c618ba07841f"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_Mix2.asm",
+      "size": 2082,
+      "sha256": "ed1a10a207e8333c25c5c12ba6f8e6d80b85b7a645578297142e4680d30a9b62"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NMusic_SysBits.asm",
+      "size": 327,
+      "sha256": "51c283844cbf266eff459bfcb9c72853f19ab0719916b133db734823a2fe7898"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_Close.asm",
+      "size": 439,
+      "sha256": "9bce09cdd3b675e170eefb59740b6318081fcaceaf7a431ae1552782a155cedf"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_Open.asm",
+      "size": 2294,
+      "sha256": "ce8fee06922ba33470430eaac928229eacab2fb6320fc1165455b65b1033ad0e"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_PresetCount.asm",
+      "size": 603,
+      "sha256": "bfd438ed3e1a2fcc2aa9f3277e8996426f639379a387fcad7c9624da5e4d9f3b"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_PresetName.asm",
+      "size": 1187,
+      "sha256": "23feb3da4d0b3e0c889e80666d97fe19e37579d76b903c4a0951dd12df1a8795"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_Voice.asm",
+      "size": 10715,
+      "sha256": "95606edad6ee7dbf84b856f29f717724f17aa6e64edf8224abe50bb529f74c5c"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_VoiceLoop.asm",
+      "size": 324,
+      "sha256": "03b9128beb2558d4e24342bd761fde1c36b3165339cc70a13c891a802c327c65"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_VoiceLoopEnd.asm",
+      "size": 327,
+      "sha256": "4890fade80effabd4bd0bd4ccc610ef2c4367453bcd09c0f9782f66beffe03d1"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_VoiceLoopStart.asm",
+      "size": 329,
+      "sha256": "c54c88854320952251f60de3167422e47fd55a8d52071155537614d659d91971"
+    },
+    {
+      "path": "native/abis/x86_64/Java_sofeh_music_NSF2_VoiceSampleRate.asm",
+      "size": 333,
+      "sha256": "f9c89cca31a1bc80d6742af4250cf1929aedd7c6b32059e7ed1dd58c879302b3"
     },
     {
       "path": "native/dic-x86-text.asm",
@@ -1357,8 +2888,8 @@
     },
     {
       "path": "NATIVE-ABI-INVENTORY.md",
-      "size": 616,
-      "sha256": "887694af6dfdc7b0c92ce0e29df0e368d752e1b5a619bb6b81fe19b1ca184038"
+      "size": 562,
+      "sha256": "30bb718eb509bc0f3883ff657fa4b33ef2a4a90ad89b66f6cde076874a3ed743"
     },
     {
       "path": "native-abi-jni-comparison.json",
@@ -1367,8 +2898,23 @@
     },
     {
       "path": "NATIVE-ABI-JNI-COMPARISON.md",
-      "size": 710,
-      "sha256": "74e2584f0fd728eecaf03017749d31206f8f35c0919766b01f443a19902bca8d"
+      "size": 662,
+      "sha256": "462725365aa30481d320659c64f5542324d960a22e53efd404a88dc5faaf7332"
+    },
+    {
+      "path": "NATIVE-ALL-ABI-DISASSEMBLY.md",
+      "size": 1560,
+      "sha256": "a1b4deed07be29804f0f448bc2afe6a1cf26af04865b3bd25b48c9ba2fdde095"
+    },
+    {
+      "path": "native-all-library-inventory.json",
+      "size": 737143,
+      "sha256": "3bce6bf3c46aa245018c1e2622d0150ee910fb7fa9e3acae02bb36940c339658"
+    },
+    {
+      "path": "native-all-library-summary.csv",
+      "size": 9920,
+      "sha256": "33d384c113dfdc9d8c43e1300a67fc9b095712c0d58488ec68862b85a5467acf"
     },
     {
       "path": "native-arm64-symbol-inventory.json",
@@ -1377,8 +2923,8 @@
     },
     {
       "path": "NATIVE-ARM64-SYMBOL-INVENTORY.md",
-      "size": 803,
-      "sha256": "a760a19d8e669a5531c261c0aab2332cddbd5c18dd3935cea588b1e2f42a66d0"
+      "size": 864,
+      "sha256": "ac243b9072705e07e4780167926311a6fd709b2d5da7335757b38407a48ab798"
     },
     {
       "path": "NATIVE-AUDIO.md",
@@ -1392,8 +2938,8 @@
     },
     {
       "path": "NATIVE-COVERAGE.md",
-      "size": 1271,
-      "sha256": "b4e29b65936637f58429ddf72abdc3d8ec7b094b053d130392fbabfbf3d9c881"
+      "size": 1275,
+      "sha256": "f09c8be2fa86ee1948dab7bd4c756a10876d1c543161d1bcc18f620d9b5a15c2"
     },
     {
       "path": "native-dynamic-symbols.csv",
@@ -1432,13 +2978,18 @@
     },
     {
       "path": "NATIVE-OWNERSHIP.md",
-      "size": 944,
-      "sha256": "156eccac6396b285739a9f4c7fafc498daaa176885d89f2fa574a91829b688c2"
+      "size": 1115,
+      "sha256": "c1b774082091c326118dccb8abfc602a4a164f0d0b5ace259ae242acde1289c1"
     },
     {
       "path": "native-requirements.txt",
       "size": 51,
       "sha256": "bf038a4c2882cbe741656fb5450e251a3300887df5911c503c0acbafeb4e2fb8"
+    },
+    {
+      "path": "native-sofeh-all-abi-disassembly.json",
+      "size": 106757,
+      "sha256": "2ee7b983f157649ad75e42b0ee6c194ce1a236ca9e67bc24f8d4e4333109b73f"
     },
     {
       "path": "NATIVE-SYMBOL-SIZE.md",
@@ -1659,6 +3210,21 @@
       "path": "REMAINING-ASSETS.md",
       "size": 1413,
       "sha256": "c78456bfe3d6f354d3c6b22e31b6f84000f14bb9b7f512684f1035f2ff9fe501"
+    },
+    {
+      "path": "RUNTIME-RESULT-2023.md",
+      "size": 3125,
+      "sha256": "b6a97ed7ff250a29097a81c11c1bbffe3b929a78b5795bbedf113893bf1d4ea5"
+    },
+    {
+      "path": "RUNTIME-RESULT-2026.md",
+      "size": 4772,
+      "sha256": "ac919b97ace733235c4490c2f8b7f5d514f0267ce0e0dca18eef8795abf7dc18"
+    },
+    {
+      "path": "RUNTIME-VALIDATION.md",
+      "size": 1627,
+      "sha256": "6dbbbdd02b3c0405fccb530ab34c3563cc0a4a1326323f726474af789ca6ff37"
     },
     {
       "path": "s2-run.json",
@@ -2301,9 +3867,14 @@
       "sha256": "aa94dc1d210b48e7d8719c25bd51879c5a0b40900a40df6d80bdda0108bfb1f7"
     },
     {
+      "path": "THIRD-PARTY-NATIVE.md",
+      "size": 2360,
+      "sha256": "1bebd2a72ed375266c45d95c64831cb6ca07fc54f398299b6b38772f770735b2"
+    },
+    {
       "path": "TONG-QUAN.md",
-      "size": 19783,
-      "sha256": "11a2d8ce1ea22c2fc63c592a8071bb249b7c23836a4b90bfb65f434f1a782dce"
+      "size": 21439,
+      "sha256": "174e5d536d2eddb746a68008fce0430aef867306b970287bfe2ad832938572ca"
     },
     {
       "path": "touch-D0.json",
@@ -2397,8 +3968,8 @@
     },
     {
       "path": "VALIDATION.md",
-      "size": 1070,
-      "sha256": "5cd6e6f4838fceb413e500c711bdcf761843b17e3e7a215030422a84325524e6"
+      "size": 2779,
+      "sha256": "172607d333517d86171485844c47c4fd6303a59b42bac540281694340b48ae5b"
     },
     {
       "path": "VONG-DOI-WAV.md",

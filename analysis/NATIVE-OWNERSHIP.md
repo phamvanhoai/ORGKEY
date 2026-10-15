@@ -14,4 +14,4 @@ Chín thư viện có JNI `Java_sofeh_*`: `libnbandbooster`, `libnequalizer`, `l
 - `libbuffer_pgl.so`, `libfile_lock_pgl.so`, `libpglarmor.so`, `libnms.so`: Pangle/PGL/ByteDance.
 - `libapminsighta.so`, `libapminsightb.so`, `libtt_ugen_layout.so`: nhóm phụ trợ ByteDance/Pangle theo tên và cụm đóng gói; không có JNI `sofeh`.
 
-Phân loại ưu tiên namespace JNI và chuỗi lớp hơn tên file. Các thư viện không có `Java_sofeh_*` không được tính vào thuật toán âm thanh của ứng dụng nếu chưa có bằng chứng gọi trực tiếp.
+Phân loại ưu tiên namespace JNI và chuỗi lớp hơn tên file. [Inventory toàn bộ ELF](THIRD-PARTY-NATIVE.md) xác nhận 58/58 bản thư viện đã được gán nhóm, cùng ABI, hash, symbol, import và phụ thuộc động. Các thư viện không có `Java_sofeh_*` không được tính vào thuật toán âm thanh của ứng dụng nếu chưa có bằng chứng gọi trực tiếp.
