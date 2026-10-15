@@ -1,0 +1,790 @@
+{
+  "source": "C:\\Users\\Admin\\Documents\\GITHUB\\ORGKEY\\ORG+24_+Your+Music_2026.10.01_APKPure.apk",
+  "asset": "assets/data.zip",
+  "script_count": 24,
+  "empty_count": 1,
+  "balanced_braces": 24,
+  "category_counts": {
+    "Legato": 8,
+    "Move": 2,
+    "Octave": 7,
+    "Shake": 6,
+    "root": 1
+  },
+  "handler_counts": {
+    "aftertouch": 4,
+    "modulate": 5,
+    "release": 9,
+    "touch": 17
+  },
+  "call_counts": {
+    "abs": 6,
+    "max": 2,
+    "play": 18,
+    "playing": 1,
+    "setting": 18,
+    "stop": 2,
+    "timer": 5
+  },
+  "setting_count": 18,
+  "scripts": [
+    {
+      "path": "Script/Empty.Script",
+      "category": "root",
+      "name": "Empty",
+      "size": 0,
+      "lines": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "empty": true,
+      "brace_balance": 0,
+      "handlers": [],
+      "has_main": false,
+      "calls": {},
+      "play_parameters": [],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Legato/Dynamic Legato (Near).Script",
+      "category": "Legato",
+      "name": "Dynamic Legato (Near)",
+      "size": 377,
+      "lines": 19,
+      "sha256": "634479133fc6164f6a4dd231b8d2d63df8e81c5584941e7887777c6fd834778e",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch"
+      ],
+      "has_main": true,
+      "calls": {
+        "abs": 1,
+        "play": 1,
+        "playing": 1
+      },
+      "play_parameters": [
+        "connectkey",
+        "connectspeed"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Legato/Dynamic Legato (Speed).Script",
+      "category": "Legato",
+      "name": "Dynamic Legato (Speed)",
+      "size": 287,
+      "lines": 15,
+      "sha256": "aeecb3f7f489094cd085cc1825037b6a9958cf8f79b9ba7903057c170923e310",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch"
+      ],
+      "has_main": true,
+      "calls": {},
+      "play_parameters": [],
+      "effect_properties": [
+        "1.Mode",
+        "1.Speed",
+        "1.enable"
+      ],
+      "settings": [],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Legato/Dynamic Legato (Velocity) + Setting.Script",
+      "category": "Legato",
+      "name": "Dynamic Legato (Velocity) + Setting",
+      "size": 508,
+      "lines": 17,
+      "sha256": "2576d881c39dcefff33e8bd259e86dc7c8ea0375bb327858b6ed8c738344b895",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch"
+      ],
+      "has_main": true,
+      "calls": {
+        "max": 1,
+        "play": 1,
+        "setting": 3
+      },
+      "play_parameters": [
+        "connectkey",
+        "connectspeed"
+      ],
+      "effect_properties": [
+        "1.Enable"
+      ],
+      "settings": [
+        {
+          "type": "text",
+          "title": "Legato on Velocity"
+        },
+        {
+          "type": "toggle",
+          "name": "velocity_enable",
+          "title": "Enabled",
+          "reset": true
+        },
+        {
+          "type": "slider",
+          "name": "velocity_speed",
+          "title": "Speed",
+          "reset": 50,
+          "from": 1,
+          "to": 100
+        }
+      ],
+      "returns_true": true,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Legato/Dynamic Legato (Velocity).Script",
+      "category": "Legato",
+      "name": "Dynamic Legato (Velocity)",
+      "size": 252,
+      "lines": 13,
+      "sha256": "326befa72fe4a0eb259299475cf0ae950b34788bbcb418c842fc5f946e667e1c",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch"
+      ],
+      "has_main": true,
+      "calls": {
+        "max": 1,
+        "play": 1
+      },
+      "play_parameters": [
+        "connectkey",
+        "connectspeed"
+      ],
+      "effect_properties": [
+        "1.Enable"
+      ],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Legato/Legato from + Setting.Script",
+      "category": "Legato",
+      "name": "Legato from + Setting",
+      "size": 219,
+      "lines": 12,
+      "sha256": "a29f55922e4a54fdf68a5c1d6713a627bcfb458fcb3b886aa9f45423ec176e20",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release"
+      ],
+      "has_main": true,
+      "calls": {
+        "play": 1,
+        "setting": 1
+      },
+      "play_parameters": [
+        "connectkey",
+        "connectspeed"
+      ],
+      "effect_properties": [],
+      "settings": [
+        {
+          "type": "slider",
+          "name": "legato_move",
+          "title": "Legato from",
+          "reset": -2,
+          "from": -12,
+          "to": 12
+        }
+      ],
+      "returns_true": true,
+      "uses_exit": true
+    },
+    {
+      "path": "Script/Legato/Legato from Last.Script",
+      "category": "Legato",
+      "name": "Legato from Last",
+      "size": 294,
+      "lines": 17,
+      "sha256": "c7e1b05841cdbdd1b81ca2637c0f9ab1ebf9e8540e0b9e5ff29cfbb864ddaf3c",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch"
+      ],
+      "has_main": true,
+      "calls": {
+        "abs": 1,
+        "play": 1
+      },
+      "play_parameters": [
+        "connectkey",
+        "connectspeed"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Legato/Legato from Lower.Script",
+      "category": "Legato",
+      "name": "Legato from Lower",
+      "size": 106,
+      "lines": 8,
+      "sha256": "c1ae9df65ef90a17aca50b014b92989525403bad17d182f6b844473e3db2e54d",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release"
+      ],
+      "has_main": false,
+      "calls": {
+        "play": 1
+      },
+      "play_parameters": [
+        "connectkey",
+        "connectspeed"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": true
+    },
+    {
+      "path": "Script/Legato/Legato from Upper.Script",
+      "category": "Legato",
+      "name": "Legato from Upper",
+      "size": 106,
+      "lines": 8,
+      "sha256": "e6add847336712f697f6f6f8f0f4455c792c5fae2d9194e8600fe86e21e8e95a",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release"
+      ],
+      "has_main": false,
+      "calls": {
+        "play": 1
+      },
+      "play_parameters": [
+        "connectkey",
+        "connectspeed"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": true
+    },
+    {
+      "path": "Script/Move/Move from Lower.Script",
+      "category": "Move",
+      "name": "Move from Lower",
+      "size": 346,
+      "lines": 19,
+      "sha256": "b3c30309752433b09bb5a2ba383f423b38715083041fe55a51f62b6fb6a5e677",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release"
+      ],
+      "has_main": true,
+      "calls": {
+        "play": 1,
+        "timer": 1
+      },
+      "play_parameters": [
+        "autorelease",
+        "key",
+        "sound"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": true
+    },
+    {
+      "path": "Script/Move/Move from Upper.Script",
+      "category": "Move",
+      "name": "Move from Upper",
+      "size": 348,
+      "lines": 19,
+      "sha256": "9ab49d4adc65b3b83ebc77360f79a26882723caa85376f76e95d9c7bce124d39",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release"
+      ],
+      "has_main": true,
+      "calls": {
+        "play": 1,
+        "timer": 1
+      },
+      "play_parameters": [
+        "autorelease",
+        "key",
+        "sound"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": true
+    },
+    {
+      "path": "Script/Octave/Add Lower Octave.Script",
+      "category": "Octave",
+      "name": "Add Lower Octave",
+      "size": 40,
+      "lines": 3,
+      "sha256": "a582c1a0beaf3888732fc9a0aec009f87ef078c5598e62c0f5c8b72173b2cbfb",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch"
+      ],
+      "has_main": false,
+      "calls": {
+        "play": 1
+      },
+      "play_parameters": [
+        "octavemove"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Octave/Add Upper & Lower Octave.Script",
+      "category": "Octave",
+      "name": "Add Upper & Lower Octave",
+      "size": 122,
+      "lines": 6,
+      "sha256": "b290122f802ab15e7a318caa32afa919b58f377e578d65bb724e827b17543c21",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch"
+      ],
+      "has_main": false,
+      "calls": {
+        "play": 3
+      },
+      "play_parameters": [
+        "octavemove",
+        "volume"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Octave/Add Upper Octave.Script",
+      "category": "Octave",
+      "name": "Add Upper Octave",
+      "size": 39,
+      "lines": 3,
+      "sha256": "1d9bef1e78992f0a79dd4629abd058f552454d02b243e9515b990ecbf183b4a6",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch"
+      ],
+      "has_main": false,
+      "calls": {
+        "play": 1
+      },
+      "play_parameters": [
+        "octavemove"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Octave/Modulation Octave.Script",
+      "category": "Octave",
+      "name": "Modulation Octave",
+      "size": 795,
+      "lines": 42,
+      "sha256": "6a31051d9b7faec0f24ac79ab7ab74ecee4b5c520bb6504c70420523bb72b9e9",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release",
+        "modulate"
+      ],
+      "has_main": true,
+      "calls": {
+        "play": 1,
+        "stop": 2
+      },
+      "play_parameters": [
+        "id",
+        "key",
+        "octavemove",
+        "velocity"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Octave/Repeat Octave (Full Keyboard).Script",
+      "category": "Octave",
+      "name": "Repeat Octave (Full Keyboard)",
+      "size": 308,
+      "lines": 18,
+      "sha256": "ee106c44922d864198f94a6aa59f3ffaf192c41cf45b88d5cddfa6ec3930ceab",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release"
+      ],
+      "has_main": true,
+      "calls": {
+        "play": 1,
+        "timer": 1
+      },
+      "play_parameters": [
+        "autorelease",
+        "octavemove"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Octave/Repeat Octave (Half Keyboard).Script",
+      "category": "Octave",
+      "name": "Repeat Octave (Half Keyboard)",
+      "size": 380,
+      "lines": 22,
+      "sha256": "0629dbc2ae9c354383b80df4183319eb0df3901723be63ed19cc4549bf876ae3",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release"
+      ],
+      "has_main": true,
+      "calls": {
+        "play": 1,
+        "timer": 1
+      },
+      "play_parameters": [
+        "autorelease",
+        "octavemove"
+      ],
+      "effect_properties": [],
+      "settings": [],
+      "returns_true": true,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Octave/Repeat Octave + Setting.Script",
+      "category": "Octave",
+      "name": "Repeat Octave + Setting",
+      "size": 585,
+      "lines": 25,
+      "sha256": "7c32b8cc941e149069acc1c908d1c599389bc117b3554f28aa5edcf718d08f33",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "touch",
+        "release"
+      ],
+      "has_main": true,
+      "calls": {
+        "play": 1,
+        "setting": 2,
+        "timer": 1
+      },
+      "play_parameters": [
+        "autorelease",
+        "octavemove"
+      ],
+      "effect_properties": [],
+      "settings": [
+        {
+          "type": "slider",
+          "name": "repeat_octave",
+          "title": "From Octave",
+          "reset": 5,
+          "from": 0,
+          "to": 9
+        },
+        {
+          "type": "slider",
+          "name": "repeat_delay",
+          "title": "Delay",
+          "reset": 55,
+          "from": 20,
+          "to": 120
+        }
+      ],
+      "returns_true": true,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Shake/Aftertouch & Modulation Shake + Setting.Script",
+      "category": "Shake",
+      "name": "Aftertouch & Modulation Shake + Setting",
+      "size": 799,
+      "lines": 24,
+      "sha256": "2c8f2019ae4d8b4f84f4630f03c6882bc23466a4278454ad8927262bc4875d49",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "aftertouch",
+        "modulate"
+      ],
+      "has_main": true,
+      "calls": {
+        "abs": 1,
+        "setting": 6
+      },
+      "play_parameters": [],
+      "effect_properties": [
+        "2.Depth",
+        "2.Speed",
+        "2.enable"
+      ],
+      "settings": [
+        {
+          "type": "text",
+          "title": "Aftertouch"
+        },
+        {
+          "type": "slider",
+          "name": "aftertouch_speed",
+          "title": "Speed",
+          "reset": 5,
+          "from": 1,
+          "to": 20
+        },
+        {
+          "type": "slider",
+          "name": "aftertouch_depth",
+          "title": "Depth",
+          "reset": 5,
+          "from": 1,
+          "to": 20
+        },
+        {
+          "type": "text",
+          "title": "Modulation"
+        },
+        {
+          "type": "slider",
+          "name": "modulate_speed",
+          "title": "Speed",
+          "reset": 5,
+          "from": 1,
+          "to": 20
+        },
+        {
+          "type": "slider",
+          "name": "modulate_depth",
+          "title": "Depth",
+          "reset": 5,
+          "from": 1,
+          "to": 20
+        }
+      ],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Shake/Aftertouch Shake + Setting.Script",
+      "category": "Shake",
+      "name": "Aftertouch Shake + Setting",
+      "size": 378,
+      "lines": 11,
+      "sha256": "76abcee47016dfe5f641073a0166d3909b9667c87438e8b99327f069e4dbc230",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "aftertouch"
+      ],
+      "has_main": true,
+      "calls": {
+        "setting": 3
+      },
+      "play_parameters": [],
+      "effect_properties": [
+        "2.Depth",
+        "2.Speed",
+        "2.enable"
+      ],
+      "settings": [
+        {
+          "type": "text",
+          "title": "Aftertouch"
+        },
+        {
+          "type": "slider",
+          "name": "aftertouch_speed",
+          "title": "Speed",
+          "reset": 5,
+          "from": 1,
+          "to": 20
+        },
+        {
+          "type": "slider",
+          "name": "aftertouch_depth",
+          "title": "Depth",
+          "reset": 5,
+          "from": 1,
+          "to": 20
+        }
+      ],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Shake/Aftertouch Shake.Script",
+      "category": "Shake",
+      "name": "Aftertouch Shake",
+      "size": 114,
+      "lines": 5,
+      "sha256": "d8ca92d28948d502a4c2ce72474d6ddc6d396cf24533b20471b54fcf01cf88bd",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "aftertouch"
+      ],
+      "has_main": false,
+      "calls": {},
+      "play_parameters": [],
+      "effect_properties": [
+        "2.Depth",
+        "2.Speed",
+        "2.enable"
+      ],
+      "settings": [],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Shake/Modulation & Aftertouch Shake.Script",
+      "category": "Shake",
+      "name": "Modulation & Aftertouch Shake",
+      "size": 280,
+      "lines": 14,
+      "sha256": "16adb0cfe0dd934fc61ece27cf6ead5ad15270172dc6cbca6213841709f9fb41",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "aftertouch",
+        "modulate"
+      ],
+      "has_main": false,
+      "calls": {
+        "abs": 1
+      },
+      "play_parameters": [],
+      "effect_properties": [
+        "2.Depth",
+        "2.Speed",
+        "2.enable"
+      ],
+      "settings": [],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Shake/Modulation Shake + Setting.Script",
+      "category": "Shake",
+      "name": "Modulation Shake + Setting",
+      "size": 432,
+      "lines": 14,
+      "sha256": "90fd63ef61fced84eb71d499c33cdf5d9e773216c5ce41275f5d32a5ed023b8a",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "modulate"
+      ],
+      "has_main": true,
+      "calls": {
+        "abs": 1,
+        "setting": 3
+      },
+      "play_parameters": [],
+      "effect_properties": [
+        "2.Depth",
+        "2.Speed",
+        "2.enable"
+      ],
+      "settings": [
+        {
+          "type": "text",
+          "title": "Modulation"
+        },
+        {
+          "type": "slider",
+          "name": "modulate_speed",
+          "title": "Speed",
+          "reset": 5,
+          "from": 1,
+          "to": 20
+        },
+        {
+          "type": "slider",
+          "name": "modulate_depth",
+          "title": "Depth",
+          "reset": 5,
+          "from": 1,
+          "to": 20
+        }
+      ],
+      "returns_true": false,
+      "uses_exit": false
+    },
+    {
+      "path": "Script/Shake/Modulation Shake.Script",
+      "category": "Shake",
+      "name": "Modulation Shake",
+      "size": 166,
+      "lines": 8,
+      "sha256": "9acfb1af181246222bc76a2ef461a50319758a129dfc8252a63f3f568026c170",
+      "empty": false,
+      "brace_balance": 0,
+      "handlers": [
+        "modulate"
+      ],
+      "has_main": false,
+      "calls": {
+        "abs": 1
+      },
+      "play_parameters": [],
+      "effect_properties": [
+        "2.Depth",
+        "2.Speed",
+        "2.enable"
+      ],
+      "settings": [],
+      "returns_true": false,
+      "uses_exit": false
+    }
+  ]
+}

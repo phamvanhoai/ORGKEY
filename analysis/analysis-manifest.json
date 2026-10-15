@@ -1,0 +1,2449 @@
+{
+  "summary": {
+    "file_count": 486,
+    "total_bytes": 16197204,
+    "by_extension": {
+      ".json": 218,
+      ".md": 62,
+      ".xml": 1,
+      ".csv": 4,
+      ".py": 26,
+      ".bin": 1,
+      ".asm": 87,
+      ".txt": 5,
+      ".java": 82
+    }
+  },
+  "files": [
+    {
+      "path": "all-classes.json",
+      "size": 555,
+      "sha256": "8f476a89873ff59f6951af448298a2436d8b6db6667e3903241a2b29ce123c12"
+    },
+    {
+      "path": "ANALYSIS-MANIFEST.md",
+      "size": 1526,
+      "sha256": "a5b1514bb751b1fe62638c47325f412514b9722ead2c6805f4f1cdc098f2ea1b"
+    },
+    {
+      "path": "AndroidManifest.xml",
+      "size": 52931,
+      "sha256": "cd9f56db2e33f88513e5b68263ea0eda221e09a133d0f7020b3d3cd62c4c7793"
+    },
+    {
+      "path": "APK-SIGNATURE.md",
+      "size": 882,
+      "sha256": "3c1c4faf91d8b0595e3366db36cb6e643df218c6822745cd0ceac751575dd5fa"
+    },
+    {
+      "path": "APP-STARTUP.md",
+      "size": 4677,
+      "sha256": "51fd7ee2f614d21e59e714c2c012f652b461cb58eb8d0a81d2fc178192e3600c"
+    },
+    {
+      "path": "app-storage-root.json",
+      "size": 11619,
+      "sha256": "6e42380880589e65965e3d964df236fc1ddf0a03261434952ef16c624bce8ec3"
+    },
+    {
+      "path": "archive-inventory.csv",
+      "size": 46970,
+      "sha256": "21a3a814491fc7265e88f6992384357e0e8eba295f6bbf4501de82b22a9bfaae"
+    },
+    {
+      "path": "ASSET-COVERAGE.md",
+      "size": 1310,
+      "sha256": "448e913b32c19ea86f107bd4ab7f05a2b42a206be74ec969f3933f51156f39d0"
+    },
+    {
+      "path": "asset-headers.json",
+      "size": 1565,
+      "sha256": "aa5709e05439e996fb39ca7f6b52e77254e8e75cb91bbdb2a98b8f6dd90425ac"
+    },
+    {
+      "path": "audio-preferences-resolved.json",
+      "size": 2692,
+      "sha256": "eec56103323fad1234cf9a5492fd8c2cfb23ff512a467e7940bed29e3acb72a2"
+    },
+    {
+      "path": "audio-preferences-xml.json",
+      "size": 3721,
+      "sha256": "e4c66e8f45a24e104b9652f128a51fc017ac64a12912ae0a25ff242a36ab9cbd"
+    },
+    {
+      "path": "b60-class.json",
+      "size": 9710,
+      "sha256": "59e925d6bed0d7212dc11f034f320063b9ff42ceea9fe7bf9bc0f71011b7ba70"
+    },
+    {
+      "path": "build_analysis_manifest.py",
+      "size": 988,
+      "sha256": "a5c040b1d8d1512a04e21e40e0c43c177d218b1012845676cc8ed681b3fbf234"
+    },
+    {
+      "path": "bundled-data-inventory.json",
+      "size": 13047,
+      "sha256": "77f22e0b63f311242d6eeeb4ded368107b3d05238ed1d9559635e411b263e4f5"
+    },
+    {
+      "path": "CAI-DAT-AM-THANH.md",
+      "size": 4891,
+      "sha256": "4201c14357a20593cbce23a94b68d41d5e9a164972d0d343931d37ddcb0b9ad5"
+    },
+    {
+      "path": "CALLBACK-AUDIO.md",
+      "size": 5222,
+      "sha256": "a538407f811062667feb49a5525c890d0b255aeae0460735ba7a9e91a7c58ec2"
+    },
+    {
+      "path": "callback-file-helper.json",
+      "size": 13101,
+      "sha256": "f2f2d03290b31fd4e368fe5f1f53ff319dc753bb2579f71ffb78e2311027e284"
+    },
+    {
+      "path": "channel-close.json",
+      "size": 11754,
+      "sha256": "843ed64e077c110425e35d12da0ef138316f1e4548796b0b4e1c3c9276b7fca9"
+    },
+    {
+      "path": "channel-open.json",
+      "size": 21796,
+      "sha256": "61bc9c4b327339dc1c3f275296fdfd2793ccda02a697adb8841c34ae353ce416"
+    },
+    {
+      "path": "channel-release.json",
+      "size": 12466,
+      "sha256": "a95728923ddfe6155936d6fc956fabe1955483b1b890ccde9c8b676ba9bfa469"
+    },
+    {
+      "path": "channel.json",
+      "size": 9336,
+      "sha256": "2a6105ff86eeb5b4ea0264b17c497b902ef542065fa10ec8afb583f80b8e1aba"
+    },
+    {
+      "path": "channels-constructor.json",
+      "size": 24790,
+      "sha256": "46ef75202516c457daa50797080d4f30497966ffca8686a1de2cf98e1f3f52ef"
+    },
+    {
+      "path": "channels-process.json",
+      "size": 102160,
+      "sha256": "25593bbeece1906d52226f2a52437a537365f55dbac2f70d28a2624f0c641372"
+    },
+    {
+      "path": "channels-read-stream.json",
+      "size": 30312,
+      "sha256": "0c994ee6d4591120033d2eb77130c68bbe3c824dc46fe6daf40d430997cadd0f"
+    },
+    {
+      "path": "channels.json",
+      "size": 17370,
+      "sha256": "659a189227b467de5ffc8ade0d3b740cb4dc8c87d362de1a2ec99834c97c2806"
+    },
+    {
+      "path": "CHE-DO-AM-BO-SUNG.md",
+      "size": 4863,
+      "sha256": "843fe0173e5894c5a2c286647642a6c4b753d1f5fe5c9c1483a4423b19b2ea31"
+    },
+    {
+      "path": "chord-asset-inventory.json",
+      "size": 24690,
+      "sha256": "b75aecefce9f6479a17f62380f15353b5c5f40dbb80c1ace8b15fa540e597d38"
+    },
+    {
+      "path": "CHORD-ASSET.md",
+      "size": 2658,
+      "sha256": "2a63b5aa184338663e7eb88a0946a3c27ff2d8097f70a256208e1f9004ac7f9d"
+    },
+    {
+      "path": "chord-table-loader.json",
+      "size": 142092,
+      "sha256": "637b5ef56ffd3dd3144cc7cadb7d131f6c3e207d20f4ac7b7e8e45cfbd39c0f3"
+    },
+    {
+      "path": "class-c23.json",
+      "size": 2217,
+      "sha256": "2e523414de1a56a7aa12d931812d5631e53d4ffee4d30d6a805188e5ed0ae1fa"
+    },
+    {
+      "path": "class-def-c23.json",
+      "size": 4348,
+      "sha256": "2fd275dad06338d9b4746d1b318caf1cebfc23ded11cf829324da0325f860a4f"
+    },
+    {
+      "path": "class-def-fx2.json",
+      "size": 6627,
+      "sha256": "61e9908c13a2862b561de51969a71af77303b46a28ce8d052f759ad90b106621"
+    },
+    {
+      "path": "class-def-zd1.json",
+      "size": 11580,
+      "sha256": "3476a6938826b40f08ba99cbfffe9fc89ac650918bf61b6abd83e048d82dc529"
+    },
+    {
+      "path": "class-fx2.json",
+      "size": 2217,
+      "sha256": "0eea0eac1f6c54408ce8d7d06c5dd59f800913e0f25665bb582f3dafcc352854"
+    },
+    {
+      "path": "class-zd1.json",
+      "size": 2217,
+      "sha256": "48379e5315505ff31b54630f56f4590f45438cd5c50f225d4c514ea23acd5a21"
+    },
+    {
+      "path": "classes-sofeh.json",
+      "size": 758651,
+      "sha256": "3aeec2447bc53ee0b1afd1f12ebaf0d3a00dab8cb25755e05364a48f343ed105"
+    },
+    {
+      "path": "COLLECTION-TRACK-EVENT.md",
+      "size": 5437,
+      "sha256": "3dc8c4355d2379caeaee19ad0476b5da731d57c385b0d9e6df3e68a70b540115"
+    },
+    {
+      "path": "compare_native_abis.py",
+      "size": 790,
+      "sha256": "2887e9dd8cc87159bdba6e4e4c6a2a5e4105a32c8caad8272c4b9933e8154363"
+    },
+    {
+      "path": "constant-instrument-inventory.json",
+      "size": 2617,
+      "sha256": "bec4ee8a241be068335394a621091caf788b1fd64bc17827229a5250f5b5feb9"
+    },
+    {
+      "path": "DATA-ZIP-CHORD-SYSTEM.md",
+      "size": 3779,
+      "sha256": "ef23d82cc043dd21e97fd6cd5f7edec0e920ff08968988020d46dbd33ce3f59e"
+    },
+    {
+      "path": "data-zip-inventory.json",
+      "size": 77600,
+      "sha256": "8a8200bd4746dfd65fde460d4293f445ea0adcd7555cd08b65c9b0b961789431"
+    },
+    {
+      "path": "default-template-inventory.json",
+      "size": 892236,
+      "sha256": "b737d74202a1978c580b6f74f7554d33eb0315a67f4637afdab0bc5f0547ded1"
+    },
+    {
+      "path": "DEFAULT-TEMPLATE-INVENTORY.md",
+      "size": 4112,
+      "sha256": "fd69c65c7a39b27278bb791e98d12b84887a96638270070f3305643a711a0dee"
+    },
+    {
+      "path": "dex-lifecycle/index.json",
+      "size": 4979,
+      "sha256": "1ff791fb9b91f9fefa3931c9f28c669b42393aacbbaaacffa6386d5a534a7d08"
+    },
+    {
+      "path": "DIC-ASSET.md",
+      "size": 1692,
+      "sha256": "eda814088d54a06f1109df24f377650899bcec111cc97ae06f098c2f74638a2c"
+    },
+    {
+      "path": "dic-decoded.bin",
+      "size": 4016,
+      "sha256": "c4ee9aa7cb3b1de2b52b4746b4e62142cddd5dae46429dc144edcc9d405b91a4"
+    },
+    {
+      "path": "dic-exec.json",
+      "size": 31884,
+      "sha256": "68326db6aba9d2ef7c2f2c32e41cca953f69e6d12833ea3a3f2c3ecf382bc88d"
+    },
+    {
+      "path": "dic-reader.json",
+      "size": 20496,
+      "sha256": "471a14ee4562f7c8a58fc9960c10dde626461fcf3e39e56aeef5ba727b841f5b"
+    },
+    {
+      "path": "dic-transform.json",
+      "size": 10982,
+      "sha256": "71d7dd4e414d0866a673df1f8d3daa37498c5c929daa224c45a51f89c4a37c3a"
+    },
+    {
+      "path": "DINH-DANG-SET-INSTRUMENT.md",
+      "size": 6511,
+      "sha256": "8b3e467de3c8b052e97ab94b49ef4d67f5dc7d686d5f2a40afe80d6bd8c1f738"
+    },
+    {
+      "path": "disassemble_audio.py",
+      "size": 5398,
+      "sha256": "05737611d157aade11b8b6ce64588dd859a6bd6cbfd92bbfa1e96c800290915d"
+    },
+    {
+      "path": "disassemble_dic.py",
+      "size": 603,
+      "sha256": "99593d47a50be4c157e69ef7f33f87579f0bb9cd249590b8065b61ef80468dc4"
+    },
+    {
+      "path": "download-catalog-inventory.json",
+      "size": 167380,
+      "sha256": "8f011ed4e72357d98563b3a078b1f0e814867db99043bc3ff062ceccbdb2bdfa"
+    },
+    {
+      "path": "download-catalog-search.json",
+      "size": 6540,
+      "sha256": "baa50b43f2245266d61726fcbe8e833cc52b247b28451e8c4c54c9d46a6d8fc4"
+    },
+    {
+      "path": "DOWNLOAD-CATALOG.md",
+      "size": 3164,
+      "sha256": "ce3f3ec8b06cdcbc51a5110dc797e3b94e7a60db96f2c9f4cfb1a42a565fb10d"
+    },
+    {
+      "path": "download-classes.json",
+      "size": 1515338,
+      "sha256": "7baee97db346ba2c271d73b5b1c7eed4e0cf79d8d14d70b857b0f44afd6c3b27"
+    },
+    {
+      "path": "dump_all_sofeh_jni.py",
+      "size": 1029,
+      "sha256": "33e7a78c909c48c463c90a5992a0255ec1be73b5323d50a06553cb61e12f5cb2"
+    },
+    {
+      "path": "dump_audio_dex.py",
+      "size": 1858,
+      "sha256": "9c3b37bc40d3ee65ac8a13271ffcade67e87f742806dd2af6c973af4b514623a"
+    },
+    {
+      "path": "dump_effects.py",
+      "size": 1697,
+      "sha256": "09626cfe6fe4745a47500094e97ffcac8579e66b73e85d5bc5e9fce48a8c6bd2"
+    },
+    {
+      "path": "dump_nopensl_helpers.py",
+      "size": 1985,
+      "sha256": "11cf9614cdce59366a86a72fc5d56a13dd30713dc6b1bccd9fdb998bcc3084ec"
+    },
+    {
+      "path": "dump_npitch.py",
+      "size": 1236,
+      "sha256": "a42bc9b6c8b51e2fcb3084712761ff46f2f113e28cc2e815de2d91d82007706c"
+    },
+    {
+      "path": "dump_npitch_helpers.py",
+      "size": 606,
+      "sha256": "8b28a84a3338928a1c3fd03917de4f94e43cd66f51b0316e50f8dbd5c6d7674d"
+    },
+    {
+      "path": "effect-class.json",
+      "size": 21712,
+      "sha256": "fd7381c75eefbc1b142b928376d1af5a41d71d3815e73e2c73dbf180724af968"
+    },
+    {
+      "path": "effect-constructor.json",
+      "size": 16722,
+      "sha256": "7c0551e4d5e6d8bfe99a763b7a795a232ca33fa63b238db8bfc0a6c6e2bf4dfc"
+    },
+    {
+      "path": "effect-read-stream.json",
+      "size": 18772,
+      "sha256": "27629e717fd6add6d0669368122d9670d2179a474eb63f42b57c553adcf21b92"
+    },
+    {
+      "path": "effect-write-stream.json",
+      "size": 18852,
+      "sha256": "a2e9018646230576a86c3c3be4724829fce0f9409bbda8f095b0fbb97a8ddfdc"
+    },
+    {
+      "path": "empty-template-inventory.json",
+      "size": 6576,
+      "sha256": "35bbff1aa40fb255e8548064a9e7b8243326ae4d23e16ceef099fd6c9e7e549c"
+    },
+    {
+      "path": "EMPTY-TEMPLATE-INVENTORY.md",
+      "size": 2798,
+      "sha256": "c3587a41053dcf9b15886b70f414d0c19117152a733bea05af9c81ea22c16b2a"
+    },
+    {
+      "path": "EVENT-NOTE-LIFECYCLE.md",
+      "size": 4284,
+      "sha256": "461c239bc1a0cfca965604b19ea7d562250558c76cfbab7616c832b2ae7d2611"
+    },
+    {
+      "path": "export-note-callers.json",
+      "size": 69033,
+      "sha256": "feb2d2d043256d247abb2d2189be164da3d963a0c9fcf35f9ab2050ec585b46c"
+    },
+    {
+      "path": "export-note.json",
+      "size": 75315,
+      "sha256": "844bd61aefb73ae8ae86a471fe5af3dbc07df0b43f9e77fd4ead7c276c8503df"
+    },
+    {
+      "path": "export_template_wav.py",
+      "size": 4126,
+      "sha256": "7b999dc449d3e67252778eff74a0eae001d4f1c4b4445675c2509607ee3d07b5"
+    },
+    {
+      "path": "extracted-audio/constant-syncro-crash.json",
+      "size": 445,
+      "sha256": "762c01e73a7318df1a97f0e229c31b79816e11bf63eb3698de15bc2f43a68e94"
+    },
+    {
+      "path": "extracted-audio/metronome-long.json",
+      "size": 424,
+      "sha256": "f45f28b4d17f0592073596a4f703de7c9a8761ef4587e4aac3c01d2e9839b918"
+    },
+    {
+      "path": "extracted-audio/metronome-short.json",
+      "size": 426,
+      "sha256": "e55eedb53748468022c1d7781142d43e4fc5dbaf7c04e62305ec5e05a0af38a9"
+    },
+    {
+      "path": "extracted-audio/piano-dnc-csharp4.json",
+      "size": 438,
+      "sha256": "55f607c2ae5b164fd5b677799aa9010e05cf703f59117c6e52295bca1c666039"
+    },
+    {
+      "path": "extracted-audio/piano-low-eb2.json",
+      "size": 443,
+      "sha256": "19fbaefeef92d4c3f6a26b744626b676ff00031cac3e9e945767f4ee7b788b85"
+    },
+    {
+      "path": "extracted-audio/sound-sea.json",
+      "size": 419,
+      "sha256": "b380f22364e02b52cc03f5adc6178d18c7ffc0d98262f08e20149fb4679ae07a"
+    },
+    {
+      "path": "FALLBACK-AUDIORECORD.md",
+      "size": 4029,
+      "sha256": "de7d2aa3caa87ef0c54357508b82a5eac28cb72dae0ad2f58e70ffb89b044e0a"
+    },
+    {
+      "path": "FALLBACK-AUDIOTRACK.md",
+      "size": 4620,
+      "sha256": "30e884e3e129b0020293817ecb0be783ac2cc803a19c904d587e34b120606e6d"
+    },
+    {
+      "path": "fallback-create.json",
+      "size": 9942,
+      "sha256": "07b2de68e21c23825bb1f08279525187656f242c0854f1b922b65ce3315dbbe3"
+    },
+    {
+      "path": "fallback-write.json",
+      "size": 12377,
+      "sha256": "d6c18628e91173b193ebe65fb5d7a1e2be4756f803ad8ef8be97ba34a9a5cbca"
+    },
+    {
+      "path": "fb2-class.json",
+      "size": 7328,
+      "sha256": "52162e4611078ac59f5db8ec0d7bd9d58caf429cc5e4adb3640f5f52c7ec8a82"
+    },
+    {
+      "path": "fb2-run.json",
+      "size": 64198,
+      "sha256": "b5fc76de587e497a433153314bb7c829cf9d9048b422c4841d91ecf6813fec21"
+    },
+    {
+      "path": "find_dex_field_candidates.py",
+      "size": 3219,
+      "sha256": "9c81d42df5f8bd7eab3fb0ebb9fa63ed551185d9f2ac4ab31cef22f8ab8fce82"
+    },
+    {
+      "path": "find_wav_lifecycle.py",
+      "size": 2619,
+      "sha256": "965b81e11f401fbe5b63cbf77860febec67b8d1b94bb9fba9037e89c9a34d1ac"
+    },
+    {
+      "path": "fu3-class.json",
+      "size": 6112,
+      "sha256": "d3966b9f29b79001fd24b8b62988add1e1b8a4c0f379366fb35cd23e91a19322"
+    },
+    {
+      "path": "fu3-run.json",
+      "size": 64365,
+      "sha256": "464a3d235a41720449e164040229f6201b3791d398500b2164bf760d5b3697c4"
+    },
+    {
+      "path": "fx-block-read.json",
+      "size": 27726,
+      "sha256": "cccfe84f4ac9bfd4738a9c183fd2e650f986ad5f713eeae56f72b9d2b3147fec"
+    },
+    {
+      "path": "fx-module-base-class.json",
+      "size": 13426,
+      "sha256": "22aa24e5a0a6bf5ad0d824b8e6cb3c508c53887e99c782bf66eb317c5b8986eb"
+    },
+    {
+      "path": "fx-module-base-constructor.json",
+      "size": 12620,
+      "sha256": "36e387803961280854aa68c2b882bd623f1269e151f3fdc4f8a8e3235b550587"
+    },
+    {
+      "path": "fx-module-read.json",
+      "size": 12538,
+      "sha256": "98ccb2020d82a8a6e2a2c8ff86163f8366139ec812f7df525a9dfd6117d8f456"
+    },
+    {
+      "path": "fx-module-table.json",
+      "size": 1793,
+      "sha256": "fa7f4b1e5185a5e4c64226aa17193124c4c7a6c52aa6adfd205e46677d6b7e00"
+    },
+    {
+      "path": "in-device-start.json",
+      "size": 75875,
+      "sha256": "a8cd24514d6d8dfca2998d87540f2b0a37c7ca34a42c90918cdc1317bb73c61c"
+    },
+    {
+      "path": "in-device-stop.json",
+      "size": 69069,
+      "sha256": "fe7805fdd7d917119401eda4726a3150cefad09b98949dcf8e07305bb50b8879"
+    },
+    {
+      "path": "INDEX.md",
+      "size": 2918,
+      "sha256": "fff9a4aa4caf21f5bdcd8f025a4a8c6a7e1dd76707315f3e561f6a83ae28fcce"
+    },
+    {
+      "path": "inspect_chord_asset.py",
+      "size": 1622,
+      "sha256": "9c9cb977db2ab7026683d380acf6212a988c1f55dd6a784a5ec2975ae5c01780"
+    },
+    {
+      "path": "inspect_download_catalog.py",
+      "size": 4052,
+      "sha256": "19baf949cf2d8f615d14c0ec0964aceafbdb0b9629357f7123d3093f77011d71"
+    },
+    {
+      "path": "inspect_menu_assets.py",
+      "size": 1293,
+      "sha256": "e0cf774fbcc2242039fac1cc71e932cf63c61219defb536020f23d2210a402eb"
+    },
+    {
+      "path": "inspect_midi_models.py",
+      "size": 4137,
+      "sha256": "b6b5a74855bffe430ebd3afa5b34a4ddb1a0cf1442657be3fbdba7e8974c8825"
+    },
+    {
+      "path": "inspect_music_assets.py",
+      "size": 2144,
+      "sha256": "90fd446c0c1e4407434381d17965193c5063377a59e0aa1a71c5e2a5a4aca97c"
+    },
+    {
+      "path": "inspect_native_symbols.py",
+      "size": 2091,
+      "sha256": "05edc09b77b9c135def33ef1319f672d1c0259934c7d431626afdbea01e65f2e"
+    },
+    {
+      "path": "inspect_nested_chords.py",
+      "size": 1035,
+      "sha256": "20086f2301abdadc7d0a7e3dccc939410123ad20d069d83b64e00a083319ee3d"
+    },
+    {
+      "path": "inspect_script_assets.py",
+      "size": 4861,
+      "sha256": "e6000722ceb663c38a3935e50e119298b5269f83caf4e3b2e7e60edb0a5551bd"
+    },
+    {
+      "path": "inspect_setting_xml.py",
+      "size": 5275,
+      "sha256": "c2a46efb2bdc7e23ff09061a9998f9f7419961df85be5020744f1b4376a12735"
+    },
+    {
+      "path": "inspect_skin_assets.py",
+      "size": 5573,
+      "sha256": "1b14ece025313fad78d22bfab8db15e21fb600e782f65a7c142de96fdb487a50"
+    },
+    {
+      "path": "instmode-class.json",
+      "size": 13352,
+      "sha256": "43746a22233b1c089652228f08330febf9da03837fe4d2e37ac423b33a5aa7c3"
+    },
+    {
+      "path": "instmode-script-event.json",
+      "size": 17820,
+      "sha256": "60a35304b4cb236ffb557111f84856067cc1e5c841248b707c83ac60200e2fdc"
+    },
+    {
+      "path": "INSTRUMENT-ASSETS.md",
+      "size": 2644,
+      "sha256": "73fb909fe436015f35f706efe758526cc9439dc08741dac06db22544718407d5"
+    },
+    {
+      "path": "instrument-class.json",
+      "size": 7586,
+      "sha256": "bca8005f635cc08337cd424bd5143e8e7b104359ebe00e817034f54f3b4b077d"
+    },
+    {
+      "path": "instrument-load-asset.json",
+      "size": 68841,
+      "sha256": "3b0ec49d131acf647da969e03124cfd0bbba887b223b9fff9b7370d45bac5d4d"
+    },
+    {
+      "path": "instrument-read-stream.json",
+      "size": 23851,
+      "sha256": "ad602b5dcaef8b7ee22c48885fc9d29f39ab02e65c20727dd3e22b7a8883c220"
+    },
+    {
+      "path": "instruments-class.json",
+      "size": 6666,
+      "sha256": "21a1e69edd9f71e15d9240d5a0acb01397fad8398d3ab5f4ceec36892d9b6739"
+    },
+    {
+      "path": "instruments-constructor.json",
+      "size": 12884,
+      "sha256": "1a973b4e7f37fdf1410656c2b5778dc1e26dc46593b42af7e9daa07917b91549"
+    },
+    {
+      "path": "inventory_native_arm64.py",
+      "size": 848,
+      "sha256": "74531eb6a77d958fb58f5bda7e56d3cef20703616b56ac60cbd12059827d35ff"
+    },
+    {
+      "path": "key-hit-test.json",
+      "size": 55642,
+      "sha256": "5c037cd3d0aa9d2ae8075215ca5d60062d2694468b33352a405e0112b917abff"
+    },
+    {
+      "path": "keydata-read-stream.json",
+      "size": 13852,
+      "sha256": "be501c883853228a8239a21092d7e3754c5b5959adda03675d6b876ba7eb500e"
+    },
+    {
+      "path": "latency-field-candidates.json",
+      "size": 3086,
+      "sha256": "117293b12eeb846fcd138a850e1573d49538ebcc348c99410ea719bf7e4fed9a"
+    },
+    {
+      "path": "latency-instruments-callers.json",
+      "size": 69345,
+      "sha256": "74658e41f8472d7d455138eb7684dccc750a9f10e0156c7e571b421f20bdb741"
+    },
+    {
+      "path": "latency-instruments.json",
+      "size": 71569,
+      "sha256": "c7fbe3188404a5ef7dfdd2a32ea07379470d7ec86fc8634cbf12fd854930fcf7"
+    },
+    {
+      "path": "latency-set-callers.json",
+      "size": 68073,
+      "sha256": "59e7edf5055ddf359a120751b4e27f0a67b91d9bc584dc59a702739ebe779a95"
+    },
+    {
+      "path": "latency-set.json",
+      "size": 68414,
+      "sha256": "12eceb5f3f6d951b7e9cd993293c04bf74b528010c53260555bfdc6d4a67a974"
+    },
+    {
+      "path": "LIBNMS-IDENTITY.md",
+      "size": 800,
+      "sha256": "a2d5fcbd72a701cc7ac3963bed8aee11e01c1166a0e1065f045afd2a24ab4408"
+    },
+    {
+      "path": "load-set-G1.json",
+      "size": 54696,
+      "sha256": "6fbcf8c7771f6d00904bab3fa18ca3b318e1a81691ed1aadd5ca7c18b5c087b4"
+    },
+    {
+      "path": "load-settings-O0.json",
+      "size": 72001,
+      "sha256": "35454f2901c27a23567921ab644d04cf2e33cabf09cc589f84d011254d039eac"
+    },
+    {
+      "path": "LUONG-PHAT-AM.md",
+      "size": 10743,
+      "sha256": "e258fecfc5e7db95c12af0015ef55cf5c44cb02221668fb957b32f2a2e787951"
+    },
+    {
+      "path": "main-activity.json",
+      "size": 13254,
+      "sha256": "c3cf8741092485c21f9db7176105f4ce006c78c882b0d6be28005ef66674058e"
+    },
+    {
+      "path": "main-application-class.json",
+      "size": 4577,
+      "sha256": "6c17a0d85bd822582b9d864c7c77e6712b7d724c46baae69f19f6d41e3defa74"
+    },
+    {
+      "path": "main-application-oncreate.json",
+      "size": 5968,
+      "sha256": "facf63e7746ce96af2f47a43080ccde4ca0bc09968ea1b1e9b72b66ad31d4d59"
+    },
+    {
+      "path": "main-audio-start.json",
+      "size": 52847,
+      "sha256": "199ee219d819c0ff148b4792fae2696cdf0c20068f1cc354887a327223d64a97"
+    },
+    {
+      "path": "main-constructor-fixed.json",
+      "size": 52078,
+      "sha256": "ea5157c3e07e3ccc333d5e582ed3cdee7744065c7d68c3386ab35e9cde369f64"
+    },
+    {
+      "path": "main-constructor.json",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "main-init-I.json",
+      "size": 89149,
+      "sha256": "2147e80b0a07e3468c1d7bba698709f93168cbcf99d2f07f1cd585087ad3bcae"
+    },
+    {
+      "path": "main-oncreate.json",
+      "size": 85771,
+      "sha256": "4fdc7d78a50fede68b086c76729ff31b5d5bc99a7e2544a2e5d4314b76e8375d"
+    },
+    {
+      "path": "main-settings-h1.json",
+      "size": 80375,
+      "sha256": "b1e5d14d74cc119fe02792697b478398d102b454e6991d65ef0a4c491ca32b88"
+    },
+    {
+      "path": "menu-assets-inventory.json",
+      "size": 33156,
+      "sha256": "6ff89bfe22ce5663e1e21db93cc12100e1edde23fa34b662d984874a9a8ef4b4"
+    },
+    {
+      "path": "MENU-ASSETS.md",
+      "size": 1975,
+      "sha256": "e10ccc8db0bf0b36996057ce8ce636b528a103b8e7d531e780d7f1a567f2b5b8"
+    },
+    {
+      "path": "midi-control-a1.json",
+      "size": 112534,
+      "sha256": "663faf43432cda94c05363ed684cba2af4edca65244dcf35f12fe9b7de3c821a"
+    },
+    {
+      "path": "midi-control-command-u0.json",
+      "size": 104270,
+      "sha256": "bb0239badc58f470814df3c30893a413f8b49431d1da372d7e1da8ce030dc465"
+    },
+    {
+      "path": "midi-control-command-v0.json",
+      "size": 1639846,
+      "sha256": "f244930e90d5d53214d638789120374f033cc520535fc056e763ece98610bfc8"
+    },
+    {
+      "path": "midi-control-dispatch-runnable.json",
+      "size": 163292,
+      "sha256": "64b37b646e125d41a3623e0da7d2ce5e9756350eda06401fa53fcd230d77b391"
+    },
+    {
+      "path": "midi-control-f1.json",
+      "size": 109296,
+      "sha256": "6eebbdda797170405e2cd9c5bd278ab036e2348c600abbdd2fd4c52feb161b39"
+    },
+    {
+      "path": "MIDI-CONTROL-FLOW.md",
+      "size": 4113,
+      "sha256": "8148c7f1181d685334bc5ff8391e3f86d9c9fb81a321e57a3993de806de3dfc5"
+    },
+    {
+      "path": "midi-control-g1.json",
+      "size": 107836,
+      "sha256": "4cfbc9bd352ef8b5c409eb0f66886082cc9e35bc1f178b01936c87a8dd443519"
+    },
+    {
+      "path": "midi-control-Z0.json",
+      "size": 105698,
+      "sha256": "4b7f60a879254fea396a32b53da56c945d02c5cb6b4d336bdda347cc04e9c312"
+    },
+    {
+      "path": "midi-model-class.json",
+      "size": 16580,
+      "sha256": "41b22a772130729281d9e3d94b3b009f86f60843caa64f6c9c6207ba156f5771"
+    },
+    {
+      "path": "midi-model-find-callers.json",
+      "size": 20396,
+      "sha256": "50a63caa2ed112e7934745dd15f0556aee55650e06f7a08578e3743eed8ea743"
+    },
+    {
+      "path": "midi-model-find-operation.json",
+      "size": 16970,
+      "sha256": "a487ce910882b2bf753facdbef42028673d3d720378f23d89299395ea3ecdbd5"
+    },
+    {
+      "path": "midi-model-inventory.json",
+      "size": 17481,
+      "sha256": "e5e7463c00da95c4dda68ff06b360ae997ba7f372959a78791e5c74cc51e36ec"
+    },
+    {
+      "path": "midi-model-load.json",
+      "size": 22816,
+      "sha256": "5b30b878fc351574a89ae40447baf9f4f6275ae704a6bfe59f9b1aced2be406e"
+    },
+    {
+      "path": "midi-model-match.json",
+      "size": 15898,
+      "sha256": "9feafda67a486ad596bed24ed0756ffc3fb466b9f71ff03e05a1f819442300a6"
+    },
+    {
+      "path": "midi-model-method-a.json",
+      "size": 15930,
+      "sha256": "e534d9cb0bc2edfde9820550adcd350a19ce46159890a7d0c00c1221618d9477"
+    },
+    {
+      "path": "midi-model-operation-class.json",
+      "size": 8896,
+      "sha256": "e27980aba91671d01221fa70fc74e66e2b5a5f80015f855ba1c8e910e40c2e60"
+    },
+    {
+      "path": "midi-model-parse.json",
+      "size": 35616,
+      "sha256": "fc8fb3998f6f9337842e04fb38cfe99c587bb3e4765c3f25f7e4fa4d85f7b8a3"
+    },
+    {
+      "path": "midi-model-static.json",
+      "size": 68146,
+      "sha256": "4b9995f800c260b9128369075827b8a1ac3d50efc36a718a2df7db56ba81bb13"
+    },
+    {
+      "path": "MIDI-MODEL.md",
+      "size": 3597,
+      "sha256": "985810cd9955babcf1e2b46464dc8ba2120c37610102ac3f77ed5510da6346b5"
+    },
+    {
+      "path": "music-asset-common-metadata.json",
+      "size": 1194,
+      "sha256": "7881b44f33db222a2b286b68ce4a4309d72da51fddf7d74e1366c52cffd930c7"
+    },
+    {
+      "path": "music-chord-find.json",
+      "size": 131978,
+      "sha256": "e9bca94ff07a3234e024c1b75b9cde91c01787da5c908f9936f8ec818890e863"
+    },
+    {
+      "path": "music-collection-class.json",
+      "size": 12548,
+      "sha256": "66394edf5b3bc56d12f419e0c7bf422f1e98d4848ee2fece414a6684744752dd"
+    },
+    {
+      "path": "music-collection-read.json",
+      "size": 15412,
+      "sha256": "b7bd271371e302659332d24ea970f54ae0a1587f92dfd977016b437015fb989e"
+    },
+    {
+      "path": "music-collection-write.json",
+      "size": 16064,
+      "sha256": "8b8b4bd805d5a75d099aa7d60b5126881709b9f2b81709f61e086ef70c21eb65"
+    },
+    {
+      "path": "music-collection.json",
+      "size": 17264,
+      "sha256": "e4e6b14b3d1ea9800d3a2690c22d5b26faa2fde7539e596269ec5e471608474b"
+    },
+    {
+      "path": "music-constructor.json",
+      "size": 78939,
+      "sha256": "f7de9f7d350ed82f59f7add68baf0e4e09562c29209fa2512212072febf3e99a"
+    },
+    {
+      "path": "music-load-asset.json",
+      "size": 69323,
+      "sha256": "aa62b673f901d4d2269a4286e56ee5b0dd7158325081f252eb0dd8f8236fb084"
+    },
+    {
+      "path": "music-load-file.json",
+      "size": 69964,
+      "sha256": "4ffe1702d9ea1442dc6c7de63bd02033d7622154419773b8f5778d45ad784e81"
+    },
+    {
+      "path": "music-Process.json",
+      "size": 69768,
+      "sha256": "8addfa849be1ecd3c8740d17624ebb61b09015a1748a0ba82a9dd83ee0bc0a73"
+    },
+    {
+      "path": "music-ProcessIn.json",
+      "size": 70505,
+      "sha256": "cae80751ea4dfbc6942f41f5be8a812d726050156cbd174c8dc891765ad15933"
+    },
+    {
+      "path": "music-ProcessInSafe.json",
+      "size": 68640,
+      "sha256": "d0588a4ddcf5678684aed17d03fee934e3813ee46b0756834c6f7cbc3bc13b39"
+    },
+    {
+      "path": "music-ProcessOut.json",
+      "size": 80218,
+      "sha256": "cf81cb0ca9b3cdda37961d561033d36b4f9b29c53769e6acea3d2c9725c3f580"
+    },
+    {
+      "path": "music-read-stream.json",
+      "size": 161142,
+      "sha256": "1cc55a7ba3b648fe45a6ea6be729126f42426347c33796f715d0a604def921b7"
+    },
+    {
+      "path": "music.json",
+      "size": 129192,
+      "sha256": "3eddd5f92e6774ed44f4e788dd405e053e19de25403ed725651d322e343471c8"
+    },
+    {
+      "path": "musicobject-class.json",
+      "size": 9457,
+      "sha256": "dc4b2835f545f7c00b33345df3a94084f26056d6aaf820365179a5cdc20d03a5"
+    },
+    {
+      "path": "native/dic-x86-text.asm",
+      "size": 12183,
+      "sha256": "50a316297951d0e145de5496e44102a650727711d1aba51df3461f413b0831ec"
+    },
+    {
+      "path": "native/Java_sofeh_audio_Lame_close.asm",
+      "size": 500,
+      "sha256": "1da1784fa91ea04b4c199c9c091dc9d8146b839597dd58892f4b7174cf1bc14f"
+    },
+    {
+      "path": "native/Java_sofeh_audio_Lame_encode.asm",
+      "size": 3186,
+      "sha256": "f30af4366d5e0f98be5cb666eb9ab055b3c5168d1b2d0446250224814d524885"
+    },
+    {
+      "path": "native/Java_sofeh_audio_Lame_flush.asm",
+      "size": 1567,
+      "sha256": "b6d88c516baa5c79eb3a10677582e04e850de8ef97a2d7650bd59076a6c35dae"
+    },
+    {
+      "path": "native/Java_sofeh_audio_Lame_init.asm",
+      "size": 1671,
+      "sha256": "92c95959b5726c56e481e5564004fadac2d2aac814bb133be32746952afc4f97"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NBandBooster_build.asm",
+      "size": 1879,
+      "sha256": "dd84ccdf18a71052893ac7a0be2436a2b05dfc1ac9273c73db3e1c19e6eb0dec"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NBandBooster_close.asm",
+      "size": 236,
+      "sha256": "e8ba4b44bf1fa145ff584d3a6591824a8f27fc595b1c8dff72deec1131391fe2"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NBandBooster_open.asm",
+      "size": 462,
+      "sha256": "35877839a63ec0838435280801e8d8de7093313fb0d58020d800a74bc08a77c8"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NBandBooster_process.asm",
+      "size": 2342,
+      "sha256": "05124f8f6859a4a5740736bcfc3f9ff6b8bab03f6be197ab9c5de897ccd39051"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NEqualizer_band.asm",
+      "size": 209,
+      "sha256": "8d5193a115c6e77e1aeb79eb33407c8c173f07961080d073da90ac84d393068f"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NEqualizer_bandMove.asm",
+      "size": 523,
+      "sha256": "e71f04fda4d9cae7e3419a41c5ce5dab904b1ae11b4eba7ae91b4b2c5b782ae0"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NEqualizer_build.asm",
+      "size": 7463,
+      "sha256": "d89129ce0206334001a52664ecc06e535df71356548a2379222bd3cce1d066ad"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NEqualizer_close.asm",
+      "size": 234,
+      "sha256": "f0ea2d4b1d4b941aa965d4c136bab2f6dcf9de86c0a8e639e464e9e935d5f392"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NEqualizer_open.asm",
+      "size": 578,
+      "sha256": "9f71505921305e635f54abac030ea816af70cb9f8e9fbe845bda3ed836b48556"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NEqualizer_process.asm",
+      "size": 12189,
+      "sha256": "50771d53afcbb253461c31d9ab59e86bc0a4826188c9df182e9c803be800574c"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NEqualizer_processLeft.asm",
+      "size": 11158,
+      "sha256": "6687a2c1a15212ee38c129dbdb3119c05a830717a647d568b68920a069f82884"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NEqualizer_processRight.asm",
+      "size": 12190,
+      "sha256": "1fbece2fb1619d301425538a06b1963c7edd483f38cfd8968b2f90da6767e5e3"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NFlanger_build.asm",
+      "size": 942,
+      "sha256": "a44cd2c07ead14b4caf66c16ea3b03112c81a4e2284ec5afcf590651b01e6650"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NFlanger_close.asm",
+      "size": 228,
+      "sha256": "3824fb5acf453213018bbdb65f713308e87c1b1833a4b16332dd94a4d9db5e1b"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NFlanger_open.asm",
+      "size": 695,
+      "sha256": "86fc7695cd2eafc75cce13cf06657bf5f2f2b43272c116fe4d3b6736e8aeb7b7"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NFlanger_process.asm",
+      "size": 4294,
+      "sha256": "172f0fd47d04758f415e02606cc80fbd58c1f85b93c5683fcc040783317fa403"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NFlanger_processLeft.asm",
+      "size": 4334,
+      "sha256": "f0260bb4050190f524f8be00076bc3c69d64fdcd2fb1e35fe250f06508e92ea1"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NFlanger_processRight.asm",
+      "size": 1985,
+      "sha256": "4f0a532c5a2543a6fa07ec7dcb4951fb6211c7495b41336d324df9db4afefcd5"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_close.asm",
+      "size": 226,
+      "sha256": "796bb85b0300834eedeee7230af66264f0dd527612d3e85bb3d39a1b518b28c0"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_flush.asm",
+      "size": 226,
+      "sha256": "ba3dd2f2ef830852f472581d71bade0a1c7f50a2d372b7f855d3a39380e43aab"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_open.asm",
+      "size": 1570,
+      "sha256": "1ea936fb4390749e5fa781b759d880cd8156862cef8501d3bdea61384b5ea7d4"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_processLeft.asm",
+      "size": 1108,
+      "sha256": "082bebc046d8915b23b1e78609739f2d9dfee43015c556b75e44b31a8ccd5165"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_processMono.asm",
+      "size": 1774,
+      "sha256": "35441a240e99438a5044e2d28b2b61f9714494d4770be7079f50d1e8e71e4720"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_processRight.asm",
+      "size": 1109,
+      "sha256": "c5cf1c71deade81d442f0433b122b70a80fa19979e56fa09f8274adb86050334"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_processStereoLeft.asm",
+      "size": 2346,
+      "sha256": "46aa1018b11603ec5697f027c3d9895ac9b4a2a4265e2bbfedcc52ffa33f68fe"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_processStereoRight.asm",
+      "size": 250,
+      "sha256": "3b0a74868e1f26c23d850da28c9ab6a9c410115aa4b4b7958791cd0487619987"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_setdamping.asm",
+      "size": 538,
+      "sha256": "95b2b44a259e554619549f88e605931c6ba8fb04119e4efd032fe6dae57c36af"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_setearlylevel.asm",
+      "size": 204,
+      "sha256": "9195d6344612b2e64accf342b37f1c998f3272f7437ad8335ce717943cf6d410"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_setinputbandwidth.asm",
+      "size": 378,
+      "sha256": "e78152a461b21ce879d20cf44d7dfc26865b74d97d29843faee231137196916a"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_setrevtime.asm",
+      "size": 2748,
+      "sha256": "f7efe2dbe6c4f118bce62ee1aae2870f1e06261c5739ef6bb2a954af69897741"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_setroomsize.asm",
+      "size": 5332,
+      "sha256": "ea7ce6431e3f55f2b355947ec1a4797ce758b6be237608190f1b80a923b84941"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NGVerb_settaillevel.asm",
+      "size": 201,
+      "sha256": "657f61daa9bbde141e29a48f4e3a2c8205011a36044977d6993deef85ec05e1e"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_MixPut.asm",
+      "size": 8901,
+      "sha256": "00c93f262524c061f770e69755d86822219fe0ebe19f29828f106a19844e1351"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_MixWrite.asm",
+      "size": 13016,
+      "sha256": "f3f13252077f694e3532c97ca1ace050b67a877141e0413c9ad0be25c4a4d812"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_Put.asm",
+      "size": 1910,
+      "sha256": "40b80ea8ec0b5209fc4f175a054324414c6ca22d4469df0023634b10ff1e3971"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_RecordStart.asm",
+      "size": 2607,
+      "sha256": "50004c4a7d768fb6b9157f0dee83265068b33cadeb9332adf888045d07907f63"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_RecordStop.asm",
+      "size": 489,
+      "sha256": "a59ac7304c179ba904671807f15301e982d84ffc64122137df9165d4c5749bd2"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_Start.asm",
+      "size": 28724,
+      "sha256": "61d7b9b9cd3555ffaa4a6d2f1462b5c065bcc460e0de14097bc5b6c84addd11a"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_Stop.asm",
+      "size": 1899,
+      "sha256": "d612381d63425de2fbdd919c708d56f41b4bbd6743515de772fc8082bce9dead"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_Stoped.asm",
+      "size": 276,
+      "sha256": "2c4534bd8a1cc0bdd22502fa44a91e12a67f9d513c1876d27a1ffb9783977261"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NOpenSL_Write.asm",
+      "size": 7200,
+      "sha256": "44052a21d8b30758c1d71900e0425182c6e773d03e4fa20931a96c46e703772a"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NPitchShift_close.asm",
+      "size": 354,
+      "sha256": "c05d8c67d870fa2183e90f18f12f0dc9771b98043f5025eafa3d1bcca946bb7b"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NPitchShift_open.asm",
+      "size": 1258,
+      "sha256": "097cb67328a976354065ab831de449953b6c545dde1d6da2ec2506c14c80c083"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NPitchShift_process.asm",
+      "size": 882,
+      "sha256": "666bb1267c5d19133c96297f6328994cefc79ff6f02af9bbc0f285857baf94b2"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NPitchShift_processLeft.asm",
+      "size": 711,
+      "sha256": "6b1a7175a2126dbcd88a898fb2a60107f7337e36284bb243d8b8d7c2f292edd7"
+    },
+    {
+      "path": "native/Java_sofeh_audio_NPitchShift_processRight.asm",
+      "size": 758,
+      "sha256": "96f3541d729c666ff303ae2c45fb9543e2fe57fcbdcabc8055e1a4f79ed0ad2e"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_ChannelClose.asm",
+      "size": 233,
+      "sha256": "64f8efc3d0ee321988e7f83348a134399e21393d0d1b10c2a32ad78554a9e6a2"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_ChannelCopy.asm",
+      "size": 799,
+      "sha256": "c8342af196a517b8b363c8bca09f4d2a42cb5a5c5934cc5800bc32a1c8f0d83d"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_ChannelOpen.asm",
+      "size": 715,
+      "sha256": "15e883afacccce2d23fd928240f8a5216b4793e023c102024f7b93ef8a4e82b1"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_ChannelProcess.asm",
+      "size": 29973,
+      "sha256": "90486b72c348cd90371b5e110dd3def8543844b3bd2cf92e877b54d449bc83ad"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_ChannelReset.asm",
+      "size": 631,
+      "sha256": "e18718bb9f57d6928e6ee0d52a718047c4da6dbf35b8279ccf00dbd114ca5afd"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_code.asm",
+      "size": 2314,
+      "sha256": "86d84865b22a0d3fbced3adb26fc1b8c9d388b6cd0b5785e739638b935306ff2"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_FreeMem.asm",
+      "size": 418,
+      "sha256": "f297cb7e7b71e43e274c051921138f1bd165b1e1424d93be32eeb9fe1f9992eb"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_GetMem.asm",
+      "size": 889,
+      "sha256": "1f487b4b8c8aa4f0777163a81652c202d5dfd244cb994bae1bcfc5b482f8902e"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_MemFromByteArray.asm",
+      "size": 1058,
+      "sha256": "85f7e40ac37c640f3cb0bfdd7fa092195c38f54b67ad92b0d2628c4dfc5bd00b"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_MemFromShortArray.asm",
+      "size": 1059,
+      "sha256": "60da1bb02bd909a867040bfac12e6181186aa01deea78ddc828e0ab241abfae6"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_MemToByteArray.asm",
+      "size": 1056,
+      "sha256": "f1d00b8e7ae5e06905142626550698a0ee08d726e7b254882e40982425a2ee04"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_MemToShortArray.asm",
+      "size": 1057,
+      "sha256": "3265c02eeaba27b9de17afc3239fbed05ea1de94a78e0bf0eb39aec8dab766d4"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_Mix0.asm",
+      "size": 186,
+      "sha256": "b758de7d3807bf960bee6ec47ac9a5ff21e8d521dbf7020694965ca444740008"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_Mix1.asm",
+      "size": 393,
+      "sha256": "e621c2e816104dd13341c676943316c6a789f7bfb23794a96d685db969226300"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_Mix2.asm",
+      "size": 1238,
+      "sha256": "655a2d8ca6bfcdcd7c5fa1df2c65271e6e8ce26651ea016ab67e3621444aaac2"
+    },
+    {
+      "path": "native/Java_sofeh_music_NMusic_SysBits.asm",
+      "size": 150,
+      "sha256": "0276ba98a1460b5dd755f0f4fceb09c110910e5e583d8231b4c46dbc51e43e94"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_Close.asm",
+      "size": 275,
+      "sha256": "b1fafaaf99310e573c0378222b47bf09e7f680d1ca64917db08b19f944e45def"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_Open.asm",
+      "size": 1883,
+      "sha256": "b92fb83fddc9c7fa27a5e3bba251c24a63df580a549b09f878d486f43eab1fd0"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_PresetCount.asm",
+      "size": 358,
+      "sha256": "ce21d02a29fe0a4cbc5c5101f285bc803adf4d21afce3a2369586b674484631a"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_PresetName.asm",
+      "size": 772,
+      "sha256": "d9fc9dbe0f9a52025c9e83794ce0a7a195b228e004f9455ccdae9af60c5191df"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_Voice.asm",
+      "size": 8664,
+      "sha256": "7666d7523ab4f51791b105107a3e361abb867e50e4feb14371ce6ec531758f94"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_VoiceLoop.asm",
+      "size": 146,
+      "sha256": "9d253161f0e941c77b48f7564c3b2661dff618dd06cae713c1d2d4d2559e31e7"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_VoiceLoopEnd.asm",
+      "size": 149,
+      "sha256": "041f7558b29806cfa3cb08fdf0c7afe2ca18a6781727fd2b1981175f827b7152"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_VoiceLoopStart.asm",
+      "size": 151,
+      "sha256": "52dc58150440776517b4e84aa62b05c6bb799a95385890241bcc896bf9c4062c"
+    },
+    {
+      "path": "native/Java_sofeh_music_NSF2_VoiceSampleRate.asm",
+      "size": 156,
+      "sha256": "5793563e60cc6c6cc3ed95541a0eec6d777e5cbd775945e386babf7ffd5fb506"
+    },
+    {
+      "path": "native/jni-table.csv",
+      "size": 8232,
+      "sha256": "75a9b72735e5a9c05b0cf4da247867412533af23cc785e981ae6dabfacc4e212"
+    },
+    {
+      "path": "native/libnmusic.so-plt.txt",
+      "size": 383,
+      "sha256": "63efc980162f98749ac2c3fbf247e1f897f0846fa291c2f00231ee57282c9cf8"
+    },
+    {
+      "path": "native/libnmusic.so-strings.txt",
+      "size": 1647,
+      "sha256": "999e4677800f3246f9031bbcec0e3658f09360ef2b63be53eb9c556ecf473bd3"
+    },
+    {
+      "path": "native/libnopensl.so-plt.txt",
+      "size": 328,
+      "sha256": "06306ee3ececcf9d4e0c0e2140ab9aa39c8e128bc210baabb4ce7a19bef6db80"
+    },
+    {
+      "path": "native/libnopensl.so-strings.txt",
+      "size": 1034,
+      "sha256": "908f6ddd71406a1f5008a79ef1b7c0665d8e6d697777091844d53159a54edf75"
+    },
+    {
+      "path": "native/libnopensl.so-text.asm",
+      "size": 80559,
+      "sha256": "2e14201f2af4f7b0265389bb3fb846a8fc373cb1ab6bae383ce1e4be6ad760d4"
+    },
+    {
+      "path": "native/nopensl-buffer-callback-2574.asm",
+      "size": 9422,
+      "sha256": "62bca6200da5aa19f57495376f9cc27717404f200239039228013d99d0aaa2c2"
+    },
+    {
+      "path": "native/nopensl-buffer-callback-28c8.asm",
+      "size": 3875,
+      "sha256": "9e876efef96e39f1717ebeaec16356e66cc80918170b1f2152cf56a6a0efa0bd"
+    },
+    {
+      "path": "native/nopensl-teardown-2448.asm",
+      "size": 3565,
+      "sha256": "c5a359cb87978f45be249d928663bde84613a15c39b7f3e573b9ec3a25a3ea73"
+    },
+    {
+      "path": "native/npitchshift-helpers.asm",
+      "size": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "native/smbFft.asm",
+      "size": 5447,
+      "sha256": "2ac24fc9144afacfc8a96bbefcd5dd7f41643ca5d44caa231acd125cf2ec9436"
+    },
+    {
+      "path": "native/smbPitchShift.asm",
+      "size": 15920,
+      "sha256": "535464aa37c7b35d7cae2507594c028dd260dc239a052b8d4d856bc55ff1157a"
+    },
+    {
+      "path": "native/smbPitchShiftCopy.asm",
+      "size": 2122,
+      "sha256": "9e1b0b80a473a53263eb5cac64da640c86281abf780d84ac7286204870675b7e"
+    },
+    {
+      "path": "native/smbPitchShiftFlush.asm",
+      "size": 2015,
+      "sha256": "8045a8da53affbb203641fef116ba2fd80aa6471873472354b655069e8729837"
+    },
+    {
+      "path": "native/smbPitchShiftNew.asm",
+      "size": 615,
+      "sha256": "5b8151e9d4c85f80e0f005566d80b9d8759fd91181d1de63efa02c084ceb6660"
+    },
+    {
+      "path": "native/smbPitchShiftSample.asm",
+      "size": 13061,
+      "sha256": "2c9170f3479f524142cbc4e86c6164a660620ea95435647c15d860b725c1ded3"
+    },
+    {
+      "path": "NATIVE-ABI-INVENTORY.md",
+      "size": 616,
+      "sha256": "887694af6dfdc7b0c92ce0e29df0e368d752e1b5a619bb6b81fe19b1ca184038"
+    },
+    {
+      "path": "native-abi-jni-comparison.json",
+      "size": 14582,
+      "sha256": "e8bff46ca098dfc4a6e7bab9128b2b05a70eb766af4ecdbc812f2180efed5f0b"
+    },
+    {
+      "path": "NATIVE-ABI-JNI-COMPARISON.md",
+      "size": 710,
+      "sha256": "74e2584f0fd728eecaf03017749d31206f8f35c0919766b01f443a19902bca8d"
+    },
+    {
+      "path": "native-arm64-symbol-inventory.json",
+      "size": 12366,
+      "sha256": "03f7678781c0ca2b11123079ba1aa104398bcf23fc74dac9f202867a4c2601d8"
+    },
+    {
+      "path": "NATIVE-ARM64-SYMBOL-INVENTORY.md",
+      "size": 803,
+      "sha256": "a760a19d8e669a5531c261c0aab2332cddbd5c18dd3935cea588b1e2f42a66d0"
+    },
+    {
+      "path": "NATIVE-AUDIO.md",
+      "size": 8111,
+      "sha256": "494a74d43b2fdef6711d01cdbf8ff9fb7f7eee87bcb40391f831173d302d52e2"
+    },
+    {
+      "path": "NATIVE-CALL-GRAPH.md",
+      "size": 1307,
+      "sha256": "e042dcf67dd92e3cde220326ac487e04e584e1cfca2cda94f9152bdb36c3c483"
+    },
+    {
+      "path": "NATIVE-COVERAGE.md",
+      "size": 1271,
+      "sha256": "b4e29b65936637f58429ddf72abdc3d8ec7b094b053d130392fbabfbf3d9c881"
+    },
+    {
+      "path": "native-dynamic-symbols.csv",
+      "size": 4616,
+      "sha256": "5a618636e3c1aa352ffe91872354967c2448180ec015c8d3d09eb03a4343ab7c"
+    },
+    {
+      "path": "NATIVE-EFFECT-JNI.md",
+      "size": 795,
+      "sha256": "4017c72eb4abf7aae819f04828edd4f26f38bf28df8518924298f3c333615303"
+    },
+    {
+      "path": "NATIVE-EFFECT-SIZES.md",
+      "size": 1222,
+      "sha256": "10dafe07b244d5b0b7ed519def40b25695a01ac42f7631b42379fe864e62edfa"
+    },
+    {
+      "path": "NATIVE-IMPORTS.md",
+      "size": 583,
+      "sha256": "a0fc487b077b93fb14da21ec1c63a6ad86cb2536cc8ef78bd3d5dd04928a0f22"
+    },
+    {
+      "path": "NATIVE-JNI-COVERAGE-GAPS.md",
+      "size": 691,
+      "sha256": "d98658a95d358a2e9f01c20d6f73a9acd0134f547dfcef250980ffc4882b08d1"
+    },
+    {
+      "path": "native-jni-strings.csv",
+      "size": 2081,
+      "sha256": "4652c01353037736e2e3cca6885a3c91bd02043da815785284b73ac361a7ec3f"
+    },
+    {
+      "path": "NATIVE-JNI-SYMBOLS.md",
+      "size": 1031,
+      "sha256": "7c019336d3348cce18e81e74b644da009f586fbada1aae73df0197020ef5d507"
+    },
+    {
+      "path": "NATIVE-OWNERSHIP.md",
+      "size": 944,
+      "sha256": "156eccac6396b285739a9f4c7fafc498daaa176885d89f2fa574a91829b688c2"
+    },
+    {
+      "path": "native-requirements.txt",
+      "size": 51,
+      "sha256": "bf038a4c2882cbe741656fb5450e251a3300887df5911c503c0acbafeb4e2fb8"
+    },
+    {
+      "path": "NATIVE-SYMBOL-SIZE.md",
+      "size": 878,
+      "sha256": "c507fcc5def86f1e27447c442686fe3d5bb9be4535544e53c0b86d67f51a6ced"
+    },
+    {
+      "path": "NESTED-CHORD-ASSETS.md",
+      "size": 1888,
+      "sha256": "1903d0aefb017cbfa359e3cd988e6650b09e5fdb4c148737f8ac0d4eb3e3af2f"
+    },
+    {
+      "path": "nested-chord-inventory.json",
+      "size": 13129,
+      "sha256": "8064bdb6dd206adb7f105c1ff03ba5838524614dbaabc3ab896816cdca64504c"
+    },
+    {
+      "path": "NMUSIC-IMPORTS.md",
+      "size": 620,
+      "sha256": "78d23eb0ed5713062f4af32c4e2fd43889705840410fec9f78702cd219639eab"
+    },
+    {
+      "path": "NMUSIC-STRINGS.md",
+      "size": 561,
+      "sha256": "8c8353bed5d162bd732488f4053b2c0022dabd8d39fdc6c2f07a7c8a95ce3a9d"
+    },
+    {
+      "path": "nmusic.json",
+      "size": 11882,
+      "sha256": "be4c427b8e2f6ebf527afaae8f2576dfb62fd85ebe67358b8e1280bca6b2a648"
+    },
+    {
+      "path": "NOPENSL-START-CALLBACKS.md",
+      "size": 4334,
+      "sha256": "350da2e615125cc339fc2c08df4408ceccd8d7189cdb593442148fef2e4d9493"
+    },
+    {
+      "path": "nopensl.json",
+      "size": 6515,
+      "sha256": "74f9ceedd6309d408ea092e4297c48018268404515a97819699aca4991763e3a"
+    },
+    {
+      "path": "NPITCHSHIFT-CALLS.md",
+      "size": 783,
+      "sha256": "6abd94e88b74d0f6b0c42f95660a743333211f8b36ea1ae91c2cce8ed84ad5de"
+    },
+    {
+      "path": "NPITCHSHIFT-COVERAGE.md",
+      "size": 1222,
+      "sha256": "268a87c66400cb8c6c6e6981541183df45e82a0efcf7b4c3c70d7fa8741bb081"
+    },
+    {
+      "path": "NPITCHSHIFT-HELPERS.md",
+      "size": 592,
+      "sha256": "360b728ffe3927b66d6a7d828f1daee0237ea26ffc275890f33ba712f6db0c4b"
+    },
+    {
+      "path": "NPITCHSHIFT-IMPORT-CALLS.md",
+      "size": 611,
+      "sha256": "90a86bf23e7e734ed50bad2e4b8434b981715e68da2af9d38265b6d9dbc5c41a"
+    },
+    {
+      "path": "NPITCHSHIFT-LIFECYCLE.md",
+      "size": 833,
+      "sha256": "1396f612d51dcc5fda4b908d68d42094e7b580cf38853bd51fbd3827d601214b"
+    },
+    {
+      "path": "NPITCHSHIFT-WRAPPERS.md",
+      "size": 831,
+      "sha256": "6581602967ab21d9fa4f4dfb323a8abe6127334051d28f2bd85e8f60517241c9"
+    },
+    {
+      "path": "NSF2-LAME-JNI.md",
+      "size": 1035,
+      "sha256": "21b5964c69dbdea9af40be06ed83e533e67d98f950a68f6c43593e42541a21ca"
+    },
+    {
+      "path": "object-load-file.json",
+      "size": 11001,
+      "sha256": "e8bb659d5ec506408846b44b4a695023fb03f201cdf0b3ec14923e263ca2fcff"
+    },
+    {
+      "path": "object-read-stream.json",
+      "size": 9604,
+      "sha256": "1807781a82792ebfc2b81260cbc807d1a85028e81f2cd66329490f2647d8e82c"
+    },
+    {
+      "path": "open-key-wrapper.json",
+      "size": 15462,
+      "sha256": "8944ae84b96c4fda7b951dc83b793d19191133652c1c76662d61a0eb5da98e1a"
+    },
+    {
+      "path": "open-key.json",
+      "size": 81077,
+      "sha256": "72e5fc95404af9343297bd39b512b4836fa7d61d393bb4c59238accdcf4cdaab"
+    },
+    {
+      "path": "OPENSL-RECORDING.md",
+      "size": 4590,
+      "sha256": "0b653246d1caac057c3d74ecdf38347f5a9dca2a6a41989417cc9fdc52b039a2"
+    },
+    {
+      "path": "out-device-start.json",
+      "size": 81146,
+      "sha256": "587ba02a64c2b2f83c9a676621bdd8cf6eab81dc308401a0005ec2836eb4a398"
+    },
+    {
+      "path": "out-format-set.json",
+      "size": 71430,
+      "sha256": "3bf02df7bc6bdd106962648e6ba600d74741fcca3ba63235a4ddc04394c8435d"
+    },
+    {
+      "path": "out-start-callers.json",
+      "size": 75054,
+      "sha256": "894c1a23737de246ddc92f02b403320dc0fedf4c2fcff350aff2bf74c3ec4f16"
+    },
+    {
+      "path": "package.json",
+      "size": 119523,
+      "sha256": "7a508acb69ee27825e506296813b746e7333cbfe4bb61ce9a421743c2e9e502e"
+    },
+    {
+      "path": "parse_data_zip.py",
+      "size": 7154,
+      "sha256": "7ed485b2eb45d2e480fdd63aa3ccb6b2997b6c3b3d4bba5ca13b0e6f04754656"
+    },
+    {
+      "path": "parse_default_template.py",
+      "size": 23579,
+      "sha256": "add0be258e56924e750b1587a68806d0b0428d70ee9cef368e0f5ac20b004ea9"
+    },
+    {
+      "path": "PITCH-SHIFT-CALLSITE.md",
+      "size": 708,
+      "sha256": "468ed3e8c10c52ea55a7be15c06ef6fdf3a242bd48ab061f15fc2b4a7049bf82"
+    },
+    {
+      "path": "PITCH-SHIFT-MODULE.md",
+      "size": 1088,
+      "sha256": "12df5ef60445548c27238c1707df6466dfaad7830561532682edd8d04c7ce260"
+    },
+    {
+      "path": "prepare-low-latency-Q0.json",
+      "size": 53833,
+      "sha256": "9d3deaaa03d2e34a841b9f48cb944f0b21fe65470559042a71f20744c79a8a19"
+    },
+    {
+      "path": "q0-callers.json",
+      "size": 55975,
+      "sha256": "ad6016c9d28e2a8c613557a946eee65a90640155d25b76909f9c390a8cdda072"
+    },
+    {
+      "path": "q13-class.json",
+      "size": 5116,
+      "sha256": "34862ac5787595add9b0fc7f0fb1cd68358bf135a870c7e7604ef6723b60375c"
+    },
+    {
+      "path": "q13-input-constructor.json",
+      "size": 5655,
+      "sha256": "acc1f75208689fa79be689eb4cc084e8637dc43184978c74a7ff6fb413a3df9c"
+    },
+    {
+      "path": "q13-input-dispatch.json",
+      "size": 9971,
+      "sha256": "3b8b0f75b5a59a78c9d54c01d8c969699b46c12e190d0d39f04eb6c87f2565a0"
+    },
+    {
+      "path": "qc1-byte-constructor.json",
+      "size": 9697,
+      "sha256": "e73c4deb62a520bc3b1b04e6f0c477be53dd6adac8b47f448fb2a9c4c350f00e"
+    },
+    {
+      "path": "qc1-class.json",
+      "size": 13959,
+      "sha256": "1ea07f0e1400825b1b74aefec89d87f2f0d15d28eb9caa9ffcb0a4b8784263d2"
+    },
+    {
+      "path": "qc1-f.json",
+      "size": 10245,
+      "sha256": "c37b75acd9f4f830374bfef9bec2cad90d6a8b17ed42539450cd4a8dc8ad49ec"
+    },
+    {
+      "path": "qc1-g.json",
+      "size": 10738,
+      "sha256": "1d958d2753391a1fda849283634f5672473e91428caf417f69fef49ca158e097"
+    },
+    {
+      "path": "r92-class.json",
+      "size": 4432,
+      "sha256": "7a56f6a1ad882b2811553659b837f6e2858be6007524befbfb549ba02c9f6fc7"
+    },
+    {
+      "path": "r92-run.json",
+      "size": 29319,
+      "sha256": "231d0e8a55e6343e12b69208f38e1509882db989c09b44afe7b6e24259dadb46"
+    },
+    {
+      "path": "read-int-setting.json",
+      "size": 52186,
+      "sha256": "b592091edbaf6ccf148e5dd222ef5e5148b8dea4345d5f85c75d32e6c5632103"
+    },
+    {
+      "path": "read-setting.json",
+      "size": 52501,
+      "sha256": "8c69e409539191440fabcd017feb4fb3a921da9ce15b826e9d30382470ae9a16"
+    },
+    {
+      "path": "record-music.json",
+      "size": 68422,
+      "sha256": "a67d7f56e78152f100bf0f9127c8422c99a453940573f9fae2774c37d504d999"
+    },
+    {
+      "path": "record-track-main.json",
+      "size": 23629,
+      "sha256": "34ec06fd505aaf7edb0466b0c009d330d0ebea4f8674298386df0892868ea71f"
+    },
+    {
+      "path": "REMAINING-ASSETS.md",
+      "size": 1413,
+      "sha256": "c78456bfe3d6f354d3c6b22e31b6f84000f14bb9b7f512684f1035f2ff9fe501"
+    },
+    {
+      "path": "s2-run.json",
+      "size": 50050,
+      "sha256": "2468a441fa6751a0021c8ef7c0dbade93aa36ac837ea94dfc9a441904f22d666"
+    },
+    {
+      "path": "safe-activity-class.json",
+      "size": 4689,
+      "sha256": "0502a04c13b5516b701c25cd991f81196e0926ca95d6ec5aa50fb6d59212770e"
+    },
+    {
+      "path": "safe-activity-references.json",
+      "size": 5550,
+      "sha256": "a1020c0f67c855ada4f35e2931d19823f4f5643b7cdb8065184ed003ce917da0"
+    },
+    {
+      "path": "safe-focus.json",
+      "size": 5654,
+      "sha256": "be2111634d5c286454b719ed6524748f07e1bb20f0062f47f915ac551e775911"
+    },
+    {
+      "path": "safe-oncreate.json",
+      "size": 6080,
+      "sha256": "435c7f90cdb26131d1c60b3343d9604ed11b9c4cc52b18dd10c687cc6ee12eb3"
+    },
+    {
+      "path": "script-assets-inventory.json",
+      "size": 19262,
+      "sha256": "2528301bb14626b0eda6b469d94f7fb6cb483b19376b9f964746b892ce10bcc9"
+    },
+    {
+      "path": "SCRIPT-ENGINE.md",
+      "size": 3893,
+      "sha256": "0e3089ed3558529ed9e4e71b0324a4bedb417a7525d938b5d027b3037b72e15b"
+    },
+    {
+      "path": "script-event.json",
+      "size": 138836,
+      "sha256": "5dd8d3d47e55a4b17271dce0d8a78dc087cdf37d48808e98e7515be1c28b2463"
+    },
+    {
+      "path": "search-fx2.json",
+      "size": 756920,
+      "sha256": "ac7074d747785aece47e2c1d0479e9d4dc457b1e8bdd857de22d26907581a92b"
+    },
+    {
+      "path": "search-musicobjects.json",
+      "size": 1513796,
+      "sha256": "414fb90b2b98c2c1e438e33ef43493d588d711f3e946bb1bba376ec35ee27596"
+    },
+    {
+      "path": "search-zd1.json",
+      "size": 756898,
+      "sha256": "1d9ae832194eca49d84fd32a0a1ff009faa7c8464e4940586ee8a92e5b87d469"
+    },
+    {
+      "path": "section-read-stream.json",
+      "size": 15909,
+      "sha256": "491541750b2282c04645e903574c6df38f6bed28519bf9f4a7127e137d47a1fa"
+    },
+    {
+      "path": "select-inst-z1.json",
+      "size": 58335,
+      "sha256": "0347f62a9374cd4a76b1348ebb7403986f48e39c32083257c5e3ced09150b54d"
+    },
+    {
+      "path": "setting-fragment0.json",
+      "size": 4359,
+      "sha256": "f5e89f8ddcac24d7fe4bea8b58e6770bff96a53e39cd8a2a435d41b756d6b8ce"
+    },
+    {
+      "path": "setting0-create.json",
+      "size": 5541,
+      "sha256": "a5187a5b92d3873105b87cd94f5b7dafc7757bbd5d24bd9b3904ac49dcc92742"
+    },
+    {
+      "path": "skin-assets-inventory.json",
+      "size": 44925,
+      "sha256": "ff0d4bfc013d9da1552384918a8de9fa7252fa9edc00ee23a3847c5dce862631"
+    },
+    {
+      "path": "SKIN-FORMAT.md",
+      "size": 4833,
+      "sha256": "192cdd69b7aa401813c0cdd32e972211914adc90edb770b20fe590018e1f3b0e"
+    },
+    {
+      "path": "skin-loader-s.json",
+      "size": 38908,
+      "sha256": "c93f2b263471b8b53a4fa1ab4f3b025652720f9decf7eb945d54acb1e7f58edd"
+    },
+    {
+      "path": "skin-loader-t.json",
+      "size": 30726,
+      "sha256": "8e8592fdfb21b31caa49fe39ba18de9180719db5084be42f9c956d7282b0da2a"
+    },
+    {
+      "path": "skin-parser-w.json",
+      "size": 167108,
+      "sha256": "2a145cf791b6452b61cd4e2f2f8081f5eb9382152cab760e76a0b2a23c60b39b"
+    },
+    {
+      "path": "skin-parser-x.json",
+      "size": 52504,
+      "sha256": "f4b5220af324eb282fce3b4107522dd58c5a77cbecb39996c3f91669999f18db"
+    },
+    {
+      "path": "sofeh-main.json",
+      "size": 93453,
+      "sha256": "acdaceebf12751f795f6e332717350d3b59061b131a89e7d06957dcf681e32e4"
+    },
+    {
+      "path": "sound-instrument-inventory.json",
+      "size": 7894,
+      "sha256": "c47c6ac3ff98ecbb58820322bf2a82ab57dfbac1f375bf928267fa027e2e13c6"
+    },
+    {
+      "path": "sound-state-class.json",
+      "size": 9711,
+      "sha256": "7bf0c0564a32d5ea90dcbee9b570ddaf12224b4df41380ca59c4e59c311ca241"
+    },
+    {
+      "path": "soundpool-create.json",
+      "size": 10697,
+      "sha256": "9ef7c28ee4f5d03f97c2e867a7195a117e8c6f9bb9a9fe8c4c0e9647358b6799"
+    },
+    {
+      "path": "soundpool-lifecycle-scan.json",
+      "size": 4984,
+      "sha256": "c0515f80b5d4a42b38129dc18fb4fe242c82f633e5f6c73dffb41edc428701d6"
+    },
+    {
+      "path": "soundpool-load-callback.json",
+      "size": 6004,
+      "sha256": "4f25d6926f3a3316e9137c50aeea0a87957b7b2daa5ce60f53454da9a8e4861b"
+    },
+    {
+      "path": "soundpool-load-recorded.json",
+      "size": 7681,
+      "sha256": "3e9aa0fd3db29aeaf01654d38c86128a1179a279480ad0f9c316b26db162fbcd"
+    },
+    {
+      "path": "SOUNDPOOL-VA-WAV-WRITER.md",
+      "size": 4849,
+      "sha256": "004f93efe1132b936ce9175c26c190082cc478f55d46fc1453a8f896b1e062fd"
+    },
+    {
+      "path": "source/callback-file-helper.java",
+      "size": 155,
+      "sha256": "43eec6ad0318636cd1ceebb4a9ca6909aec57a334436f8c59dc00d2b1b14cb82"
+    },
+    {
+      "path": "source/channel-close.java",
+      "size": 68,
+      "sha256": "37bd654a358abb690f1fb86b6f3543a0065b93433ff332977620792fa1cd5ffe"
+    },
+    {
+      "path": "source/channel-open.java",
+      "size": 4331,
+      "sha256": "5dccb442ae6049373e9f6451f81436595cfdf20497cfb980776c2a588475b5da"
+    },
+    {
+      "path": "source/channel-release.java",
+      "size": 365,
+      "sha256": "9c3681b354e22a2a7a8d1b2aa217d5803b3673486393b717ccc2c23b45f2087d"
+    },
+    {
+      "path": "source/channels-process.java",
+      "size": 41259,
+      "sha256": "608c11594ee32392e875b860a52b715137bbef42a6cc8a81aa27afb0d29c9a32"
+    },
+    {
+      "path": "source/chord-table-loader.java",
+      "size": 1279,
+      "sha256": "a398fb62332f08bba6a7de3b5fc73aa6df3c0fd4c9f02b1c1caa38d40de134d7"
+    },
+    {
+      "path": "source/export-note.java",
+      "size": 3130,
+      "sha256": "5c9a9296631c35dff2ee17dd529152052d4758842455b63b956560064c4d0f3c"
+    },
+    {
+      "path": "source/fallback-create.java",
+      "size": 1813,
+      "sha256": "d9cbd8c301ec203a06eb9a09bea7922c7ad5d29d285beb6c37a0c8fc38edc5b3"
+    },
+    {
+      "path": "source/fallback-input-create.java",
+      "size": 924,
+      "sha256": "7453bc5aca8f71fba7037342348e62e4581fec16dc349d3a1c093e94b1e9ffca"
+    },
+    {
+      "path": "source/fallback-input-read.java",
+      "size": 508,
+      "sha256": "1c4f2fefa33ba53f43842cd559d8441a41f3f2a4365d9f9cb9e8d14019773021"
+    },
+    {
+      "path": "source/fallback-input-stop.java",
+      "size": 758,
+      "sha256": "f62322f24b1a1a465aeb3be391621771988dd3434410d5b34d19692091cb562d"
+    },
+    {
+      "path": "source/fallback-write.java",
+      "size": 1842,
+      "sha256": "87b431dc528d1b3248bdeb949b5165fb6720f903473b4215090a90d92b0eefba"
+    },
+    {
+      "path": "source/in-device-start.java",
+      "size": 946,
+      "sha256": "fb49de00b5b65fb90247b6150819725955736f2b016dc8613bcd55b3610cb6f1"
+    },
+    {
+      "path": "source/instmode-script-event.java",
+      "size": 1249,
+      "sha256": "e69822b36a7131c6cae63b1e9f588d1eb66d659654ad358fcbb02049a5561162"
+    },
+    {
+      "path": "source/instrument-load-asset.java",
+      "size": 266,
+      "sha256": "6294b4453eed546e021b72900e48bd47a720bdc885f15cbb80fded2c40879cb9"
+    },
+    {
+      "path": "source/instrument-read-stream.java",
+      "size": 7718,
+      "sha256": "a01825b8832561a5686d1476753b330d517b09e20f5df16e7069232a5897e640"
+    },
+    {
+      "path": "source/key-hit-test.java",
+      "size": 1526,
+      "sha256": "955ceb34c0606c41459bc9698fd9fc3363c6a2601458e00cc69108cbdf025d0b"
+    },
+    {
+      "path": "source/latency-instruments.java",
+      "size": 1507,
+      "sha256": "f7c5711b1ee213182aab728b0d97fcc8c46d6a6ba79d828461f4cb8ffe0df36b"
+    },
+    {
+      "path": "source/latency-set.java",
+      "size": 95,
+      "sha256": "9685f762eb1994c787971353de6c3f369615655963dd93c0263e02ad0e214413"
+    },
+    {
+      "path": "source/load-set-G1.java",
+      "size": 1182,
+      "sha256": "62b15c746e1de7b56706671b975b6a89dd6ed36ed173cf9011872ec10c1fbd7a"
+    },
+    {
+      "path": "source/load-settings-O0.java",
+      "size": 8484,
+      "sha256": "6581b8c409680074a7d77bade9344943fa390e89598e42f6da929a532068de42"
+    },
+    {
+      "path": "source/main-audio-start.java",
+      "size": 404,
+      "sha256": "bb0d74ad1b79f1eff239ae37b7f04a690b33df3cb9da3645acf7850e7295b140"
+    },
+    {
+      "path": "source/main-constructor-fixed.java",
+      "size": 66,
+      "sha256": "9e1dffef5aaf7bde67d1cd46567e737e428b1b572cbbcfb9a4a1797406c461d8"
+    },
+    {
+      "path": "source/main-init-I.java",
+      "size": 16766,
+      "sha256": "a490cd24aa3fbe25289cd06f68a284eed119576ef73ee05d9ce3fb83f5a915dc"
+    },
+    {
+      "path": "source/main-oncreate.java",
+      "size": 14975,
+      "sha256": "8f1de92a62f2349374369ddfd68e605a9cc05f4ff9ce026a3eb7d26796c8c8f6"
+    },
+    {
+      "path": "source/main-settings-h1.java",
+      "size": 12493,
+      "sha256": "1ea3b0eed95983f6e2a28aaf240bf637dde4734f6ecefc28cc6ab2584c29dcb3"
+    },
+    {
+      "path": "source/midi-command-u0.java",
+      "size": 105,
+      "sha256": "5f8551a873a52fe8be7086e3ed628cc44eca7bd576ba304432b78c0c6618558c"
+    },
+    {
+      "path": "source/midi-keyboard-map-f1.java",
+      "size": 1200,
+      "sha256": "37a84d6abdb3c0d8dd689a4e973fba41f04faa0661a8545b5e80c6167ce63a99"
+    },
+    {
+      "path": "source/midi-model-dispatch-g1.java",
+      "size": 875,
+      "sha256": "5fef1cc0b70d72292164180b42cf14655e28f6a93c07e07968ed638e92502a7e"
+    },
+    {
+      "path": "source/midi-model-find-command.java",
+      "size": 516,
+      "sha256": "2a599ec46eea539d994a07907b7eee89d9994d88d28e520e2b16e5895084fa2f"
+    },
+    {
+      "path": "source/midi-model-find-operation.java",
+      "size": 739,
+      "sha256": "3011d13c30797790c0cae054e3df1b408c0d8f494eea47fda7c31a62f3020695"
+    },
+    {
+      "path": "source/midi-model-parse.java",
+      "size": 5094,
+      "sha256": "0cac3e9e16fd8945beb2e28c9881a73e2d265dcbc2eb1d8b2d9675118c402d51"
+    },
+    {
+      "path": "source/midi-model-write.java",
+      "size": 2088,
+      "sha256": "f1c4998385b90f1229b3a70c01fd53481e94e25d17f73b9c68b43049b3ced3cb"
+    },
+    {
+      "path": "source/midi-note-off-Z0.java",
+      "size": 397,
+      "sha256": "2f34af43d7379c8e33cf91db81b4cd4b5889240185f947613a3ee5e98ff70249"
+    },
+    {
+      "path": "source/midi-note-on-a1.java",
+      "size": 1890,
+      "sha256": "2f354ea9acb2606683be0b4d4a2d278ff575a33488edbec71a43e6d84ec11b42"
+    },
+    {
+      "path": "source/music-constructor.java",
+      "size": 4629,
+      "sha256": "26f769b41610fab851dd93373e2a2674453816e31055b9100cb902025bd28903"
+    },
+    {
+      "path": "source/music-load-asset.java",
+      "size": 486,
+      "sha256": "2a45e6d1b875be32a25952aa3c52fc3813a9ab0c97c2705cd80372652ed70477"
+    },
+    {
+      "path": "source/music-load-file.java",
+      "size": 780,
+      "sha256": "8472e5362a7979dc325852b552561cc2b987e7bc999f1662b10dbacff4aa8cdc"
+    },
+    {
+      "path": "source/music-Process.java",
+      "size": 756,
+      "sha256": "35863b96fa5545fa8e1e9002adfd214194aba1fe3e87960dbfec2bdd3eeef0ca"
+    },
+    {
+      "path": "source/music-ProcessIn.java",
+      "size": 1027,
+      "sha256": "ceaaa858c45d1f40a077c0f1fba0dfe9a1a89b7d99869882981057105575e484"
+    },
+    {
+      "path": "source/music-ProcessOut.java",
+      "size": 5356,
+      "sha256": "f31d82e5c8387593001d4b41db205de7b84864e1f75ab652d2c78318f3c65bf0"
+    },
+    {
+      "path": "source/music-script-event.java",
+      "size": 516,
+      "sha256": "da42a90961d9116050bf26048d5cfe16d345cae6277c1dc3a032f3e2c5d74f94"
+    },
+    {
+      "path": "source/object-load-file.java",
+      "size": 1624,
+      "sha256": "05e4c5b2c795ae3101381398ee5fb9b595a94f62a42fff14799290cc133b8d36"
+    },
+    {
+      "path": "source/object-read-stream.java",
+      "size": 947,
+      "sha256": "88d21d511c74f71ad93096ffdc141d7020deaa8b0347cbc492624e4faec71270"
+    },
+    {
+      "path": "source/open-key-wrapper.java",
+      "size": 1678,
+      "sha256": "900f80c5924a6006ecd91b930ac1d219ed0f8b37e600b30814642144f7b92c0c"
+    },
+    {
+      "path": "source/open-key.java",
+      "size": 31340,
+      "sha256": "ad770836d8ab8ee6a81d703b12468de8052567fe0290447f1955d466301691d5"
+    },
+    {
+      "path": "source/out-device-start.java",
+      "size": 5770,
+      "sha256": "abce525eeb996a7c89243c01e45f29a3e2c88d05c13eb4c90152cffa13c19981"
+    },
+    {
+      "path": "source/out-format-set.java",
+      "size": 1447,
+      "sha256": "aa5182292c2cfcc0c1d3083b574b52d21d14d0dcad43ebf26c4ba571eb576599"
+    },
+    {
+      "path": "source/prepare-low-latency-Q0.java",
+      "size": 822,
+      "sha256": "01d306955d6ffb69d487676bc69ddc76ceb536d239a433f016dd3f51dfa02670"
+    },
+    {
+      "path": "source/read-int-setting.java",
+      "size": 120,
+      "sha256": "6978a56911eb9b8a557ca11efa0a4c0424d3c784c0fa63dd0f33a1a2f1e166c9"
+    },
+    {
+      "path": "source/read-setting.java",
+      "size": 233,
+      "sha256": "09f3fdd9d1942fe97aacd0508ee0a2ef0b26d719247f85e0dee4d89b0dd73660"
+    },
+    {
+      "path": "source/record-music.java",
+      "size": 122,
+      "sha256": "e4b3bda16da21b06ef7bf2bd65cf48cc5a62d76a821717f08437fe015f092865"
+    },
+    {
+      "path": "source/record-track-main.java",
+      "size": 1093,
+      "sha256": "36207960fc2cccc87e05fe3e1ebf7ff679d8017eee3a1b94707e552c5c5fc5e0"
+    },
+    {
+      "path": "source/s2-run.java",
+      "size": 20540,
+      "sha256": "732617f7517fd25f1384aa9ebdac57e1a11f3660fb5165bf531ea652502b9dd4"
+    },
+    {
+      "path": "source/safe-oncreate.java",
+      "size": 343,
+      "sha256": "ce3a9cb1e12fafaca7146db7a36b9762b0df3fe5805e88e2926894205adaf498"
+    },
+    {
+      "path": "source/section-read-stream.java",
+      "size": 4098,
+      "sha256": "b51b05f8b3bd3c57ff31ec6dc8265e74faf211aa26eac82d31d0892aed32020e"
+    },
+    {
+      "path": "source/select-inst-z1.java",
+      "size": 2862,
+      "sha256": "9049acf3ac54c34dea7fc3accdb97d12654166a4b8b81ff88a1ab9833c4e9e53"
+    },
+    {
+      "path": "source/setting0-create.java",
+      "size": 312,
+      "sha256": "6b5220926a7b4d2419def3e8b0fc0b15f291c6a229bfc2692656d5ab7c0346fa"
+    },
+    {
+      "path": "source/skin-loader-s.java",
+      "size": 2074,
+      "sha256": "f28f8dbc46cc9b87ecf747c6f2d9a12b2c5bf5c3a17d32895f8ecd9db4a9cd95"
+    },
+    {
+      "path": "source/skin-loader-t.java",
+      "size": 226,
+      "sha256": "e06cc5baa7420ddf00ee6e9293ad195660748e79b3231dd20c6dc4620e435003"
+    },
+    {
+      "path": "source/skin-parser-x.java",
+      "size": 5138,
+      "sha256": "08ef7c35aff6aa184adbe0cc35145c00ab9d6a84de6124e4bde13c0e16215863"
+    },
+    {
+      "path": "source/skin-render-w.java",
+      "size": 33004,
+      "sha256": "5ffd5b07e5910427584991f1800576fa34b732bea3da2896cc29fc2cae46cb01"
+    },
+    {
+      "path": "source/soundpool-create.java",
+      "size": 1196,
+      "sha256": "dac2280633f0f5261f4ce58a4fcdd17a6f85dcb1589c2e9a92a0cf26141ce7cb"
+    },
+    {
+      "path": "source/soundpool-load-callback.java",
+      "size": 532,
+      "sha256": "00e66e64216f3d520daf408784cdd2dc08fbc357e7d44283000b1231a5c60665"
+    },
+    {
+      "path": "source/soundpool-load-recorded.java",
+      "size": 859,
+      "sha256": "2f2ed2740e5418e800d08f141e99a0fa3fb6e9c108f25c1ab5f41c23b97176b9"
+    },
+    {
+      "path": "source/splash-oncreate.java",
+      "size": 474,
+      "sha256": "0970bfb53d1ed79bdb1d1431984a4a681777b726248a9f4c622fc6060b659172"
+    },
+    {
+      "path": "source/stream-read-string.java",
+      "size": 216,
+      "sha256": "58fdb36814e4a1f88fbdb394de4c478ff33c4fbf03d1fccb2f9bc89ef93a2709"
+    },
+    {
+      "path": "source/temp-cleanup-helper.java",
+      "size": 972,
+      "sha256": "1e77d9d5d7d0ce753953dcff7c012bda7e50e076a8a472aabb07c1b5c48e866a"
+    },
+    {
+      "path": "source/temp-cleanup-k82.java",
+      "size": 428,
+      "sha256": "509be2217f2d540c55e632a454a10b212cf5d678e1e930871caa8ac6e3aeb275"
+    },
+    {
+      "path": "source/touch-D0.java",
+      "size": 476,
+      "sha256": "4bbf6762741d7984a8aa064c38e85201896df7b8b4bbb66d26cf7ef8865a0fb5"
+    },
+    {
+      "path": "source/touch-l.java",
+      "size": 1175,
+      "sha256": "093f8735a6dc0bf6bb731b4927927ed33fdf9f8c726be24756553cd15844bea1"
+    },
+    {
+      "path": "source/touch-m.java",
+      "size": 3202,
+      "sha256": "4f921c7fd7e88c9f9f0bf7dda933f0fcc464743dfb3d66e4d165544f70232a55"
+    },
+    {
+      "path": "source/touch.java",
+      "size": 12723,
+      "sha256": "55856d0a3c98a39fbe4dd6e9625a6b1c5c69e5cee9d328605eba790716e09e41"
+    },
+    {
+      "path": "source/track-play-dispatch.java",
+      "size": 51959,
+      "sha256": "4cfc504cea1e7f345ce70213d440fb30112296d22c04406903d4d4bd3cede82b"
+    },
+    {
+      "path": "source/track-play-main.java",
+      "size": 140,
+      "sha256": "64b87f4825a94ef8864285e0ed9bf211925ba9c834632e3aaef170bfc9f0f7fc"
+    },
+    {
+      "path": "source/track-script-event.java",
+      "size": 744,
+      "sha256": "793c034ee8245f7a91a0ce605b5da4819885f78f4a2970f5fb8fb0a0d718b9ec"
+    },
+    {
+      "path": "source/tracks-record.java",
+      "size": 1801,
+      "sha256": "461ce0e58cf062b58042289ac94af09568dac6ff7f5b7a2f76784f541865763b"
+    },
+    {
+      "path": "source/wav-header.java",
+      "size": 1552,
+      "sha256": "a89c4c52e6e939a720a158794a9dd2d6635f3cbb7c11fa6bb6527a34f6844e9b"
+    },
+    {
+      "path": "source/wav-writer-close.java",
+      "size": 590,
+      "sha256": "9e88c4ee197d52ab45cbccf87ede05bd06bc46f64d018763217d8af0a2f3f0f5"
+    },
+    {
+      "path": "source/wav-writer-init-full.java",
+      "size": 543,
+      "sha256": "31fe173914e7ff2c00d33c6a160f64207a959174f72e4c3cd8cb2f634fe62385"
+    },
+    {
+      "path": "source/wav-writer-init.java",
+      "size": 119,
+      "sha256": "84292aa9bc1be3b4ecf47fca375f033f3eb48313a566d39dcb802662b52d8985"
+    },
+    {
+      "path": "source/wav-writer-write.java",
+      "size": 989,
+      "sha256": "ea9bc21f43049804aaacf06e86bbff1518ec5a427ce50691e0377f8c0e5f66d2"
+    },
+    {
+      "path": "splash-activity-class.json",
+      "size": 5698,
+      "sha256": "cb5d2506ef6267b8033cfb74775737b465425008159cf3111b11956712468bef"
+    },
+    {
+      "path": "splash-destroy.json",
+      "size": 6322,
+      "sha256": "f35a63181e539cc40b354eb770a2fc46606b35830b9cc68f171e1356699788c4"
+    },
+    {
+      "path": "splash-focus.json",
+      "size": 6202,
+      "sha256": "276b4f29541d48f9982e885543df4dccb68ebf4fdbc3fabb20cc19c87f3adc7f"
+    },
+    {
+      "path": "splash-launch.json",
+      "size": 56534,
+      "sha256": "abc815b4282ce7488ae22134335b29ede911145265dda9ccf979859d569233e2"
+    },
+    {
+      "path": "splash-oncreate.json",
+      "size": 7013,
+      "sha256": "875a474bd4c0b0e002b24b38890b2a5f29c0df862fb87732ddc197d33572bbec"
+    },
+    {
+      "path": "stream-read-number.json",
+      "size": 4993,
+      "sha256": "9c9f8b4fdb804d55edb535d138fb058aa81cccba1fdf664cb78b650a2432e3f6"
+    },
+    {
+      "path": "stream-read-short-string.json",
+      "size": 11666,
+      "sha256": "8f16fa55477eb256fe98b01f29cf830af360bfeb51591f9168714912f2f4a3e2"
+    },
+    {
+      "path": "stream-read-string.json",
+      "size": 5343,
+      "sha256": "bed7d8468d106814ec406bb77bc40756f39acff8eb2c8ebea4db166c52cf8e14"
+    },
+    {
+      "path": "STS-CHANNELS-EFFECT.md",
+      "size": 6493,
+      "sha256": "dd6caf73fb6e46d5341dc2ece4c06c0aab021fd967e02d7dc26501d0dbbb3fa1"
+    },
+    {
+      "path": "sts-class.json",
+      "size": 12478,
+      "sha256": "4a16b1b1cfad1b34266fc22f7b1f26efa43b77f3cc4f9189ad137813fd0db17b"
+    },
+    {
+      "path": "sts-constructor.json",
+      "size": 12814,
+      "sha256": "8a1d49acfbdfcadce10c963ab024af500d3cd77cde7c6e5726a389a4cf0beaa2"
+    },
+    {
+      "path": "sts-read-stream.json",
+      "size": 18568,
+      "sha256": "e5b0cadef84c5e0653e6a531cddc4569967b9ef945dd13bb368d082c64ed07ca"
+    },
+    {
+      "path": "system-read-stream.json",
+      "size": 13434,
+      "sha256": "91839bcd78fef82d499a4ef2c4c91d60969cf0be3675771b02cf8412ff1aefe7"
+    },
+    {
+      "path": "systems-class.json",
+      "size": 13192,
+      "sha256": "e2bd2698b4a00f1e8ed770f67a6d9b8a867ff44a3d8e3d4c93f2894c7f4ac611"
+    },
+    {
+      "path": "temp-cleanup-helper.json",
+      "size": 14924,
+      "sha256": "f6242cd7c5f96bb93d4f4670e54c94ad7c74a821feebbcc85c79a1afc80c4225"
+    },
+    {
+      "path": "temp-cleanup-k82.json",
+      "size": 5667,
+      "sha256": "aa94dc1d210b48e7d8719c25bd51879c5a0b40900a40df6d80bdda0108bfb1f7"
+    },
+    {
+      "path": "TONG-QUAN.md",
+      "size": 19771,
+      "sha256": "e542cd871aed5fba8d20a16aef026d261a02e66600dbe517e0a72a252eb022fa"
+    },
+    {
+      "path": "touch-D0.json",
+      "size": 52986,
+      "sha256": "14cba2f40ea17f9b44a9601b26e24250e3cb2716bd47df5b03c8d7c8526b609a"
+    },
+    {
+      "path": "touch-l.json",
+      "size": 54625,
+      "sha256": "0c94098cb153376c08ee9313785af92831ff490d5c0ab285739394d63ca70a5b"
+    },
+    {
+      "path": "touch-m.json",
+      "size": 59243,
+      "sha256": "8a734ccaade36418103fe8e9024086fcbbae81e79dc2dc50f4819c2d7ab59c95"
+    },
+    {
+      "path": "touch.json",
+      "size": 79578,
+      "sha256": "7daf27e19223f2fb1aeea4035c64ac7d32d5545da625b52878ececa620929a52"
+    },
+    {
+      "path": "track-group-read-stream.json",
+      "size": 35650,
+      "sha256": "46d724b1e164dc106d630cb07c20c9d8abb2670e2972334daead6cee304cef03"
+    },
+    {
+      "path": "track-play-dispatch.json",
+      "size": 126146,
+      "sha256": "ddff8a2faa72d798136d9731d3648cc644ad0e37f78c301b8ec0a25303198d85"
+    },
+    {
+      "path": "track-play-main.json",
+      "size": 16031,
+      "sha256": "d725d979861b0b55a3549dc102c2e16e006c7eb1dfc17dcd3303e039389ab955"
+    },
+    {
+      "path": "track-play-next.json",
+      "size": 44794,
+      "sha256": "9d50e30a321567eb1f6a14d242c3324766af222ecd17ac65828df5f34d745a25"
+    },
+    {
+      "path": "track-read-stream.json",
+      "size": 42428,
+      "sha256": "cc87f5b162aea1f3da2756cf193ee24d32485b1716fcecd5ad35394a100b2f96"
+    },
+    {
+      "path": "track-record-music-event.json",
+      "size": 35516,
+      "sha256": "c12e610b64371c6f863368c18f6ab809f7fb16f52a5e4c24f8d41f0cea5aa58d"
+    },
+    {
+      "path": "track-script-event.json",
+      "size": 34870,
+      "sha256": "f1ee951a6315d16938a48bd82d54aacee668d90ddcdba97aa7f1633b8950bd1f"
+    },
+    {
+      "path": "track-write-event.json",
+      "size": 35086,
+      "sha256": "2c329a54f5c69929722e59d8ab7c8739fb9c528c4b23e4988be59b584edad5d1"
+    },
+    {
+      "path": "track.json",
+      "size": 25711,
+      "sha256": "05fe5173087effb95c64dcd45c96c2a188672fd6e4721199635c532a448d09eb"
+    },
+    {
+      "path": "tracks-class-new.json",
+      "size": 72456,
+      "sha256": "e1b3121a418a511fd9c59e948e2fcb038b209d3986c121c19c1821f4d1bfeb22"
+    },
+    {
+      "path": "tracks-read-stream.json",
+      "size": 50154,
+      "sha256": "01dcfb0dd4423065188fc39c9bb26a9160109bfa784ceec7ed20e8c1892e5e51"
+    },
+    {
+      "path": "tracks-record.json",
+      "size": 25253,
+      "sha256": "3f4ffe68f844835a071da1f94f3ccca55b19c70f506591bea608611dd7ad76c6"
+    },
+    {
+      "path": "tracks-write-stream.json",
+      "size": 44318,
+      "sha256": "6fd777eb580e43354073cc1f4e3f6bdb1c54505eb5a157440e42df368af17f34"
+    },
+    {
+      "path": "tracks.json",
+      "size": 36230,
+      "sha256": "22df6890c5948f907a908417fac7f2e325f3e9a15db88b29d6bc408d03ca9f23"
+    },
+    {
+      "path": "VALIDATION.md",
+      "size": 1070,
+      "sha256": "8e78c1f45a72fdbdfea906174f5e607c4289e4049bee2062b54070ddb43e4505"
+    },
+    {
+      "path": "VONG-DOI-WAV.md",
+      "size": 5789,
+      "sha256": "c897e75bd6d8aefadf522a8daedab320fd435612a8d3dc5353ee6f52fe530f32"
+    },
+    {
+      "path": "wav-header.json",
+      "size": 8938,
+      "sha256": "f847d210ab99b4f51879a72852d8dc633e7f5f65e38102b3930cb29435446f70"
+    },
+    {
+      "path": "wav-writer-class.json",
+      "size": 5908,
+      "sha256": "df3b9b2f75b6baa5021838c13437c72b15aefabd18877379b2d317a1f998389f"
+    },
+    {
+      "path": "wav-writer-close.json",
+      "size": 6899,
+      "sha256": "d41b359f21c66c1f8c786175e7641564ea4bae49125d1ed4a2602b9f7900e6c5"
+    },
+    {
+      "path": "wav-writer-init-full.json",
+      "size": 6894,
+      "sha256": "3967f9882db2d3227d687bd2b0a72775d391d5ca217088a8e2d4adc3f9319dbe"
+    },
+    {
+      "path": "wav-writer-init.json",
+      "size": 5876,
+      "sha256": "ed29360809d5a62418783656286bec0764517e2d09050a7820354754e9dedc39"
+    },
+    {
+      "path": "wav-writer-write.json",
+      "size": 7766,
+      "sha256": "1bc25d6790f78bf13350eb4ee6a546f324c9e5188c8bfbdfba977045cdc84f4a"
+    },
+    {
+      "path": "write-callers.json",
+      "size": 6523,
+      "sha256": "d75d301528cb8fac2d72284198fcb053293b42ab8f7fdad7b0b9b9db0fabe079"
+    },
+    {
+      "path": "x13-class.json",
+      "size": 6277,
+      "sha256": "46cdccbb4682a09ae4c4660259c111800c16e35e351dc72965c981440a42dcc4"
+    },
+    {
+      "path": "x13-input-stop.json",
+      "size": 7950,
+      "sha256": "b1bc1a08a02f226473abbb3daf630aec64e0ae01508ceb841957f78bdc70b61c"
+    },
+    {
+      "path": "x13-output-stop.json",
+      "size": 7200,
+      "sha256": "39b7e3afb485fcf3f42d8921b95f27894c945c962b6c09657d1a4d25a20796fa"
+    },
+    {
+      "path": "x13-ready.json",
+      "size": 6581,
+      "sha256": "6a04ab6ef86cad119e02a2c0cc43d2324752150cb9bb248b94096a9748d3b312"
+    },
+    {
+      "path": "XAC-MINH-DEX.md",
+      "size": 4520,
+      "sha256": "702a8794eeb654bf041f8868813bb92361fa48d8b6c3d9963cc77d686737888b"
+    },
+    {
+      "path": "XUAT-PCM-WAV.md",
+      "size": 2897,
+      "sha256": "002b13ffe390b63aa79f1427308e11ee7f5c398138b67a74fc71b58e0d78717a"
+    }
+  ]
+}

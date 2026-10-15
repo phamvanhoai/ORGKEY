@@ -1,0 +1,719 @@
+{
+  "source": "C:\\Users\\Admin\\Documents\\GITHUB\\ORGKEY\\ORG+24_+Your+Music_2026.10.01_APKPure.apk",
+  "asset": "assets/data.zip",
+  "model_count": 6,
+  "total_operations": 60,
+  "all_lines_recognized": true,
+  "operation_shapes": [
+    {
+      "command": "Instrument",
+      "event": "program",
+      "channel": -1,
+      "count": 60
+    }
+  ],
+  "models": [
+    {
+      "path": "Model/Standard25Key.Model",
+      "size": 1383,
+      "sha256": "d1563367f4bf73b8ec64189d89190958c3415f18260880fd019fa5fcbcda7216",
+      "name": "Standard 25 Key",
+      "key": {
+        "count": 25,
+        "start": 48,
+        "chord": 11,
+        "end_inclusive": 72
+      },
+      "skin": "",
+      "operation_count": 10,
+      "operations": [
+        {
+          "line": 49,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 1,
+          "event": "program",
+          "channel": -1,
+          "value1": 0,
+          "value2": -1
+        },
+        {
+          "line": 50,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 2,
+          "event": "program",
+          "channel": -1,
+          "value1": 1,
+          "value2": -1
+        },
+        {
+          "line": 51,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 3,
+          "event": "program",
+          "channel": -1,
+          "value1": 2,
+          "value2": -1
+        },
+        {
+          "line": 52,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 4,
+          "event": "program",
+          "channel": -1,
+          "value1": 3,
+          "value2": -1
+        },
+        {
+          "line": 53,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 5,
+          "event": "program",
+          "channel": -1,
+          "value1": 4,
+          "value2": -1
+        },
+        {
+          "line": 54,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 6,
+          "event": "program",
+          "channel": -1,
+          "value1": 5,
+          "value2": -1
+        },
+        {
+          "line": 55,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 7,
+          "event": "program",
+          "channel": -1,
+          "value1": 6,
+          "value2": -1
+        },
+        {
+          "line": 56,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 8,
+          "event": "program",
+          "channel": -1,
+          "value1": 7,
+          "value2": -1
+        },
+        {
+          "line": 57,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 9,
+          "event": "program",
+          "channel": -1,
+          "value1": 8,
+          "value2": -1
+        },
+        {
+          "line": 58,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 10,
+          "event": "program",
+          "channel": -1,
+          "value1": 9,
+          "value2": -1
+        }
+      ],
+      "ignored_lines": []
+    },
+    {
+      "path": "Model/Standard32Key.Model",
+      "size": 1383,
+      "sha256": "bf60686fcc32cc0ef2663fc3dc7d6f45b46ef012c7695518590d98b20dab515c",
+      "name": "Standard 32 Key",
+      "key": {
+        "count": 32,
+        "start": 53,
+        "chord": 12,
+        "end_inclusive": 84
+      },
+      "skin": "",
+      "operation_count": 10,
+      "operations": [
+        {
+          "line": 49,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 1,
+          "event": "program",
+          "channel": -1,
+          "value1": 0,
+          "value2": -1
+        },
+        {
+          "line": 50,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 2,
+          "event": "program",
+          "channel": -1,
+          "value1": 1,
+          "value2": -1
+        },
+        {
+          "line": 51,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 3,
+          "event": "program",
+          "channel": -1,
+          "value1": 2,
+          "value2": -1
+        },
+        {
+          "line": 52,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 4,
+          "event": "program",
+          "channel": -1,
+          "value1": 3,
+          "value2": -1
+        },
+        {
+          "line": 53,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 5,
+          "event": "program",
+          "channel": -1,
+          "value1": 4,
+          "value2": -1
+        },
+        {
+          "line": 54,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 6,
+          "event": "program",
+          "channel": -1,
+          "value1": 5,
+          "value2": -1
+        },
+        {
+          "line": 55,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 7,
+          "event": "program",
+          "channel": -1,
+          "value1": 6,
+          "value2": -1
+        },
+        {
+          "line": 56,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 8,
+          "event": "program",
+          "channel": -1,
+          "value1": 7,
+          "value2": -1
+        },
+        {
+          "line": 57,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 9,
+          "event": "program",
+          "channel": -1,
+          "value1": 8,
+          "value2": -1
+        },
+        {
+          "line": 58,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 10,
+          "event": "program",
+          "channel": -1,
+          "value1": 9,
+          "value2": -1
+        }
+      ],
+      "ignored_lines": []
+    },
+    {
+      "path": "Model/Standard49Key.Model",
+      "size": 1383,
+      "sha256": "54858053582981c761cde93a402610b2514173e19c9ea3437d708829330514f8",
+      "name": "Standard 49 Key",
+      "key": {
+        "count": 49,
+        "start": 48,
+        "chord": 17,
+        "end_inclusive": 96
+      },
+      "skin": "",
+      "operation_count": 10,
+      "operations": [
+        {
+          "line": 49,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 1,
+          "event": "program",
+          "channel": -1,
+          "value1": 0,
+          "value2": -1
+        },
+        {
+          "line": 50,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 2,
+          "event": "program",
+          "channel": -1,
+          "value1": 1,
+          "value2": -1
+        },
+        {
+          "line": 51,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 3,
+          "event": "program",
+          "channel": -1,
+          "value1": 2,
+          "value2": -1
+        },
+        {
+          "line": 52,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 4,
+          "event": "program",
+          "channel": -1,
+          "value1": 3,
+          "value2": -1
+        },
+        {
+          "line": 53,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 5,
+          "event": "program",
+          "channel": -1,
+          "value1": 4,
+          "value2": -1
+        },
+        {
+          "line": 54,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 6,
+          "event": "program",
+          "channel": -1,
+          "value1": 5,
+          "value2": -1
+        },
+        {
+          "line": 55,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 7,
+          "event": "program",
+          "channel": -1,
+          "value1": 6,
+          "value2": -1
+        },
+        {
+          "line": 56,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 8,
+          "event": "program",
+          "channel": -1,
+          "value1": 7,
+          "value2": -1
+        },
+        {
+          "line": 57,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 9,
+          "event": "program",
+          "channel": -1,
+          "value1": 8,
+          "value2": -1
+        },
+        {
+          "line": 58,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 10,
+          "event": "program",
+          "channel": -1,
+          "value1": 9,
+          "value2": -1
+        }
+      ],
+      "ignored_lines": []
+    },
+    {
+      "path": "Model/Standard61Key.Model",
+      "size": 1383,
+      "sha256": "4e5f37a5656495d230c003c3b9791f46e5fe93c15e99fd0e3bbd8982d991cd20",
+      "name": "Standard 61 Key",
+      "key": {
+        "count": 61,
+        "start": 36,
+        "chord": 17,
+        "end_inclusive": 96
+      },
+      "skin": "",
+      "operation_count": 10,
+      "operations": [
+        {
+          "line": 49,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 1,
+          "event": "program",
+          "channel": -1,
+          "value1": 0,
+          "value2": -1
+        },
+        {
+          "line": 50,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 2,
+          "event": "program",
+          "channel": -1,
+          "value1": 1,
+          "value2": -1
+        },
+        {
+          "line": 51,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 3,
+          "event": "program",
+          "channel": -1,
+          "value1": 2,
+          "value2": -1
+        },
+        {
+          "line": 52,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 4,
+          "event": "program",
+          "channel": -1,
+          "value1": 3,
+          "value2": -1
+        },
+        {
+          "line": 53,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 5,
+          "event": "program",
+          "channel": -1,
+          "value1": 4,
+          "value2": -1
+        },
+        {
+          "line": 54,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 6,
+          "event": "program",
+          "channel": -1,
+          "value1": 5,
+          "value2": -1
+        },
+        {
+          "line": 55,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 7,
+          "event": "program",
+          "channel": -1,
+          "value1": 6,
+          "value2": -1
+        },
+        {
+          "line": 56,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 8,
+          "event": "program",
+          "channel": -1,
+          "value1": 7,
+          "value2": -1
+        },
+        {
+          "line": 57,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 9,
+          "event": "program",
+          "channel": -1,
+          "value1": 8,
+          "value2": -1
+        },
+        {
+          "line": 58,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 10,
+          "event": "program",
+          "channel": -1,
+          "value1": 9,
+          "value2": -1
+        }
+      ],
+      "ignored_lines": []
+    },
+    {
+      "path": "Model/Standard76Key.Model",
+      "size": 1383,
+      "sha256": "c04a27ffe988639ff8c1c39c0575b92e59d594fac7d6fb03906194bcf9b70a76",
+      "name": "Standard 76 Key",
+      "key": {
+        "count": 76,
+        "start": 28,
+        "chord": 19,
+        "end_inclusive": 103
+      },
+      "skin": "",
+      "operation_count": 10,
+      "operations": [
+        {
+          "line": 49,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 1,
+          "event": "program",
+          "channel": -1,
+          "value1": 0,
+          "value2": -1
+        },
+        {
+          "line": 50,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 2,
+          "event": "program",
+          "channel": -1,
+          "value1": 1,
+          "value2": -1
+        },
+        {
+          "line": 51,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 3,
+          "event": "program",
+          "channel": -1,
+          "value1": 2,
+          "value2": -1
+        },
+        {
+          "line": 52,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 4,
+          "event": "program",
+          "channel": -1,
+          "value1": 3,
+          "value2": -1
+        },
+        {
+          "line": 53,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 5,
+          "event": "program",
+          "channel": -1,
+          "value1": 4,
+          "value2": -1
+        },
+        {
+          "line": 54,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 6,
+          "event": "program",
+          "channel": -1,
+          "value1": 5,
+          "value2": -1
+        },
+        {
+          "line": 55,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 7,
+          "event": "program",
+          "channel": -1,
+          "value1": 6,
+          "value2": -1
+        },
+        {
+          "line": 56,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 8,
+          "event": "program",
+          "channel": -1,
+          "value1": 7,
+          "value2": -1
+        },
+        {
+          "line": 57,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 9,
+          "event": "program",
+          "channel": -1,
+          "value1": 8,
+          "value2": -1
+        },
+        {
+          "line": 58,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 10,
+          "event": "program",
+          "channel": -1,
+          "value1": 9,
+          "value2": -1
+        }
+      ],
+      "ignored_lines": []
+    },
+    {
+      "path": "Model/Standard88Key.Model",
+      "size": 1383,
+      "sha256": "830f22253c6d93180dd94a8015900d2bf131a7f8b992fe03cab2203491025cb5",
+      "name": "Standard 88 Key",
+      "key": {
+        "count": 88,
+        "start": 21,
+        "chord": 20,
+        "end_inclusive": 108
+      },
+      "skin": "",
+      "operation_count": 10,
+      "operations": [
+        {
+          "line": 49,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 1,
+          "event": "program",
+          "channel": -1,
+          "value1": 0,
+          "value2": -1
+        },
+        {
+          "line": 50,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 2,
+          "event": "program",
+          "channel": -1,
+          "value1": 1,
+          "value2": -1
+        },
+        {
+          "line": 51,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 3,
+          "event": "program",
+          "channel": -1,
+          "value1": 2,
+          "value2": -1
+        },
+        {
+          "line": 52,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 4,
+          "event": "program",
+          "channel": -1,
+          "value1": 3,
+          "value2": -1
+        },
+        {
+          "line": 53,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 5,
+          "event": "program",
+          "channel": -1,
+          "value1": 4,
+          "value2": -1
+        },
+        {
+          "line": 54,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 6,
+          "event": "program",
+          "channel": -1,
+          "value1": 5,
+          "value2": -1
+        },
+        {
+          "line": 55,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 7,
+          "event": "program",
+          "channel": -1,
+          "value1": 6,
+          "value2": -1
+        },
+        {
+          "line": 56,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 8,
+          "event": "program",
+          "channel": -1,
+          "value1": 7,
+          "value2": -1
+        },
+        {
+          "line": 57,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 9,
+          "event": "program",
+          "channel": -1,
+          "value1": 8,
+          "value2": -1
+        },
+        {
+          "line": 58,
+          "command": "Instrument",
+          "command_code": 240,
+          "index": 10,
+          "event": "program",
+          "channel": -1,
+          "value1": 9,
+          "value2": -1
+        }
+      ],
+      "ignored_lines": []
+    }
+  ]
+}

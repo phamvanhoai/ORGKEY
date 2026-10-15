@@ -1,0 +1,382 @@
+{
+  "arm64-v8a": {
+    "libnbandbooster.so": [
+      "Java_sofeh_audio_NBandBooster_build",
+      "Java_sofeh_audio_NBandBooster_close",
+      "Java_sofeh_audio_NBandBooster_open",
+      "Java_sofeh_audio_NBandBooster_process"
+    ],
+    "libnequalizer.so": [
+      "Java_sofeh_audio_NEqualizer_band",
+      "Java_sofeh_audio_NEqualizer_bandMove",
+      "Java_sofeh_audio_NEqualizer_build",
+      "Java_sofeh_audio_NEqualizer_close",
+      "Java_sofeh_audio_NEqualizer_open",
+      "Java_sofeh_audio_NEqualizer_process",
+      "Java_sofeh_audio_NEqualizer_processLeft",
+      "Java_sofeh_audio_NEqualizer_processRight"
+    ],
+    "libnflanger.so": [
+      "Java_sofeh_audio_NFlanger_build",
+      "Java_sofeh_audio_NFlanger_close",
+      "Java_sofeh_audio_NFlanger_open",
+      "Java_sofeh_audio_NFlanger_process",
+      "Java_sofeh_audio_NFlanger_processLeft",
+      "Java_sofeh_audio_NFlanger_processRight"
+    ],
+    "libngverb.so": [
+      "Java_sofeh_audio_NGVerb_close",
+      "Java_sofeh_audio_NGVerb_flush",
+      "Java_sofeh_audio_NGVerb_open",
+      "Java_sofeh_audio_NGVerb_processLeft",
+      "Java_sofeh_audio_NGVerb_processMono",
+      "Java_sofeh_audio_NGVerb_processRight",
+      "Java_sofeh_audio_NGVerb_processStereoLeft",
+      "Java_sofeh_audio_NGVerb_processStereoRight",
+      "Java_sofeh_audio_NGVerb_setdamping",
+      "Java_sofeh_audio_NGVerb_setearlylevel",
+      "Java_sofeh_audio_NGVerb_setinputbandwidth",
+      "Java_sofeh_audio_NGVerb_setrevtime",
+      "Java_sofeh_audio_NGVerb_setroomsize",
+      "Java_sofeh_audio_NGVerb_settaillevel"
+    ],
+    "libnlame.so": [
+      "Java_sofeh_audio_Lame_close",
+      "Java_sofeh_audio_Lame_encode",
+      "Java_sofeh_audio_Lame_flush",
+      "Java_sofeh_audio_Lame_init"
+    ],
+    "libnmusic.so": [
+      "Java_sofeh_music_NMusic_ChannelClose",
+      "Java_sofeh_music_NMusic_ChannelCopy",
+      "Java_sofeh_music_NMusic_ChannelOpen",
+      "Java_sofeh_music_NMusic_ChannelProcess",
+      "Java_sofeh_music_NMusic_ChannelReset",
+      "Java_sofeh_music_NMusic_FreeMem",
+      "Java_sofeh_music_NMusic_GetMem",
+      "Java_sofeh_music_NMusic_MemFromByteArray",
+      "Java_sofeh_music_NMusic_MemFromShortArray",
+      "Java_sofeh_music_NMusic_MemToByteArray",
+      "Java_sofeh_music_NMusic_MemToShortArray",
+      "Java_sofeh_music_NMusic_Mix0",
+      "Java_sofeh_music_NMusic_Mix1",
+      "Java_sofeh_music_NMusic_Mix2",
+      "Java_sofeh_music_NMusic_SysBits",
+      "Java_sofeh_music_NMusic_code"
+    ],
+    "libnopensl.so": [
+      "Java_sofeh_audio_NOpenSL_MixPut",
+      "Java_sofeh_audio_NOpenSL_MixWrite",
+      "Java_sofeh_audio_NOpenSL_Put",
+      "Java_sofeh_audio_NOpenSL_RecordStart",
+      "Java_sofeh_audio_NOpenSL_RecordStop",
+      "Java_sofeh_audio_NOpenSL_Start",
+      "Java_sofeh_audio_NOpenSL_Stop",
+      "Java_sofeh_audio_NOpenSL_Stoped",
+      "Java_sofeh_audio_NOpenSL_Write"
+    ],
+    "libnpitchshift.so": [
+      "Java_sofeh_audio_NPitchShift_close",
+      "Java_sofeh_audio_NPitchShift_open",
+      "Java_sofeh_audio_NPitchShift_process",
+      "Java_sofeh_audio_NPitchShift_processLeft",
+      "Java_sofeh_audio_NPitchShift_processRight"
+    ],
+    "libnsf2.so": [
+      "Java_sofeh_music_NSF2_Close",
+      "Java_sofeh_music_NSF2_Open",
+      "Java_sofeh_music_NSF2_PresetCount",
+      "Java_sofeh_music_NSF2_PresetName",
+      "Java_sofeh_music_NSF2_Voice",
+      "Java_sofeh_music_NSF2_VoiceLoop",
+      "Java_sofeh_music_NSF2_VoiceLoopEnd",
+      "Java_sofeh_music_NSF2_VoiceLoopStart",
+      "Java_sofeh_music_NSF2_VoiceSampleRate"
+    ]
+  },
+  "armeabi-v7a": {
+    "libnbandbooster.so": [
+      "Java_sofeh_audio_NBandBooster_build",
+      "Java_sofeh_audio_NBandBooster_close",
+      "Java_sofeh_audio_NBandBooster_open",
+      "Java_sofeh_audio_NBandBooster_process"
+    ],
+    "libnequalizer.so": [
+      "Java_sofeh_audio_NEqualizer_band",
+      "Java_sofeh_audio_NEqualizer_bandMove",
+      "Java_sofeh_audio_NEqualizer_build",
+      "Java_sofeh_audio_NEqualizer_close",
+      "Java_sofeh_audio_NEqualizer_open",
+      "Java_sofeh_audio_NEqualizer_process",
+      "Java_sofeh_audio_NEqualizer_processLeft",
+      "Java_sofeh_audio_NEqualizer_processRight"
+    ],
+    "libnflanger.so": [
+      "Java_sofeh_audio_NFlanger_build",
+      "Java_sofeh_audio_NFlanger_close",
+      "Java_sofeh_audio_NFlanger_open",
+      "Java_sofeh_audio_NFlanger_process",
+      "Java_sofeh_audio_NFlanger_processLeft",
+      "Java_sofeh_audio_NFlanger_processRight"
+    ],
+    "libngverb.so": [
+      "Java_sofeh_audio_NGVerb_close",
+      "Java_sofeh_audio_NGVerb_flush",
+      "Java_sofeh_audio_NGVerb_open",
+      "Java_sofeh_audio_NGVerb_processLeft",
+      "Java_sofeh_audio_NGVerb_processMono",
+      "Java_sofeh_audio_NGVerb_processRight",
+      "Java_sofeh_audio_NGVerb_processStereoLeft",
+      "Java_sofeh_audio_NGVerb_processStereoRight",
+      "Java_sofeh_audio_NGVerb_setdamping",
+      "Java_sofeh_audio_NGVerb_setearlylevel",
+      "Java_sofeh_audio_NGVerb_setinputbandwidth",
+      "Java_sofeh_audio_NGVerb_setrevtime",
+      "Java_sofeh_audio_NGVerb_setroomsize",
+      "Java_sofeh_audio_NGVerb_settaillevel"
+    ],
+    "libnlame.so": [
+      "Java_sofeh_audio_Lame_close",
+      "Java_sofeh_audio_Lame_encode",
+      "Java_sofeh_audio_Lame_flush",
+      "Java_sofeh_audio_Lame_init"
+    ],
+    "libnmusic.so": [
+      "Java_sofeh_music_NMusic_ChannelClose",
+      "Java_sofeh_music_NMusic_ChannelCopy",
+      "Java_sofeh_music_NMusic_ChannelOpen",
+      "Java_sofeh_music_NMusic_ChannelProcess",
+      "Java_sofeh_music_NMusic_ChannelReset",
+      "Java_sofeh_music_NMusic_FreeMem",
+      "Java_sofeh_music_NMusic_GetMem",
+      "Java_sofeh_music_NMusic_MemFromByteArray",
+      "Java_sofeh_music_NMusic_MemFromShortArray",
+      "Java_sofeh_music_NMusic_MemToByteArray",
+      "Java_sofeh_music_NMusic_MemToShortArray",
+      "Java_sofeh_music_NMusic_Mix0",
+      "Java_sofeh_music_NMusic_Mix1",
+      "Java_sofeh_music_NMusic_Mix2",
+      "Java_sofeh_music_NMusic_SysBits",
+      "Java_sofeh_music_NMusic_code"
+    ],
+    "libnopensl.so": [
+      "Java_sofeh_audio_NOpenSL_MixPut",
+      "Java_sofeh_audio_NOpenSL_MixWrite",
+      "Java_sofeh_audio_NOpenSL_Put",
+      "Java_sofeh_audio_NOpenSL_RecordStart",
+      "Java_sofeh_audio_NOpenSL_RecordStop",
+      "Java_sofeh_audio_NOpenSL_Start",
+      "Java_sofeh_audio_NOpenSL_Stop",
+      "Java_sofeh_audio_NOpenSL_Stoped",
+      "Java_sofeh_audio_NOpenSL_Write"
+    ],
+    "libnpitchshift.so": [
+      "Java_sofeh_audio_NPitchShift_close",
+      "Java_sofeh_audio_NPitchShift_open",
+      "Java_sofeh_audio_NPitchShift_process",
+      "Java_sofeh_audio_NPitchShift_processLeft",
+      "Java_sofeh_audio_NPitchShift_processRight"
+    ],
+    "libnsf2.so": [
+      "Java_sofeh_music_NSF2_Close",
+      "Java_sofeh_music_NSF2_Open",
+      "Java_sofeh_music_NSF2_PresetCount",
+      "Java_sofeh_music_NSF2_PresetName",
+      "Java_sofeh_music_NSF2_Voice",
+      "Java_sofeh_music_NSF2_VoiceLoop",
+      "Java_sofeh_music_NSF2_VoiceLoopEnd",
+      "Java_sofeh_music_NSF2_VoiceLoopStart",
+      "Java_sofeh_music_NSF2_VoiceSampleRate"
+    ]
+  },
+  "x86": {
+    "libnbandbooster.so": [
+      "Java_sofeh_audio_NBandBooster_build",
+      "Java_sofeh_audio_NBandBooster_close",
+      "Java_sofeh_audio_NBandBooster_open",
+      "Java_sofeh_audio_NBandBooster_process"
+    ],
+    "libnequalizer.so": [
+      "Java_sofeh_audio_NEqualizer_band",
+      "Java_sofeh_audio_NEqualizer_bandMove",
+      "Java_sofeh_audio_NEqualizer_build",
+      "Java_sofeh_audio_NEqualizer_close",
+      "Java_sofeh_audio_NEqualizer_open",
+      "Java_sofeh_audio_NEqualizer_process",
+      "Java_sofeh_audio_NEqualizer_processLeft",
+      "Java_sofeh_audio_NEqualizer_processRight"
+    ],
+    "libnflanger.so": [
+      "Java_sofeh_audio_NFlanger_build",
+      "Java_sofeh_audio_NFlanger_close",
+      "Java_sofeh_audio_NFlanger_open",
+      "Java_sofeh_audio_NFlanger_process",
+      "Java_sofeh_audio_NFlanger_processLeft",
+      "Java_sofeh_audio_NFlanger_processRight"
+    ],
+    "libngverb.so": [
+      "Java_sofeh_audio_NGVerb_close",
+      "Java_sofeh_audio_NGVerb_flush",
+      "Java_sofeh_audio_NGVerb_open",
+      "Java_sofeh_audio_NGVerb_processLeft",
+      "Java_sofeh_audio_NGVerb_processMono",
+      "Java_sofeh_audio_NGVerb_processRight",
+      "Java_sofeh_audio_NGVerb_processStereoLeft",
+      "Java_sofeh_audio_NGVerb_processStereoRight",
+      "Java_sofeh_audio_NGVerb_setdamping",
+      "Java_sofeh_audio_NGVerb_setearlylevel",
+      "Java_sofeh_audio_NGVerb_setinputbandwidth",
+      "Java_sofeh_audio_NGVerb_setrevtime",
+      "Java_sofeh_audio_NGVerb_setroomsize",
+      "Java_sofeh_audio_NGVerb_settaillevel"
+    ],
+    "libnlame.so": [
+      "Java_sofeh_audio_Lame_close",
+      "Java_sofeh_audio_Lame_encode",
+      "Java_sofeh_audio_Lame_flush",
+      "Java_sofeh_audio_Lame_init"
+    ],
+    "libnmusic.so": [
+      "Java_sofeh_music_NMusic_ChannelClose",
+      "Java_sofeh_music_NMusic_ChannelCopy",
+      "Java_sofeh_music_NMusic_ChannelOpen",
+      "Java_sofeh_music_NMusic_ChannelProcess",
+      "Java_sofeh_music_NMusic_ChannelReset",
+      "Java_sofeh_music_NMusic_FreeMem",
+      "Java_sofeh_music_NMusic_GetMem",
+      "Java_sofeh_music_NMusic_MemFromByteArray",
+      "Java_sofeh_music_NMusic_MemFromShortArray",
+      "Java_sofeh_music_NMusic_MemToByteArray",
+      "Java_sofeh_music_NMusic_MemToShortArray",
+      "Java_sofeh_music_NMusic_Mix0",
+      "Java_sofeh_music_NMusic_Mix1",
+      "Java_sofeh_music_NMusic_Mix2",
+      "Java_sofeh_music_NMusic_SysBits",
+      "Java_sofeh_music_NMusic_code"
+    ],
+    "libnopensl.so": [
+      "Java_sofeh_audio_NOpenSL_MixPut",
+      "Java_sofeh_audio_NOpenSL_MixWrite",
+      "Java_sofeh_audio_NOpenSL_Put",
+      "Java_sofeh_audio_NOpenSL_RecordStart",
+      "Java_sofeh_audio_NOpenSL_RecordStop",
+      "Java_sofeh_audio_NOpenSL_Start",
+      "Java_sofeh_audio_NOpenSL_Stop",
+      "Java_sofeh_audio_NOpenSL_Stoped",
+      "Java_sofeh_audio_NOpenSL_Write"
+    ],
+    "libnpitchshift.so": [
+      "Java_sofeh_audio_NPitchShift_close",
+      "Java_sofeh_audio_NPitchShift_open",
+      "Java_sofeh_audio_NPitchShift_process",
+      "Java_sofeh_audio_NPitchShift_processLeft",
+      "Java_sofeh_audio_NPitchShift_processRight"
+    ],
+    "libnsf2.so": [
+      "Java_sofeh_music_NSF2_Close",
+      "Java_sofeh_music_NSF2_Open",
+      "Java_sofeh_music_NSF2_PresetCount",
+      "Java_sofeh_music_NSF2_PresetName",
+      "Java_sofeh_music_NSF2_Voice",
+      "Java_sofeh_music_NSF2_VoiceLoop",
+      "Java_sofeh_music_NSF2_VoiceLoopEnd",
+      "Java_sofeh_music_NSF2_VoiceLoopStart",
+      "Java_sofeh_music_NSF2_VoiceSampleRate"
+    ]
+  },
+  "x86_64": {
+    "libnbandbooster.so": [
+      "Java_sofeh_audio_NBandBooster_build",
+      "Java_sofeh_audio_NBandBooster_close",
+      "Java_sofeh_audio_NBandBooster_open",
+      "Java_sofeh_audio_NBandBooster_process"
+    ],
+    "libnequalizer.so": [
+      "Java_sofeh_audio_NEqualizer_band",
+      "Java_sofeh_audio_NEqualizer_bandMove",
+      "Java_sofeh_audio_NEqualizer_build",
+      "Java_sofeh_audio_NEqualizer_close",
+      "Java_sofeh_audio_NEqualizer_open",
+      "Java_sofeh_audio_NEqualizer_process",
+      "Java_sofeh_audio_NEqualizer_processLeft",
+      "Java_sofeh_audio_NEqualizer_processRight"
+    ],
+    "libnflanger.so": [
+      "Java_sofeh_audio_NFlanger_build",
+      "Java_sofeh_audio_NFlanger_close",
+      "Java_sofeh_audio_NFlanger_open",
+      "Java_sofeh_audio_NFlanger_process",
+      "Java_sofeh_audio_NFlanger_processLeft",
+      "Java_sofeh_audio_NFlanger_processRight"
+    ],
+    "libngverb.so": [
+      "Java_sofeh_audio_NGVerb_close",
+      "Java_sofeh_audio_NGVerb_flush",
+      "Java_sofeh_audio_NGVerb_open",
+      "Java_sofeh_audio_NGVerb_processLeft",
+      "Java_sofeh_audio_NGVerb_processMono",
+      "Java_sofeh_audio_NGVerb_processRight",
+      "Java_sofeh_audio_NGVerb_processStereoLeft",
+      "Java_sofeh_audio_NGVerb_processStereoRight",
+      "Java_sofeh_audio_NGVerb_setdamping",
+      "Java_sofeh_audio_NGVerb_setearlylevel",
+      "Java_sofeh_audio_NGVerb_setinputbandwidth",
+      "Java_sofeh_audio_NGVerb_setrevtime",
+      "Java_sofeh_audio_NGVerb_setroomsize",
+      "Java_sofeh_audio_NGVerb_settaillevel"
+    ],
+    "libnlame.so": [
+      "Java_sofeh_audio_Lame_close",
+      "Java_sofeh_audio_Lame_encode",
+      "Java_sofeh_audio_Lame_flush",
+      "Java_sofeh_audio_Lame_init"
+    ],
+    "libnmusic.so": [
+      "Java_sofeh_music_NMusic_ChannelClose",
+      "Java_sofeh_music_NMusic_ChannelCopy",
+      "Java_sofeh_music_NMusic_ChannelOpen",
+      "Java_sofeh_music_NMusic_ChannelProcess",
+      "Java_sofeh_music_NMusic_ChannelReset",
+      "Java_sofeh_music_NMusic_FreeMem",
+      "Java_sofeh_music_NMusic_GetMem",
+      "Java_sofeh_music_NMusic_MemFromByteArray",
+      "Java_sofeh_music_NMusic_MemFromShortArray",
+      "Java_sofeh_music_NMusic_MemToByteArray",
+      "Java_sofeh_music_NMusic_MemToShortArray",
+      "Java_sofeh_music_NMusic_Mix0",
+      "Java_sofeh_music_NMusic_Mix1",
+      "Java_sofeh_music_NMusic_Mix2",
+      "Java_sofeh_music_NMusic_SysBits",
+      "Java_sofeh_music_NMusic_code"
+    ],
+    "libnopensl.so": [
+      "Java_sofeh_audio_NOpenSL_MixPut",
+      "Java_sofeh_audio_NOpenSL_MixWrite",
+      "Java_sofeh_audio_NOpenSL_Put",
+      "Java_sofeh_audio_NOpenSL_RecordStart",
+      "Java_sofeh_audio_NOpenSL_RecordStop",
+      "Java_sofeh_audio_NOpenSL_Start",
+      "Java_sofeh_audio_NOpenSL_Stop",
+      "Java_sofeh_audio_NOpenSL_Stoped",
+      "Java_sofeh_audio_NOpenSL_Write"
+    ],
+    "libnpitchshift.so": [
+      "Java_sofeh_audio_NPitchShift_close",
+      "Java_sofeh_audio_NPitchShift_open",
+      "Java_sofeh_audio_NPitchShift_process",
+      "Java_sofeh_audio_NPitchShift_processLeft",
+      "Java_sofeh_audio_NPitchShift_processRight"
+    ],
+    "libnsf2.so": [
+      "Java_sofeh_music_NSF2_Close",
+      "Java_sofeh_music_NSF2_Open",
+      "Java_sofeh_music_NSF2_PresetCount",
+      "Java_sofeh_music_NSF2_PresetName",
+      "Java_sofeh_music_NSF2_Voice",
+      "Java_sofeh_music_NSF2_VoiceLoop",
+      "Java_sofeh_music_NSF2_VoiceLoopEnd",
+      "Java_sofeh_music_NSF2_VoiceLoopStart",
+      "Java_sofeh_music_NSF2_VoiceSampleRate"
+    ]
+  }
+}

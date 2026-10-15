@@ -55,3 +55,5 @@ Như vậy fallback tái sử dụng bộ trộn `Channels.Process` và các hi�
 ## Độ phủ hiện tại
 
 Đã nối cả ba đường: callback OpenSL, thread ghi OpenSL và fallback AudioTrack. Chưa xác nhận thiết bị nào chọn đường nào, sample rate hiệu dụng, underrun, độ trễ hoặc CPU. Nghiên cứu tiếp có thể lần theo nơi ghi trực tiếp `fLowLatencyMethod` và kiểm chứng một cấu hình thực tế trên Android.
+
+Nhánh input đi kèm dùng `AudioRecord` và một `AudioTrack` monitor riêng đã được phân tích tại [FALLBACK-AUDIORECORD.md](FALLBACK-AUDIORECORD.md).

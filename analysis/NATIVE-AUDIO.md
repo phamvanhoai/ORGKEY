@@ -66,7 +66,7 @@ Nhánh linear và bốn điểm tăng gain theo `VolumeMoveL/R`, cập nhật pi
 
 ## 4. Start và Write: phần đã xác nhận
 
-`NOpenSL.Start` có mutex, khởi tạo nhiều vùng buffer bằng `memset` và lời gọi `slCreateEngine` tại `0x2210`. Những lời gọi tiếp theo thông qua interface pointer cần đối chiếu cấu trúc OpenSL ES để đặt tên chính xác.
+`NOpenSL.Start` có mutex, khởi tạo nhiều vùng buffer bằng `memset` và lời gọi `slCreateEngine` tại `0x2210`. Các lời gọi interface đã được ánh xạ sang chuỗi tạo engine/output mix/player, lấy Play/BufferQueue/Volume, đăng ký callback và tạo recorder tùy chọn trong [NOPENSL-START-CALLBACKS.md](NOPENSL-START-CALLBACKS.md).
 
 `NOpenSL.Write` kiểm tra trạng thái, chép dữ liệu Java và có các vòng chờ gọi `usleep` (`0x10d4`, `0x1188`) cùng thao tác `memcpy`. Không thể coi đây là đường ghi không chặn. Chưa xác nhận nhánh nào được app chọn trong mỗi cấu hình; không suy ra thời gian chờ hay độ trễ chỉ từ sự hiện diện của `usleep`.
 
@@ -82,4 +82,4 @@ Các dependency nằm trong môi trường Python riêng tại `%LOCALAPPDATA%\r
 
 ## Phần còn thiếu
 
-Đọc consumer/callback dùng buffer `0xaf48`, ánh xạ interface OpenSL và lần theo chỗ Java chọn `Put` so với `Write`. Sau đó mới có thể kiểm chứng trên Android bằng một nốt đã biết và bản ghi âm đầu ra. Hiện chưa có thiết bị/runtime được xác nhận kết nối; mọi kết luận ở đây là phân tích tĩnh trên biến thể ARM64 của đúng APK đã nêu.
+Consumer/callback của buffer `0xaf48`, các interface OpenSL và nhánh Java chọn đường callback so với `Write` đã được ánh xạ trong [NOPENSL-START-CALLBACKS.md](NOPENSL-START-CALLBACKS.md). Phần còn thiếu là kiểm chứng trên Android bằng một nốt đã biết, đo underrun và bản ghi âm đầu ra. Hiện chưa có thiết bị/runtime được xác nhận kết nối; mọi kết luận ở đây là phân tích tĩnh trên biến thể ARM64 của đúng APK đã nêu.

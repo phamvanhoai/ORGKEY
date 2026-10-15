@@ -1,5 +1,19 @@
 # Tổng quan APK ORG 24
 
+Mục lục toàn bộ báo cáo: [INDEX.md](INDEX.md). Manifest kiểm chứng 486 artifact, kích thước và SHA-256 nằm tại [ANALYSIS-MANIFEST.md](ANALYSIS-MANIFEST.md).
+
+Đã dựng [luồng khởi động ứng dụng](APP-STARTUP.md): `MainApplication → SplashActivity → MainActivity`, quá trình tạo 13 thư mục, nhập URI `VIEW/SEND`, xử lý extras và nhánh nội bộ `SafeActivity → MainActivity` sau 750 ms.
+
+Đã giải mã [catalog nội dung tải xuống `download.en`](DOWNLOAD-CATALOG.md): 101 nhóm tác giả, 431 gói ZIP, 21 preview, timestamp và các trường metadata được parse hết; ghi nhận năm record dùng tên archive trùng.
+
+Đã nối [luồng MIDI vào với dispatcher Model](MIDI-CONTROL-FLOW.md): Note On/Off, Program Change, keyboard mapping, wildcard lookup, UI-thread dispatch và command chọn Instrument 1–10.
+
+Đã giải mã [MIDI Model và ánh xạ điều khiển](MIDI-MODEL.md): parser/writer dạng text, 70 command được hỗ trợ, quy tắc wildcard và 60 ánh xạ Program Change trong sáu model mặc định.
+
+Đã nối [24 Script nhạc cụ với luồng thực thi](SCRIPT-ENGINE.md): thống kê event, lệnh phát/timer/effect/cài đặt và xác nhận chuỗi `Music → Track → InstMode → interpreter` bằng REA.
+
+Đã giải mã [Chord, System và Model trong `assets/data.zip`](DATA-ZIP-CHORD-SYSTEM.md): 33 bảng hợp âm dạng mặt nạ 12 bit, 36 System đọc đúng EOF, 6 cấu hình bàn phím cùng inventory cho Script, Skin, PNG và WAV.
+
 Đã giải mã [Constant.Instrument và Sound.Instrument](INSTRUMENT-ASSETS.md) đến đúng EOF: 15 section, 3.433.536 byte PCM nội tuyến; đã xuất WAV kiểm chứng từ mỗi asset.
 
 Đã [đối chiếu PCM và xuất WAV](XUAT-PCM-WAV.md): toàn bộ 2.001 section khớp chính xác với 1.251 wave; thêm công cụ xuất PCM nội tuyến hoặc wave dùng chung và bốn file WAV kiểm chứng.
@@ -28,9 +42,103 @@
 
 Đã xác định [fallback AudioTrack](FALLBACK-AUDIOTRACK.md): tạo thiết bị, gọi cùng bộ trộn rồi ghi buffer `short[]`; đã nối đủ ba đường đầu ra chính. Nơi nạp lựa chọn chế độ và hành vi runtime còn chưa xác minh.
 
-Đã nối [callback phát âm và hai chế độ OpenSL](CALLBACK-AUDIO.md): mode 1 gọi Java từ callback; mode 2 dùng thread Java cung cấp dữ liệu. Cả hai callback đều có điểm enqueue xác định trong mã ARM64.
+Đã nối [callback phát âm và hai chế độ OpenSL](CALLBACK-AUDIO.md), đồng thời dựng lại [toàn bộ chuỗi `NOpenSL.Start`](NOPENSL-START-CALLBACKS.md): tạo engine/output mix/player, lấy Play/BufferQueue/Volume, đăng ký hai callback, enqueue buffer đầu và tạo recorder tùy chọn. Mode 1 gọi `Music.ProcessOut` từ callback; mode 2 dùng thread Java cung cấp dữ liệu.
+
+Đã nối [đường thu âm OpenSL](OPENSL-RECORDING.md): `RecordStart/Stop`, queue capture đồng bộ theo callback output, vòng buffer 4/16 slot, `ProcessIn`, FX microphone và dữ liệu capture trả về Java qua `MixPut/MixWrite`.
+
+Đã nối [đường thu âm fallback `AudioRecord`](FALLBACK-AUDIORECORD.md): dò sample rate, tạo recorder và monitor `AudioTrack`, thread đọc khoảng 10 ms, `ProcessIn`, phát monitor, rồi dừng và giải phóng cả hai thiết bị.
 
 Đã bổ sung [phân tích mã native âm thanh ARM64](NATIVE-AUDIO.md): disassembly năm hàm, các mode trộn mẫu, cơ chế chép/trộn buffer và giới hạn chưa kiểm chứng runtime.
+
+Đã giải mã cấu trúc [Skin/Part](SKIN-FORMAT.md): 24 tài nguyên giao diện dạng văn bản, 5 họ skin, 1.107 bản ghi và parser `us3.x` với các trường header, tọa độ, giá trị mặc định, mã thành phần đặc biệt và quy tắc co giãn theo kích thước màn hình.
+
+Đã trích thêm `us3.w` vào [skin-render-w.java](source/skin-render-w.java), lập danh sách các nhóm mã được dispatch khi render và nối chắc chắn nhánh 30/31 với vùng điều khiển đặc biệt từ parser.
+
+Đã kiểm kê [tài nguyên menu/trợ giúp](MENU-ASSETS.md): 33 tệp UTF-8, gồm menu chính, FAQ, hướng dẫn hiệu năng, thông báo và chuỗi mua hàng đa ngôn ngữ; đã ghi lại quy ước cặp nhãn–hành động và các liên kết giữa menu.
+
+Đã rà các tài nguyên phụ trong [REMAINING-ASSETS.md](REMAINING-ASSETS.md): `download.en` là catalog, `dic` đã được giải mã thành ELF Pangle/PGL, còn `PublicSuffixDatabase.list`/MRAID là dữ liệu SDK bên thứ ba.
+
+Đã parse [assets/Chord](CHORD-ASSET.md): 37 định nghĩa hợp âm dạng tên + khoảng cách bán âm, từ hợp âm ba nốt đến các mẫu bảy nốt; script và inventory lưu lại toàn bộ dòng thực tế.
+
+Đã nối tệp Chord với `sofeh.music.Music.ChordTable`: mỗi mẫu được mở rộng thành 12 bitmask theo nốt gốc trong `fChordTable`; bằng chứng mã nằm ở [chord-table-loader.java](source/chord-table-loader.java).
+
+Đã phát hiện và parse thêm 33 file `data.zip!/Chord/*.Chord`, mỗi file chứa sẵn 12 bitmask theo nốt gốc; chi tiết ở [NESTED-CHORD-ASSETS.md](NESTED-CHORD-ASSETS.md).
+
+Đã đối chiếu hai lớp hợp âm: 31/33 file nested trùng chính xác với mẫu chuẩn; chỉ `Customized Major` và `Customized Minor` là bảng tùy biến không có dòng tên tương ứng trong `assets/Chord`.
+
+Đã lập [bảng coverage tài nguyên](ASSET-COVERAGE.md), phân biệt các định dạng ứng dụng đã parse đến EOF, tài nguyên văn bản đã kiểm kê và dữ liệu SDK không thuộc logic riêng của ORG.
+
+Đã bổ sung [coverage native](NATIVE-COVERAGE.md): xác nhận 32 JNI symbol của `libnmusic.so` và `libnopensl.so` trên ARM64, trong đó 25 symbol được đánh dấu defined; các ABI khác và phần thân chưa disassemble toàn bộ vẫn còn giới hạn.
+
+Đã lập [inventory ABI native](NATIVE-ABI-INVENTORY.md): 58 thư viện `.so` phân bố trên `arm64-v8a`, `armeabi-v7a`, `x86` và `x86_64`; phần disassembly chi tiết hiện tập trung ở ARM64.
+
+Đã lập [danh sách symbol JNI native](NATIVE-JNI-SYMBOLS.md), gồm 16 hàm channel/mix/bộ nhớ của `libnmusic.so` và 9 hàm phát/ghi OpenSL của `libnopensl.so`, kèm các symbol OpenSL xuất khẩu.
+
+Đã quét [symbol inventory ARM64](NATIVE-ARM64-SYMBOL-INVENTORY.md): 18 thư viện, 3.888 dynamic symbol và 100 symbol JNI; các thư viện âm thanh ORG đã được tách khỏi nhóm cần đối chiếu SDK.
+
+Đã lập [JNI của các hiệu ứng âm thanh](NATIVE-EFFECT-JNI.md): BandBooster, Equalizer, Flanger, GVerb và PitchShift đều có vòng đời native riêng và entry point xử lý trái/phải hoặc stereo.
+
+Đã xếp hạng [kích thước JNI hiệu ứng](NATIVE-EFFECT-SIZES.md): ưu tiên tiếp theo là Equalizer `process*`, NGVerb `processStereo`/setter và Flanger `process*`.
+
+Đã disassemble nhóm ưu tiên Equalizer và GVerb bằng [dump_effects.py](dump_effects.py); các bản ARM64 đầy đủ đã nằm trong `analysis/native/`.
+
+Đã disassemble thêm Flanger và BandBooster; các entry point `build/process/processLeft/processRight` lớn của năm module hiệu ứng chính hiện đã được bao phủ trên ARM64.
+
+Đã lập [JNI SF2 và LAME](NSF2-LAME-JNI.md): `libnsf2` đọc preset/voice/sample loop của SoundFont; `libnlame` cung cấp vòng đời mã hóa MP3; `libnms` không xuất JNI tên tĩnh.
+
+Đã disassemble `NSF2_Voice/Open/PresetName` và toàn bộ bốn wrapper `Lame` trên ARM64; assembly nằm trong `analysis/native/`.
+
+Đã [nhận dạng libnms.so](LIBNMS-IDENTITY.md) là thư viện Pangle/PGL qua `JNI_OnLoad` và lớp `com/pgl/ssdk/ces/a`, sửa việc xếp nhầm nó vào nhóm âm thanh ORG.
+
+Đã lập [bảng sở hữu native](NATIVE-OWNERSHIP.md): 9 thư viện có JNI `Java_sofeh_*` thuộc đường âm thanh ORG; phần còn lại được tách sang AndroidX, AppLovin và Pangle/ByteDance.
+
+Đã lập [bảng khoảng trống JNI ARM64](NATIVE-JNI-COVERAGE-GAPS.md): LAME và PitchShift đã có assembly cho toàn bộ JNI; các module khác còn chủ yếu wrapper nhỏ/getter/setter, riêng NMusic còn 15 wrapper chưa tách file riêng.
+
+Đã chạy [dump_all_sofeh_jni.py](dump_all_sofeh_jni.py), tạo thêm 44 bản assembly; hiện toàn bộ JNI `Java_sofeh_*` của 9 thư viện âm thanh ARM64 đều có file riêng trong `analysis/native/`.
+
+Đã [so sánh JNI giữa bốn ABI](NATIVE-ABI-JNI-COMPARISON.md): ARM64, ARM32, x86 và x86_64 đều có cùng 9 thư viện `sofeh` và cùng 75 tên JNI; coverage ARM64 bao phủ toàn bộ bề mặt API native.
+
+Đã kiểm tra [cấu trúc chữ ký APK](APK-SIGNATURE.md): không có JAR/v1, có `APK Sig Block 42` với scheme v2, không thấy ID v3; xác minh mật mã signer vẫn cần `apksigner`.
+
+Đã đọc certificate v2 bằng Androguard: signer tự ký `CN=Ramin Jafari,O=Sofeh Sunrise`, SHA-256 `ea29e47d6696ca0d6df9f0d455f580e4fd54f11a5c7a71abd5edacae937c02ea`, hiệu lực 2013-11-26 đến 2038-11-20 UTC.
+
+Đã [giải mã assets/dic](DIC-ASSET.md): DEX xref dẫn tới `com.pgl.ssdk.af`, phép XOR khóa lặp `dic` tạo ELF x86 32-bit 4.016 byte của SDK Pangle/PGL; ứng dụng ghi file vào filesDir, chmod và chạy nó.
+
+Đã disassemble toàn bộ `.text` của ELF `dic`: 756 byte/245 lệnh x86, entry `0x550`; PLT chỉ có `__libc_init`, `__cxa_atexit`, `printf` và stack-check failure.
+
+Đã chạy [kiểm chứng tái lập](VALIDATION.md): 24 script Python đều hợp lệ; các parser Skin, Menu, Chord, native inventory, so sánh ABI và disassembler `dic` chạy lại không lỗi.
+
+Đã xếp hạng [symbol native theo kích thước](NATIVE-SYMBOL-SIZE.md); ba hàm lớn nhất `NMusic_ChannelProcess`, `NOpenSL_Start` và `NOpenSL_MixWrite` hiện đều đã có disassembly đầy đủ. Ba helper nội bộ kế tiếp `NOpenSL_Start` cũng đã được tách riêng.
+
+Đã chạy disassembler ARM64 cho năm hàm ưu tiên; các file `.asm` đầy đủ nằm trong `analysis/native/`, với kiểm tra số byte khớp symbol ELF.
+
+Đã trích [call graph native](NATIVE-CALL-GRAPH.md): `ChannelProcess` gọi `smbPitchShift`, `NOpenSL_Start` khởi tạo `slCreateEngine`, còn các hàm Put/Write dùng memcpy và sleep đồng bộ.
+
+Đã lập [danh sách import native](NATIVE-IMPORTS.md): `libnopensl.so` chỉ import OpenSL, mutex, thao tác buffer, `usleep` và runtime C/C++; không có import mạng hoặc I/O file trực tiếp.
+
+Đã lập [import của libnmusic](NMUSIC-IMPORTS.md): thư viện này dùng `smbPitchShift`, FFT và các hàm toán học, không import OpenSL; ranh giới xử lý âm thanh và thiết bị phát/ghi đã rõ hơn.
+
+Đã ghi nhận [chuỗi trạng thái trong libnmusic](NMUSIC-STRINGS.md): vị trí, volume trái/phải và pitch change xuất hiện trong `.rodata`, phù hợp với vai trò mixer/pitch-shift.
+
+Đã lập [hồ sơ module pitch-shift](PITCH-SHIFT-MODULE.md): nhóm symbol `smbPitchShift*`, `smbFft`, `smbAtan2` và hai lời gọi từ `ChannelProcess`; chưa gán nguồn upstream vì APK không chứa metadata đủ chắc chắn.
+
+Đã đọc [hai call site pitch-shift](PITCH-SHIFT-CALLSITE.md): cả hai xử lý block `0x400` mẫu, truyền buffer/trạng thái riêng và hệ số pitch đã tính vào `smbPitchShift`.
+
+Đã xác nhận implementation `smbPitchShift*` nằm trong [libnpitchshift.so](NPITCHSHIFT-COVERAGE.md): `smbPitchShift` dài 1.468 byte/367 lệnh ARM64 và có JNI wrapper `NPitchShift`; `libnmusic.so` chỉ gọi module qua PLT.
+
+Đã disassemble trực tiếp `smbPitchShift` và bốn wrapper `NPitchShift` vào `analysis/native/`, với script tái lập [dump_npitch.py](dump_npitch.py).
+
+Đã mở rộng assembly cho `smbPitchShiftSample`, `smbFft`, `smbPitchShiftNew`, `smbPitchShiftFlush` và `smbPitchShiftCopy`; các entry point chính của module pitch-shift/FFT hiện đã có bản ARM64.
+
+Đã kiểm tra lại [địa chỉ PLT của libnpitchshift](NPITCHSHIFT-HELPERS.md): vùng `0x1e50–0x1ec0` là stub import dùng chung, không phải helper static như nhận định ban đầu.
+
+Đã lập [call map import của libnpitchshift](NPITCHSHIFT-IMPORT-CALLS.md): `smbPitchShift` và `smbPitchShiftSample` gọi FFT, toán học và giải phóng buffer; `smbFft` gọi ngược `smbPitchShiftSample` qua PLT.
+
+Đã đọc [JNI wrapper NPitchShift](NPITCHSHIFT-WRAPPERS.md): block 1.024 mẫu, hai vùng trái/phải, offset phải `0xb010`, hệ số chuẩn hóa `100.0f` và kiểm tra null trước khi gọi routine chung.
+
+Đã bổ sung [vòng đời NPitchShift](NPITCHSHIFT-LIFECYCLE.md): `open` cấp phát block trạng thái `0x16020` và khởi tạo các vùng offset cố định; `close` chỉ là wrapper ngắn, chưa tự giải phóng trong thân JNI.
+
+Đã ghi nhận [các lời gọi của smbPitchShift](NPITCHSHIFT-CALLS.md) và ánh xạ chúng qua PLT tới `smbFft`, `atan2`, `sincos`, `log`, `cos`, `free` và `smbPitchShiftSample`.
 
 Đã bổ sung [phân tích luồng bấm phím → phát âm thanh](LUONG-PHAT-AM.md), kèm bằng chứng REA và các giới hạn chưa xác minh.
 
@@ -52,11 +160,11 @@ Phân tích tĩnh bằng REA 6.5.0 và jadx-headless-mcp 0.7.1. Không chạy �
 
 | Nhóm | Bằng chứng | Nhận xét |
 | --- | --- | --- |
-| Khởi động và giao diện | `SplashActivity`, `SafeActivity`, `MainActivity`; application `sofeh.android.MainApplication` | Manifest khai báo các thành phần này; chưa xác nhận thứ tự gọi khi chạy. |
+| Khởi động và giao diện | `SplashActivity`, `SafeActivity`, `MainActivity`; application `sofeh.android.MainApplication` | Đã nối thứ tự intent tĩnh và hai đường vào MainActivity trong [APP-STARTUP.md](APP-STARTUP.md). |
 | Cài đặt | `sofeh.android.setting.SettingActivity`, `SettingFragment0` đến `SettingFragment6` | Có các lớp riêng cho cài đặt. |
-| Mô hình âm nhạc | `sofeh.music.Instrument`, `Channels`, `Track`, `Tracks`, `TrackEvent`, `WaveData`, `Effect` | Tên lớp gợi ý cách tổ chức nhạc cụ, kênh, track, sự kiện và hiệu ứng; chưa đọc chi tiết triển khai. |
-| Âm thanh native | `sofeh.audio.NOpenSL`, `NEqualizer`, `NFlanger`, `NGVerb`, `NPitchShift`, `Lame`; các file `.so` tương ứng | Có lớp và thư viện mang tên các bộ xử lý âm thanh; quan hệ JNI cụ thể chưa được kiểm tra. |
-| Nhạc cụ và dữ liệu | `Default.Template` (67.848.221 byte), `Sound.Instrument`, `Constant.Instrument`, `Chord`, `data.zip` | Quan sát tên và kích thước file; chưa giải mã định dạng riêng. |
+| Mô hình âm nhạc | `sofeh.music.Instrument`, `Channels`, `Track`, `Tracks`, `TrackEvent`, `WaveData`, `Effect` | Đã đọc parser/writer, vòng đời event, track, channel và effect; các báo cáo chuyên đề giữ chi tiết. |
+| Âm thanh native | `sofeh.audio.NOpenSL`, `NEqualizer`, `NFlanger`, `NGVerb`, `NPitchShift`, `Lame`; các file `.so` tương ứng | Đã nối JNI và có assembly cho toàn bộ 75 JNI `Java_sofeh_*` trên ARM64. |
+| Nhạc cụ và dữ liệu | `Default.Template` (67.848.221 byte), `Sound.Instrument`, `Constant.Instrument`, `Chord`, `data.zip` | Đã giải mã cấu trúc và kiểm tra parser đến EOF cho các template chính. |
 | Giao diện tùy chỉnh | `assets/skin/*.Skin`, `*.Part`, `assets/menu/*` | Có tài nguyên skin và menu nhiều ngôn ngữ. |
 | Quảng cáo và dịch vụ | Các trường Google Ads, AppBrain và FirebaseAnalytics trong MainActivity; thư viện AppLovin và các thành phần quảng cáo trong manifest | Một phần mã APK phục vụ SDK bên thứ ba. |
 
@@ -83,4 +191,4 @@ Script chọn JDK và JAR trong `%LOCALAPPDATA%\rea\android`, dùng REA phiên b
 - `main-activity.json`: danh mục phương thức và trường của MainActivity, chưa phải mã nguồn phương thức.
 - `archive-inventory.csv`: danh mục file và kích thước trong APK.
 
-Chưa xác minh chữ ký APK hoặc nguồn gốc bản tải APKPure. Chưa phân tích mã máy trong `.so`, chưa quan sát hành vi thực tế và chưa xác nhận luồng MIDI/âm thanh. Tên lớp và thư viện chỉ hỗ trợ giả thuyết về vai trò, không đủ để kết luận thuật toán.
+Đã xác minh cấu trúc chữ ký v2 và certificate của Sofeh Sunrise; chưa xác minh nguồn gốc chuỗi phân phối từ APKPure. Đã phân tích mã máy ARM64 cho toàn bộ bề mặt JNI `sofeh`, nhưng chưa quan sát hành vi runtime trên thiết bị và chưa disassemble riêng mọi ABI/SDK bên thứ ba. Các kết luận runtime vẫn phải được kiểm chứng động.

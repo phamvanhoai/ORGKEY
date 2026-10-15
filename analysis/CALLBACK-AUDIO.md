@@ -49,6 +49,6 @@ Callback này ngắn hơn: kiểm tra trạng thái, enqueue slot hiện tại, 
 
 ## Kết luận thực dụng và giới hạn
 
-Đã xác định nơi buffer đi vào OpenSL queue cho cả hai callback. Enqueue thành công không tự chứng minh lúc nào mẫu đến DAC/loa. Cần kiểm chứng runtime để đo latency, underrun và mức sử dụng CPU; chưa có số đo cho các yếu tố đó. Các nhánh thu âm và callback của recorder chưa được phân tích đầy đủ.
+Đã xác định nơi buffer đi vào OpenSL queue cho cả hai callback. Nhánh thu âm, recorder queue và vòng `ProcessIn → MixPut/MixWrite` đã được nối tiếp trong [OPENSL-RECORDING.md](OPENSL-RECORDING.md). Enqueue thành công không tự chứng minh lúc nào mẫu đến DAC/loa. Cần kiểm chứng runtime để đo latency, underrun và mức sử dụng CPU; chưa có số đo cho các yếu tố đó.
 
 Bước tiếp theo độc lập với thiết bị: đọc `fx2/zd1` để nối fallback AudioTrack, và kiểm tra cấu hình Java đặt `fLowLatencyMethod`. Bước kiểm chứng runtime cần điện thoại hoặc emulator thực sự kết nối.
