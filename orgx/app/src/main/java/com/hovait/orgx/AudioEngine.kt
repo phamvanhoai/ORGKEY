@@ -6,6 +6,7 @@ import android.media.AudioTrack
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.DataOutputStream
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicIntegerArray
@@ -28,6 +29,8 @@ class AudioEngine(private val recordingDirectory: File) {
     @Volatile var bpm = 120
     @Volatile var instrument = 0
     @Volatile var chordIndex = 0
+    @Volatile var autoChord = false
+    @Volatile var progression = 0
     @Volatile var rhythmStyle = 0
     @Volatile var effectType = 0
     @Volatile var effectMix = 0.28f
@@ -35,6 +38,11 @@ class AudioEngine(private val recordingDirectory: File) {
 
     private val recordingLock = Any()
     private var recordingData = ByteArrayOutputStream()
+    private data class MidiEvent(val timeNanos: Long, val status: Int, val note: Int, val velocity: Int)
+    private val midiEvents = mutableListOf<MidiEvent>()
+    private var midiStartNanos = 0L
+    private var midiRecordBpm = 120
+    @Volatile private var midiPlaybackThread:Thread?=null
 
     private var transportFrame = 0L
     private var noiseState = 0x13579BDF
@@ -42,7 +50,14 @@ class AudioEngine(private val recordingDirectory: File) {
     private var effectPosition = 0
     private val padAges = AtomicIntegerArray(8).apply { for (i in 0 until length()) set(i, -1) }
 
-    private data class Voice(var phase: Double = 0.0, var released: Boolean = false, var gain: Float = 1f)
+    private data class Voice(
+        var phase: Double = 0.0,
+        var pendingSustain: Boolean = false,
+        var releasing: Boolean = false,
+        var gain: Float = 0f,
+        var velocity: Float = 1f,
+        var ageFrames: Long = 0
+    )
 
     private val track = AudioTrack.Builder()
         .setAudioAttributes(
@@ -68,14 +83,23 @@ class AudioEngine(private val recordingDirectory: File) {
         thread(name = "ORGX-Audio", priority = Thread.MAX_PRIORITY) { renderLoop() }
     }
 
-    fun noteOn(note: Int) { voices[note] = Voice() }
+    fun noteOn(note: Int, velocity: Float = 1f) {
+        if (voices.size >= 24 && !voices.containsKey(note)) {
+            voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
+        }
+        voices[note] = Voice(velocity = velocity.coerceIn(0.15f, 1f))
+        captureMidi(0x90,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
+    }
     fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
     fun noteOff(note: Int) {
-        if (sustain) voices[note]?.released = true else voices.remove(note)
+        voices[note]?.let { voice ->
+            if (sustain) voice.pendingSustain = true else voice.releasing = true
+        }
+        captureMidi(0x80,note,0)
     }
     fun releaseSustain() {
         sustain = false
-        voices.entries.removeIf { it.value.released }
+        voices.values.forEach { voice -> if (voice.pendingSustain) { voice.pendingSustain = false; voice.releasing = true } }
     }
 
     fun setRhythmEnabled(enabled: Boolean) {
@@ -83,12 +107,30 @@ class AudioEngine(private val recordingDirectory: File) {
         if (!enabled) transportFrame = 0L
     }
 
+    fun playMidi(song:MidiSong,onComplete:()->Unit){
+        stopMidi();val playback=thread(start=false,name="ORGX-MIDI"){
+            try{var previous=0L;song.events.forEach{event->if(Thread.currentThread().isInterrupted)return@thread;val waitMicros=(event.tick-previous)*song.tempoMicros/song.division;previous=event.tick;if(waitMicros>0)Thread.sleep(waitMicros/1000,(waitMicros%1000*1000).toInt());if(event.on)noteOn(event.note,event.velocity/127f)else noteOff(event.note)}}
+            catch(_:InterruptedException){}finally{voices.values.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()}
+        };midiPlaybackThread=playback;playback.start()
+    }
+    fun stopMidi(){midiPlaybackThread?.interrupt();midiPlaybackThread=null}
+
     fun startRecording() {
         synchronized(recordingLock) {
             recordingData.reset()
+            midiEvents.clear();midiStartNanos=System.nanoTime();midiRecordBpm=bpm
             isRecording = true
         }
     }
+
+    private fun captureMidi(status:Int,note:Int,velocity:Int){
+        if(!isRecording)return
+        synchronized(recordingLock){if(isRecording)midiEvents.add(MidiEvent(System.nanoTime()-midiStartNanos,status,note.coerceIn(0,127),velocity.coerceIn(0,127)))}
+    }
+
+    fun recordings(): List<File> = recordingDirectory.listFiles { file ->
+        file.isFile && file.extension.equals("wav", true)
+    }?.sortedByDescending { it.lastModified() } ?: emptyList()
 
     fun stopRecording(): File? = synchronized(recordingLock) {
         if (!isRecording) return@synchronized null
@@ -109,7 +151,21 @@ class AudioEngine(private val recordingDirectory: File) {
             writeInt(sampleRate); writeInt(sampleRate * 4); writeShort(4); writeShort(16)
             output.write("data".toByteArray()); writeInt(dataSize); output.write(pcm)
         }
+        writeMidi(File(recordingDirectory,file.nameWithoutExtension+".mid"),midiEvents.toList(),midiRecordBpm)
         file
+    }
+
+    private fun writeMidi(file:File,events:List<MidiEvent>,tempoBpm:Int){
+        val trackData=ByteArrayOutputStream()
+        DataOutputStream(trackData).use{track->
+            fun variable(valueInput:Long){var value=valueInput.coerceAtLeast(0);var buffer=value and 0x7f;while(value.shr(7).also{value=it}>0){buffer=buffer.shl(8) or ((value and 0x7f) or 0x80)};while(true){track.writeByte((buffer and 0xff).toInt());if(buffer and 0x80L!=0L)buffer=buffer.shr(8)else break}}
+            variable(0);track.writeByte(0xff);track.writeByte(0x51);track.writeByte(3)
+            val microsPerQuarter=60_000_000/tempoBpm.coerceIn(40,240);track.writeByte(microsPerQuarter shr 16);track.writeByte(microsPerQuarter shr 8);track.writeByte(microsPerQuarter)
+            var previousTick=0L
+            events.forEach{event->val tick=event.timeNanos*tempoBpm.coerceIn(40,240)*480L/60_000_000_000L;variable(tick-previousTick);previousTick=tick;track.writeByte(event.status);track.writeByte(event.note);track.writeByte(event.velocity)}
+            variable(0);track.writeByte(0xff);track.writeByte(0x2f);track.writeByte(0)
+        }
+        DataOutputStream(FileOutputStream(file)).use{output->output.writeBytes("MThd");output.writeInt(6);output.writeShort(0);output.writeShort(1);output.writeShort(480);output.writeBytes("MTrk");output.writeInt(trackData.size());trackData.writeTo(output)}
     }
 
     private fun capture(output: ShortArray) {
@@ -187,7 +243,15 @@ class AudioEngine(private val recordingDirectory: File) {
             intArrayOf(41, 45, 48, 52), // Fmaj7
             intArrayOf(43, 47, 50, 53)  // G7
         )
-        val notes = chords[chordIndex.coerceIn(0, chords.lastIndex)]
+        val progressions = arrayOf(
+            intArrayOf(0, 5, 3, 4),  // C Am F G
+            intArrayOf(0, 4, 5, 3),  // C G Am F
+            intArrayOf(5, 3, 0, 4)   // Am F C G
+        )
+        val beatFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240)).toLong().coerceAtLeast(1)
+        val bar = (transportFrame / (beatFrames * 4)).toInt()
+        val activeChord = if (autoChord) progressions[progression.coerceIn(0, 2)][bar % 4] else chordIndex
+        val notes = chords[activeChord.coerceIn(0, chords.lastIndex)]
         val time = transportFrame.toDouble() / sampleRate
         return notes.sumOf { note ->
             val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)
@@ -219,8 +283,13 @@ class AudioEngine(private val recordingDirectory: File) {
                         2 -> sin(voice.phase) * 0.55 + sin(voice.phase * 2.0) * 0.25 + sin(voice.phase * 3.0) * 0.12 + sin(voice.phase * 5.0) * 0.08
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
                     }
-                    mixed += sample * voice.gain
+                    if (voice.releasing) voice.gain -= 1f / (sampleRate * 0.12f)
+                    else if (voice.gain < 1f) voice.gain = (voice.gain + 1f / (sampleRate * 0.008f)).coerceAtMost(1f)
+                    val naturalDecay = if (instrument == 0) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
+                    mixed += sample * voice.gain.coerceAtLeast(0f) * voice.velocity * naturalDecay
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
+                    voice.ageFrames++
+                    if (voice.gain <= 0f && voice.releasing) voices.remove(note, voice)
                 }
                 val synth = mixed / voices.size.coerceAtLeast(1)
                 val rhythm = rhythmSample() + padSample()
@@ -237,6 +306,7 @@ class AudioEngine(private val recordingDirectory: File) {
     }
 
     fun close() {
+        stopMidi()
         running.set(false)
         track.stop()
         track.release()
