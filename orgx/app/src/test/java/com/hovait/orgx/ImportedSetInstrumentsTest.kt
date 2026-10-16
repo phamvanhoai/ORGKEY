@@ -5,6 +5,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun percussionRequiresExactMappingBeforeItCanBeLoaded() {
+        val wave=ImportedWave(0,8)
+        val section=ImportedSection(36,48000,1,4,100,0,0,0,0,0,0,wave)
+        val sound=ImportedSound("Kit",listOf(0,0,100,10,2,0),listOf(section))
+        val instrument=ImportedInstrument("Percussion",100,0,1,listOf(sound))
+        assertTrue(ImportedInstrumentLoader.supported(instrument))
+        assertFalse(ImportedInstrumentLoader.supported(instrument.copy(sounds=listOf(sound.copy(envelope=listOf(0,0,100,10,0,0))))))
+        assertFalse(ImportedInstrumentLoader.supported(instrument.copy(type=2)))
+    }
     @Test fun selectsEachSoundSeparatelyAndSkipsUnsupportedPitchModes() {
         val wave=ImportedWave(0,8)
         val section=ImportedSection(60,48000,1,4,100,0,0,0,0,0,0,wave)
