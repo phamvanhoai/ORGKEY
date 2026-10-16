@@ -49,8 +49,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     private var transportFrame = 0L
     private var noiseState = 0x13579BDF
-    private val effectBuffer = DoubleArray(sampleRate)
-    private var effectPosition = 0
+    private val stereoEffect = StereoEffect(sampleRate)
     private val padAges = AtomicIntegerArray(8).apply { for (i in 0 until length()) set(i, -1) }
 
     private data class Voice(
@@ -279,17 +278,6 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         } else ChordSignal.sample(notes, transportFrame, sampleRate)
     }
 
-    private fun processEffect(dry: Double): Double {
-        if (effectType == 0) return dry
-        val delayFrames = if (effectType == 1) (sampleRate * 0.28).toInt() else (sampleRate * 0.095).toInt()
-        val readPosition = (effectPosition - delayFrames + effectBuffer.size) % effectBuffer.size
-        val delayed = effectBuffer[readPosition]
-        val feedback = if (effectType == 1) 0.38 else 0.67
-        effectBuffer[effectPosition] = (dry + delayed * feedback).coerceIn(-2.0, 2.0)
-        effectPosition = (effectPosition + 1) % effectBuffer.size
-        return dry * (1.0 - effectMix) + delayed * effectMix
-    }
-
     private fun renderBlock(output: ShortArray) {
         val frames = output.size / 2
             for (frame in 0 until frames) {
@@ -314,11 +302,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val accompaniment = accompanimentSample()
                 val mixedOutput = synth * keysVolume + accompaniment * chordVolume + rhythm * drumsVolume
                 val sound = sampleBank?.nextStereo() ?: 0L
-                val effected = processEffect(mixedOutput)
+                stereoEffect.process(mixedOutput + StereoSample.left(sound)*drumsVolume,
+                    mixedOutput + StereoSample.right(sound)*drumsVolume,effectType,effectMix)
                 fun pcm(value:Double)=(value * masterVolume * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
-                output[frame * 2] = pcm(effected + StereoSample.left(sound)*drumsVolume)
-                output[frame * 2 + 1] = pcm(effected + StereoSample.right(sound)*drumsVolume)
+                output[frame * 2] = pcm(stereoEffect.left)
+                output[frame * 2 + 1] = pcm(stereoEffect.right)
             }
             capture(output)
 
