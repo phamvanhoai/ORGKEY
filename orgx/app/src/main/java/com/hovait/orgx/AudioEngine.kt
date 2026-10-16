@@ -186,7 +186,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)
         val step = ((transportFrame / stepFrames) % 8).toInt()
         val stepOffset = transportFrame % stepFrames
-        if(stepOffset==0L)sampleBank?.triggerMetronome()
+        if(stepOffset==0L)sampleBank?.triggerMetronome(transportFrame==0L)
         val position = stepOffset.toDouble() / sampleRate
         transportFrame++
 
