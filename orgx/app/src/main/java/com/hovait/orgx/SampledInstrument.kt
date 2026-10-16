@@ -14,6 +14,11 @@ class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private va
     private val selected=Array(128){note->regions.first{it.root==SampleRegionMap.nearestRoot(note,roots)}}
     private val steps=DoubleArray(128){note->SamplePitch.step(note,selected[note].root,selected[note].sample.sampleRate,outputRate,selected[note].tune)}
     private fun missing(note:Int)=exactNotes && selected[note].root!=note
+    fun durationFrames(note:Int):Int {
+        if(note !in 0..127 || missing(note))return 0
+        val region=selected[note]
+        return if(region.looping)Int.MAX_VALUE else kotlin.math.ceil(region.sample.frames.size/steps[note]).coerceAtMost(Int.MAX_VALUE.toDouble()).toInt()
+    }
     fun finished(note:Int,age:Long):Boolean {
         if(note !in 0..127)return true
         if(missing(note))return true

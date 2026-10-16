@@ -357,6 +357,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var setFile by remember{mutableStateOf<File?>(null)}
     var setInstruments by remember{mutableStateOf<List<ImportedInstrument>>(emptyList())}
     var setGroups by remember{mutableStateOf<List<ImportedStyleGroup>>(emptyList())}
+    var setIndex by remember{mutableStateOf<ImportedSetIndex?>(null)}
     val picker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
         if(uri!=null)scope.launch{
             importing=true
@@ -386,7 +387,8 @@ private fun ORGXApp(engine: AudioEngine) {
                 try{
                     val instruments=withContext(Dispatchers.IO){ImportedSetInstruments.read(file)}
                     setFile=file;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=file;engine.activeSetSounds=setInstruments
-                    setGroups=withContext(Dispatchers.IO){ImportedSetInstruments.index(file).styles}
+                    val index=withContext(Dispatchers.IO){ImportedSetInstruments.index(file)}
+                    setIndex=index;setGroups=index.styles
                     importStatus="${instruments.size} instruments, ${setInstruments.size} playable sounds."
                 }catch(error:Exception){importStatus=error.message ?: "Cannot read SET"}
                 finally{importing=false}
@@ -406,10 +408,29 @@ private fun ORGXApp(engine: AudioEngine) {
         }
         if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)
         if(setGroups.isNotEmpty()){
-            Text("SET groups: ${setGroups.size} / playback not connected",fontWeight=FontWeight.Bold)
+            Text("SET groups: ${setGroups.size} / compatible Drum tracks only",fontWeight=FontWeight.Bold)
             val groups=setGroups.associateBy{it.id}
             setGroups.filter{it.section in 16..35}.forEach{group->
-                Text("${groups[group.parent]?.name.orEmpty()} / ${group.name} (${group.tempo} BPM)",fontSize=12.sp)
+                val index=setIndex
+                val tracks=index?.tracks?.filter{it.group==group.id && !it.muted && it.events.any{e->e.type==2} && index.instruments.getOrNull(it.instrument)?.type==1} ?: emptyList()
+                val track=tracks.singleOrNull()
+                val supported=track!=null && index!=null && group.loop && group.end>group.start && ImportedInstrumentLoader.supported(index.instruments[track.instrument]) && track.events.all{it.type in 1..2 && it.note in 0..127}
+                OutlinedButton(enabled=supported && !importing,onClick={scope.launch{
+                    importing=true
+                    try{
+                        val player=withContext(Dispatchers.IO){
+                            val chosen=checkNotNull(track);val source=checkNotNull(index)
+                            val kit=ImportedInstrumentLoader.load(checkNotNull(setFile),source.instruments[chosen.instrument])
+                            val timeline=ReferenceDrumTrack(chosen.name,group.id,group.parent,group.section,group.tempo,true,group.start.toLong(),group.end.toLong(),false,chosen.events)
+                            ReferenceRhythmPlayer(listOf(timeline),kit::durationFrames,{note,age,channel->kit.sample(note,age.toLong(),channel)},48000)
+                        }
+                        engine.rhythmPlaying=false;engine.importedRhythm=player;engine.bpm=group.tempo.coerceIn(40,240)
+                        importStatus="SET Drum loaded: ${group.name}. Press PLAY. Bass/accompaniment not loaded."
+                    }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}
+                    finally{importing=false}
+                }},modifier=Modifier.fillMaxWidth()){
+                    Text("${groups[group.parent]?.name.orEmpty()} / ${group.name} (${group.tempo} BPM)")
+                }
             }
         }
         repeat(3){index->

@@ -9,7 +9,8 @@ data class ImportedSection(val note:Int,val rate:Int,val channels:Int,val frames
 data class ImportedSound(val name:String,val envelope:List<Int>,val sections:List<ImportedSection>)
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>)
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int)
-data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>)
+data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>)
+data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList())
 
 /** Bounded, lazy PCM indexing for Music Studio 1.4.6; sample bytes stay on disk. */
 object ImportedSetInstruments {
@@ -88,19 +89,22 @@ object ImportedSetInstruments {
             skip(1);val chord=f.readUnsignedByte();if(chord!=0)skip(24)
             fx();skip(320)
         }
-        repeat(count(100000)){
-            common();val trackGroup=lastGroup
-            skip(128)
+        val tracks=List(count(100000)){
+            val metadata=common();val trackGroup=lastGroup
+            skip(8);val instrument=int();skip(2);val muted=f.readBoolean();skip(113)
             val stored=count(10000);val number=if(musicVersion!!<"1.2.9")13 else stored
             if(trackGroup==0 || musicVersion<"1.2.8"){
                 val enabled=List(number){f.readBoolean()};enabled.filter{it}.forEach{sts()}
             }
             skip(23);fx();skip(320)
-            repeat(count(2000000)){
+            val events=List(count(2000000)){
                 val type=java.lang.Short.reverseBytes(f.readShort()).toInt()
-                skip(22)
+                val tune=java.lang.Short.reverseBytes(f.readShort()).toInt()
+                val id=int();val note=int();val touch=int();val time=int();val length=int()
                 require(type!=101){"Embedded wave events in SET tracks are not supported yet"}
+                ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong())
             }
+            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events)
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
@@ -112,6 +116,6 @@ object ImportedSetInstruments {
             if(musicVersion>="1.4.2")fx()
             ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo)
         }
-        ImportedSetIndex(instruments,styles)
+        ImportedSetIndex(instruments,styles,tracks)
     }
 }

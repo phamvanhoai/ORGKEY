@@ -41,6 +41,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var importedInstrumentName:String?=null
     @Volatile var activeSetFile:File?=null
     @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
+    @Volatile var importedRhythm:ReferenceRhythmPlayer?=null
     @Volatile var chordIndex = 0
     @Volatile var referenceChords: List<PlayableChord> = emptyList()
     @Volatile var autoChord = false
@@ -262,7 +263,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private fun rhythmSample(): Double {
-        if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();return 0.0 }
+        if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();importedRhythm?.reset();return 0.0 }
+        importedRhythm?.let{it.next(0,bpm.coerceIn(40,240));transportFrame++;return 0.0}
         referenceRhythm?.let { it.next(rhythmStyle,bpm.coerceIn(40,240));transportFrame++;return 0.0 }
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)
         val step = ((transportFrame / stepFrames) % 8).toInt()
@@ -378,8 +380,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         }
                     }
                 }
-                stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft+(referenceRhythm?.left ?: 0.0))*drumsVolume,
-                    mixedOutputRight + (StereoSample.right(sound)+padRight+(referenceRhythm?.right ?: 0.0))*drumsVolume,effectType,effectMix)
+                stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft+((importedRhythm ?: referenceRhythm)?.left ?: 0.0))*drumsVolume,
+                    mixedOutputRight + (StereoSample.right(sound)+padRight+((importedRhythm ?: referenceRhythm)?.right ?: 0.0))*drumsVolume,effectType,effectMix)
                 fun pcm(value:Double)=(value * masterVolume * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
                 output[frame * 2] = pcm(stereoEffect.left)

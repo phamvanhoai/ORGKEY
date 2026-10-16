@@ -11,6 +11,9 @@ class ImportedSetInstrumentsTest {
         val index=ImportedSetInstruments.index(File(path))
         assertTrue(index.styles.isNotEmpty())
         println("Legacy style groups: ${index.styles.size}")
+        val drums=index.tracks.filter{index.instruments.getOrNull(it.instrument)?.type==1 && it.events.any{e->e.type==2}}
+        println("Legacy tracks: ${index.tracks.size}, drum tracks: ${drums.size}, compatible: ${drums.count{ImportedInstrumentLoader.supported(index.instruments[it.instrument])}}")
+        println(drums.take(3).map{index.instruments[it.instrument].name})
         assertTrue(instruments.isNotEmpty())
         val sounds=ImportedInstrumentLoader.playableSounds(instruments)
         val selected=sounds.first()
