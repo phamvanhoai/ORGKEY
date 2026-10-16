@@ -19,7 +19,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val sampleRate = 48_000
     @Volatile var outputStatus: String = "Starting"
         private set
-    private val pianoChordVoice: (Int, Long) -> Double = { note, age -> sampleBank?.piano(note, age) ?: 0.0 }
+    private val chordVoices: Array<(Int,Long)->Double> = Array(InstrumentCatalog.names.size){index->
+        {note,age->sampleBank?.instrument(index,note,age) ?: 0.0}
+    }
     private val voices = ConcurrentHashMap<Int, Voice>()
     private val outputLoop: AudioOutputLoop
     @Volatile var masterVolume = 0.65f
@@ -54,6 +56,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     private data class Voice(
         val note:Int,
+        val instrument:Int,
         var phase: Double = 0.0,
         var pendingSustain: Boolean = false,
         var releasing: Boolean = false,
@@ -120,7 +123,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (voices.size >= 24 && !voices.containsKey(note)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        voices[note] = Voice(note=note,velocity = velocity.coerceIn(0.15f, 1f))
+        voices[note] = Voice(note=note,instrument=InstrumentCatalog.validIndex(instrument),velocity = velocity.coerceIn(0.15f, 1f))
         captureMidi(0x90,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) { padAges.set(pad, 0);if(pad==6)sampleBank?.trigger("crash") } }
@@ -273,8 +276,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val notes = if (!autoChord && library.isNotEmpty()) {
             library[activeChord.coerceIn(0, library.lastIndex)].renderNotes
         } else accompanimentChords[activeChord.coerceIn(0, accompanimentChords.lastIndex)]
-        return if (instrument == 0 && sampleBank != null) {
-            ChordSignal.sampled(notes, transportFrame % beatFrames, beatFrames, sampleRate, pianoChordVoice)
+        return if (sampleBank != null) {
+            ChordSignal.sampled(notes, transportFrame % beatFrames, beatFrames, sampleRate,chordVoices[InstrumentCatalog.validIndex(instrument)])
         } else ChordSignal.sample(notes, transportFrame, sampleRate)
     }
 
@@ -284,14 +287,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 var mixed = 0.0
                 voices.forEach { (note, voice) ->
                     val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)
-                    val sample = sampleBank?.instrument(instrument,voice.note,voice.ageFrames) ?: when (instrument) {
+                    val sample = sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames) ?: when (voice.instrument) {
                         1 -> sin(voice.phase) * 0.58 + sin(voice.phase * 2.0) * 0.28 + sin(voice.phase * 4.0) * 0.14
                         2 -> sin(voice.phase) * 0.55 + sin(voice.phase * 2.0) * 0.25 + sin(voice.phase * 3.0) * 0.12 + sin(voice.phase * 5.0) * 0.08
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
                     }
                     if (voice.releasing) voice.gain -= 1f / (sampleRate * 0.12f)
                     else if (voice.gain < 1f) voice.gain = (voice.gain + 1f / (sampleRate * 0.008f)).coerceAtMost(1f)
-                    val naturalDecay = if (instrument == 0) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
+                    val naturalDecay = if (voice.instrument == 0) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
                     mixed += sample * voice.gain.coerceAtLeast(0f) * voice.velocity * naturalDecay
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
