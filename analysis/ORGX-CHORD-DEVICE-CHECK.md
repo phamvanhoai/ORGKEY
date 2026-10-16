@@ -8,5 +8,17 @@
 - UI Automator xác nhận cả nút `CHORD D M` và trạng thái `D M`.
 
 Kết quả: chọn hợp âm và giữ lựa chọn sau khi khởi động lại đạt trên thiết bị.
-Chưa kiểm chứng trong lượt này: lưu/nạp SET và project bằng UI, âm thanh thực tế,
+Chưa kiểm chứng trong lượt đầu: lưu/nạp SET và project bằng UI, âm thanh thực tế,
 âm sắc, cách xếp nốt và độ tương đồng với APK gốc.
+
+## Lưu/nạp SET bằng UI
+
+- Xác nhận SET 2 chưa có dữ liệu (nút SAVE, LOAD chưa bật).
+- Lưu D M, tempo 120 vào SET 2; preferences ghi `set2_chordName=D M`, `set2_chord=2`.
+- Chuyển chord hiện tại sang C M và tempo sang 125.
+- Chạm LOAD của SET 2: UI trở lại `CHORD D M` và `120 BPM`.
+- Preferences hiện tại xác nhận `chordName=D M`, `bpm=120`.
+- Giữ lại SET 2 vừa tạo; không ghi đè SET 1.
+
+Kết quả: luồng lưu/nạp SET 2 khôi phục đúng chord và tempo trên thiết bị.
+Project và tín hiệu âm thanh vẫn chưa được xác nhận trong lượt này.
