@@ -1,8 +1,10 @@
 package com.hovait.orgx
 
 /** Plays the drum track only; accompaniment tracks and DNC scripts are separate. */
-class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,private val bank:SampleBank,
-    sampleRate:Int) {
+class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
+    private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int) {
+    constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
+        this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
     private var current=-1
     private var timeline:ReferenceDrumTimeline?=null
@@ -26,7 +28,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,private 
             timeline?.reset();voices.clear()
         }
         timeline?.advance(local){event->
-            if(event.type==2 && bank.drumLength(event.note)>0){
+            if(event.type==2 && drumLength(event.note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
                 voices[event.id]=Voice(event.note,event.touch.coerceAtLeast(0)/100.0)
             } else if(event.type==1)voices[event.id]?.release=0
@@ -36,11 +38,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,private 
         while(iterator.hasNext()){
             val voice=iterator.next()
             val gain=voice.gain*if(voice.release<0)1.0 else (1.0-voice.release.toDouble()/releaseFrames).coerceAtLeast(0.0)
-            left+=bank.drum(voice.note,voice.age,0)*gain
-            right+=bank.drum(voice.note,voice.age,1)*gain
+            left+=drum(voice.note,voice.age,0)*gain
+            right+=drum(voice.note,voice.age,1)*gain
             voice.age++
             if(voice.release>=0)voice.release++
-            if(voice.age>=bank.drumLength(voice.note) || voice.release>=releaseFrames)iterator.remove()
+            if(voice.age>=drumLength(voice.note) || voice.release>=releaseFrames)iterator.remove()
         }
         clock.advance(1,tempo)
     }

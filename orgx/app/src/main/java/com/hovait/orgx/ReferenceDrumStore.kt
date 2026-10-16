@@ -14,7 +14,7 @@ object ReferenceDrumStore {
         val notes=ReferenceDrumPads.entries.map{it.note}.toSet()
         return load(assets).filter { track->
             !track.muted && track.loop && track.end>track.start && track.section==32 &&
-                track.events.any{it.type==2} && track.events.filter{it.type==2}.all{it.note in notes}
+                track.events.count{it.type==2}>=16 && track.events.filter{it.type==2}.all{it.note in notes}
         }.take(3)
     }
     fun load(assets:AssetManager):List<ReferenceDrumTrack> {
