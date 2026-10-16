@@ -331,6 +331,6 @@ private fun ORGXApp(engine: AudioEngine) {
         }
     }},confirmButton={TextButton(onClick={player?.release();onDismiss()}){Text("CLOSE")}})
 }
-@Composable private fun AboutDialog(onDismiss:()->Unit){AlertDialog(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column{Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.0",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
+@Composable private fun AboutDialog(onDismiss:()->Unit){AlertDialog(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column{Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text(if(NativeReferenceLoader.available) "Native audio: loaded" else "Native audio: AudioTrack fallback",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
 
 
