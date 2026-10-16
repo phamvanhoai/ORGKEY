@@ -14,4 +14,16 @@ class SamplePcmDecoderTest {
     }
     @Test fun decodesPcm16(){val sample=SamplePcmDecoder.decode(ByteArrayInputStream(wav()));assertEquals(48000,sample.sampleRate);assertEquals(1,sample.channels);assertArrayEquals(shortArrayOf(1000,1000),sample.frames)}
     @Test(expected=IllegalArgumentException::class) fun rejectsTruncated(){SamplePcmDecoder.decode(ByteArrayInputStream(ByteArray(20)))}
+    @Test fun skipsOddSizedMetadataBeforeFormat() {
+        val original=wav()
+        val metadata=byteArrayOf(74,85,78,75,1,0,0,0,42,0)
+        val extended=original.copyOfRange(0,12)+metadata+original.copyOfRange(12,original.size)
+        java.nio.ByteBuffer.wrap(extended,4,4).order(java.nio.ByteOrder.LITTLE_ENDIAN).putInt(extended.size-8)
+        assertArrayEquals(shortArrayOf(1000,1000),SamplePcmDecoder.decode(ByteArrayInputStream(extended)).frames)
+    }
+    @Test(expected=IllegalArgumentException::class) fun rejectsChunkBeyondRiffBoundary() {
+        val bytes=wav()
+        java.nio.ByteBuffer.wrap(bytes,40,4).order(java.nio.ByteOrder.LITTLE_ENDIAN).putInt(Int.MAX_VALUE)
+        SamplePcmDecoder.decode(ByteArrayInputStream(bytes))
+    }
 }
