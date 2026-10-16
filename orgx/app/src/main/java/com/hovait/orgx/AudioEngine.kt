@@ -24,7 +24,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var outputStatus: String = "Starting"
         private set
     private val chordVoices: Array<Array<(Int,Long)->Double>> = Array(2){channel->Array(InstrumentCatalog.names.size){index->
-        {note,age->sampleBank?.instrument(index,note,age,channel) ?: 0.0}
+        {note,age->importedInstrument?.sample(note,age,channel) ?: sampleBank?.instrument(index,note,age,channel) ?: 0.0}
     }
     }
     private val voices = ConcurrentHashMap<Int, Voice>()
@@ -355,7 +355,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
-                    if ((voice.gain <= 0f && voice.releasing) || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
+                    if ((voice.gain <= 0f && voice.releasing) || voice.imported?.finished(voice.note,voice.ageFrames)==true || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
                 val rhythm = rhythmSample() + padSample()
                 val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + accompanimentSample(0) * chordVolume + rhythm * drumsVolume

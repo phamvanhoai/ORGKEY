@@ -11,6 +11,15 @@ class SampledInstrumentTest {
         assertEquals(0.0,instrument.sample(60,4),0.0)
         assertEquals(3000.0/32768,instrument.sample(72,1),1e-9)
         assertEquals(0.0,instrument.sample(72,2),0.0)
+        assertFalse(instrument.finished(60,3))
+        assertTrue(instrument.finished(60,4))
+        assertTrue(instrument.finished(72,2))
+        assertFalse(instrument.finished(48,4))
+    }
+    @Test fun loopingRegionDoesNotFinishAfterManyCycles() {
+        val pcm=SamplePcm(48000,1,shortArrayOf(1000,2000,3000))
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,pcm,1,3)),48000)
+        assertFalse(instrument.finished(60,480000))
     }
     @Test fun regionPanUsesIndependentLinearChannelGains() {
         val pcm=SamplePcm(48000,1,shortArrayOf(10000,10000))
