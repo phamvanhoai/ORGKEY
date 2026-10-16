@@ -127,7 +127,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         voices[note] = Voice(note=note,instrument=InstrumentCatalog.validIndex(instrument),velocity = velocity.coerceIn(0.15f, 1f))
         captureMidi(0x90,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
-    fun triggerPad(pad: Int) { if (pad in 0..7) { padAges.set(pad, 0);if(pad==6)sampleBank?.trigger("crash") } }
+    fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
     fun triggerSoundEffect(effect: SoundEffect) { sampleBank?.trigger(effect.key) }
     fun stopSoundEffects() { sampleBank?.trigger("") }
     fun noteOff(note: Int) {
@@ -245,6 +245,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private fun padSample(): Double {
+        if(sampleBank!=null)return 0.0
         var result = 0.0
         for (pad in 0..7) {
             val age = padAges.get(pad)
@@ -310,8 +311,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val mixedOutputLeft = mixedLeft/count * keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
                 val mixedOutputRight = mixedRight/count * keysVolume + accompanimentSample(1) * chordVolume + rhythm * drumsVolume
                 val sound = sampleBank?.nextStereo() ?: 0L
-                stereoEffect.process(mixedOutputLeft + StereoSample.left(sound)*drumsVolume,
-                    mixedOutputRight + StereoSample.right(sound)*drumsVolume,effectType,effectMix)
+                var padLeft=0.0;var padRight=0.0
+                sampleBank?.let { bank->for(pad in 0..7){
+                    val age=padAges.get(pad)
+                    if(age>=0){padLeft+=bank.pad(pad,age,0);padRight+=bank.pad(pad,age,1)
+                        padAges.compareAndSet(pad,age,if(age+1>=bank.padLength(pad))-1 else age+1)}
+                } }
+                stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume,
+                    mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume,effectType,effectMix)
                 fun pcm(value:Double)=(value * masterVolume * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
                 output[frame * 2] = pcm(stereoEffect.left)
