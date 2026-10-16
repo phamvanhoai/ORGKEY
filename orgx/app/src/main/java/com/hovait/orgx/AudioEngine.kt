@@ -51,6 +51,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val padAges = AtomicIntegerArray(8).apply { for (i in 0 until length()) set(i, -1) }
 
     private data class Voice(
+        val note:Int,
         var phase: Double = 0.0,
         var pendingSustain: Boolean = false,
         var releasing: Boolean = false,
@@ -87,7 +88,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (voices.size >= 24 && !voices.containsKey(note)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        voices[note] = Voice(velocity = velocity.coerceIn(0.15f, 1f))
+        voices[note] = Voice(note=note,velocity = velocity.coerceIn(0.15f, 1f))
         captureMidi(0x90,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) { padAges.set(pad, 0);if(pad==6)sampleBank?.trigger("crash") } }
@@ -278,7 +279,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 var mixed = 0.0
                 voices.forEach { (note, voice) ->
                     val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)
-                    val sample = when (instrument) {
+                    val sample = if(instrument==0)sampleBank?.piano(voice.note,voice.ageFrames) ?: 0.0 else when (instrument) {
                         1 -> sin(voice.phase) * 0.58 + sin(voice.phase * 2.0) * 0.28 + sin(voice.phase * 4.0) * 0.14
                         2 -> sin(voice.phase) * 0.55 + sin(voice.phase * 2.0) * 0.25 + sin(voice.phase * 3.0) * 0.12 + sin(voice.phase * 5.0) * 0.08
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
