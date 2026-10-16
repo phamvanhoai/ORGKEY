@@ -270,6 +270,11 @@ private fun ORGXApp(engine: AudioEngine) {
     var chords by remember{mutableFloatStateOf(engine.chordVolume)};var drums by remember{mutableFloatStateOf(engine.drumsVolume)}
     var fx by remember{mutableFloatStateOf(engine.effectMix)}
     var mixChannel by remember{mutableIntStateOf(0)}
+    var showStylePicker by remember{mutableStateOf(false)}
+    if(showStylePicker) {
+        DrumStyleDialog(engine,style,onSelect={onStyle(it);showStylePicker=false},onDismiss={showStylePicker=false})
+        return
+    }
     fun saveMix(){preferences.edit().putFloat("masterVolume",master).putFloat("keysVolume",keys).putFloat("chordVolume",chords).putFloat("drumsVolume",drums).putFloat("effectMix",fx).apply()}
     AlertDialog(onDismissRequest={saveMix();onDismiss()},title={Text("Sound & mixer")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState())){
         Text("VOICE",fontWeight=FontWeight.Bold)
@@ -279,13 +284,27 @@ private fun ORGXApp(engine: AudioEngine) {
             }
         }
         Text("DRUM STYLE",fontWeight=FontWeight.Bold)
-        engine.styleNames.forEachIndexed{index,name->FilterChip(selected=style==index,onClick={onStyle(index)},label={Text("$name · ${engine.styleTempos[index]} BPM")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp))}
+        OutlinedButton(onClick={showStylePicker=true},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
+            Text("${engine.styleNames[style]} / ${engine.styleTempos[style]} BPM")
+        }
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("FX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Dry","Delay","Reverb").forEachIndexed{index,name->FilterChip(selected=effect==index,onClick={onEffect(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("MIX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Column(Modifier.weight(1f)){Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Keys","Chord","Drums").forEachIndexed{index,name->FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}};Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Master","FX").forEachIndexed{offset,name->val index=offset+3;FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}}}}
         val level=when(mixChannel){0->keys;1->chords;2->drums;3->master;else->fx}
         Text("${listOf("KEYS","CHORD","DRUMS","MASTER","FX")[mixChannel]} ${(level*100).toInt()}%",fontSize=10.sp,fontWeight=FontWeight.Bold)
         Slider(value=level,onValueChange={when(mixChannel){0->{keys=it;engine.keysVolume=it};1->{chords=it;engine.chordVolume=it};2->{drums=it;engine.drumsVolume=it};3->{master=it;engine.masterVolume=it};else->{fx=it;engine.effectMix=it}}})
     }},confirmButton={TextButton(onClick={saveMix();onDismiss()}){Text("DONE")}})
+}
+@Composable private fun DrumStyleDialog(engine:AudioEngine,selected:Int,onSelect:(Int)->Unit,onDismiss:()->Unit){
+    var query by remember{mutableStateOf("")}
+    val matches=engine.styleNames.withIndex().filter{it.value.contains(query.trim(),ignoreCase=true)}
+    AlertDialog(onDismissRequest=onDismiss,title={Text("Drum styles (${matches.size})")},text={Column{
+        OutlinedTextField(value=query,onValueChange={query=it},label={Text("Search style or variation")},singleLine=true,modifier=Modifier.fillMaxWidth())
+        Column(Modifier.heightIn(max=260.dp).verticalScroll(rememberScrollState())){
+            if(matches.isEmpty())Text("No matching drum styles",Modifier.padding(vertical=12.dp))
+            matches.forEach{item->FilterChip(selected=selected==item.index,onClick={onSelect(item.index)},
+                label={Text("${item.value} / ${engine.styleTempos[item.index]} BPM")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp))}
+        }
+    }},confirmButton={TextButton(onClick=onDismiss){Text("BACK TO MIXER")}})
 }
 @Composable private fun SetMemoryDialog(chordNames:List<String>,preferences:SharedPreferences,octave:Int,bpm:Int,instrument:Int,chord:Int,style:Int,effect:Int,engine:AudioEngine,onLoad:(Int,Int,Int,Int,Int,Int,Float)->Unit,onDismiss:()->Unit){
     var revision by remember{mutableIntStateOf(0)}
