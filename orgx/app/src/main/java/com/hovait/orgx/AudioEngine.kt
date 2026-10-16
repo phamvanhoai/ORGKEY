@@ -16,7 +16,7 @@ import kotlin.math.exp
 import kotlin.math.pow
 import kotlin.math.sin
 
-class AudioEngine(private val recordingDirectory: File) {
+class AudioEngine(private val recordingDirectory: File,private val sampleBank:SampleBank?=null) {
     private val sampleRate = 48_000
     private val voices = ConcurrentHashMap<Int, Voice>()
     private val running = AtomicBoolean(true)
@@ -90,7 +90,7 @@ class AudioEngine(private val recordingDirectory: File) {
         voices[note] = Voice(velocity = velocity.coerceIn(0.15f, 1f))
         captureMidi(0x90,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
-    fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
+    fun triggerPad(pad: Int) { if (pad in 0..7) { padAges.set(pad, 0);if(pad==6)sampleBank?.trigger("crash") } }
     fun noteOff(note: Int) {
         voices[note]?.let { voice ->
             if (sustain) voice.pendingSustain = true else voice.releasing = true
@@ -204,7 +204,7 @@ class AudioEngine(private val recordingDirectory: File) {
     }
 
     private fun padSample(): Double {
-        var result = 0.0
+        var result = sampleBank?.next() ?: 0.0
         for (pad in 0..7) {
             val age = padAges.get(pad)
             if (age < 0) continue

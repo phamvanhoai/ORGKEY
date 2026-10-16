@@ -1,4 +1,4 @@
-﻿package com.hovait.orgx
+package com.hovait.orgx
 
 import android.content.SharedPreferences
 import android.content.Intent
@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        engine = AudioEngine(getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: filesDir)
+        engine = AudioEngine(getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: filesDir,SampleBank(resources))
         setContent { ORGXApp(engine) }
     }
     override fun onDestroy() { engine.close(); super.onDestroy() }
