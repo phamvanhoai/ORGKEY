@@ -126,21 +126,22 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
 
-    fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument) {
-        if (voices.size >= 24 && !voices.containsKey(note)) {
+    fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument,channel:Int=0) {
+        val key=MidiVoiceKey.key(note,channel)
+        if (voices.size >= 24 && !voices.containsKey(key)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        voices[note] = Voice(note=note,instrument=InstrumentCatalog.validIndex(voiceInstrument),velocity = velocity.coerceIn(0.15f, 1f))
-        captureMidi(0x90,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
+        voices[key] = Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),velocity = velocity.coerceIn(0.15f, 1f))
+        captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
     fun triggerSoundEffect(effect: SoundEffect) { sampleBank?.trigger(effect.key) }
     fun stopSoundEffects() { sampleBank?.trigger("") }
-    fun noteOff(note: Int) {
-        voices[note]?.let { voice ->
-            if (sustain) voice.pendingSustain = true else voice.releasing = true
+    fun noteOff(note: Int,channel:Int=0) {
+        voices[MidiVoiceKey.key(note,channel)]?.let { voice ->
+            if (sustain && !MidiVoiceKey.percussion(channel)) voice.pendingSustain = true else voice.releasing = true
         }
-        captureMidi(0x80,note,0)
+        captureMidi(0x80 or channel,note,0)
     }
     fun releaseSustain() {
         sustain = false
@@ -154,7 +155,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     fun playMidi(song:MidiSong,onComplete:()->Unit){
         stopMidi();val playback=thread(start=false,name="ORGX-MIDI"){
-            try{var previous=0L;song.events.forEach{event->if(Thread.currentThread().isInterrupted)return@thread;val waitMicros=(event.tick-previous)*song.tempoMicros/song.division;previous=event.tick;if(waitMicros>0)Thread.sleep(waitMicros/1000,(waitMicros%1000*1000).toInt());if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program))else noteOff(event.note)}}
+            try{var previous=0L;song.events.forEach{event->if(Thread.currentThread().isInterrupted)return@thread;val waitMicros=(event.tick-previous)*song.tempoMicros/song.division;previous=event.tick;if(waitMicros>0)Thread.sleep(waitMicros/1000,(waitMicros%1000*1000).toInt());if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel)else noteOff(event.note,event.channel)}}
             catch(_:InterruptedException){}finally{voices.values.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()}
         };midiPlaybackThread=playback;playback.start()
     }
@@ -303,13 +304,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 var mixedLeft = 0.0
                 var mixedRight = 0.0
                 voices.forEach { (note, voice) ->
-                    val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)
-                    val sample = sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames) ?: when (voice.instrument) {
+                    val frequency = 440.0 * 2.0.pow((voice.note - 69) / 12.0)
+                    val sample = (if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),0) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames)) ?: when (voice.instrument) {
                         1 -> sin(voice.phase) * 0.58 + sin(voice.phase * 2.0) * 0.28 + sin(voice.phase * 4.0) * 0.14
                         2 -> sin(voice.phase) * 0.55 + sin(voice.phase * 2.0) * 0.25 + sin(voice.phase * 3.0) * 0.12 + sin(voice.phase * 5.0) * 0.08
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
                     }
-                    val sampleRight=sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames,1) ?: sample
+                    val sampleRight=(if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),1) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames,1)) ?: sample
                     if (voice.releasing) voice.gain -= 1f / (sampleRate * 0.12f)
                     else if (voice.gain < 1f) voice.gain = (voice.gain + 1f / (sampleRate * 0.008f)).coerceAtMost(1f)
                     val naturalDecay = if (voice.instrument == 0) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
@@ -318,7 +319,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     mixedRight += sampleRight*gain
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
-                    if (voice.gain <= 0f && voice.releasing) voices.remove(note, voice)
+                    if ((voice.gain <= 0f && voice.releasing) || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
                 val count=voices.size.coerceAtLeast(1)
                 val rhythm = rhythmSample() + padSample()

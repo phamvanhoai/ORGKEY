@@ -1,0 +1,16 @@
+package com.hovait.orgx
+
+import org.junit.Assert.*
+import org.junit.Test
+
+class MidiVoiceKeyTest {
+    @Test fun allChannelsAndNotesHaveDistinctVoiceKeys() {
+        val keys=(0..15).flatMap{channel->(0..127).map{MidiVoiceKey.key(it,channel)}}
+        assertEquals(2048,keys.toSet().size)
+        assertEquals(60,MidiVoiceKey.key(60,0))
+        assertNotEquals(MidiVoiceKey.key(60,1),MidiVoiceKey.key(60,2))
+    }
+    @Test fun onlyGmChannelTenUsesDrums() {
+        assertEquals(listOf(9),(0..15).filter{MidiVoiceKey.percussion(it)})
+    }
+}
