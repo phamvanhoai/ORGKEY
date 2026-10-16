@@ -10,7 +10,7 @@ class ImportedSetInstrumentsTest {
         val section=ImportedSection(60,48000,1,4,100,0,0,0,0,0,0,wave)
         val first=ImportedSound("Primary",listOf(0,0,100,10,0,0),listOf(section))
         val second=first.copy(name="Alternate",sections=listOf(section.copy(volume=54)))
-        val unsupported=first.copy(name="Exact mapping",envelope=listOf(0,0,100,10,2,0))
+        val unsupported=first.copy(name="Cyclic mapping",envelope=listOf(0,0,100,10,1,0))
         val instrument=ImportedInstrument("Test",100,0,0,listOf(first,second,unsupported))
         val choices=ImportedInstrumentLoader.playableSounds(listOf(instrument))
         assertEquals(listOf("Test / Primary","Test / Alternate"),choices.map{it.name})

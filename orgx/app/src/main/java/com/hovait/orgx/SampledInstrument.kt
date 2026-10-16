@@ -2,7 +2,7 @@ package com.hovait.orgx
 
 data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true)
 
-class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int) {
+class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private val exactNotes:Boolean=false) {
     init {
         require(regions.isNotEmpty())
         regions.forEach {
@@ -13,13 +13,16 @@ class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int) {
     private val roots=regions.map{it.root}
     private val selected=Array(128){note->regions.first{it.root==SampleRegionMap.nearestRoot(note,roots)}}
     private val steps=DoubleArray(128){note->SamplePitch.step(note,selected[note].root,selected[note].sample.sampleRate,outputRate)}
+    private fun missing(note:Int)=exactNotes && selected[note].root!=note
     fun finished(note:Int,age:Long):Boolean {
         if(note !in 0..127)return true
+        if(missing(note))return true
         val region=selected[note]
         return !region.looping && age*steps[note]>=region.sample.frames.size
     }
     fun sample(note:Int,age:Long,channel:Int=0):Double {
         if(note !in 0..127 || age<0)return 0.0
+        if(missing(note))return 0.0
         val region=selected[note]
         val panGain=if(channel==0)minOf(100,100-region.pan) else minOf(100,100+region.pan)
         val position=age*steps[note]

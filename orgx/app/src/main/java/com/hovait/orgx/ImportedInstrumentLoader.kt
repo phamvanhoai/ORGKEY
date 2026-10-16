@@ -15,7 +15,7 @@ object ImportedInstrumentLoader {
         }
     fun supported(instrument:ImportedInstrument):Boolean {
         val sound=instrument.sounds.firstOrNull() ?: return false
-        return instrument.type==0 && sound.envelope.getOrNull(4)==0 &&
+        return instrument.type==0 && sound.envelope.getOrNull(4) in listOf(0,2) &&
             sound.sections.isNotEmpty() && sound.sections.all{
                 it.frames>0 && instrument.pan.toLong()+it.pan in -100L..100L && it.tune==0 && it.start==0 && it.loop in listOf(0,2) &&
                     (it.loop==0 || (it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.frames))
@@ -37,7 +37,7 @@ object ImportedInstrumentLoader {
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
                     section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0)
             }
-            SampledInstrument(regions,48000)
+            SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2)
         }
     }
 }

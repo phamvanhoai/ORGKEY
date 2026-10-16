@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun exactMappingDoesNotBorrowOrTransposeNearbySections() {
+        val pcm=SamplePcm(48000,1,shortArrayOf(1000,2000,3000))
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,pcm,0,3)),48000,exactNotes=true)
+        assertEquals(1000.0/32768,instrument.sample(60,0),1e-9)
+        assertEquals(0.0,instrument.sample(61,0),0.0)
+        assertEquals(0.0,instrument.sample(72,0),0.0)
+        assertTrue(instrument.finished(61,0))
+        assertFalse(instrument.finished(60,48000))
+    }
     @Test fun oneShotEndsInsteadOfWrappingAndTracksPitch() {
         val pcm=SamplePcm(48000,1,shortArrayOf(1000,2000,3000,4000))
         val instrument=SampledInstrument(listOf(InstrumentRegion(60,pcm,0,0,looping=false)),48000)
