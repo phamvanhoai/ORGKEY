@@ -151,14 +151,14 @@ private fun ORGXApp(engine: AudioEngine) {
                         onChord = { showChords = true },
                         onMixer = { showMixer = true }, modifier = Modifier.weight(1f))
                     val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
-                    StatusPanel(bpm, octave, playing, chordDisplay, engine.styleNames[style], (engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
+                    StatusPanel(bpm, octave, playing, chordDisplay, (engine.importedRhythmName ?: engine.styleNames[style]), (engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
                 }
                 PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth())
             }
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
                     preferences.edit().remove("importedSetFile").remove("importedSetSound").apply() },
-                onStyle = { style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
+                onStyle = { engine.importedRhythm=null;engine.importedRhythmName=null;style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
                 onEffect = { effect = it; engine.effectType = it },
                 onDismiss = { showMixer = false })
             if (showSets) SetMemoryDialog(chordNames, preferences, octave, bpm, instrument, chord, style, effect, engine,
@@ -167,7 +167,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     chord = loadedChord.coerceIn(0, chordNames.lastIndex); style = loadedStyle.coerceIn(engine.styleNames.indices); effect=loadedEffect;engine.bpm = bpm
                     engine.instrument = instrument; engine.chordIndex = chord
                     engine.rhythmStyle = style;engine.effectType=effect; engine.masterVolume = loadedVolume
-                }, onDismiss = { showSets = false })
+                }, onRhythmSelected={tempo->bpm=tempo;playing=false}, onDismiss = { showSets = false })
             if(showChords) ChordDialog(chordNames,chord,autoChord,progression,
                 onSelect={chord=it;autoChord=false;engine.autoChord=false;engine.chordIndex=it;showChords=false},
                 onAuto={enabled,preset->autoChord=enabled;progression=preset;engine.autoChord=enabled;engine.progression=preset;showChords=false},
@@ -347,7 +347,7 @@ private fun ORGXApp(engine: AudioEngine) {
         }
     }},confirmButton={TextButton(onClick=onDismiss){Text("BACK TO MIXER")}})
 }
-@Composable private fun SetMemoryDialog(chordNames:List<String>,preferences:SharedPreferences,octave:Int,bpm:Int,instrument:Int,chord:Int,style:Int,effect:Int,engine:AudioEngine,onLoad:(Int,Int,Int,Int,Int,Int,Float)->Unit,onDismiss:()->Unit){
+@Composable private fun SetMemoryDialog(chordNames:List<String>,preferences:SharedPreferences,octave:Int,bpm:Int,instrument:Int,chord:Int,style:Int,effect:Int,engine:AudioEngine,onLoad:(Int,Int,Int,Int,Int,Int,Float)->Unit,onRhythmSelected:(Int)->Unit,onDismiss:()->Unit){
     val context=LocalContext.current
     val store=remember{ReferenceSetStore(File(context.filesDir,"ReferenceSets"))}
     val scope=rememberCoroutineScope()
@@ -369,7 +369,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 val instruments=withContext(Dispatchers.IO){
                     if(result.second.version in listOf("1.2.8","1.4.6"))ImportedSetInstruments.read(result.first) else emptyList()
                 }
-                setFile=result.first;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=result.first;engine.activeSetSounds=setInstruments
+                engine.setRhythmEnabled(false);engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm);setFile=result.first;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=result.first;engine.activeSetSounds=setInstruments
                 importStatus="Imported ${result.second.version}: ${instruments.size} instruments, ${setInstruments.size} playable sounds."
             } catch(error:Exception){importStatus=error.message ?: "SET import failed"}
             finally{importing=false}
@@ -386,7 +386,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 importing=true
                 try{
                     val instruments=withContext(Dispatchers.IO){ImportedSetInstruments.read(file)}
-                    setFile=file;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=file;engine.activeSetSounds=setInstruments
+                    engine.setRhythmEnabled(false);engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm);setFile=file;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=file;engine.activeSetSounds=setInstruments
                     val index=withContext(Dispatchers.IO){ImportedSetInstruments.index(file)}
                     setIndex=index;setGroups=index.styles
                     importStatus="${instruments.size} instruments, ${setInstruments.size} playable sounds."
@@ -424,7 +424,7 @@ private fun ORGXApp(engine: AudioEngine) {
                             val timeline=ReferenceDrumTrack(chosen.name,group.id,group.parent,group.section,group.tempo,true,group.start.toLong(),group.end.toLong(),false,chosen.events)
                             ReferenceRhythmPlayer(listOf(timeline),kit::durationFrames,{note,age,channel->kit.sample(note,age.toLong(),channel)},48000)
                         }
-                        engine.rhythmPlaying=false;engine.importedRhythm=player;engine.bpm=group.tempo.coerceIn(40,240)
+                        engine.setRhythmEnabled(false);engine.importedRhythm=player;engine.importedRhythmName="${groups[group.parent]?.name.orEmpty()} / ${group.name}";engine.bpm=group.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
                         importStatus="SET Drum loaded: ${group.name}. Press PLAY. Bass/accompaniment not loaded."
                     }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}
                     finally{importing=false}
