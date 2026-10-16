@@ -1,17 +1,17 @@
-﻿package com.hovait.orgx
+package com.hovait.orgx
 
+/** Approximate GM mapping onto the eight sampled voices currently available. */
 object GmProgramMap {
-    // Compact ORGX palette mapped from GM families.
     fun instrument(program:Int):Int=when(program.coerceIn(0,127)){
-        in 0..7->0      // acoustic pianos
-        in 8..15->3     // chromatic/electric pianos
-        in 16..23->1    // organs
-        in 24..31->6    // guitars
-        in 32..39->4    // basses
-        in 40..55->5    // strings/ensembles
-        in 56..63->7    // brass
-        in 64..79->8    // reeds/pipes
-        in 80..95->2    // leads
-        else->9         // pads, effects and percussion families
+        in 0..15->0
+        in 16..23->1
+        in 24..31->0
+        in 32..39->4
+        40->6
+        in 41..51->7
+        in 52..54->5
+        in 55..71->2
+        in 72..79->3
+        else->2
     }
 }

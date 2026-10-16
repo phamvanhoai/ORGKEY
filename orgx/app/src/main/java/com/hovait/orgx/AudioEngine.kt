@@ -126,11 +126,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
 
-    fun noteOn(note: Int, velocity: Float = 1f) {
+    fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument) {
         if (voices.size >= 24 && !voices.containsKey(note)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        voices[note] = Voice(note=note,instrument=InstrumentCatalog.validIndex(instrument),velocity = velocity.coerceIn(0.15f, 1f))
+        voices[note] = Voice(note=note,instrument=InstrumentCatalog.validIndex(voiceInstrument),velocity = velocity.coerceIn(0.15f, 1f))
         captureMidi(0x90,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
@@ -154,7 +154,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     fun playMidi(song:MidiSong,onComplete:()->Unit){
         stopMidi();val playback=thread(start=false,name="ORGX-MIDI"){
-            try{var previous=0L;song.events.forEach{event->if(Thread.currentThread().isInterrupted)return@thread;val waitMicros=(event.tick-previous)*song.tempoMicros/song.division;previous=event.tick;if(waitMicros>0)Thread.sleep(waitMicros/1000,(waitMicros%1000*1000).toInt());if(event.on)noteOn(event.note,event.velocity/127f)else noteOff(event.note)}}
+            try{var previous=0L;song.events.forEach{event->if(Thread.currentThread().isInterrupted)return@thread;val waitMicros=(event.tick-previous)*song.tempoMicros/song.division;previous=event.tick;if(waitMicros>0)Thread.sleep(waitMicros/1000,(waitMicros%1000*1000).toInt());if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program))else noteOff(event.note)}}
             catch(_:InterruptedException){}finally{voices.values.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()}
         };midiPlaybackThread=playback;playback.start()
     }
