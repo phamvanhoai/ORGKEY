@@ -156,7 +156,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 engine.bpm=bpm;engine.instrument=instrument;engine.chordIndex=chord;engine.rhythmStyle=style;engine.effectType=effect;engine.autoChord=autoChord;engine.progression=progression
                 engine.masterVolume=project.master;engine.keysVolume=project.keys;engine.chordVolume=project.chords;engine.drumsVolume=project.drums;engine.effectMix=project.effectMix
             },onDismiss={showProjects=false})
-            if (showAbout) AboutDialog(onDismiss = { showAbout = false })
+            if (showAbout) AboutDialog(engine, onDismiss = { showAbout = false })
         }
     }
 }
@@ -341,6 +341,9 @@ private fun ORGXApp(engine: AudioEngine) {
         }
     }},confirmButton={TextButton(onClick={player?.release();onDismiss()}){Text("CLOSE")}})
 }
-@Composable private fun AboutDialog(onDismiss:()->Unit){AlertDialog(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column{Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text(if(NativeReferenceLoader.available) "Native audio: loaded" else "Native audio: AudioTrack fallback",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
+@Composable private fun AboutDialog(engine:AudioEngine,onDismiss:()->Unit){
+    var outputStatus by remember { mutableStateOf(engine.outputStatus) }
+    LaunchedEffect(engine) { while(true) { outputStatus=engine.outputStatus;kotlinx.coroutines.delay(300) } }
+    AlertDialog(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column{Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
 
 

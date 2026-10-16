@@ -17,6 +17,8 @@ import kotlin.math.sin
 
 class AudioEngine(private val recordingDirectory: File,private val sampleBank:SampleBank?=null,preferNativeOutput:Boolean=false) {
     private val sampleRate = 48_000
+    @Volatile var outputStatus: String = "Starting"
+        private set
     private val pianoChordVoice: (Int, Long) -> Double = { note, age -> sampleBank?.piano(note, age) ?: 0.0 }
     private val voices = ConcurrentHashMap<Int, Voice>()
     private val outputLoop: AudioOutputLoop
@@ -105,10 +107,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val backend = if(preferNativeOutput) StartupFallbackBackend(sampleRate,
             preferred={NOpenSLBackend(sampleRate)},
             fallback={AudioTrackBackend(track,sampleRate)},
-            onSelected={android.util.Log.i("ORGX-Audio",if(it) "Backend: NOpenSL" else "Backend: AudioTrack fallback")})
+            onSelected={
+                outputStatus=if(it) "NOpenSL (experimental)" else "AudioTrack (fallback)"
+                android.util.Log.i("ORGX-Audio", "Backend: $outputStatus")
+            })
         else AudioTrackBackend(track,sampleRate)
-        outputLoop = AudioOutputLoop(backend, ::renderBlock,
-            onError = { android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
+        outputLoop = AudioOutputLoop(start={backend.start();if(!preferNativeOutput)outputStatus="AudioTrack"},
+            render=::renderBlock,write={samples,offset,count->backend.write(samples,offset,count)},release={backend.close()},
+            onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
 
     fun noteOn(note: Int, velocity: Float = 1f) {
@@ -317,5 +323,6 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun close() {
         stopMidi()
         outputLoop.close()
+        outputStatus="Stopping"
     }
 }
