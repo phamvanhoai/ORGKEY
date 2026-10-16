@@ -130,10 +130,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument,channel:Int=0,playback:Boolean=false) {
         val key=MidiVoiceKey.key(note,channel,playback)
+        val velocityGain=VoiceVelocity.gain(velocity,playback)
         if (voices.size >= 24 && !voices.containsKey(key)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        voices[key] = Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,velocity = velocity.coerceIn(0.15f, 1f))
+        voices[key] = Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,velocity = velocityGain)
         captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
