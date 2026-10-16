@@ -2,7 +2,7 @@ package com.hovait.orgx
 
 import java.io.InputStream
 
-data class MidiNoteEvent(val tick:Long,val note:Int,val velocity:Int,val on:Boolean,val channel:Int=0,val program:Int=0)
+data class MidiNoteEvent(val tick:Long,val note:Int,val velocity:Int,val on:Boolean,val channel:Int=0,val program:Int=0,val controller:Int?=null)
 data class MidiTempoEvent(val tick:Long,val microsPerQuarter:Int)
 data class MidiSong(val events:List<MidiNoteEvent>,val division:Int,val tempoMicros:Int,
     val tempos:List<MidiTempoEvent> = emptyList())
@@ -34,14 +34,17 @@ object MidiFile {
                     status==0xf0||status==0xf7->{val size=variable(end).toInt();requireBytes(size);p+=size}
                     status and 0xf0==0x80->{val note=dataByte();dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,note,0,false,status and 15)}
                     status and 0xf0==0x90->{val note=dataByte();val velocity=dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,note,velocity,velocity>0,status and 15)}
-                    status and 0xf0 in setOf(0xa0,0xb0,0xe0)->{dataByte();dataByte()}
+                    status and 0xf0==0xb0->{val controller=dataByte();val value=dataByte()
+                        if(controller==64){noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,0,value,false,status and 15,controller=64)}
+                    }
+                    status and 0xf0 in setOf(0xa0,0xe0)->{dataByte();dataByte()}
                     status and 0xf0==0xc0->{val program=dataByte();require(program<128);programs+=Program(tick,status and 15,program,eventOrder)}
                     status and 0xf0==0xd0->dataByte()
                     else->error("Unsupported MIDI event")
                 }
             };p=end;readEnd=data.size
         }
-        require(notes.isNotEmpty()){"MIDI has no notes"};val orderedPrograms=programs.sortedBy{it.tick}
+        require(notes.any{it.controller==null}){"MIDI has no notes"};val orderedPrograms=programs.sortedBy{it.tick}
         val channelPrograms=IntArray(16);var programIndex=0
         val mapped=notes.withIndex().sortedWith(compareBy<IndexedValue<MidiNoteEvent>>{it.value.tick}.thenBy{noteOrders[it.index]}).map{indexed->
             val note=indexed.value;val noteOrder=noteOrders[indexed.index]
@@ -50,6 +53,6 @@ object MidiFile {
         }
         val orderedTempos=tempos.sortedBy{it.tick}
         tempo=orderedTempos.lastOrNull{it.tick==0L}?.microsPerQuarter ?: 500_000
-        return MidiSong(mapped,division,tempo,orderedTempos)
+        return MidiSong(MidiSustain.resolve(mapped),division,tempo,orderedTempos)
     }
 }
