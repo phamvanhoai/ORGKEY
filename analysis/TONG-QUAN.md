@@ -216,3 +216,6 @@ Checkpoint phục hồi hiện tại: orgx-piano-sample-0.1.3 và orgx-metronome
 
 
 Bản hiện tại của nhánh phục hồi là ORGX 0.1.5 (versionCode 40), đã có piano sample và metronome accent sample; các checkpoint nằm trong git tag orgx-piano-sample-0.1.3, orgx-metronome-sample-0.1.4 và orgx-metronome-accent-0.1.5.
+
+
+Bản sample hiện có kiểm thử SamplePcmDecoder cho PCM16 hợp lệ và WAV bị cắt; erify-release.ps1 -Build xác nhận versionCode 40 và checksum APK 0.1.5.
