@@ -25,9 +25,12 @@ object ImportedSetInstruments {
                 if(type==7)skip(count(128)*4L) else skip((extra[type] ?: error("Unsupported SET FX $type")).toLong())
             }
         }
-        require(bytes(32).toString(Charsets.US_ASCII).substringBefore('\u0000')=="Music Studio Music")
-        require(common().getOrNull(1)=="1.4.6"){"Instrument indexing currently supports SET 1.4.6 only"}
-        repeat(3){text()};require(int()==0){"Encrypted SET unsupported"};skip(2+12+116L)
+        require(bytes(32).toString(Charsets.US_ASCII).substringBefore('\u0000').equals("Music Studio Music",true))
+        val musicVersion=common().getOrNull(1)
+        require(musicVersion in listOf("1.2.8","1.4.6")){"Unsupported SET instrument layout: $musicVersion"}
+        repeat(3){text()};val metadataLength=count(1000000)
+        require(metadataLength==0 || musicVersion=="1.2.8"){"Unsupported protected metadata layout"}
+        skip(metadataLength.toLong());skip(2+12+116L)
         val slots=count(100000);val waves=HashMap<Int,ImportedWave>()
         repeat(count(slots)){val index=int();val length=count(Int.MAX_VALUE)
             require(index in 0 until slots && index !in waves)
@@ -36,17 +39,23 @@ object ImportedSetInstruments {
         repeat(3){fx()};common()
         List(count(10000)){
             val metadata=common();val version=metadata.getOrNull(1)
-            require(version=="1.4.6" || version=="1.4.2"){"Unsupported instrument version $version"}
-            skip(112);val volume=int();val pan=int();val type=f.readUnsignedByte();skip(2)
-            repeat(f.readUnsignedByte()){
-                text();skip(16);fx();skip(336);text()
+            require(version in listOf("1.2.8","1.4.6","1.4.2")){"Unsupported instrument version $version"}
+            val legacy=version=="1.2.8"
+            skip(52)
+            val legacyAds=if(legacy){skip(12);List(16){List(3){f.readUnsignedByte()}}}else{skip(60);emptyList()}
+            val volume=int();val pan=int();val type=f.readUnsignedByte();skip(2)
+            repeat(f.readUnsignedByte()){mode->
+                if(!legacy || mode!=0)text()
+                skip(16);fx();skip(336);if(!legacy)text()
                 if(version=="1.4.6"){
                     val settings=count(10000);repeat(settings){text()}
                     if(settings>0)repeat(count(10000)){text()}
                 }
             }
-            val sounds=List(f.readUnsignedByte().coerceAtLeast(1)){
-                val name=text();val envelope=List(6){f.readUnsignedByte()}
+            val firstEnvelope=if(legacy)legacyAds[0]+List(3){f.readUnsignedByte()} else emptyList()
+            val sounds=List(f.readUnsignedByte().coerceAtLeast(1)){soundIndex->
+                val name=if(legacy && soundIndex==0)"Primary" else text()
+                val envelope=if(legacy && soundIndex==0)firstEnvelope else if(legacy)legacyAds[soundIndex]+List(3){f.readUnsignedByte()} else List(6){f.readUnsignedByte()}
                 val sections=List(f.readUnsignedByte()){
                     val note=f.readUnsignedByte();bytes(32)
                     val legacyRate=java.lang.Short.reverseBytes(f.readShort()).toInt() and 65535

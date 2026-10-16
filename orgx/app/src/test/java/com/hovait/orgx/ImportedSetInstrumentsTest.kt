@@ -5,6 +5,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun localLegacySetCanBeIndexedWhenProvided() {
+        val path=System.getProperty("orgx.legacySet") ?: return
+        val instruments=ImportedSetInstruments.read(File(path))
+        assertTrue(instruments.isNotEmpty())
+        val sounds=ImportedInstrumentLoader.playableSounds(instruments)
+        val selected=sounds.first()
+        val loaded=ImportedInstrumentLoader.load(File(path),selected)
+        val note=selected.sounds.single().sections.first().note
+        var energy=0.0
+        repeat(48000){age->val value=loaded.sample(note,age.toLong());assertTrue(value.isFinite());energy+=value*value}
+        assertTrue("Imported legacy sound has no signal",energy>0)
+        println("Loaded legacy PCM sound: ${selected.name}")
+        println("Legacy SET: ${instruments.size} instruments, ${ImportedInstrumentLoader.playableSounds(instruments).size} playable sounds")
+    }
     @Test fun percussionSupportsNearestAndExactButNotCyclicMapping() {
         val wave=ImportedWave(0,8)
         val section=ImportedSection(36,48000,1,4,100,0,0,0,0,0,0,wave)

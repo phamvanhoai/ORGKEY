@@ -22,6 +22,7 @@ android {
         it.systemProperty("orgx.sampleDirectory", file("src/main/res/raw").absolutePath)
         it.systemProperty("orgx.midiDemo", file("../../analysis/previews/ORGX-midi-integration.mid").absolutePath)
         it.systemProperty("orgx.referenceAssets", file("src/main/assets").absolutePath)
+        if(file("../../analysis/local-set-check/sample.Set").exists()) it.systemProperty("orgx.legacySet",file("../../analysis/local-set-check/sample.Set").absolutePath)
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

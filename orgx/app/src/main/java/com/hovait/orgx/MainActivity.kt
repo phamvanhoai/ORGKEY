@@ -345,7 +345,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 }
                 imported=store.list()
                 val instruments=withContext(Dispatchers.IO){
-                    if(result.second.version=="1.4.6")ImportedSetInstruments.read(result.first) else emptyList()
+                    if(result.second.version in listOf("1.2.8","1.4.6"))ImportedSetInstruments.read(result.first) else emptyList()
                 }
                 setFile=result.first;setInstruments=ImportedInstrumentLoader.playableSounds(instruments)
                 importStatus="Imported ${result.second.version}: ${instruments.size} instruments, ${setInstruments.size} playable sounds."
