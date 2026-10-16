@@ -356,6 +356,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var importStatus by remember{mutableStateOf("")}
     var setFile by remember{mutableStateOf<File?>(null)}
     var setInstruments by remember{mutableStateOf<List<ImportedInstrument>>(emptyList())}
+    var setGroups by remember{mutableStateOf<List<ImportedStyleGroup>>(emptyList())}
     val picker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
         if(uri!=null)scope.launch{
             importing=true
@@ -385,6 +386,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 try{
                     val instruments=withContext(Dispatchers.IO){ImportedSetInstruments.read(file)}
                     setFile=file;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=file;engine.activeSetSounds=setInstruments
+                    setGroups=withContext(Dispatchers.IO){ImportedSetInstruments.index(file).styles}
                     importStatus="${instruments.size} instruments, ${setInstruments.size} playable sounds."
                 }catch(error:Exception){importStatus=error.message ?: "Cannot read SET"}
                 finally{importing=false}
@@ -403,6 +405,13 @@ private fun ORGXApp(engine: AudioEngine) {
             }},modifier=Modifier.fillMaxWidth()){Text(item.name)}
         }
         if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)
+        if(setGroups.isNotEmpty()){
+            Text("SET groups: ${setGroups.size} / playback not connected",fontWeight=FontWeight.Bold)
+            val groups=setGroups.associateBy{it.id}
+            setGroups.filter{it.section in 16..35}.forEach{group->
+                Text("${groups[group.parent]?.name.orEmpty()} / ${group.name} (${group.tempo} BPM)",fontSize=12.sp)
+            }
+        }
         repeat(3){index->
             val slot=index+1;val exists=preferences.getBoolean("set${slot}_saved",false);revision
             Row(Modifier.fillMaxWidth().background(Muted,RoundedCornerShape(8.dp)).padding(horizontal=10.dp),verticalAlignment=Alignment.CenterVertically){

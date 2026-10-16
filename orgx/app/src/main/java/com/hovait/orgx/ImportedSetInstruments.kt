@@ -8,16 +8,21 @@ data class ImportedSection(val note:Int,val rate:Int,val channels:Int,val frames
     val pan:Int,val tune:Int,val start:Int,val loop:Int,val loopStart:Int,val loopEnd:Int,val wave:ImportedWave)
 data class ImportedSound(val name:String,val envelope:List<Int>,val sections:List<ImportedSection>)
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>)
+data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int)
+data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>)
 
 /** Bounded, lazy PCM indexing for Music Studio 1.4.6; sample bytes stay on disk. */
 object ImportedSetInstruments {
-    fun read(file:File):List<ImportedInstrument> = RandomAccessFile(file,"r").use { f->
+    fun read(file:File):List<ImportedInstrument> = parse(file,false).instruments
+    fun index(file:File):ImportedSetIndex = parse(file,true)
+    private fun parse(file:File,includeStyles:Boolean):ImportedSetIndex = RandomAccessFile(file,"r").use { f->
         fun skip(size:Long){require(size>=0 && size<=f.length()-f.filePointer){"Truncated SET"};f.seek(f.filePointer+size)}
         fun bytes(size:Int):ByteArray{require(size>=0 && size.toLong()<=f.length()-f.filePointer);return ByteArray(size).also(f::readFully)}
         fun int()=Integer.reverseBytes(f.readInt())
         fun count(max:Int):Int=int().also{require(it in 0..max)}
         fun text():String=bytes(count(1000000)).toString(Charsets.UTF_8)
-        fun common():List<String>{val metadata=text().split('\r');int();return metadata}
+        var lastGroup=0
+        fun common():List<String>{val metadata=text().split('\r');lastGroup=int();return metadata}
         fun fx(){
             skip(48);val modules=count(1000)
             val extra=mapOf(1 to 8,2 to 17,4 to 8,6 to 8,8 to 28,9 to 4,10 to 4,15 to 4,16 to 4,17 to 4,20 to 8,21 to 24,23 to 9,29 to 8,31 to 4)
@@ -37,7 +42,7 @@ object ImportedSetInstruments {
             waves[index]=ImportedWave(f.filePointer,length);skip(length.toLong())
         }
         repeat(3){fx()};common()
-        List(count(10000)){
+        val instruments=List(count(10000)){
             val metadata=common();val version=metadata.getOrNull(1)
             require(version in listOf("1.2.8","1.4.6","1.4.2")){"Unsupported instrument version $version"}
             val legacy=version=="1.2.8"
@@ -75,5 +80,38 @@ object ImportedSetInstruments {
             }
             ImportedInstrument(metadata.firstOrNull().orEmpty(),volume,pan,type,sounds)
         }
+        if(!includeStyles)return@use ImportedSetIndex(instruments,emptyList())
+        common();repeat(count(10000)){common();skip(1+4+28+192L)}
+        common()
+        fun sts(){
+            skip(1);skip(f.readUnsignedByte().toLong());skip(16)
+            skip(1);val chord=f.readUnsignedByte();if(chord!=0)skip(24)
+            fx();skip(320)
+        }
+        repeat(count(100000)){
+            common();val trackGroup=lastGroup
+            skip(128)
+            val stored=count(10000);val number=if(musicVersion!!<"1.2.9")13 else stored
+            if(trackGroup==0 || musicVersion<"1.2.8"){
+                val enabled=List(number){f.readBoolean()};enabled.filter{it}.forEach{sts()}
+            }
+            skip(23);fx();skip(320)
+            repeat(count(2000000)){
+                val type=java.lang.Short.reverseBytes(f.readShort()).toInt()
+                skip(22)
+                require(type!=101){"Embedded wave events in SET tracks are not supported yet"}
+            }
+        }
+        val styles=List(count(100000)){
+            val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
+            val section=f.readUnsignedByte();f.readUnsignedByte();val loop=f.readBoolean();f.readBoolean()
+            val start=int();val end=int();skip(8);skip(2)
+            val tempo=java.lang.Short.reverseBytes(f.readShort()).toInt()
+            skip(8)
+            if(musicVersion!!>="1.4.6")skip(16)
+            if(musicVersion>="1.4.2")fx()
+            ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo)
+        }
+        ImportedSetIndex(instruments,styles)
     }
 }

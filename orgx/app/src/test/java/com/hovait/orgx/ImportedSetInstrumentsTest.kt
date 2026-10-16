@@ -8,6 +8,9 @@ class ImportedSetInstrumentsTest {
     @Test fun localLegacySetCanBeIndexedWhenProvided() {
         val path=System.getProperty("orgx.legacySet") ?: return
         val instruments=ImportedSetInstruments.read(File(path))
+        val index=ImportedSetInstruments.index(File(path))
+        assertTrue(index.styles.isNotEmpty())
+        println("Legacy style groups: ${index.styles.size}")
         assertTrue(instruments.isNotEmpty())
         val sounds=ImportedInstrumentLoader.playableSounds(instruments)
         val selected=sounds.first()
