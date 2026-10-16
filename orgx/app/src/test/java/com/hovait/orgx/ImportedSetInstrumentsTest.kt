@@ -5,6 +5,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun selectsEachSoundSeparatelyAndSkipsUnsupportedPitchModes() {
+        val wave=ImportedWave(0,8)
+        val section=ImportedSection(60,48000,1,4,100,0,0,0,0,0,0,wave)
+        val first=ImportedSound("Primary",listOf(0,0,100,10,0,0),listOf(section))
+        val second=first.copy(name="Alternate",sections=listOf(section.copy(volume=54)))
+        val unsupported=first.copy(name="Exact mapping",envelope=listOf(0,0,100,10,2,0))
+        val instrument=ImportedInstrument("Test",100,0,0,listOf(first,second,unsupported))
+        val choices=ImportedInstrumentLoader.playableSounds(listOf(instrument))
+        assertEquals(listOf("Test / Primary","Test / Alternate"),choices.map{it.name})
+        assertEquals(54,choices[1].sounds.single().sections.single().volume)
+        assertEquals(3,instrument.sounds.size)
+    }
     @Test fun loadsExternalOrganPcmAndSustainsBothChannels() {
         val file=File(requireNotNull(System.getProperty("orgx.referenceAssets")),"Default.Template")
         val organ=ImportedSetInstruments.read(file).first{it.name=="Organ DNC"}

@@ -4,6 +4,15 @@ import java.io.File
 import java.io.RandomAccessFile
 
 object ImportedInstrumentLoader {
+    /** Each entry contains exactly the selected sound; no DNC mode mixing is implied. */
+    fun playableSounds(instruments:List<ImportedInstrument>):List<ImportedInstrument> =
+        instruments.flatMap { instrument ->
+            instrument.sounds.mapIndexedNotNull { index,sound ->
+                val selected=instrument.copy(name="${instrument.name} / ${sound.name.ifBlank{"Sound ${index+1}"}}",
+                    sounds=listOf(sound))
+                selected.takeIf(::supported)
+            }
+        }
     fun supported(instrument:ImportedInstrument):Boolean {
         val sound=instrument.sounds.firstOrNull() ?: return false
         return instrument.type==0 && sound.envelope.getOrNull(4)==0 &&

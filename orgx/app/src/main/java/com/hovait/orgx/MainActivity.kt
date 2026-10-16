@@ -329,8 +329,8 @@ private fun ORGXApp(engine: AudioEngine) {
                 val instruments=withContext(Dispatchers.IO){
                     if(result.second.version=="1.4.6")ImportedSetInstruments.read(result.first) else emptyList()
                 }
-                setFile=result.first;setInstruments=instruments.filter(ImportedInstrumentLoader::supported)
-                importStatus="Imported ${result.second.version}: ${instruments.size} instruments, ${setInstruments.size} playable Primary sounds."
+                setFile=result.first;setInstruments=ImportedInstrumentLoader.playableSounds(instruments)
+                importStatus="Imported ${result.second.version}: ${instruments.size} instruments, ${setInstruments.size} playable sounds."
             } catch(error:Exception){importStatus=error.message ?: "SET import failed"}
             finally{importing=false}
         }
@@ -340,14 +340,14 @@ private fun ORGXApp(engine: AudioEngine) {
         OutlinedButton(enabled=!importing,onClick={picker.launch(arrayOf("*/*"))},modifier=Modifier.fillMaxWidth()){
             Text(if(importing)"IMPORTING…" else "IMPORT SET / TEMPLATE")
         }
-        Text("Imported SET files: ${imported.size}. Select a file, then a supported Primary sound. SET styles are not loaded yet.",fontSize=12.sp)
+        Text("Imported SET files: ${imported.size}. Select a file, then a supported sound. SET styles are not loaded yet.",fontSize=12.sp)
         imported.forEach{file->
             TextButton(enabled=!importing,onClick={scope.launch{
                 importing=true
                 try{
                     val instruments=withContext(Dispatchers.IO){ImportedSetInstruments.read(file)}
-                    setFile=file;setInstruments=instruments.filter(ImportedInstrumentLoader::supported)
-                    importStatus="${instruments.size} instruments, ${setInstruments.size} playable Primary sounds."
+                    setFile=file;setInstruments=ImportedInstrumentLoader.playableSounds(instruments)
+                    importStatus="${instruments.size} instruments, ${setInstruments.size} playable sounds."
                 }catch(error:Exception){importStatus=error.message ?: "Cannot read SET"}
                 finally{importing=false}
             }}){Text("OPEN SET ${file.name.take(12)}")}
