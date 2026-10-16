@@ -54,8 +54,9 @@ class MainActivity : ComponentActivity() {
         NativeReferenceLoader.tryLoad()
         enableEdgeToEdge()
         engine = AudioEngine(getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: filesDir,SampleBank(resources),
-            preferNativeOutput=(applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
-                && intent.getBooleanExtra("orgx.testNativeOutput",false))
+            preferNativeOutput=getSharedPreferences("orgx-settings",0).getBoolean("nativeOutput",false)
+                || ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
+                && intent.getBooleanExtra("orgx.testNativeOutput",false)))
         setContent { ORGXApp(engine) }
     }
     override fun onDestroy() { engine.close(); super.onDestroy() }
@@ -342,8 +343,14 @@ private fun ORGXApp(engine: AudioEngine) {
     }},confirmButton={TextButton(onClick={player?.release();onDismiss()}){Text("CLOSE")}})
 }
 @Composable private fun AboutDialog(engine:AudioEngine,onDismiss:()->Unit){
+    val context=LocalContext.current
+    val preferences=remember { context.getSharedPreferences("orgx-settings",0) }
+    var nativeOutput by remember { mutableStateOf(preferences.getBoolean("nativeOutput",false)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
     LaunchedEffect(engine) { while(true) { outputStatus=engine.outputStatus;kotlinx.coroutines.delay(300) } }
-    AlertDialog(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column{Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
+    AlertDialog(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column{Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle);
+        Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
+            Text("Experimental NOpenSL",Modifier.weight(1f));Switch(checked=nativeOutput,onCheckedChange={nativeOutput=it;preferences.edit().putBoolean("nativeOutput",it).apply()})
+        };Text("Applies after closing and reopening the app. AudioTrack is used if OpenSL initialization fails.",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
 
 
