@@ -155,7 +155,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     fun playMidi(song:MidiSong,onComplete:()->Unit){
         stopMidi();val playback=thread(start=false,name="ORGX-MIDI"){
-            try{var previous=0L;song.events.forEach{event->if(Thread.currentThread().isInterrupted)return@thread;val waitMicros=(event.tick-previous)*song.tempoMicros/song.division;previous=event.tick;if(waitMicros>0)Thread.sleep(waitMicros/1000,(waitMicros%1000*1000).toInt());if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel)else noteOff(event.note,event.channel)}}
+            try{val clock=MidiPlaybackClock(song);song.events.forEach{event->if(Thread.currentThread().isInterrupted)return@thread;val waitMicros=clock.advance(event.tick);if(waitMicros>0)Thread.sleep(waitMicros/1000,(waitMicros%1000*1000).toInt());if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel)else noteOff(event.note,event.channel)}}
             catch(_:InterruptedException){}finally{voices.values.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()}
         };midiPlaybackThread=playback;playback.start()
     }
