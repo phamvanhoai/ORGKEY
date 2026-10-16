@@ -16,7 +16,7 @@ object ImportedInstrumentLoader {
     fun supported(instrument:ImportedInstrument):Boolean {
         val sound=instrument.sounds.firstOrNull() ?: return false
         val pitchMode=sound.envelope.getOrNull(4)
-        val supportedType=instrument.type==0 || (instrument.type==1 && pitchMode==2)
+        val supportedType=instrument.type in 0..1
         return supportedType && pitchMode in listOf(0,2) &&
             sound.sections.isNotEmpty() && sound.sections.all{
                 it.frames>0 && instrument.pan.toLong()+it.pan in -100L..100L && it.tune==0 && it.start==0 && it.loop in listOf(0,2) &&

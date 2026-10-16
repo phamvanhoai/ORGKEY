@@ -5,14 +5,28 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
-    @Test fun percussionRequiresExactMappingBeforeItCanBeLoaded() {
+    @Test fun percussionSupportsNearestAndExactButNotCyclicMapping() {
         val wave=ImportedWave(0,8)
         val section=ImportedSection(36,48000,1,4,100,0,0,0,0,0,0,wave)
         val sound=ImportedSound("Kit",listOf(0,0,100,10,2,0),listOf(section))
         val instrument=ImportedInstrument("Percussion",100,0,1,listOf(sound))
         assertTrue(ImportedInstrumentLoader.supported(instrument))
-        assertFalse(ImportedInstrumentLoader.supported(instrument.copy(sounds=listOf(sound.copy(envelope=listOf(0,0,100,10,0,0))))))
+        assertTrue(ImportedInstrumentLoader.supported(instrument.copy(sounds=listOf(sound.copy(envelope=listOf(0,0,100,10,0,0))))))
+        assertFalse(ImportedInstrumentLoader.supported(instrument.copy(sounds=listOf(sound.copy(envelope=listOf(0,0,100,10,1,0))))))
         assertFalse(ImportedInstrumentLoader.supported(instrument.copy(type=2)))
+    }
+    @Test fun loadsCompatibleDrumkitRegionsAndRejectsUnimplementedStartOffsets() {
+        val file=File(requireNotNull(System.getProperty("orgx.referenceAssets")),"Default.Template")
+        val original=ImportedSetInstruments.read(file).first{it.name=="General Drumkit"}
+        assertFalse(ImportedInstrumentLoader.supported(original))
+        val sound=original.sounds.first()
+        val kit=original.copy(sounds=listOf(sound.copy(sections=sound.sections.filter{it.start==0})))
+        assertTrue(ImportedInstrumentLoader.supported(kit))
+        val loaded=ImportedInstrumentLoader.load(file,kit)
+        var energy=0.0
+        repeat(10000){age->val value=loaded.sample(36,age.toLong());assertTrue(value.isFinite());energy+=value*value}
+        assertTrue(energy>0)
+        assertTrue(loaded.finished(36,480000))
     }
     @Test fun selectsEachSoundSeparatelyAndSkipsUnsupportedPitchModes() {
         val wave=ImportedWave(0,8)
