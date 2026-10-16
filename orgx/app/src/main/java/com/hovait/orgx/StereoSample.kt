@@ -1,12 +1,13 @@
 package com.hovait.orgx
 
-/** Packed PCM16 stereo avoids creating a frame object for every audio sample. */
-class StereoSample(sample: SamplePcm, outputRate: Int,loopStart:Int?=null,loopEnd:Int?=null) {
+/** Two signed 32-bit values preserve gain headroom until final PCM clipping. */
+class StereoSample(sample: SamplePcm, outputRate: Int,loopStart:Int?=null,loopEnd:Int?=null,val gain:Double=1.0) {
     private val left: ShortArray
     private val right: ShortArray
     private val loopStartFrame=loopStart?.let{(it.toLong()*outputRate/sample.sampleRate).toInt()}
     private val loopEndFrame=loopEnd?.let{(it.toLong()*outputRate/sample.sampleRate).toInt()}
     init {
+        require(gain.isFinite() && gain in 0.0..100.0)
         val stereo=sample.stereo
         left=SampleResampler.toRate(SamplePcm(sample.sampleRate,1,
             if(stereo==null)sample.frames else ShortArray(sample.frames.size){stereo[it*2]}),outputRate)
@@ -21,10 +22,12 @@ class StereoSample(sample: SamplePcm, outputRate: Int,loopStart:Int?=null,loopEn
         val position=if(loopStartFrame!=null && loopEndFrame!=null)
             SampleLoop.position(index.toDouble(),loopStartFrame,loopEndFrame).toInt() else index
         if(position !in left.indices)return 0
-        return (left[position].toLong() and 65535) or ((right[position].toLong() and 65535) shl 16)
+        val l=(left[position]*gain).toInt()
+        val r=(right[position]*gain).toInt()
+        return (l.toLong() and 0xffffffffL) or (r.toLong() shl 32)
     }
     companion object {
-        fun left(frame:Long)=frame.toShort()/32768.0
-        fun right(frame:Long)=(frame shr 16).toShort()/32768.0
+        fun left(frame:Long)=frame.toInt()/32768.0
+        fun right(frame:Long)=(frame shr 32).toInt()/32768.0
     }
 }

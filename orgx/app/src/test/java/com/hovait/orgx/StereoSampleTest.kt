@@ -4,6 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StereoSampleTest {
+    @Test fun referenceGainRetainsHeadroomWithoutWrappingOrEarlyClipping() {
+        val sample=StereoSample(SamplePcm(48000,2,shortArrayOf(0),shortArrayOf(20000,-20000)),48000,gain=3.75)
+        assertEquals(75000.0/32768,StereoSample.left(sample.frame(0)),1e-9)
+        assertEquals(-75000.0/32768,StereoSample.right(sample.frame(0)),1e-9)
+    }
     @Test fun preservesOppositeChannelsInsteadOfCancellingThem() {
         val sample=StereoSample(SamplePcm(48000,2,shortArrayOf(0),shortArrayOf(12000,-12000)),48000)
         assertEquals(12000.0/32768,StereoSample.left(sample.frame(0)),1e-9)

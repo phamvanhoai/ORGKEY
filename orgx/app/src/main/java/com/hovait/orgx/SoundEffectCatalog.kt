@@ -1,6 +1,6 @@
 package com.hovait.orgx
 
-data class SoundEffect(val note: Int, val name: String, val resource: Int) {
+data class SoundEffect(val note: Int, val name: String, val resource: Int,val gain:Double=1.5) {
     val key get() = "sound-$note"
 }
 
@@ -11,7 +11,7 @@ object SoundEffectCatalog {
         SoundEffect(26,"Heyy",R.raw.orgx_sound_26),
         SoundEffect(27,"Scream",R.raw.orgx_sound_27),
         SoundEffect(28,"Kel",R.raw.orgx_sound_28),
-        SoundEffect(29,"Sea",R.raw.orgx_sound_29),
+        SoundEffect(29,"Sea",R.raw.orgx_sound_29,3.75),
         SoundEffect(30,"Dance",R.raw.orgx_sound_30),
         SoundEffect(31,"Haa",R.raw.orgx_sound_31),
         SoundEffect(32,"Gangnam",R.raw.orgx_sound_32),

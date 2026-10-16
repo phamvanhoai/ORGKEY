@@ -35,7 +35,7 @@ class SampleBank(resources:Resources, outputRate:Int=48000) {
     )
     private val effects=SoundEffectCatalog.entries.associate { effect ->
         effect.key to resources.openRawResource(effect.resource).use {
-            StereoSample(SamplePcmDecoder.decode(it),outputRate,if(effect.note==29)0 else null,if(effect.note==29)383999 else null)
+            StereoSample(SamplePcmDecoder.decode(it),outputRate,if(effect.note==29)0 else null,if(effect.note==29)383999 else null,effect.gain)
         }
     } + ("crash" to StereoSample(SamplePcm(outputRate,1,samples.getValue("crash")),outputRate))
     private var active:StereoSample?=null
