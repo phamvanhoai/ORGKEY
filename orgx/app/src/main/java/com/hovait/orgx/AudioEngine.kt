@@ -18,6 +18,7 @@ import kotlin.math.sin
 
 class AudioEngine(private val recordingDirectory: File,private val sampleBank:SampleBank?=null) {
     private val sampleRate = 48_000
+    private val pianoChordVoice: (Int, Long) -> Double = { note, age -> sampleBank?.piano(note, age) ?: 0.0 }
     private val voices = ConcurrentHashMap<Int, Voice>()
     private val running = AtomicBoolean(true)
     @Volatile var masterVolume = 0.65f
@@ -261,7 +262,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val notes = if (!autoChord && library.isNotEmpty()) {
             library[activeChord.coerceIn(0, library.lastIndex)].renderNotes
         } else accompanimentChords[activeChord.coerceIn(0, accompanimentChords.lastIndex)]
-        return ChordSignal.sample(notes, transportFrame, sampleRate)
+        return if (instrument == 0 && sampleBank != null) {
+            ChordSignal.sampled(notes, transportFrame % beatFrames, beatFrames, sampleRate, pianoChordVoice)
+        } else ChordSignal.sample(notes, transportFrame, sampleRate)
     }
 
     private fun processEffect(dry: Double): Double {
