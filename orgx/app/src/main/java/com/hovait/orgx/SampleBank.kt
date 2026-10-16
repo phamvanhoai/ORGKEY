@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class SampleBank(resources:Resources, outputRate:Int=48000) {
     private fun instrument(resources:Resources,regions:List<ReferenceRegion>,rate:Int)=SampledInstrument(regions.map{region->
-        InstrumentRegion(region.root,resources.openRawResource(region.resource).use(SamplePcmDecoder::decode),region.loopStart,region.loopEnd)
+        InstrumentRegion(region.root,resources.openRawResource(region.resource).use(SamplePcmDecoder::decode),region.loopStart,region.loopEnd,region.gain)
     },rate)
     private val organ=instrument(resources,ReferenceInstrumentRegions.organ,outputRate)
     private val lead=instrument(resources,ReferenceInstrumentRegions.lead,outputRate)

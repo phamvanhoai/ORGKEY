@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun regionGainAppliesBeforeOutputMixing() {
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(48000,1,shortArrayOf(10000,10000)),0,2,0.54)),48000)
+        assertEquals(5400.0/32768,instrument.sample(60,0),1e-9)
+        assertEquals(5400.0/32768,instrument.sample(60,100),1e-9)
+    }
     @Test fun sustainedRootRepeatsRecordedLoopAfterAttack() {
         val instrument=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(48000,1,shortArrayOf(1000,2000,3000,4000)),1,4)),48000)
