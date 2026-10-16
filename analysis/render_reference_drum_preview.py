@@ -8,11 +8,15 @@ import wave
 root=Path(__file__).resolve().parent.parent
 cli=argparse.ArgumentParser()
 cli.add_argument('--output',type=Path,default=root/'analysis/previews/reference-drums.wav')
+cli.add_argument('--style-index',type=int,default=0)
+cli.add_argument('--report-only',action='store_true')
 args=cli.parse_args()
 tracks=json.loads((root/'orgx/app/src/main/assets/reference-drum-tracks.json').read_text())['tracks']
-track=next(t for t in tracks if not t['mute'] and t['loop'] and t['section']==32
+compatible=[t for t in tracks if not t['mute'] and t['loop'] and t['section'] in range(32,36)
     and t['limit_end']>t['limit_start'] and sum(e['event']==2 for e in t['events'])>=16
-    and all(34<=e['key']<=82 for e in t['events'] if e['event']==2))
+    and all(34<=e['key']<=82 for e in t['events'] if e['event']==2)]
+if not 0<=args.style_index<len(compatible):cli.error(f'--style-index must be 0..{len(compatible)-1}')
+track=compatible[args.style_index]
 rate=48000
 sounds={}
 for note in {e['key'] for e in track['events'] if e['event']==2}:
@@ -49,10 +53,11 @@ for frame in range(frames):
     for value in (left,right):
         value=round(value*0.55*0.65)
         peak=max(peak,abs(value));clipped+=abs(value)>32767
-        output.extend(struct.pack('<h',max(-32768,min(32767,value))))
+        if not args.report_only:output.extend(struct.pack('<h',max(-32768,min(32767,value))))
 args.output.parent.mkdir(parents=True,exist_ok=True)
-with wave.open(str(args.output),'wb') as out:
-    out.setnchannels(2);out.setsampwidth(2);out.setframerate(rate);out.writeframes(output)
+if not args.report_only:
+    with wave.open(str(args.output),'wb') as out:
+        out.setnchannels(2);out.setsampwidth(2);out.setframerate(rate);out.writeframes(output)
 report={'style':track['display_name'],'tempo':track['tempo'],'frames':frames,'seconds':frames/rate,
     'peak_before_clipping':peak,'clipped_samples':clipped,'release':'ORGX approximation, 10 ms',
     'source':'Reference events and General Drumkit PCM; not a device recording'}

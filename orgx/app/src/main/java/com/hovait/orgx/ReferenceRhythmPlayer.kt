@@ -44,6 +44,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(voice.release>=0)voice.release++
             if(voice.age>=drumLength(voice.note) || voice.release>=releaseFrames)iterator.remove()
         }
+        left*=track.outputGain;right*=track.outputGain
         clock.advance(1,tempo)
     }
 }

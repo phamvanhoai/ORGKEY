@@ -4,6 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun perStyleHeadroomIsAppliedToBothChannels() {
+        val player=player(track(listOf(hit(0))).copy(outputGain=0.7))
+        player.next(0,120)
+        assertEquals(0.7,player.left,1e-9);assertEquals(-0.7,player.right,1e-9)
+    }
     private fun track(events:List<ReferenceDrumEvent>,end:Long=1000)=ReferenceDrumTrack("Test",1,0,32,120,true,0,end,false,events)
     private fun hit(time:Long)=ReferenceDrumEvent(2,1,36,100,time,100)
     private fun player(track:ReferenceDrumTrack)=ReferenceRhythmPlayer(listOf(track),{10000},

@@ -5,7 +5,7 @@ import org.json.JSONObject
 
 data class ReferenceDrumTrack(val name:String,val group:Int,val parent:Int,val section:Int,
     val tempo:Int,val loop:Boolean,val start:Long,val end:Long,val muted:Boolean,
-    val events:List<ReferenceDrumEvent>,val displayName:String=name) {
+    val events:List<ReferenceDrumEvent>,val displayName:String=name,val outputGain:Double=1.0) {
     fun timeline()=ReferenceDrumTimeline(events)
 }
 
@@ -31,7 +31,7 @@ object ReferenceDrumStore {
             ReferenceDrumTrack(track.getString("name"),track.getInt("group"),track.getInt("parent"),
                 track.getInt("section"),track.getInt("tempo"),track.getBoolean("loop"),
                 track.getLong("limit_start"),track.getLong("limit_end"),track.getBoolean("mute"),events,
-                track.optString("display_name",track.getString("group_name")))
+                track.optString("display_name",track.getString("group_name")),track.optDouble("orgx_output_gain",1.0))
         }
     }
 }

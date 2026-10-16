@@ -6,6 +6,9 @@ from parse_default_template import parse_asset
 root=Path(__file__).resolve().parent.parent
 parsed=parse_asset((root/'orgx/app/src/main/assets/Default.Template').read_bytes(),'assets/Default.Template')
 groups={g['group']:g for g in parsed['track_groups']}
+report_path=root/'analysis/previews/all-style-report.json'
+preview_reports=json.loads(report_path.read_text()) if report_path.exists() else []
+headroom={r['style']:min(1.0,30000/max(1,r['peak_before_clipping'])) for r in preview_reports}
 tracks=[]
 for track in parsed['tracks']:
     if track['instrument']!=9 or not track['events']:
@@ -19,7 +22,9 @@ for track in parsed['tracks']:
         events.append({k:event[k] for k in ('event','id','key','touch','time','length','tune')})
     parent=groups.get(group['parent'])
     style_name=parent['name'] if parent else str(group['parent'])
-    tracks.append({'name':track['name'],'display_name':style_name+' / '+group['name'],'group':track['group'],'mute':track['mute'],
+    display_name=style_name+' / '+group['name']
+    tracks.append({'name':track['name'],'display_name':display_name,
+        'orgx_output_gain':headroom.get(display_name,1.0),'group':track['group'],'mute':track['mute'],
         'group_name':group['name'],'parent':group['parent'],'section':group['section'],
         'tempo':group['tempo'],'loop':group['loop'],'limit':group['limit'],
         'limit_start':group['limit_start'],'limit_end':group['limit_end'],'events':events})

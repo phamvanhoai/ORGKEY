@@ -1,0 +1,552 @@
+[
+  {
+    "style": "Afghan 2 / Variation 1",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 26502,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Afghan 2 / Variation 2",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 26502,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Afghan 2 / Variation 3",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 26502,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Afghan 2 / Variation 4",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 26502,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Afghan 3 / Variation 2",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 25132,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Afghan 3 / Variation 3",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 25132,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Arabic 3 / Variation 1",
+    "tempo": 126,
+    "frames": 365714,
+    "seconds": 7.619041666666667,
+    "peak_before_clipping": 18368,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Arabic 3 / Variation 2",
+    "tempo": 126,
+    "frames": 365714,
+    "seconds": 7.619041666666667,
+    "peak_before_clipping": 16954,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Arabic 4 / Variation 1",
+    "tempo": 126,
+    "frames": 365714,
+    "seconds": 7.619041666666667,
+    "peak_before_clipping": 18368,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Arabic 4 / Variation 2",
+    "tempo": 126,
+    "frames": 365714,
+    "seconds": 7.619041666666667,
+    "peak_before_clipping": 18368,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Azeri 2 / Variation 1",
+    "tempo": 134,
+    "frames": 343881,
+    "seconds": 7.1641875,
+    "peak_before_clipping": 17858,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Azeri 2 / Variation 2",
+    "tempo": 134,
+    "frames": 343881,
+    "seconds": 7.1641875,
+    "peak_before_clipping": 17858,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Azeri 2 / Variation 3",
+    "tempo": 134,
+    "frames": 343881,
+    "seconds": 7.1641875,
+    "peak_before_clipping": 17858,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Azeri 2 / Variation 4",
+    "tempo": 134,
+    "frames": 343881,
+    "seconds": 7.1641875,
+    "peak_before_clipping": 17858,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Azeri 1 / Variation 1",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 17272,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Azeri 1 / Variation 2",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 17272,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Azeri 1 / Variation 3",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 17272,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian 3 Babakaram / Variation 1",
+    "tempo": 102,
+    "frames": 451765,
+    "seconds": 9.411770833333334,
+    "peak_before_clipping": 16291,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian 3 Babakaram / Variation 2",
+    "tempo": 102,
+    "frames": 451765,
+    "seconds": 9.411770833333334,
+    "peak_before_clipping": 16291,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian 3 Babakaram / Variation 4",
+    "tempo": 102,
+    "frames": 903529,
+    "seconds": 18.823520833333333,
+    "peak_before_clipping": 26054,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian 3 Babakaram / Variation 3",
+    "tempo": 102,
+    "frames": 903529,
+    "seconds": 18.823520833333333,
+    "peak_before_clipping": 26054,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Bandari 2 / Variation 1",
+    "tempo": 133,
+    "frames": 346466,
+    "seconds": 7.218041666666666,
+    "peak_before_clipping": 22116,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Bandari 2 / Variation 2",
+    "tempo": 133,
+    "frames": 346466,
+    "seconds": 7.218041666666666,
+    "peak_before_clipping": 22116,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Bandari 2 / Variation 3",
+    "tempo": 133,
+    "frames": 346466,
+    "seconds": 7.218041666666666,
+    "peak_before_clipping": 22116,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Bandari 2 / Variation 4",
+    "tempo": 133,
+    "frames": 346466,
+    "seconds": 7.218041666666666,
+    "peak_before_clipping": 22116,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Bandari 1 / Variation 1",
+    "tempo": 133,
+    "frames": 346466,
+    "seconds": 7.218041666666666,
+    "peak_before_clipping": 22116,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Bandari 1 / Variation 2",
+    "tempo": 133,
+    "frames": 346466,
+    "seconds": 7.218041666666666,
+    "peak_before_clipping": 22116,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Persian Bandari 1 / Variation 3",
+    "tempo": 133,
+    "frames": 346466,
+    "seconds": 7.218041666666666,
+    "peak_before_clipping": 22116,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Dance 1 / Variation 1",
+    "tempo": 120,
+    "frames": 384000,
+    "seconds": 8.0,
+    "peak_before_clipping": 28241,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Dance 1 / Variation 2",
+    "tempo": 120,
+    "frames": 384000,
+    "seconds": 8.0,
+    "peak_before_clipping": 28241,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Dance 1 / Variation 3",
+    "tempo": 120,
+    "frames": 384000,
+    "seconds": 8.0,
+    "peak_before_clipping": 42326,
+    "clipped_samples": 58,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Dance 1 / Variation 4",
+    "tempo": 120,
+    "frames": 384000,
+    "seconds": 8.0,
+    "peak_before_clipping": 30601,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Dance 2 / Variation 1",
+    "tempo": 120,
+    "frames": 768000,
+    "seconds": 16.0,
+    "peak_before_clipping": 29114,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Dance 2 / Variation 2",
+    "tempo": 120,
+    "frames": 768000,
+    "seconds": 16.0,
+    "peak_before_clipping": 29114,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Dance 2 / Variation 3",
+    "tempo": 120,
+    "frames": 768000,
+    "seconds": 16.0,
+    "peak_before_clipping": 29114,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Hindi 1 / Variation 1",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 26502,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Hindi 1 / Variation 2",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 26502,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Hindi 1 / Variation 3",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 26502,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Hindi 1 / Variation 4",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 26502,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Hindi 4 / Variation 1",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 18994,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Hindi 4 / Variation 2",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 18994,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Hindi 4 / Variation 3",
+    "tempo": 114,
+    "frames": 808421,
+    "seconds": 16.842104166666665,
+    "peak_before_clipping": 26041,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Pop 4 Slow / Variation 1",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 16594,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Pop 4 Slow / Variation 2",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 17765,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Pop 4 Slow / Variation 3",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 17765,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Rock 1 / Variation 1",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 24217,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Rock 1 / Variation 2",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 24217,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Rock 1 / Variation 3",
+    "tempo": 114,
+    "frames": 404211,
+    "seconds": 8.4210625,
+    "peak_before_clipping": 13595,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Techno / Variation 1",
+    "tempo": 120,
+    "frames": 384000,
+    "seconds": 8.0,
+    "peak_before_clipping": 20624,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Techno / Variation 2",
+    "tempo": 120,
+    "frames": 384000,
+    "seconds": 8.0,
+    "peak_before_clipping": 20624,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Techno / Variation 3",
+    "tempo": 120,
+    "frames": 384000,
+    "seconds": 8.0,
+    "peak_before_clipping": 20624,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Techno / Variation 4",
+    "tempo": 120,
+    "frames": 384000,
+    "seconds": 8.0,
+    "peak_before_clipping": 20624,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Tomba / Variation 2",
+    "tempo": 130,
+    "frames": 354462,
+    "seconds": 7.384625,
+    "peak_before_clipping": 19097,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Tomba / Variation 3",
+    "tempo": 130,
+    "frames": 354462,
+    "seconds": 7.384625,
+    "peak_before_clipping": 18970,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  },
+  {
+    "style": "Tomba / Variation 4",
+    "tempo": 130,
+    "frames": 354462,
+    "seconds": 7.384625,
+    "peak_before_clipping": 18970,
+    "clipped_samples": 0,
+    "release": "ORGX approximation, 10 ms",
+    "source": "Reference events and General Drumkit PCM; not a device recording"
+  }
+]
