@@ -8,6 +8,6 @@ class InstrumentCatalogTest {
         assertEquals("Jazz Flute DNC",InstrumentCatalog.names[InstrumentCatalog.validIndex(3)])
         assertEquals(listOf("Piano","Organ","Lead"),InstrumentCatalog.shortNames.take(3))
         assertEquals(0,InstrumentCatalog.validIndex(-1))
-        assertEquals(3,InstrumentCatalog.validIndex(99))
+        assertEquals(InstrumentCatalog.names.lastIndex,InstrumentCatalog.validIndex(99))
     }
 }
