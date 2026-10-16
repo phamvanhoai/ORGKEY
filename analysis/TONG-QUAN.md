@@ -219,3 +219,4 @@ Bản hiện tại của nhánh phục hồi là ORGX 0.1.5 (versionCode 40), đ
 
 
 Bản sample hiện có kiểm thử SamplePcmDecoder cho PCM16 hợp lệ và WAV bị cắt; erify-release.ps1 -Build xác nhận versionCode 40 và checksum APK 0.1.5.
+Bổ sung cập nhật 2026-10-17: ORGX hiện là bản 0.1.6 (versionCode 41). APK đã cài và chạy trên thiết bị thật; thư viện native tham chiếu nạp được. Wrapper `sofeh.audio.NOpenSL` và `NOpenSLBackend` đã có trong mã nguồn nhưng chưa được chọn mặc định; đường phát chính vẫn là AudioTrack để giữ fallback an toàn. Vì vậy chưa thể gọi ORGX là bản sao 100% APK gốc.
