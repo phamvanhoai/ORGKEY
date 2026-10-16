@@ -73,7 +73,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var playing by remember { mutableStateOf(false) }
     var sustain by remember { mutableStateOf(false) }
     var instrument by remember { mutableIntStateOf(preferences.getInt("instrument", 0).coerceIn(0, 2)) }
-    var chord by remember { mutableIntStateOf(preferences.getInt("chord", 0).coerceIn(0, chordNames.lastIndex)) }
+    var chord by remember { mutableIntStateOf(ChordSelection.resolve(chordNames, preferences.getString("chordName", null), preferences.getInt("chord", 0))) }
     var style by remember { mutableIntStateOf(preferences.getInt("style", 0).coerceIn(0, 2)) }
     var effect by remember { mutableIntStateOf(preferences.getInt("effect", 0).coerceIn(0, 2)) }
     var autoChord by remember { mutableStateOf(preferences.getBoolean("autoChord",false)) }
@@ -103,7 +103,7 @@ private fun ORGXApp(engine: AudioEngine) {
     }
     LaunchedEffect(octave, bpm, instrument, chord, style, effect, autoChord, progression) {
         preferences.edit().putInt("octave", octave).putInt("bpm", bpm)
-            .putInt("instrument", instrument).putInt("chord", chord).putInt("style", style).putInt("effect",effect)
+            .putString("chordName", chordNames[chord]).putInt("instrument", instrument).putInt("chord", chord).putInt("style", style).putInt("effect",effect)
             .putBoolean("autoChord",autoChord).putInt("progression",progression).apply()
     }
     MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Bg, surface = Panel)) {
@@ -136,7 +136,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 onStyle = { style = it; engine.rhythmStyle = it },
                 onEffect = { effect = it; engine.effectType = it },
                 onDismiss = { showMixer = false })
-            if (showSets) SetMemoryDialog(preferences, octave, bpm, instrument, chord, style, effect, engine,
+            if (showSets) SetMemoryDialog(chordNames, preferences, octave, bpm, instrument, chord, style, effect, engine,
                 onLoad = { loadedOctave, loadedBpm, loadedInstrument, loadedChord, loadedStyle, loadedEffect, loadedVolume ->
                     octave = loadedOctave; bpm = loadedBpm; instrument = loadedInstrument
                     chord = loadedChord.coerceIn(0, chordNames.lastIndex); style = loadedStyle; effect=loadedEffect;engine.bpm = bpm
@@ -277,15 +277,15 @@ private fun ORGXApp(engine: AudioEngine) {
         Slider(value=level,onValueChange={when(mixChannel){0->{keys=it;engine.keysVolume=it};1->{chords=it;engine.chordVolume=it};2->{drums=it;engine.drumsVolume=it};3->{master=it;engine.masterVolume=it};else->{fx=it;engine.effectMix=it}}})
     }},confirmButton={TextButton(onClick={saveMix();onDismiss()}){Text("DONE")}})
 }
-@Composable private fun SetMemoryDialog(preferences:SharedPreferences,octave:Int,bpm:Int,instrument:Int,chord:Int,style:Int,effect:Int,engine:AudioEngine,onLoad:(Int,Int,Int,Int,Int,Int,Float)->Unit,onDismiss:()->Unit){
+@Composable private fun SetMemoryDialog(chordNames:List<String>,preferences:SharedPreferences,octave:Int,bpm:Int,instrument:Int,chord:Int,style:Int,effect:Int,engine:AudioEngine,onLoad:(Int,Int,Int,Int,Int,Int,Float)->Unit,onDismiss:()->Unit){
     var revision by remember{mutableIntStateOf(0)}
     AlertDialog(onDismissRequest=onDismiss,title={Text("SET memory")},text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
         repeat(3){index->
             val slot=index+1;val exists=preferences.getBoolean("set${slot}_saved",false);revision
             Row(Modifier.fillMaxWidth().background(Muted,RoundedCornerShape(8.dp)).padding(horizontal=10.dp),verticalAlignment=Alignment.CenterVertically){
                 Text("SET $slot",Modifier.weight(1f),fontWeight=FontWeight.Bold)
-                TextButton(enabled=exists,onClick={engine.keysVolume=preferences.getFloat("set${slot}_keys",0.78f);engine.chordVolume=preferences.getFloat("set${slot}_chords",0.22f);engine.drumsVolume=preferences.getFloat("set${slot}_drums",0.55f);engine.effectMix=preferences.getFloat("set${slot}_fx",0.28f);onLoad(preferences.getInt("set${slot}_octave",4),preferences.getInt("set${slot}_bpm",120),preferences.getInt("set${slot}_instrument",0),preferences.getInt("set${slot}_chord",0),preferences.getInt("set${slot}_style",0),preferences.getInt("set${slot}_effect",0),preferences.getFloat("set${slot}_volume",0.65f));onDismiss()}){Text("LOAD")}
-                TextButton(onClick={preferences.edit().putBoolean("set${slot}_saved",true).putInt("set${slot}_octave",octave).putInt("set${slot}_bpm",bpm).putInt("set${slot}_instrument",instrument).putInt("set${slot}_chord",chord).putInt("set${slot}_style",style).putInt("set${slot}_effect",effect).putFloat("set${slot}_volume",engine.masterVolume).putFloat("set${slot}_keys",engine.keysVolume).putFloat("set${slot}_chords",engine.chordVolume).putFloat("set${slot}_drums",engine.drumsVolume).putFloat("set${slot}_fx",engine.effectMix).apply();revision++}){Text(if(exists) "UPDATE" else "SAVE")}
+                TextButton(enabled=exists,onClick={engine.keysVolume=preferences.getFloat("set${slot}_keys",0.78f);engine.chordVolume=preferences.getFloat("set${slot}_chords",0.22f);engine.drumsVolume=preferences.getFloat("set${slot}_drums",0.55f);engine.effectMix=preferences.getFloat("set${slot}_fx",0.28f);onLoad(preferences.getInt("set${slot}_octave",4),preferences.getInt("set${slot}_bpm",120),preferences.getInt("set${slot}_instrument",0),ChordSelection.resolve(chordNames,preferences.getString("set${slot}_chordName",null),preferences.getInt("set${slot}_chord",0)),preferences.getInt("set${slot}_style",0),preferences.getInt("set${slot}_effect",0),preferences.getFloat("set${slot}_volume",0.65f));onDismiss()}){Text("LOAD")}
+                TextButton(onClick={preferences.edit().putBoolean("set${slot}_saved",true).putInt("set${slot}_octave",octave).putInt("set${slot}_bpm",bpm).putInt("set${slot}_instrument",instrument).putString("set${slot}_chordName",chordNames[chord]).putInt("set${slot}_chord",chord).putInt("set${slot}_style",style).putInt("set${slot}_effect",effect).putFloat("set${slot}_volume",engine.masterVolume).putFloat("set${slot}_keys",engine.keysVolume).putFloat("set${slot}_chords",engine.chordVolume).putFloat("set${slot}_drums",engine.drumsVolume).putFloat("set${slot}_fx",engine.effectMix).apply();revision++}){Text(if(exists) "UPDATE" else "SAVE")}
             }
         }
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
