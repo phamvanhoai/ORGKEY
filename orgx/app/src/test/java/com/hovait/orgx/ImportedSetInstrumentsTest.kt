@@ -5,6 +5,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun legacyStyleRendersItsOwnDrumkitThroughActualTimeline() {
+        val path=System.getProperty("orgx.legacySet") ?: return
+        val file=File(path);val index=ImportedSetInstruments.index(file)
+        val groups=index.styles.filter{it.section in 16..35 && ImportedStyleSupport.reason(index,it)==null}
+        assertTrue("No playable imported style",groups.isNotEmpty())
+        val group=groups.first()
+        val track=ImportedStyleSupport.drumTracks(index,group).single()
+        val kit=ImportedInstrumentLoader.load(file,index.instruments[track.instrument])
+        val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,true,
+            group.start.toLong(),group.end.toLong(),false,track.events)
+        val player=ReferenceRhythmPlayer(listOf(timeline),kit::durationFrames,{note,age,channel->kit.sample(note,age.toLong(),channel)},48000)
+        var energy=0.0
+        repeat(48000*4){player.next(0,group.tempo.coerceIn(40,240));
+            assertTrue(player.left.isFinite() && player.right.isFinite());energy+=player.left*player.left+player.right*player.right}
+        assertTrue("Imported style rendered silence",energy>0)
+        println("Playable SET groups: ${groups.size}; rendered group ${group.id}, energy=$energy")
+    }
     @Test fun localLegacySetCanBeIndexedWhenProvided() {
         val path=System.getProperty("orgx.legacySet") ?: return
         val instruments=ImportedSetInstruments.read(File(path))

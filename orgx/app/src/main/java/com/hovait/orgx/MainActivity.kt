@@ -412,9 +412,10 @@ private fun ORGXApp(engine: AudioEngine) {
             val groups=setGroups.associateBy{it.id}
             setGroups.filter{it.section in 16..35}.forEach{group->
                 val index=setIndex
-                val tracks=index?.tracks?.filter{it.group==group.id && !it.muted && it.events.any{e->e.type==2} && index.instruments.getOrNull(it.instrument)?.type==1} ?: emptyList()
+                val tracks=index?.let{ImportedStyleSupport.drumTracks(it,group)} ?: emptyList()
                 val track=tracks.singleOrNull()
-                val supported=track!=null && index!=null && group.loop && group.end>group.start && ImportedInstrumentLoader.supported(index.instruments[track.instrument]) && track.events.all{it.type in 1..2 && it.note in 0..127}
+                val reason=index?.let{ImportedStyleSupport.reason(it,group)} ?: "SET index unavailable"
+                val supported=reason==null
                 OutlinedButton(enabled=supported && !importing,onClick={scope.launch{
                     importing=true
                     try{
@@ -429,7 +430,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}
                     finally{importing=false}
                 }},modifier=Modifier.fillMaxWidth()){
-                    Text("${groups[group.parent]?.name.orEmpty()} / ${group.name} (${group.tempo} BPM)")
+                    Column{Text("${groups[group.parent]?.name.orEmpty()} / ${group.name} (${group.tempo} BPM)");if(reason!=null)Text(reason,fontSize=12.sp)}
                 }
             }
         }
