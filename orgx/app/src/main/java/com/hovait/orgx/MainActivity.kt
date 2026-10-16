@@ -70,6 +70,23 @@ class MainActivity : ComponentActivity() {
 private fun ORGXApp(engine: AudioEngine) {
     val context = LocalContext.current
     val preferences = remember { context.getSharedPreferences("orgx-settings", 0) }
+    var restoredSetName by remember{mutableStateOf<String?>(null)}
+    LaunchedEffect(Unit){
+        val fileName=preferences.getString("importedSetFile",null)
+        val soundName=preferences.getString("importedSetSound",null)
+        if(fileName!=null && soundName!=null){
+            try{
+                val loaded=withContext(Dispatchers.IO){
+                    val (file,sound)=ImportedSoundSelection.resolve(File(context.filesDir,"ReferenceSets"),fileName,soundName)
+                    ImportedInstrumentLoader.load(file,sound)
+                }
+                // A user may have changed voices while the file was loading.
+                if(preferences.getString("importedSetFile",null)==fileName && preferences.getString("importedSetSound",null)==soundName){
+                    engine.importedInstrument=loaded;engine.importedInstrumentName=soundName;restoredSetName=soundName
+                }
+            }catch(error:Exception){Toast.makeText(context,"SET restore: ${error.message}",Toast.LENGTH_LONG).show()}
+        }
+    }
     val builtInChordNames = listOf("C","Dm","Em","F","G","Am","Bdim","C7","D7","E7","Fmaj7","G7")
     val playableChords = remember { runCatching {
         context.assets.open("Chord").bufferedReader().use { PlayableChordLibrary.fromTable(it.readText()) }
@@ -134,12 +151,13 @@ private fun ORGXApp(engine: AudioEngine) {
                         onChord = { showChords = true },
                         onMixer = { showMixer = true }, modifier = Modifier.weight(1f))
                     val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
-                    StatusPanel(bpm, octave, playing, chordDisplay, engine.styleNames[style], (engine.importedInstrumentName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
+                    StatusPanel(bpm, octave, playing, chordDisplay, engine.styleNames[style], (engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
                 }
                 PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth())
             }
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
-                onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null },
+                onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
+                    preferences.edit().remove("importedSetFile").remove("importedSetSound").apply() },
                 onStyle = { style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
                 onEffect = { effect = it; engine.effectType = it },
                 onDismiss = { showMixer = false })
@@ -358,6 +376,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 try{
                     val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item)}
                     engine.importedInstrument=loaded;engine.importedInstrumentName=item.name
+                    preferences.edit().putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).apply()
                     importStatus="Keyboard: ${item.name}. Select a built-in voice in Mixer to switch back."
                 }catch(error:Exception){importStatus=error.message ?: "Cannot load instrument"}
                 finally{importing=false}
