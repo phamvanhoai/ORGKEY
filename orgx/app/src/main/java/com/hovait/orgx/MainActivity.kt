@@ -56,7 +56,8 @@ class MainActivity : ComponentActivity() {
         engine = AudioEngine(getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: filesDir,SampleBank(resources),
             preferNativeOutput=getSharedPreferences("orgx-settings",0).getBoolean("nativeOutput",false)
                 || ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
-                && intent.getBooleanExtra("orgx.testNativeOutput",false)))
+                && intent.getBooleanExtra("orgx.testNativeOutput",false)),
+            referenceDrumTracks=runCatching{ReferenceDrumStore.playableVariations(assets)}.getOrDefault(emptyList()))
         setContent { ORGXApp(engine) }
     }
     override fun onDestroy() { engine.close(); super.onDestroy() }
@@ -130,7 +131,7 @@ private fun ORGXApp(engine: AudioEngine) {
                         onChord = { showChords = true },
                         onMixer = { showMixer = true }, modifier = Modifier.weight(1f))
                     val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
-                    StatusPanel(bpm, octave, playing, chordDisplay, listOf("Pop", "Rock", "Dance")[style], InstrumentCatalog.names[instrument], modifier = Modifier.weight(1.3f))
+                    StatusPanel(bpm, octave, playing, chordDisplay, listOf("Reference 1", "Reference 2", "Reference 3")[style], InstrumentCatalog.names[instrument], modifier = Modifier.weight(1.3f))
                 }
                 PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth())
             }
@@ -277,7 +278,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 items.forEach{item->FilterChip(selected=instrument==item.index,onClick={onInstrument(item.index)},label={Text(item.value)},modifier=Modifier.weight(1f).heightIn(min=48.dp))}
             }
         }
-        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("STYLE",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Pop","Rock","Dance").forEachIndexed{index,name->FilterChip(selected=style==index,onClick={onStyle(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("STYLE",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Ref 1","Ref 2","Ref 3").forEachIndexed{index,name->FilterChip(selected=style==index,onClick={onStyle(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("FX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Dry","Delay","Reverb").forEachIndexed{index,name->FilterChip(selected=effect==index,onClick={onEffect(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("MIX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Column(Modifier.weight(1f)){Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Keys","Chord","Drums").forEachIndexed{index,name->FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}};Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Master","FX").forEachIndexed{offset,name->val index=offset+3;FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}}}}
         val level=when(mixChannel){0->keys;1->chords;2->drums;3->master;else->fx}

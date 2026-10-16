@@ -15,8 +15,9 @@ import kotlin.math.exp
 import kotlin.math.pow
 import kotlin.math.sin
 
-class AudioEngine(private val recordingDirectory: File,private val sampleBank:SampleBank?=null,preferNativeOutput:Boolean=false) {
+class AudioEngine(private val recordingDirectory: File,private val sampleBank:SampleBank?=null,preferNativeOutput:Boolean=false,referenceDrumTracks:List<ReferenceDrumTrack> = emptyList()) {
     private val sampleRate = 48_000
+    private val referenceRhythm=sampleBank?.takeIf{referenceDrumTracks.isNotEmpty()}?.let{ReferenceRhythmPlayer(referenceDrumTracks,it,sampleRate)}
     @Volatile var outputStatus: String = "Starting"
         private set
     private val chordVoices: Array<Array<(Int,Long)->Double>> = Array(2){channel->Array(InstrumentCatalog.names.size){index->
@@ -222,7 +223,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private fun rhythmSample(): Double {
-        if (!rhythmPlaying) { rhythmAges.fill(-1);return 0.0 }
+        if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();return 0.0 }
+        referenceRhythm?.let { it.next(rhythmStyle,bpm.coerceIn(40,240));transportFrame++;return 0.0 }
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)
         val step = ((transportFrame / stepFrames) % 8).toInt()
         val stepOffset = transportFrame % stepFrames
@@ -335,8 +337,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         }
                     }
                 }
-                stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume,
-                    mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume,effectType,effectMix)
+                stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft+(referenceRhythm?.left ?: 0.0))*drumsVolume,
+                    mixedOutputRight + (StereoSample.right(sound)+padRight+(referenceRhythm?.right ?: 0.0))*drumsVolume,effectType,effectMix)
                 fun pcm(value:Double)=(value * masterVolume * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
                 output[frame * 2] = pcm(stereoEffect.left)

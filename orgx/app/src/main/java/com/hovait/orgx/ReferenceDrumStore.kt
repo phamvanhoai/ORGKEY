@@ -10,6 +10,13 @@ data class ReferenceDrumTrack(val name:String,val group:Int,val parent:Int,val s
 }
 
 object ReferenceDrumStore {
+    fun playableVariations(assets:AssetManager):List<ReferenceDrumTrack> {
+        val notes=ReferenceDrumPads.entries.map{it.note}.toSet()
+        return load(assets).filter { track->
+            !track.muted && track.loop && track.end>track.start && track.section==32 &&
+                track.events.any{it.type==2} && track.events.filter{it.type==2}.all{it.note in notes}
+        }.take(3)
+    }
     fun load(assets:AssetManager):List<ReferenceDrumTrack> {
         val json=assets.open("reference-drum-tracks.json").bufferedReader().use { JSONObject(it.readText()) }
         require(json.getString("format")=="ORGX reference drum tracks" && json.getInt("version")==1)
