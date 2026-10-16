@@ -80,6 +80,28 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
         .build()
 
+        private val accompanimentChords = arrayOf(
+            intArrayOf(48, 52, 55), // C
+            intArrayOf(50, 53, 57), // Dm
+            intArrayOf(52, 55, 59), // Em
+            intArrayOf(41, 45, 48), // F
+            intArrayOf(43, 47, 50), // G
+            intArrayOf(45, 48, 52), // Am
+            intArrayOf(47, 50, 53), // Bdim
+            intArrayOf(48, 52, 55, 58), // C7
+            intArrayOf(50, 54, 57, 60), // D7
+            intArrayOf(52, 56, 59, 62), // E7
+            intArrayOf(41, 45, 48, 52), // Fmaj7
+            intArrayOf(43, 47, 50, 53)  // G7
+        )
+        private val accompanimentProgressions = arrayOf(
+            intArrayOf(0, 5, 3, 4),  // C Am F G
+            intArrayOf(0, 4, 5, 3),  // C G Am F
+            intArrayOf(5, 3, 0, 4)   // Am F C G
+        )
+
+    private val chordFrequencies = DoubleArray(128) { 440.0 * 2.0.pow((it - 69) / 12.0) }
+
     init {
         track.play()
         thread(name = "ORGX-Audio", priority = Thread.MAX_PRIORITY) { renderLoop() }
@@ -233,35 +255,17 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     private fun accompanimentSample(): Double {
         if (!rhythmPlaying) return 0.0
-        val chords = arrayOf(
-            intArrayOf(48, 52, 55), // C
-            intArrayOf(50, 53, 57), // Dm
-            intArrayOf(52, 55, 59), // Em
-            intArrayOf(41, 45, 48), // F
-            intArrayOf(43, 47, 50), // G
-            intArrayOf(45, 48, 52), // Am
-            intArrayOf(47, 50, 53), // Bdim
-            intArrayOf(48, 52, 55, 58), // C7
-            intArrayOf(50, 54, 57, 60), // D7
-            intArrayOf(52, 56, 59, 62), // E7
-            intArrayOf(41, 45, 48, 52), // Fmaj7
-            intArrayOf(43, 47, 50, 53)  // G7
-        )
-        val progressions = arrayOf(
-            intArrayOf(0, 5, 3, 4),  // C Am F G
-            intArrayOf(0, 4, 5, 3),  // C G Am F
-            intArrayOf(5, 3, 0, 4)   // Am F C G
-        )
         val beatFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240)).toLong().coerceAtLeast(1)
         val bar = (transportFrame / (beatFrames * 4)).toInt()
-        val activeChord = if (autoChord) progressions[progression.coerceIn(0, 2)][bar % 4] else chordIndex
-        val notes = if (!autoChord && referenceChords.isNotEmpty()) {
-            referenceChords[activeChord.coerceIn(0, referenceChords.lastIndex)].renderNotes
-        } else chords[activeChord.coerceIn(0, chords.lastIndex)]
+        val activeChord = if (autoChord) accompanimentProgressions[progression.coerceIn(0, 2)][bar % 4] else chordIndex
+        val library = referenceChords
+        val notes = if (!autoChord && library.isNotEmpty()) {
+            library[activeChord.coerceIn(0, library.lastIndex)].renderNotes
+        } else accompanimentChords[activeChord.coerceIn(0, accompanimentChords.lastIndex)]
         if (notes.isEmpty()) return 0.0
         val time = transportFrame.toDouble() / sampleRate
         return notes.sumOf { note ->
-            val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)
+            val frequency = chordFrequencies[note]
             sin(2.0 * PI * frequency * time)
         } / notes.size
     }
