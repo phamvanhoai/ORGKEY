@@ -37,12 +37,14 @@ class ReferenceSetStore(private val directory:File) {
             }
             fun int():Int=java.lang.Integer.reverseBytes(reader.readInt())
             fun text():String{val size=int();require(size in 0..1000000);return bytes(size).toString(Charsets.UTF_8)}
-            require(bytes(32).toString(Charsets.US_ASCII).substringBefore('\u0000')=="Music Studio Music"){"Not a supported Music Studio SET/Template"}
+            require(bytes(32).toString(Charsets.US_ASCII).substringBefore('\u0000').equals("Music Studio Music",ignoreCase=true)){"Not a supported Music Studio SET/Template"}
             val metadata=text().split('\r');int()
             val version=metadata.getOrNull(1).orEmpty()
-            require(version in listOf("1.2.4","1.4.6")){"Unsupported SET version: $version"}
+            
             repeat(3){text()}
-            require(int()==0){"Password-protected SET is not supported"}
+            val passwordBytes=int()
+            require(passwordBytes==0){"Recognized Music Studio SET $version; password/protection data is present. This importer cannot load this variant yet."}
+            require(version in listOf("1.2.4","1.4.6")){"Recognized Music Studio SET $version; this format version is not supported yet."}
             bytes(2);int();val tempo=int();int();bytes(116)
             require(tempo>0){"Invalid SET tempo"}
             val slots=int();val count=int()

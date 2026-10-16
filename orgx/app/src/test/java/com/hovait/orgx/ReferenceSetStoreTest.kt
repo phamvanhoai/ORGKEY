@@ -7,6 +7,13 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 
 class ReferenceSetStoreTest {
+    @Test fun lowercaseMusicSignatureIsAccepted() {
+        val copy=temp.newFile()
+        val bytes=asset("empty.Template").readBytes()
+        "Music Studio music".toByteArray(Charsets.US_ASCII).copyInto(bytes)
+        copy.writeBytes(bytes)
+        assertEquals("1.2.4",ReferenceSetStore.inspect(copy).version)
+    }
     @get:Rule val temp=TemporaryFolder()
     private fun asset(name:String)=File(requireNotNull(System.getProperty("orgx.referenceAssets")),name)
     @Test fun inspectsRealTemplateWaveBank() {
