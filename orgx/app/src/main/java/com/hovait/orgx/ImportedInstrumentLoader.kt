@@ -19,7 +19,7 @@ object ImportedInstrumentLoader {
         val supportedType=instrument.type in 0..1
         return supportedType && pitchMode in listOf(0,2) &&
             sound.sections.isNotEmpty() && sound.sections.all{
-                it.frames>0 && instrument.pan.toLong()+it.pan in -100L..100L && it.tune==0 && it.start==0 && it.loop in listOf(0,2) &&
+                it.frames>0 && instrument.pan.toLong()+it.pan in -100L..100L && it.start==0 && it.loop in listOf(0,2) &&
                     (it.loop==0 || (it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.frames))
             }
     }
@@ -37,7 +37,7 @@ object ImportedInstrumentLoader {
                     if(stereo==null)value(frame*2) else ((stereo[frame*2].toInt()+stereo[frame*2+1])/2).toShort()
                 }
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
-                    section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0)
+                    section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,section.tune)
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2)
         }

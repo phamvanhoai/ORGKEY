@@ -1,6 +1,6 @@
 package com.hovait.orgx
 
-data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true)
+data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true,val tune:Int=0)
 
 class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private val exactNotes:Boolean=false) {
     init {
@@ -12,7 +12,7 @@ class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private va
     }
     private val roots=regions.map{it.root}
     private val selected=Array(128){note->regions.first{it.root==SampleRegionMap.nearestRoot(note,roots)}}
-    private val steps=DoubleArray(128){note->SamplePitch.step(note,selected[note].root,selected[note].sample.sampleRate,outputRate)}
+    private val steps=DoubleArray(128){note->SamplePitch.step(note,selected[note].root,selected[note].sample.sampleRate,outputRate,selected[note].tune)}
     private fun missing(note:Int)=exactNotes && selected[note].root!=note
     fun finished(note:Int,age:Long):Boolean {
         if(note !in 0..127)return true

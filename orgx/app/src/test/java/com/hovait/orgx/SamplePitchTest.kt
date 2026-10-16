@@ -4,6 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SamplePitchTest {
+    @Test fun tuneUsesOneThousandUnitsPerSemitone() {
+        assertEquals(2.0,SamplePitch.step(60,60,48000,48000,12000),0.0)
+        assertEquals(0.5,SamplePitch.step(60,60,48000,48000,-12000),0.0)
+        assertEquals(SamplePitch.step(61,60,48000,48000),SamplePitch.step(60,60,48000,48000,1000),0.0)
+    }
     @Test fun octavesAndSourceRateAreIncluded() {
         assertEquals(1.0,SamplePitch.step(60,60,48000,48000),0.0)
         assertEquals(2.0,SamplePitch.step(72,60,48000,48000),0.0)
