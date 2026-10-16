@@ -6,6 +6,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiProgramTest {
+    @Test fun noteBeforeSameTickProgramChangeKeepsPreviousVoice() {
+        val track=byteArrayOf(0,0x90.toByte(),60,100,0,0xc0.toByte(),73,
+            0,0x90.toByte(),62,100,0,0xff.toByte(),0x2f,0)
+        val bytes=ByteArrayOutputStream()
+        DataOutputStream(bytes).use{out->
+            out.writeBytes("MThd");out.writeInt(6);out.writeShort(0);out.writeShort(1);out.writeShort(480)
+            out.writeBytes("MTrk");out.writeInt(track.size);out.write(track)
+        }
+        assertEquals(listOf(0,73),MidiFile.read(bytes.toByteArray().inputStream()).events.map{it.program})
+    }
     @Test fun programChangesAreAttachedToNotesOnTheirOwnChannel() {
         val track=byteArrayOf(0,0xc1.toByte(),73,0,0x91.toByte(),60,100,
             0,0x90.toByte(),64,100,10,0xc1.toByte(),32,0,0x91.toByte(),62,100,

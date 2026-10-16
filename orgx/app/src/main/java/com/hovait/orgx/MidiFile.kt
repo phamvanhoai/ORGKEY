@@ -19,21 +19,22 @@ object MidiFile {
         require(text(4)=="MThd");val header=u32();require(header>=6);val format=u16();val tracks=u16();val division=u16();require(format in 0..1&&division and 0x8000==0&&tracks>0);p+=header-6
         val notes=mutableListOf<MidiNoteEvent>();var tempo=500_000
         val tempos=mutableListOf<MidiTempoEvent>()
-        data class Program(val tick:Long,val channel:Int,val value:Int)
+        data class Program(val tick:Long,val channel:Int,val value:Int,val order:Int)
+        val noteOrders=mutableListOf<Int>();var order=0
         val programs=mutableListOf<Program>()
         repeat(tracks){
             require(text(4)=="MTrk");val length=u32();val end=p+length;require(end<=data.size);var tick=0L;var running=0
-            while(p<end){tick+=variable(end);var status=u8();if(status<0x80){require(running!=0);p--;status=running}else if(status<0xf0)running=status
+            while(p<end){val eventOrder=order++;tick+=variable(end);var status=u8();if(status<0x80){require(running!=0);p--;status=running}else if(status<0xf0)running=status
                 when{
                     status==0xff->{val type=u8();val size=variable(end).toInt();require(p+size<=end);if(type==0x51&&size==3){
                         val value=(u8() shl 16) or (u8() shl 8) or u8();require(value>0)
                         tempos+=MidiTempoEvent(tick,value)
                     } else p+=size}
                     status==0xf0||status==0xf7->{p+=variable(end).toInt()}
-                    status and 0xf0==0x80->{val note=u8();u8();notes+=MidiNoteEvent(tick,note,0,false,status and 15)}
-                    status and 0xf0==0x90->{val note=u8();val velocity=u8();notes+=MidiNoteEvent(tick,note,velocity,velocity>0,status and 15)}
+                    status and 0xf0==0x80->{val note=u8();u8();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,note,0,false,status and 15)}
+                    status and 0xf0==0x90->{val note=u8();val velocity=u8();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,note,velocity,velocity>0,status and 15)}
                     status and 0xf0 in setOf(0xa0,0xb0,0xe0)->{u8();u8()}
-                    status and 0xf0==0xc0->{val program=u8();require(program<128);programs+=Program(tick,status and 15,program)}
+                    status and 0xf0==0xc0->{val program=u8();require(program<128);programs+=Program(tick,status and 15,program,eventOrder)}
                     status and 0xf0==0xd0->u8()
                     else->error("Unsupported MIDI event")
                 }
@@ -41,8 +42,9 @@ object MidiFile {
         }
         require(notes.isNotEmpty()){"MIDI has no notes"};val orderedPrograms=programs.sortedBy{it.tick}
         val channelPrograms=IntArray(16);var programIndex=0
-        val mapped=notes.sortedBy{it.tick}.map{note->
-            while(programIndex<orderedPrograms.size && orderedPrograms[programIndex].tick<=note.tick){val program=orderedPrograms[programIndex++];channelPrograms[program.channel]=program.value}
+        val mapped=notes.withIndex().sortedWith(compareBy<IndexedValue<MidiNoteEvent>>{it.value.tick}.thenBy{noteOrders[it.index]}).map{indexed->
+            val note=indexed.value;val noteOrder=noteOrders[indexed.index]
+            while(programIndex<orderedPrograms.size && (orderedPrograms[programIndex].tick<note.tick || (orderedPrograms[programIndex].tick==note.tick && orderedPrograms[programIndex].order<noteOrder))){val program=orderedPrograms[programIndex++];channelPrograms[program.channel]=program.value}
             note.copy(program=channelPrograms[note.channel])
         }
         val orderedTempos=tempos.sortedBy{it.tick}
