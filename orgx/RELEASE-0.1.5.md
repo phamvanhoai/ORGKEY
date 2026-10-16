@@ -8,3 +8,5 @@
 - SHA-256: `9F0E1E7B211F43F11C8C9CA73896697DD403693E847C5AA55E73830D63599CAE`
 
 - 	ools/verify-release.ps1 -Build đã chạy thành công, đọc đúng versionCode 40 và SHA-256 APK.
+
+- SamplePcmDecoder đã có test PCM16 hợp lệ và WAV bị cắt; erify-release.ps1 -Build chạy thành công sau thay đổi.
