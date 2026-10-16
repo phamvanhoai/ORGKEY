@@ -12,7 +12,7 @@ android {
         applicationId = "com.hovait.orgx"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
+        versionCode = 39
         versionName = "0.1.4"
     }
 
