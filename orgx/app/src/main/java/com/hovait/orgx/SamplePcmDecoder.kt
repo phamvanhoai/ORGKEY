@@ -4,7 +4,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-data class SamplePcm(val sampleRate:Int,val channels:Int,val frames:ShortArray)
+data class SamplePcm(val sampleRate:Int,val channels:Int,val frames:ShortArray,val stereo:ShortArray?=null)
 
 object SamplePcmDecoder {
     fun decode(input:InputStream):SamplePcm {
@@ -40,7 +40,8 @@ object SamplePcmDecoder {
         require(foundFormat&&format==1&&channels in 1..2&&rate in 8000..192000&&bits==16&&blockAlign==channels*2){"Only PCM16 mono/stereo samples supported"}
         require(dataOffset>=0&&dataSize>0&&dataSize% (channels*2)==0){"Missing sample data"}
         val frames=dataSize/(channels*2);val mono=ShortArray(frames)
-        for(frame in 0 until frames){var sum=0;for(channel in 0 until channels){val offset=dataOffset+(frame*channels+channel)*2;sum+=u16(offset).toShort().toInt()};mono[frame]=(sum/channels).coerceIn(-32768,32767).toShort()}
-        return SamplePcm(rate,channels,mono)
+        val stereo=if(channels==2)ShortArray(frames*2) else null
+        for(frame in 0 until frames){var sum=0;for(channel in 0 until channels){val offset=dataOffset+(frame*channels+channel)*2;val value=u16(offset).toShort();sum+=value.toInt();stereo?.set(frame*2+channel,value)};mono[frame]=(sum/channels).coerceIn(-32768,32767).toShort()}
+        return SamplePcm(rate,channels,mono,stereo)
     }
 }

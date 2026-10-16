@@ -242,7 +242,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private fun padSample(): Double {
-        var result = sampleBank?.next() ?: 0.0
+        var result = 0.0
         for (pad in 0..7) {
             val age = padAges.get(pad)
             if (age < 0) continue
@@ -313,10 +313,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val rhythm = rhythmSample() + padSample()
                 val accompaniment = accompanimentSample()
                 val mixedOutput = synth * keysVolume + accompaniment * chordVolume + rhythm * drumsVolume
-                val scaled = (processEffect(mixedOutput) * masterVolume * Short.MAX_VALUE)
-                    .coerceIn(Short.MIN_VALUE.toDouble(), Short.MAX_VALUE.toDouble()).toInt().toShort()
-                output[frame * 2] = scaled
-                output[frame * 2 + 1] = scaled
+                val sound = sampleBank?.nextStereo() ?: 0L
+                val effected = processEffect(mixedOutput)
+                fun pcm(value:Double)=(value * masterVolume * Short.MAX_VALUE)
+                    .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
+                output[frame * 2] = pcm(effected + StereoSample.left(sound)*drumsVolume)
+                output[frame * 2 + 1] = pcm(effected + StereoSample.right(sound)*drumsVolume)
             }
             capture(output)
 
