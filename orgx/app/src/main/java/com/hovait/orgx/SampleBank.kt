@@ -2,7 +2,7 @@ package com.hovait.orgx
 
 import android.content.res.Resources
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.math.pow
+
 
 class SampleBank(resources:Resources, outputRate:Int=48000) {
     private fun load(resources:Resources,id:Int,rate:Int):ShortArray = resources.openRawResource(id).use { SampleResampler.toRate(SamplePcmDecoder.decode(it),rate) }
@@ -17,19 +17,20 @@ class SampleBank(resources:Resources, outputRate:Int=48000) {
         effect.key to resources.openRawResource(effect.resource).use { StereoSample(SamplePcmDecoder.decode(it),outputRate) }
     } + ("crash" to StereoSample(SamplePcm(outputRate,1,samples.getValue("crash")),outputRate))
     private var active:StereoSample?=null
+    private fun pianoRegion(resources:Resources,id:Int):SamplePcm = resources.openRawResource(id).use(SamplePcmDecoder::decode)
     private val pianoRegions=mapOf(
-        42 to load(resources,R.raw.orgx_piano_zone_42,outputRate),
-        49 to load(resources,R.raw.orgx_piano_zone_49,outputRate),
-        54 to load(resources,R.raw.orgx_piano_zone_54,outputRate),
-        61 to load(resources,R.raw.orgx_piano_zone_61,outputRate),
-        66 to load(resources,R.raw.orgx_piano_zone_66,outputRate),
-        73 to load(resources,R.raw.orgx_piano_zone_73,outputRate),
-        78 to load(resources,R.raw.orgx_piano_zone_78,outputRate),
-        85 to load(resources,R.raw.orgx_piano_zone_85,outputRate),
-        90 to load(resources,R.raw.orgx_piano_zone_90,outputRate))
+        42 to pianoRegion(resources,R.raw.orgx_piano_zone_42),
+        49 to pianoRegion(resources,R.raw.orgx_piano_zone_49),
+        54 to pianoRegion(resources,R.raw.orgx_piano_zone_54),
+        61 to pianoRegion(resources,R.raw.orgx_piano_zone_61),
+        66 to pianoRegion(resources,R.raw.orgx_piano_zone_66),
+        73 to pianoRegion(resources,R.raw.orgx_piano_zone_73),
+        78 to pianoRegion(resources,R.raw.orgx_piano_zone_78),
+        85 to pianoRegion(resources,R.raw.orgx_piano_zone_85),
+        90 to pianoRegion(resources,R.raw.orgx_piano_zone_90))
     private val pianoRoots=IntArray(128){SampleRegionMap.nearestRoot(it,pianoRegions.keys.toList())}
-    private val pianoSources = Array(128) { pianoRegions.getValue(pianoRoots[it]) }
-    private val pianoSteps = DoubleArray(128) { note -> 2.0.pow((note-pianoRoots[note])/12.0) }
+    private val pianoSources = Array(128) { pianoRegions.getValue(pianoRoots[it]).frames }
+    private val pianoSteps = DoubleArray(128) { note -> SamplePitch.step(note,pianoRoots[note],pianoRegions.getValue(pianoRoots[note]).sampleRate,outputRate) }
     private val cursor=AtomicInteger(0)
     private var metronomeActive:ShortArray?=null
     private val metronomeCursor=AtomicInteger(0)
