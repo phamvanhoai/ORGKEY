@@ -12,8 +12,8 @@ android {
         applicationId = "com.hovait.orgx"
         minSdk = 26
         targetSdk = 35
-        versionCode = 40
-        versionName = "0.1.5"
+        versionCode = 41
+        versionName = "0.1.6"
     }
 
     buildFeatures { compose = true }

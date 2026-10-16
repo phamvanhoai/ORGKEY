@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var engine: AudioEngine
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        NativeReferenceLoader.tryLoad()
         enableEdgeToEdge()
         engine = AudioEngine(getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: filesDir,SampleBank(resources))
         setContent { ORGXApp(engine) }
