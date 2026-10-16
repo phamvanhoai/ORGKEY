@@ -342,8 +342,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
                     }
                     val sampleRight=(if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),1) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames,1)) ?: sample
-                    if (voice.releasing) voice.gain -= 1f / (sampleRate * 0.12f)
-                    else if (voice.gain < 1f) voice.gain = (voice.gain + 1f / (sampleRate * 0.008f)).coerceAtMost(1f)
+                    voice.gain=VoiceEnvelope.next(voice.gain,voice.releasing,voice.instrument == -1,sampleRate)
                     val naturalDecay = if (voice.instrument == 0) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
                     val gain=voice.gain.coerceAtLeast(0f)*voice.velocity*naturalDecay
                     if(voice.instrument == -1){
