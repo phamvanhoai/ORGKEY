@@ -5,6 +5,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun loadsExternalOrganPcmAndSustainsBothChannels() {
+        val file=File(requireNotNull(System.getProperty("orgx.referenceAssets")),"Default.Template")
+        val organ=ImportedSetInstruments.read(file).first{it.name=="Organ DNC"}
+        assertTrue(ImportedInstrumentLoader.supported(organ))
+        val loaded=ImportedInstrumentLoader.load(file,organ)
+        var energy=0.0
+        for(age in 48000L..49000L){
+            val left=loaded.sample(60,age,0);val right=loaded.sample(60,age,1)
+            assertTrue(left.isFinite());assertEquals(left,right,0.0);energy+=left*left
+        }
+        assertTrue(energy>0)
+        assertFalse(ImportedInstrumentLoader.supported(organ.copy(pan=50)))
+    }
     @Test fun indexesAllReferenceInstrumentsWithoutLoadingPcm() {
         val file=File(requireNotNull(System.getProperty("orgx.referenceAssets")),"Default.Template")
         val instruments=ImportedSetInstruments.read(file)

@@ -134,12 +134,12 @@ private fun ORGXApp(engine: AudioEngine) {
                         onChord = { showChords = true },
                         onMixer = { showMixer = true }, modifier = Modifier.weight(1f))
                     val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
-                    StatusPanel(bpm, octave, playing, chordDisplay, engine.styleNames[style], InstrumentCatalog.names[instrument], modifier = Modifier.weight(1.3f))
+                    StatusPanel(bpm, octave, playing, chordDisplay, engine.styleNames[style], (engine.importedInstrumentName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
                 }
                 PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth())
             }
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
-                onInstrument = { instrument = it; engine.instrument = it },
+                onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null },
                 onStyle = { style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
                 onEffect = { effect = it; engine.effectType = it },
                 onDismiss = { showMixer = false })
@@ -316,6 +316,8 @@ private fun ORGXApp(engine: AudioEngine) {
     var imported by remember{mutableStateOf(store.list())}
     var importing by remember{mutableStateOf(false)}
     var importStatus by remember{mutableStateOf("")}
+    var setFile by remember{mutableStateOf<File?>(null)}
+    var setInstruments by remember{mutableStateOf<List<ImportedInstrument>>(emptyList())}
     val picker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
         if(uri!=null)scope.launch{
             importing=true
@@ -327,7 +329,8 @@ private fun ORGXApp(engine: AudioEngine) {
                 val instruments=withContext(Dispatchers.IO){
                     if(result.second.version=="1.4.6")ImportedSetInstruments.read(result.first) else emptyList()
                 }
-                importStatus="Imported ${result.second.version}: ${result.second.waves} waves, ${instruments.size} indexed instruments. Playback not connected yet."
+                setFile=result.first;setInstruments=instruments.filter(ImportedInstrumentLoader::supported)
+                importStatus="Imported ${result.second.version}: ${instruments.size} instruments, ${setInstruments.size} playable Primary sounds."
             } catch(error:Exception){importStatus=error.message ?: "SET import failed"}
             finally{importing=false}
         }
@@ -337,7 +340,29 @@ private fun ORGXApp(engine: AudioEngine) {
         OutlinedButton(enabled=!importing,onClick={picker.launch(arrayOf("*/*"))},modifier=Modifier.fillMaxWidth()){
             Text(if(importing)"IMPORTING…" else "IMPORT SET / TEMPLATE")
         }
-        Text("Imported files: ${imported.size}. Import checks header and wave bank; instruments/styles are not activated yet.",fontSize=12.sp)
+        Text("Imported SET files: ${imported.size}. Select a file, then a supported Primary sound. SET styles are not loaded yet.",fontSize=12.sp)
+        imported.forEach{file->
+            TextButton(enabled=!importing,onClick={scope.launch{
+                importing=true
+                try{
+                    val instruments=withContext(Dispatchers.IO){ImportedSetInstruments.read(file)}
+                    setFile=file;setInstruments=instruments.filter(ImportedInstrumentLoader::supported)
+                    importStatus="${instruments.size} instruments, ${setInstruments.size} playable Primary sounds."
+                }catch(error:Exception){importStatus=error.message ?: "Cannot read SET"}
+                finally{importing=false}
+            }}){Text("OPEN SET ${file.name.take(12)}")}
+        }
+        setInstruments.forEach{item->
+            OutlinedButton(enabled=!importing,onClick={scope.launch{
+                importing=true
+                try{
+                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item)}
+                    engine.importedInstrument=loaded;engine.importedInstrumentName=item.name
+                    importStatus="Keyboard: ${item.name}. Select a built-in voice in Mixer to switch back."
+                }catch(error:Exception){importStatus=error.message ?: "Cannot load instrument"}
+                finally{importing=false}
+            }},modifier=Modifier.fillMaxWidth()){Text(item.name)}
+        }
         if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)
         repeat(3){index->
             val slot=index+1;val exists=preferences.getBoolean("set${slot}_saved",false);revision
