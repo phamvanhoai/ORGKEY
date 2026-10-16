@@ -33,4 +33,22 @@ object ReferenceInstrumentRegions {
     val lead=listOf(
         ReferenceRegion(60,R.raw.orgx_lead_zone_60,1864,39713,1.0),
     )
+    val flute=listOf(
+        ReferenceRegion(60,R.raw.orgx_flute_zone_60,15245,21962,1.0),
+        ReferenceRegion(62,R.raw.orgx_flute_zone_62,9999,16972,1.0),
+        ReferenceRegion(64,R.raw.orgx_flute_zone_64,13663,20349,1.0),
+        ReferenceRegion(67,R.raw.orgx_flute_zone_67,6784,13574,1.0),
+        ReferenceRegion(72,R.raw.orgx_flute_zone_72,19458,25597,1.0),
+        ReferenceRegion(74,R.raw.orgx_flute_zone_74,6544,12445,1.0),
+        ReferenceRegion(77,R.raw.orgx_flute_zone_77,8080,14300,1.0),
+        ReferenceRegion(81,R.raw.orgx_flute_zone_81,7289,13684,1.0),
+        ReferenceRegion(84,R.raw.orgx_flute_zone_84,6272,12465,1.0),
+        ReferenceRegion(86,R.raw.orgx_flute_zone_86,7392,13752,1.0),
+        ReferenceRegion(89,R.raw.orgx_flute_zone_89,5775,12714,1.0),
+        ReferenceRegion(91,R.raw.orgx_flute_zone_91,6516,12734,1.0),
+        ReferenceRegion(93,R.raw.orgx_flute_zone_93,6557,13026,1.0),
+        ReferenceRegion(96,R.raw.orgx_flute_zone_96,6892,13661,1.0),
+        ReferenceRegion(103,R.raw.orgx_flute_zone_103,6264,13054,1.0),
+        ReferenceRegion(115,R.raw.orgx_flute_zone_115,11241,20877,1.0),
+    )
 }

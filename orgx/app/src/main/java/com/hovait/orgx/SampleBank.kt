@@ -10,9 +10,11 @@ class SampleBank(resources:Resources, outputRate:Int=48000) {
     },rate)
     private val organ=instrument(resources,ReferenceInstrumentRegions.organ,outputRate)
     private val lead=instrument(resources,ReferenceInstrumentRegions.lead,outputRate)
+    private val flute=instrument(resources,ReferenceInstrumentRegions.flute,outputRate)
     fun instrument(index:Int,note:Int,age:Long):Double=when(index){
         1->organ.sample(note,age)
         2->lead.sample(note,age)
+        3->flute.sample(note,age)
         else->piano(note,age)
     }
     private fun load(resources:Resources,id:Int,rate:Int):ShortArray = resources.openRawResource(id).use { SampleResampler.toRate(SamplePcmDecoder.decode(it),rate) }
