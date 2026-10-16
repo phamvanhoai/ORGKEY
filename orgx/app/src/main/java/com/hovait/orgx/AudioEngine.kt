@@ -65,6 +65,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private data class Voice(
         val note:Int,
         val instrument:Int,
+        val playback:Boolean=false,
         var phase: Double = 0.0,
         var pendingSustain: Boolean = false,
         var releasing: Boolean = false,
@@ -127,20 +128,20 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
 
-    fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument,channel:Int=0) {
-        val key=MidiVoiceKey.key(note,channel)
+    fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument,channel:Int=0,playback:Boolean=false) {
+        val key=MidiVoiceKey.key(note,channel,playback)
         if (voices.size >= 24 && !voices.containsKey(key)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        voices[key] = Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),velocity = velocity.coerceIn(0.15f, 1f))
+        voices[key] = Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,velocity = velocity.coerceIn(0.15f, 1f))
         captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
     fun triggerSoundEffect(effect: SoundEffect) { sampleBank?.trigger(effect.key) }
     fun stopSoundEffects() { sampleBank?.trigger("") }
-    fun noteOff(note: Int,channel:Int=0) {
-        voices[MidiVoiceKey.key(note,channel)]?.let { voice ->
-            if (sustain && !MidiVoiceKey.percussion(channel)) voice.pendingSustain = true else voice.releasing = true
+    fun noteOff(note: Int,channel:Int=0,playback:Boolean=false) {
+        voices[MidiVoiceKey.key(note,channel,playback)]?.let { voice ->
+            if (sustain && !playback && !MidiVoiceKey.percussion(channel)) voice.pendingSustain = true else voice.releasing = true
         }
         captureMidi(0x80 or channel,note,0)
     }
@@ -171,13 +172,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         Thread.sleep(remaining/1_000_000,(remaining%1_000_000).toInt())
                     }
                     if(!midiSessionGate.runIfCurrent(session){
-                        if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel)
-                        else noteOff(event.note,event.channel)
+                        if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel,true)
+                        else noteOff(event.note,event.channel,true)
                     })return@thread
                 }
             } catch(_:InterruptedException){} finally {
                 midiSessionGate.runIfCurrent(session){
-                    voices.values.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()
+                    voices.values.filter{it.playback}.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()
                 }
             }
         }
@@ -186,7 +187,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Synchronized fun stopMidi(){
         val session=midiSessionGate.replace()
         midiPlaybackThread?.interrupt();midiPlaybackThread=null
-        midiSessionGate.runIfCurrent(session){voices.values.forEach{it.releasing=true}}
+        midiSessionGate.runIfCurrent(session){voices.values.filter{it.playback}.forEach{it.releasing=true}}
     }
 
     fun startRecording() {

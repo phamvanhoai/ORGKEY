@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiVoiceKeyTest {
+    @Test fun playbackAndLiveKeyboardNeverShareVoiceKeys() {
+        val live=(0..15).flatMap{channel->(0..127).map{MidiVoiceKey.key(it,channel)}}.toSet()
+        val playback=(0..15).flatMap{channel->(0..127).map{MidiVoiceKey.key(it,channel,true)}}.toSet()
+        assertTrue(live.intersect(playback).isEmpty())
+        assertEquals(4096,(live+playback).size)
+    }
     @Test fun allChannelsAndNotesHaveDistinctVoiceKeys() {
         val keys=(0..15).flatMap{channel->(0..127).map{MidiVoiceKey.key(it,channel)}}
         assertEquals(2048,keys.toSet().size)
