@@ -9,6 +9,7 @@ class NOpenSLBackend(
     private val bufferFrames: Int = 256,
     private val bufferCount: Int = 4
 ) : AudioBackend {
+    private companion object { val lease = NativeOutputLease() }
     private var started = false
     private var submittedSamples = 0L
 
@@ -17,7 +18,14 @@ class NOpenSLBackend(
         require(channels == 2 && sampleRate > 0)
         require(bufferFrames in 64..4096 && bufferCount in 3..8)
         check(NativeReferenceLoader.tryLoad()) { "reference native audio unavailable" }
-        check(NOpenSL.Start(null, sampleRate, bufferFrames, bufferCount, false)) { "NOpenSL.Start failed" }
+        check(lease.acquire(this)) { "NOpenSL output is still owned by another session" }
+        try {
+            check(NOpenSL.Start(null, sampleRate, bufferFrames, bufferCount, false)) { "NOpenSL.Start failed" }
+        } catch(error: Throwable) {
+            // Only this session can clean up a partially initialized native engine.
+            runCatching { NOpenSL.Stop() }.onSuccess { lease.release(this) }
+            throw error
+        }
         started = true
         submittedSamples = 0
     }
@@ -37,7 +45,10 @@ class NOpenSLBackend(
     override fun stop() {
         if (started) {
             runCatching { NOpenSL.Stop() }
-                .onSuccess { android.util.Log.i("ORGX-Audio", "NOpenSL stopped: $submittedSamples samples submitted") }
+                .onSuccess {
+                    lease.release(this)
+                    android.util.Log.i("ORGX-Audio", "NOpenSL stopped: $submittedSamples samples submitted")
+                }
                 .onFailure { android.util.Log.e("ORGX-Audio", "NOpenSL stop failed", it) }
         }
         started = false
