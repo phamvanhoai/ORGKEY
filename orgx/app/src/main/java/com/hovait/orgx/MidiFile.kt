@@ -35,7 +35,7 @@ object MidiFile {
                     status and 0xf0==0x80->{val note=dataByte();dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,note,0,false,status and 15)}
                     status and 0xf0==0x90->{val note=dataByte();val velocity=dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,note,velocity,velocity>0,status and 15)}
                     status and 0xf0==0xb0->{val controller=dataByte();val value=dataByte()
-                        if(controller==64){noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,0,value,false,status and 15,controller=64)}
+                        if(controller in setOf(64,121,123)){noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,0,value,false,status and 15,controller=controller)}
                     }
                     status and 0xf0 in setOf(0xa0,0xe0)->{dataByte();dataByte()}
                     status and 0xf0==0xc0->{val program=dataByte();require(program<128);programs+=Program(tick,status and 15,program,eventOrder)}

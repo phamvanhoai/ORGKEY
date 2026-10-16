@@ -5,12 +5,23 @@ object MidiSustain {
     fun resolve(events:List<MidiNoteEvent>):List<MidiNoteEvent> {
         val pedal=BooleanArray(16)
         val pending=LinkedHashMap<Int,MidiNoteEvent>()
+        val active=LinkedHashMap<Int,MidiNoteEvent>()
         val result=mutableListOf<MidiNoteEvent>()
         events.forEach{event->
             val channel=event.channel
             val key=MidiVoiceKey.key(event.note,channel)
-            if(event.controller==64){
-                pedal[channel]=event.velocity>=64
+            if(event.controller==123){
+                val iterator=active.entries.iterator()
+                while(iterator.hasNext()){
+                    val entry=iterator.next()
+                    if(entry.value.channel==channel){
+                        val off=entry.value.copy(tick=event.tick,on=false,velocity=0)
+                        if(pedal[channel] && !MidiVoiceKey.percussion(channel))pending[entry.key]=off else result+=off
+                        iterator.remove()
+                    }
+                }
+            } else if(event.controller==64 || event.controller==121){
+                pedal[channel]=event.controller==64 && event.velocity>=64
                 if(!pedal[channel]){
                     val iterator=pending.entries.iterator()
                     while(iterator.hasNext()){
@@ -20,9 +31,13 @@ object MidiSustain {
                 }
             } else if(event.on){
                 pending.remove(key)?.let{result+=it.copy(tick=event.tick)}
+                active[key]=event
                 result+=event
-            } else if(pedal[channel] && !MidiVoiceKey.percussion(channel))pending[key]=event
-            else result+=event
+            } else {
+                active.remove(key)
+                if(pedal[channel] && !MidiVoiceKey.percussion(channel))pending[key]=event
+                else result+=event
+            }
         }
         val end=events.lastOrNull()?.tick ?: 0L
         result+=pending.values.map{it.copy(tick=end)}
