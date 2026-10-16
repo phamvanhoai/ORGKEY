@@ -29,6 +29,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var bpm = 120
     @Volatile var instrument = 0
     @Volatile var chordIndex = 0
+    @Volatile var referenceChords: List<PlayableChord> = emptyList()
     @Volatile var autoChord = false
     @Volatile var progression = 0
     @Volatile var rhythmStyle = 0
@@ -254,7 +255,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val beatFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240)).toLong().coerceAtLeast(1)
         val bar = (transportFrame / (beatFrames * 4)).toInt()
         val activeChord = if (autoChord) progressions[progression.coerceIn(0, 2)][bar % 4] else chordIndex
-        val notes = chords[activeChord.coerceIn(0, chords.lastIndex)]
+        val notes = if (!autoChord && referenceChords.isNotEmpty()) {
+            referenceChords[activeChord.coerceIn(0, referenceChords.lastIndex)].notes.toIntArray()
+        } else chords[activeChord.coerceIn(0, chords.lastIndex)]
+        if (notes.isEmpty()) return 0.0
         val time = transportFrame.toDouble() / sampleRate
         return notes.sumOf { note ->
             val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)

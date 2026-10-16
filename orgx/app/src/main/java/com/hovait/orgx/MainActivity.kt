@@ -1,5 +1,8 @@
 package com.hovait.orgx
 
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+
 import android.content.SharedPreferences
 import android.content.Intent
 import android.media.MediaPlayer
@@ -61,8 +64,10 @@ private fun ORGXApp(engine: AudioEngine) {
     val context = LocalContext.current
     val preferences = remember { context.getSharedPreferences("orgx-settings", 0) }
     val builtInChordNames = listOf("C","Dm","Em","F","G","Am","Bdim","C7","D7","E7","Fmaj7","G7")
-    val chordNames = remember { runCatching { ReferenceAssetStore(context).chordNames() }.getOrDefault(emptyList()) }
-        .ifEmpty { builtInChordNames }
+    val playableChords = remember { runCatching {
+        context.assets.open("Chord").bufferedReader().use { PlayableChordLibrary.fromTable(it.readText()) }
+    }.getOrDefault(emptyList()) }
+    val chordNames = playableChords.map { it.name }.ifEmpty { builtInChordNames }
     var octave by remember { mutableIntStateOf(preferences.getInt("octave", 4)) }
     var bpm by remember { mutableIntStateOf(preferences.getInt("bpm", 120)) }
     var playing by remember { mutableStateOf(false) }
@@ -89,6 +94,7 @@ private fun ORGXApp(engine: AudioEngine) {
         }.onFailure{Toast.makeText(context,"Invalid or unsupported MIDI",Toast.LENGTH_LONG).show()}
     }
     LaunchedEffect(Unit) {
+        engine.referenceChords = playableChords
         engine.bpm = bpm; engine.instrument = instrument; engine.chordIndex = chord; engine.rhythmStyle = style;engine.effectType=effect
         engine.autoChord=autoChord;engine.progression=progression
         engine.masterVolume=preferences.getFloat("masterVolume",0.65f);engine.keysVolume=preferences.getFloat("keysVolume",0.78f)
@@ -133,7 +139,7 @@ private fun ORGXApp(engine: AudioEngine) {
             if (showSets) SetMemoryDialog(preferences, octave, bpm, instrument, chord, style, effect, engine,
                 onLoad = { loadedOctave, loadedBpm, loadedInstrument, loadedChord, loadedStyle, loadedEffect, loadedVolume ->
                     octave = loadedOctave; bpm = loadedBpm; instrument = loadedInstrument
-                    chord = loadedChord; style = loadedStyle; effect=loadedEffect;engine.bpm = bpm
+                    chord = loadedChord.coerceIn(0, chordNames.lastIndex); style = loadedStyle; effect=loadedEffect;engine.bpm = bpm
                     engine.instrument = instrument; engine.chordIndex = chord
                     engine.rhythmStyle = style;engine.effectType=effect; engine.masterVolume = loadedVolume
                 }, onDismiss = { showSets = false })
@@ -144,7 +150,7 @@ private fun ORGXApp(engine: AudioEngine) {
             if(showPads) PadDialog(engine,onDismiss={showPads=false})
             if(showFiles) RecordingDialog(engine,onDismiss={showFiles=false})
             if(showProjects) ProjectDialog(ProjectStore(context),ProjectState(octave,bpm,instrument,chord,style,effect,autoChord,progression,engine.masterVolume,engine.keysVolume,engine.chordVolume,engine.drumsVolume,engine.effectMix),onLoad={project->
-                octave=project.octave;bpm=project.bpm;instrument=project.instrument;chord=project.chord;style=project.style;effect=project.effect;autoChord=project.autoChord;progression=project.progression
+                octave=project.octave;bpm=project.bpm;instrument=project.instrument;chord=project.chord.coerceIn(0, chordNames.lastIndex);style=project.style;effect=project.effect;autoChord=project.autoChord;progression=project.progression
                 engine.bpm=bpm;engine.instrument=instrument;engine.chordIndex=chord;engine.rhythmStyle=style;engine.effectType=effect;engine.autoChord=autoChord;engine.progression=progression
                 engine.masterVolume=project.master;engine.keysVolume=project.keys;engine.chordVolume=project.chords;engine.drumsVolume=project.drums;engine.effectMix=project.effectMix
             },onDismiss={showProjects=false})
@@ -285,7 +291,7 @@ private fun ORGXApp(engine: AudioEngine) {
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
 @Composable private fun ChordDialog(names:List<String>,selected:Int,autoChord:Boolean,progression:Int,onSelect:(Int)->Unit,onAuto:(Boolean,Int)->Unit,onDismiss:()->Unit){
-    AlertDialog(onDismissRequest=onDismiss,title={Text("Chord library")},text={Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
+    AlertDialog(onDismissRequest=onDismiss,title={Text("Chord library")},text={Column(modifier=Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(6.dp)){
         Text("AUTO CHORD",fontWeight=FontWeight.Bold)
         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Pop","Ballad","Dance").forEachIndexed{index,name->FilterChip(selected=autoChord&&progression==index,onClick={onAuto(true,index)},label={Text(name)},modifier=Modifier.weight(1f))}}
         Text("MANUAL",fontWeight=FontWeight.Bold)
