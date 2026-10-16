@@ -60,7 +60,9 @@ class MainActivity : ComponentActivity() {
 private fun ORGXApp(engine: AudioEngine) {
     val context = LocalContext.current
     val preferences = remember { context.getSharedPreferences("orgx-settings", 0) }
-    val chordNames = listOf("C","Dm","Em","F","G","Am","Bdim","C7","D7","E7","Fmaj7","G7")
+    val builtInChordNames = listOf("C","Dm","Em","F","G","Am","Bdim","C7","D7","E7","Fmaj7","G7")
+    val chordNames = remember { runCatching { ReferenceAssetStore(context).chordNames() }.getOrDefault(emptyList()) }
+        .ifEmpty { builtInChordNames }
     var octave by remember { mutableIntStateOf(preferences.getInt("octave", 4)) }
     var bpm by remember { mutableIntStateOf(preferences.getInt("bpm", 120)) }
     var playing by remember { mutableStateOf(false) }
