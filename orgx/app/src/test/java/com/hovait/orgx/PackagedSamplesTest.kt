@@ -38,7 +38,7 @@ class PackagedSamplesTest {
     @Test fun allPackagedWavesDecodeAndKeepDurationAtOutputRate() {
         val directory=File(requireNotNull(System.getProperty("orgx.sampleDirectory")))
         val files=requireNotNull(directory.listFiles { file -> file.extension=="wav" })
-        assertEquals(131,files.size)
+        assertEquals(172,files.size)
         files.forEach { file ->
             val sample=file.inputStream().use(SamplePcmDecoder::decode)
             assertTrue(file.name,sample.frames.isNotEmpty())

@@ -8,12 +8,18 @@ class SampleBank(resources:Resources, outputRate:Int=48000) {
     private val drumPads=ReferenceDrumPads.entries.map { region->
         region to resources.openRawResource(region.resource).use { SampleResampler.toRate(SamplePcmDecoder.decode(it),outputRate) }
     }
-    fun padLength(pad:Int)=drumPads[pad].second.size
-    fun pad(pad:Int,age:Int,channel:Int):Double {
-        val (region,frames)=drumPads[pad]
+    private val drumsByNote=drumPads.associateBy{it.first.note}
+    fun drumLength(note:Int)=drumsByNote[note]?.second?.size ?: 0
+    fun drum(note:Int,age:Int,channel:Int):Double {
+        require(channel in 0..1)
+        val (region,frames)=drumsByNote[note] ?: return 0.0
         if(age !in frames.indices)return 0.0
         val panGain=if(channel==0)minOf(100,100-region.pan) else minOf(100,100+region.pan)
         return frames[age]/32768.0*region.gain*panGain/100
+    }
+    fun padLength(pad:Int)=drumPads[pad].second.size
+    fun pad(pad:Int,age:Int,channel:Int):Double {
+        return drum(drumPads[pad].first.note,age,channel)
     }
     private fun instrument(resources:Resources,regions:List<ReferenceRegion>,rate:Int)=SampledInstrument(regions.map{region->
         InstrumentRegion(region.root,resources.openRawResource(region.resource).use(SamplePcmDecoder::decode),region.loopStart,region.loopEnd,region.gain)
