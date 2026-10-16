@@ -54,6 +54,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private var noiseState = 0x13579BDF
     private val stereoEffect = StereoEffect(sampleRate)
     private val padAges = AtomicIntegerArray(8).apply { for (i in 0 until length()) set(i, -1) }
+    private val rhythmAges=IntArray(3){-1}
+    private val rhythmGains=DoubleArray(3)
 
     private data class Voice(
         val note:Int,
@@ -220,13 +222,20 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private fun rhythmSample(): Double {
-        if (!rhythmPlaying) return 0.0
+        if (!rhythmPlaying) { rhythmAges.fill(-1);return 0.0 }
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)
         val step = ((transportFrame / stepFrames) % 8).toInt()
         val stepOffset = transportFrame % stepFrames
         if(stepOffset==0L)sampleBank?.triggerMetronome(transportFrame==0L)
         val position = stepOffset.toDouble() / sampleRate
         transportFrame++
+        if(sampleBank!=null){
+            if(stepOffset==0L)for(pad in 0..2){
+                val gain=RhythmPattern.gain(rhythmStyle,pad,step)
+                if(gain>0){rhythmAges[pad]=0;rhythmGains[pad]=gain}
+            }
+            return 0.0
+        }
 
         noiseState = noiseState * 1664525 + 1013904223
         val noise = ((noiseState ushr 8) / 8388607.5) - 1.0
@@ -316,7 +325,16 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     val age=padAges.get(pad)
                     if(age>=0){padLeft+=bank.pad(pad,age,0);padRight+=bank.pad(pad,age,1)
                         padAges.compareAndSet(pad,age,if(age+1>=bank.padLength(pad))-1 else age+1)}
-                } }
+                }
+                    for(pad in 0..2){
+                        val age=rhythmAges[pad]
+                        if(age>=0){
+                            padLeft+=bank.pad(pad,age,0)*rhythmGains[pad]
+                            padRight+=bank.pad(pad,age,1)*rhythmGains[pad]
+                            rhythmAges[pad]=if(age+1>=bank.padLength(pad))-1 else age+1
+                        }
+                    }
+                }
                 stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume,
                     mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume,effectType,effectMix)
                 fun pcm(value:Double)=(value * masterVolume * Short.MAX_VALUE)
