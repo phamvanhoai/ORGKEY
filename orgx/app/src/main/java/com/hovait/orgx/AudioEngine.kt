@@ -19,8 +19,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val sampleRate = 48_000
     @Volatile var outputStatus: String = "Starting"
         private set
-    private val chordVoices: Array<(Int,Long)->Double> = Array(InstrumentCatalog.names.size){index->
-        {note,age->sampleBank?.instrument(index,note,age) ?: 0.0}
+    private val chordVoices: Array<Array<(Int,Long)->Double>> = Array(2){channel->Array(InstrumentCatalog.names.size){index->
+        {note,age->sampleBank?.instrument(index,note,age,channel) ?: 0.0}
+    }
     }
     private val voices = ConcurrentHashMap<Int, Voice>()
     private val outputLoop: AudioOutputLoop
@@ -267,7 +268,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         return result
     }
 
-    private fun accompanimentSample(): Double {
+    private fun accompanimentSample(channel:Int): Double {
         if (!rhythmPlaying) return 0.0
         val beatFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240)).toLong().coerceAtLeast(1)
         val bar = (transportFrame / (beatFrames * 4)).toInt()
@@ -277,14 +278,15 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             library[activeChord.coerceIn(0, library.lastIndex)].renderNotes
         } else accompanimentChords[activeChord.coerceIn(0, accompanimentChords.lastIndex)]
         return if (sampleBank != null) {
-            ChordSignal.sampled(notes, transportFrame % beatFrames, beatFrames, sampleRate,chordVoices[InstrumentCatalog.validIndex(instrument)])
+            ChordSignal.sampled(notes, transportFrame % beatFrames, beatFrames, sampleRate,chordVoices[channel][InstrumentCatalog.validIndex(instrument)])
         } else ChordSignal.sample(notes, transportFrame, sampleRate)
     }
 
     private fun renderBlock(output: ShortArray) {
         val frames = output.size / 2
             for (frame in 0 until frames) {
-                var mixed = 0.0
+                var mixedLeft = 0.0
+                var mixedRight = 0.0
                 voices.forEach { (note, voice) ->
                     val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)
                     val sample = sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames) ?: when (voice.instrument) {
@@ -292,21 +294,24 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         2 -> sin(voice.phase) * 0.55 + sin(voice.phase * 2.0) * 0.25 + sin(voice.phase * 3.0) * 0.12 + sin(voice.phase * 5.0) * 0.08
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
                     }
+                    val sampleRight=sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames,1) ?: sample
                     if (voice.releasing) voice.gain -= 1f / (sampleRate * 0.12f)
                     else if (voice.gain < 1f) voice.gain = (voice.gain + 1f / (sampleRate * 0.008f)).coerceAtMost(1f)
                     val naturalDecay = if (voice.instrument == 0) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
-                    mixed += sample * voice.gain.coerceAtLeast(0f) * voice.velocity * naturalDecay
+                    val gain=voice.gain.coerceAtLeast(0f)*voice.velocity*naturalDecay
+                    mixedLeft += sample*gain
+                    mixedRight += sampleRight*gain
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
                     if (voice.gain <= 0f && voice.releasing) voices.remove(note, voice)
                 }
-                val synth = mixed / voices.size.coerceAtLeast(1)
+                val count=voices.size.coerceAtLeast(1)
                 val rhythm = rhythmSample() + padSample()
-                val accompaniment = accompanimentSample()
-                val mixedOutput = synth * keysVolume + accompaniment * chordVolume + rhythm * drumsVolume
+                val mixedOutputLeft = mixedLeft/count * keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
+                val mixedOutputRight = mixedRight/count * keysVolume + accompanimentSample(1) * chordVolume + rhythm * drumsVolume
                 val sound = sampleBank?.nextStereo() ?: 0L
-                stereoEffect.process(mixedOutput + StereoSample.left(sound)*drumsVolume,
-                    mixedOutput + StereoSample.right(sound)*drumsVolume,effectType,effectMix)
+                stereoEffect.process(mixedOutputLeft + StereoSample.left(sound)*drumsVolume,
+                    mixedOutputRight + StereoSample.right(sound)*drumsVolume,effectType,effectMix)
                 fun pcm(value:Double)=(value * masterVolume * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
                 output[frame * 2] = pcm(stereoEffect.left)

@@ -104,4 +104,13 @@ object ReferenceInstrumentRegions {
         ReferenceRegion(96,R.raw.orgx_violin_zone_96,7743,81601,1.0),
         ReferenceRegion(99,R.raw.orgx_violin_zone_99,5712,85166,1.0),
     )
+    val strings=listOf(
+        ReferenceRegion(40,R.raw.orgx_strings_zone_40,17224,48000,2.5),
+        ReferenceRegion(48,R.raw.orgx_strings_zone_48,15486,48000,2.5),
+        ReferenceRegion(57,R.raw.orgx_strings_zone_57,12958,48000,2.5),
+        ReferenceRegion(65,R.raw.orgx_strings_zone_65,21174,42944,2.5),
+        ReferenceRegion(75,R.raw.orgx_strings_zone_75,15012,42944,2.5),
+        ReferenceRegion(82,R.raw.orgx_strings_zone_82,14696,43260,2.5),
+        ReferenceRegion(92,R.raw.orgx_strings_zone_92,18518,35427,2.5),
+    )
 }

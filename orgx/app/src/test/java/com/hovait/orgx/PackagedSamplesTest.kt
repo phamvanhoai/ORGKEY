@@ -11,7 +11,7 @@ class PackagedSamplesTest {
         val instruments=listOf("organ" to ReferenceInstrumentRegions.organ,
             "lead" to ReferenceInstrumentRegions.lead,"flute" to ReferenceInstrumentRegions.flute,
             "bass" to ReferenceInstrumentRegions.bass,"choir" to ReferenceInstrumentRegions.choir,
-            "violin" to ReferenceInstrumentRegions.violin)
+            "violin" to ReferenceInstrumentRegions.violin,"strings" to ReferenceInstrumentRegions.strings)
         instruments.forEach{(name,definitions)->
             val regions=definitions.map { definition ->
                 val pcm=File(directory,"orgx_${name}_zone_${definition.root}.wav").inputStream().use(SamplePcmDecoder::decode)
@@ -38,7 +38,7 @@ class PackagedSamplesTest {
     @Test fun allPackagedWavesDecodeAndKeepDurationAtOutputRate() {
         val directory=File(requireNotNull(System.getProperty("orgx.sampleDirectory")))
         val files=requireNotNull(directory.listFiles { file -> file.extension=="wav" })
-        assertEquals(116,files.size)
+        assertEquals(123,files.size)
         files.forEach { file ->
             val sample=file.inputStream().use(SamplePcmDecoder::decode)
             assertTrue(file.name,sample.frames.isNotEmpty())

@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun stereoRegionKeepsOppositeChannelsDuringPitchingAndLooping() {
+        val pcm=SamplePcm(48000,2,shortArrayOf(0,0,0),shortArrayOf(1000,-1000,2000,-2000,3000,-3000))
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,pcm,1,3)),48000)
+        assertEquals(2000.0/32768,instrument.sample(60,3,0),1e-9)
+        assertEquals(-2000.0/32768,instrument.sample(60,3,1),1e-9)
+        assertEquals(1500.0/32768,instrument.sample(48,1,0),1e-9)
+        assertEquals(-1500.0/32768,instrument.sample(48,1,1),1e-9)
+    }
     @Test fun regionGainAppliesBeforeOutputMixing() {
         val instrument=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(48000,1,shortArrayOf(10000,10000)),0,2,0.54)),48000)

@@ -14,13 +14,15 @@ class SampleBank(resources:Resources, outputRate:Int=48000) {
     private val bass=instrument(resources,ReferenceInstrumentRegions.bass,outputRate)
     private val choir=instrument(resources,ReferenceInstrumentRegions.choir,outputRate)
     private val violin=instrument(resources,ReferenceInstrumentRegions.violin,outputRate)
-    fun instrument(index:Int,note:Int,age:Long):Double=when(index){
-        1->organ.sample(note,age)
-        2->lead.sample(note,age)
-        3->flute.sample(note,age)
-        4->bass.sample(note,age)
-        5->choir.sample(note,age)
-        6->violin.sample(note,age)
+    private val strings=instrument(resources,ReferenceInstrumentRegions.strings,outputRate)
+    fun instrument(index:Int,note:Int,age:Long,channel:Int=0):Double=when(index){
+        1->organ.sample(note,age,channel)
+        2->lead.sample(note,age,channel)
+        3->flute.sample(note,age,channel)
+        4->bass.sample(note,age,channel)
+        5->choir.sample(note,age,channel)
+        6->violin.sample(note,age,channel)
+        7->strings.sample(note,age,channel)
         else->piano(note,age)
     }
     private fun load(resources:Resources,id:Int,rate:Int):ShortArray = resources.openRawResource(id).use { SampleResampler.toRate(SamplePcmDecoder.decode(it),rate) }
