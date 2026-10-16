@@ -33,3 +33,6 @@ AudioOutputLoop đã có đường nhận AudioBackend; constructor callback cũ
 
 
 AudioEngine hiện đã dùng AudioTrackBackend qua AudioOutputLoop(backend=...); backend native chỉ cần triển khai cùng contract. Ứng dụng đã cài và khởi chạy lại trên thiết bị sau thay đổi.
+
+
+Kiểm tra thiết bị 2026-10-17: About dialog hiển thị Native audio: loaded, nên các thư viện reference đã load được trên ABI của thiết bị. AudioEngine vẫn render bằng AudioTrack; chưa gọi JNI NOpenSL/MixWrite của APK gốc, vì package/signature wrapper chưa được tái tạo.
