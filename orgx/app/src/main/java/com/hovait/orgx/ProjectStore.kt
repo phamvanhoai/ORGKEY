@@ -15,6 +15,7 @@ data class ProjectState(
 )
 
 class ProjectStore(context:Context){
+    private val styleCount=runCatching{ReferenceDrumStore.playableVariations(context.assets).size}.getOrDefault(3).coerceAtLeast(1)
     private val chordLibrary = runCatching {
         context.assets.open("Chord").bufferedReader().use { PlayableChordLibrary.fromTable(it.readText()) }
     }.getOrDefault(emptyList())
@@ -42,6 +43,6 @@ class ProjectStore(context:Context){
         } else json.optString("chordName")
         val restoredChord = chordLibrary.indexOfFirst { it.name == savedName }.takeIf { it >= 0 }
             ?: json.optInt("chord").coerceIn(0, (chordLibrary.size - 1).coerceAtLeast(0))
-        return ProjectState(json.getInt("octave").coerceIn(1,7),json.getInt("bpm").coerceIn(40,240),InstrumentCatalog.validIndex(json.getInt("instrument")),restoredChord,json.getInt("style").coerceIn(0,2),json.getInt("effect").coerceIn(0,2),json.optBoolean("autoChord"),json.optInt("progression").coerceIn(0,2),json.optDouble("master",.65).toFloat().coerceIn(0f,1f),json.optDouble("keys",.78).toFloat().coerceIn(0f,1f),json.optDouble("chords",.22).toFloat().coerceIn(0f,1f),json.optDouble("drums",.55).toFloat().coerceIn(0f,1f),json.optDouble("effectMix",.28).toFloat().coerceIn(0f,1f))
+        return ProjectState(json.getInt("octave").coerceIn(1,7),json.getInt("bpm").coerceIn(40,240),InstrumentCatalog.validIndex(json.getInt("instrument")),restoredChord,json.getInt("style").coerceIn(0,styleCount-1),json.getInt("effect").coerceIn(0,2),json.optBoolean("autoChord"),json.optInt("progression").coerceIn(0,2),json.optDouble("master",.65).toFloat().coerceIn(0f,1f),json.optDouble("keys",.78).toFloat().coerceIn(0f,1f),json.optDouble("chords",.22).toFloat().coerceIn(0f,1f),json.optDouble("drums",.55).toFloat().coerceIn(0f,1f),json.optDouble("effectMix",.28).toFloat().coerceIn(0f,1f))
     }
 }

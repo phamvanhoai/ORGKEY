@@ -78,7 +78,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var sustain by remember { mutableStateOf(false) }
     var instrument by remember { mutableIntStateOf(InstrumentCatalog.validIndex(preferences.getInt("instrument", 0))) }
     var chord by remember { mutableIntStateOf(ChordSelection.resolve(chordNames, preferences.getString("chordName", null), preferences.getInt("chord", 0))) }
-    var style by remember { mutableIntStateOf(preferences.getInt("style", 0).coerceIn(0, 2)) }
+    var style by remember { mutableIntStateOf(preferences.getInt("style", 0).coerceIn(engine.styleNames.indices)) }
     var effect by remember { mutableIntStateOf(preferences.getInt("effect", 0).coerceIn(0, 2)) }
     var autoChord by remember { mutableStateOf(preferences.getBoolean("autoChord",false)) }
     var progression by remember { mutableIntStateOf(preferences.getInt("progression",0).coerceIn(0,2)) }
@@ -131,7 +131,7 @@ private fun ORGXApp(engine: AudioEngine) {
                         onChord = { showChords = true },
                         onMixer = { showMixer = true }, modifier = Modifier.weight(1f))
                     val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
-                    StatusPanel(bpm, octave, playing, chordDisplay, listOf("Reference 1", "Reference 2", "Reference 3")[style], InstrumentCatalog.names[instrument], modifier = Modifier.weight(1.3f))
+                    StatusPanel(bpm, octave, playing, chordDisplay, engine.styleNames[style], InstrumentCatalog.names[instrument], modifier = Modifier.weight(1.3f))
                 }
                 PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth())
             }
@@ -143,7 +143,7 @@ private fun ORGXApp(engine: AudioEngine) {
             if (showSets) SetMemoryDialog(chordNames, preferences, octave, bpm, instrument, chord, style, effect, engine,
                 onLoad = { loadedOctave, loadedBpm, loadedInstrument, loadedChord, loadedStyle, loadedEffect, loadedVolume ->
                     octave = loadedOctave; bpm = loadedBpm; instrument = InstrumentCatalog.validIndex(loadedInstrument)
-                    chord = loadedChord.coerceIn(0, chordNames.lastIndex); style = loadedStyle; effect=loadedEffect;engine.bpm = bpm
+                    chord = loadedChord.coerceIn(0, chordNames.lastIndex); style = loadedStyle.coerceIn(engine.styleNames.indices); effect=loadedEffect;engine.bpm = bpm
                     engine.instrument = instrument; engine.chordIndex = chord
                     engine.rhythmStyle = style;engine.effectType=effect; engine.masterVolume = loadedVolume
                 }, onDismiss = { showSets = false })
@@ -154,7 +154,7 @@ private fun ORGXApp(engine: AudioEngine) {
             if(showPads) PadDialog(engine,onDismiss={showPads=false})
             if(showFiles) RecordingDialog(engine,onDismiss={showFiles=false})
             if(showProjects) ProjectDialog(ProjectStore(context),ProjectState(octave,bpm,instrument,chord,style,effect,autoChord,progression,engine.masterVolume,engine.keysVolume,engine.chordVolume,engine.drumsVolume,engine.effectMix),onLoad={project->
-                octave=project.octave;bpm=project.bpm;instrument=project.instrument;chord=project.chord.coerceIn(0, chordNames.lastIndex);style=project.style;effect=project.effect;autoChord=project.autoChord;progression=project.progression
+                octave=project.octave;bpm=project.bpm;instrument=project.instrument;chord=project.chord.coerceIn(0, chordNames.lastIndex);style=project.style.coerceIn(engine.styleNames.indices);effect=project.effect;autoChord=project.autoChord;progression=project.progression
                 engine.bpm=bpm;engine.instrument=instrument;engine.chordIndex=chord;engine.rhythmStyle=style;engine.effectType=effect;engine.autoChord=autoChord;engine.progression=progression
                 engine.masterVolume=project.master;engine.keysVolume=project.keys;engine.chordVolume=project.chords;engine.drumsVolume=project.drums;engine.effectMix=project.effectMix
             },onDismiss={showProjects=false})
@@ -278,7 +278,8 @@ private fun ORGXApp(engine: AudioEngine) {
                 items.forEach{item->FilterChip(selected=instrument==item.index,onClick={onInstrument(item.index)},label={Text(item.value)},modifier=Modifier.weight(1f).heightIn(min=48.dp))}
             }
         }
-        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("STYLE",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Ref 1","Ref 2","Ref 3").forEachIndexed{index,name->FilterChip(selected=style==index,onClick={onStyle(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
+        Text("DRUM STYLE",fontWeight=FontWeight.Bold)
+        engine.styleNames.forEachIndexed{index,name->FilterChip(selected=style==index,onClick={onStyle(index)},label={Text(name)},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp))}
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("FX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Dry","Delay","Reverb").forEachIndexed{index,name->FilterChip(selected=effect==index,onClick={onEffect(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("MIX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Column(Modifier.weight(1f)){Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Keys","Chord","Drums").forEachIndexed{index,name->FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}};Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Master","FX").forEachIndexed{offset,name->val index=offset+3;FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}}}}
         val level=when(mixChannel){0->keys;1->chords;2->drums;3->master;else->fx}
