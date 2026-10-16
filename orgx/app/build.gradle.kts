@@ -21,6 +21,7 @@ android {
         it.systemProperty("orgx.chordTable", file("src/main/assets/Chord").absolutePath)
         it.systemProperty("orgx.sampleDirectory", file("src/main/res/raw").absolutePath)
         it.systemProperty("orgx.midiDemo", file("../../analysis/previews/ORGX-midi-integration.mid").absolutePath)
+        it.systemProperty("orgx.referenceAssets", file("src/main/assets").absolutePath)
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

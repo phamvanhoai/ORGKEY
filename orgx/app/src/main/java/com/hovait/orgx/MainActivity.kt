@@ -38,6 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.io.File
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 private val Bg = Color(0xFF0F0F23)
 private val Panel = Color(0xFF1B1B30)
@@ -307,8 +310,32 @@ private fun ORGXApp(engine: AudioEngine) {
     }},confirmButton={TextButton(onClick=onDismiss){Text("BACK TO MIXER")}})
 }
 @Composable private fun SetMemoryDialog(chordNames:List<String>,preferences:SharedPreferences,octave:Int,bpm:Int,instrument:Int,chord:Int,style:Int,effect:Int,engine:AudioEngine,onLoad:(Int,Int,Int,Int,Int,Int,Float)->Unit,onDismiss:()->Unit){
+    val context=LocalContext.current
+    val store=remember{ReferenceSetStore(File(context.filesDir,"ReferenceSets"))}
+    val scope=rememberCoroutineScope()
+    var imported by remember{mutableStateOf(store.list())}
+    var importing by remember{mutableStateOf(false)}
+    var importStatus by remember{mutableStateOf("")}
+    val picker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
+        if(uri!=null)scope.launch{
+            importing=true
+            try {
+                val result=withContext(Dispatchers.IO){
+                    context.contentResolver.openInputStream(uri)?.use{store.import(it)} ?: error("Cannot open SET")
+                }
+                imported=store.list()
+                importStatus="Imported ${result.second.version}: ${result.second.waves} waves. Playback not connected yet."
+            } catch(error:Exception){importStatus=error.message ?: "SET import failed"}
+            finally{importing=false}
+        }
+    }
     var revision by remember{mutableIntStateOf(0)}
-    AlertDialog(onDismissRequest=onDismiss,title={Text("SET memory")},text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
+    AlertDialog(onDismissRequest=onDismiss,title={Text("SET memory")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)){
+        OutlinedButton(enabled=!importing,onClick={picker.launch(arrayOf("*/*"))},modifier=Modifier.fillMaxWidth()){
+            Text(if(importing)"IMPORTING…" else "IMPORT SET / TEMPLATE")
+        }
+        Text("Imported files: ${imported.size}. Import checks header and wave bank; instruments/styles are not activated yet.",fontSize=12.sp)
+        if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)
         repeat(3){index->
             val slot=index+1;val exists=preferences.getBoolean("set${slot}_saved",false);revision
             Row(Modifier.fillMaxWidth().background(Muted,RoundedCornerShape(8.dp)).padding(horizontal=10.dp),verticalAlignment=Alignment.CenterVertically){
