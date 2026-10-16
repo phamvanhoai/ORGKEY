@@ -1,0 +1,26 @@
+﻿{
+    "app_version":  "1.19.0",
+    "passed":  true,
+    "sample_rate":  48000,
+    "channels":  2,
+    "measurements":  [
+                         {
+                             "segment":  "left",
+                             "left_rms":  4163.758289611148,
+                             "right_rms":  0.0
+                         },
+                         {
+                             "segment":  "center",
+                             "left_rms":  4163.758289611148,
+                             "right_rms":  4163.758289611148
+                         },
+                         {
+                             "segment":  "right",
+                             "left_rms":  0.0,
+                             "right_rms":  4163.758289611148
+                         }
+                     ],
+    "verification_date":  "2026-10-17",
+    "apk_sha256":  "28555F011DD2C2703FCB270A5B9627EE0D9F7CDAE7355CD775DE7B44412ECA2D",
+    "wav_sha256":  "55F9DCCC65E0837D7AC281D1EADBE4524FF03025141DB98E5B73EE4A69596C7D"
+}

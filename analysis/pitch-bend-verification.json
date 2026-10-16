@@ -1,0 +1,41 @@
+﻿{
+    "passed":  true,
+    "method":  "upward zero crossings; ORGX Grand; 0.5-second windows; tolerance 5 cents",
+    "sample_rate":  48000,
+    "channels":  2,
+    "duration_seconds":  34.40533333333333,
+    "transpose":  1,
+    "measurements":  [
+                         {
+                             "bend_semitones":  0,
+                             "expected_hz":  466.1637615180899,
+                             "measured_hz":  466.163768524933,
+                             "matching_windows":  9,
+                             "error_cents":  2.602193969258421E-05
+                         },
+                         {
+                             "bend_semitones":  2,
+                             "expected_hz":  523.2511306011972,
+                             "measured_hz":  523.2511286133513,
+                             "matching_windows":  10,
+                             "error_cents":  -6.57700756773872E-06
+                         },
+                         {
+                             "bend_semitones":  -2,
+                             "expected_hz":  415.3046975799451,
+                             "measured_hz":  415.3047012858355,
+                             "matching_windows":  10,
+                             "error_cents":  1.5448328964842697E-05
+                         }
+                     ],
+    "app_version":  "1.17.0",
+    "verification_date":  "2026-10-17",
+    "apk_sha256":  "A7D51842D93E15E518BFBE6CC5119A3411A40A9BC75E27256C5F5EBB709E4C45",
+    "wav_sha256":  "195FE2378FB024E0C2DA311328604FD6D36E956B73C826168A61488CE31D5928",
+    "recorded_midi_bends":  [
+                                16383,
+                                0,
+                                8192,
+                                8192
+                            ]
+}

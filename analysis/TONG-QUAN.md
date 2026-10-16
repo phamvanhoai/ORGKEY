@@ -200,3 +200,13 @@ Script chọn JDK và JAR trong `%LOCALAPPDATA%\rea\android`, dùng REA phiên b
 - `archive-inventory.csv`: danh mục file và kích thước trong APK.
 
 Đã xác minh cấu trúc chữ ký v2 và certificate của Sofeh Sunrise; chưa xác minh nguồn gốc chuỗi phân phối từ APKPure. Đã phân tích mã máy cho toàn bộ bề mặt JNI `sofeh` trên bốn ABI, phân loại riêng 118 byte dữ liệu/padding ARM32, kiểm kê mọi ELF bên thứ ba và chạy đúng APK trên thiết bị. Runtime đã xác nhận khởi động, output OpenSL, thu microphone và monitor output; nội dung/đích mạng, từng chế độ độ trễ và toàn bộ hàm nội bộ SDK bên thứ ba chưa được phân tích động đầy đủ.
+
+## Trạng thái tái dựng ORGX
+
+Bản dựng lại nằm trong thư mục `../orgx` và hiện phát hành ORGX 1.23.1. Các phần đã triển khai gồm bàn phím cảm ứng, 10 nhạc cụ, rhythm/chord/sequencer/pad, mixer và FX, WAV/MIDI/MP3, project/SET, COUNT-IN, sustain, pitch bend, CC7/CC10/CC11, Program Change GM, safety controller và GM drums channel 10.
+
+Đã kiểm chứng trên thiết bị thật: khởi động, thu WAV/MIDI, COUNT-IN, tự lưu khi chuyển nền, pitch bend bằng tần số PCM, volume/expression bằng RMS, pan stereo, AudioTrack lifecycle và 44 unit test. APK là bản tái dựng chức năng; native engine, sample/template và skin của APK gốc chưa được đóng gói lại toàn bộ.
+
+Khi tiếp tục phát triển, ưu tiên còn lại là thay engine Kotlin/AudioTrack bằng lớp native tương thích, dùng chính inventory sample/template đã phân tích và đối chiếu từng màn hình với skin gốc. Không nên gọi bản dựng hiện tại là bản sao 100% APK gốc.
+
+Bản 1.23.1 đã nối AudioEngine với AudioTrackBackend qua AudioBackend; APK đã build, cài và khởi chạy lại trên thiết bị thật, không ghi nhận lỗi AudioTrack.
