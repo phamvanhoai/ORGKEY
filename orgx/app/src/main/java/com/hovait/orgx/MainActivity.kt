@@ -53,7 +53,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         NativeReferenceLoader.tryLoad()
         enableEdgeToEdge()
-        engine = AudioEngine(getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: filesDir,SampleBank(resources))
+        engine = AudioEngine(getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: filesDir,SampleBank(resources),
+            preferNativeOutput=(applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
+                && intent.getBooleanExtra("orgx.testNativeOutput",false))
         setContent { ORGXApp(engine) }
     }
     override fun onDestroy() { engine.close(); super.onDestroy() }

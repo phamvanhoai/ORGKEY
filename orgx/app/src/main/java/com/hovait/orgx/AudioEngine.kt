@@ -15,7 +15,7 @@ import kotlin.math.exp
 import kotlin.math.pow
 import kotlin.math.sin
 
-class AudioEngine(private val recordingDirectory: File,private val sampleBank:SampleBank?=null) {
+class AudioEngine(private val recordingDirectory: File,private val sampleBank:SampleBank?=null,preferNativeOutput:Boolean=false) {
     private val sampleRate = 48_000
     private val pianoChordVoice: (Int, Long) -> Double = { note, age -> sampleBank?.piano(note, age) ?: 0.0 }
     private val voices = ConcurrentHashMap<Int, Voice>()
@@ -61,7 +61,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         var ageFrames: Long = 0
     )
 
-    private val track = AudioTrack.Builder()
+    private val track by lazy { AudioTrack.Builder()
         .setAudioAttributes(
             AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -78,7 +78,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         .setBufferSizeInBytes(4096 * 2)
         .setTransferMode(AudioTrack.MODE_STREAM)
         .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
-        .build()
+        .build() }
 
         private val accompanimentChords = arrayOf(
             intArrayOf(48, 52, 55), // C
@@ -102,7 +102,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
 
     init {
-        outputLoop = AudioOutputLoop(AudioTrackBackend(track, sampleRate), ::renderBlock,
+        val backend = if(preferNativeOutput) StartupFallbackBackend(sampleRate,
+            preferred={NOpenSLBackend(sampleRate)},
+            fallback={AudioTrackBackend(track,sampleRate)},
+            onSelected={android.util.Log.i("ORGX-Audio",if(it) "Backend: NOpenSL" else "Backend: AudioTrack fallback")})
+        else AudioTrackBackend(track,sampleRate)
+        outputLoop = AudioOutputLoop(backend, ::renderBlock,
             onError = { android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
 
