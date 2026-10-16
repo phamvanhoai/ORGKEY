@@ -100,7 +100,6 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             intArrayOf(5, 3, 0, 4)   // Am F C G
         )
 
-    private val chordFrequencies = DoubleArray(128) { 440.0 * 2.0.pow((it - 69) / 12.0) }
 
     init {
         track.play()
@@ -262,12 +261,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val notes = if (!autoChord && library.isNotEmpty()) {
             library[activeChord.coerceIn(0, library.lastIndex)].renderNotes
         } else accompanimentChords[activeChord.coerceIn(0, accompanimentChords.lastIndex)]
-        if (notes.isEmpty()) return 0.0
-        val time = transportFrame.toDouble() / sampleRate
-        return notes.sumOf { note ->
-            val frequency = chordFrequencies[note]
-            sin(2.0 * PI * frequency * time)
-        } / notes.size
+        return ChordSignal.sample(notes, transportFrame, sampleRate)
     }
 
     private fun processEffect(dry: Double): Double {
