@@ -137,7 +137,7 @@ private fun ORGXApp(engine: AudioEngine) {
             }
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it },
-                onStyle = { style = it; engine.rhythmStyle = it },
+                onStyle = { style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
                 onEffect = { effect = it; engine.effectType = it },
                 onDismiss = { showMixer = false })
             if (showSets) SetMemoryDialog(chordNames, preferences, octave, bpm, instrument, chord, style, effect, engine,
@@ -279,7 +279,7 @@ private fun ORGXApp(engine: AudioEngine) {
             }
         }
         Text("DRUM STYLE",fontWeight=FontWeight.Bold)
-        engine.styleNames.forEachIndexed{index,name->FilterChip(selected=style==index,onClick={onStyle(index)},label={Text(name)},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp))}
+        engine.styleNames.forEachIndexed{index,name->FilterChip(selected=style==index,onClick={onStyle(index)},label={Text("$name · ${engine.styleTempos[index]} BPM")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp))}
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("FX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Dry","Delay","Reverb").forEachIndexed{index,name->FilterChip(selected=effect==index,onClick={onEffect(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("MIX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Column(Modifier.weight(1f)){Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Keys","Chord","Drums").forEachIndexed{index,name->FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}};Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Master","FX").forEachIndexed{offset,name->val index=offset+3;FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}}}}
         val level=when(mixChannel){0->keys;1->chords;2->drums;3->master;else->fx}

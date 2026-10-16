@@ -19,6 +19,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val sampleRate = 48_000
     val styleNames=referenceDrumTracks.map{it.displayName}.ifEmpty{listOf("Pop","Rock","Dance")}
     val styleIds=referenceDrumTracks.map{it.group}.ifEmpty{listOf(0,1,2)}
+    val styleTempos=referenceDrumTracks.map{it.tempo.coerceIn(40,240)}.ifEmpty{listOf(120,120,120)}
     private val referenceRhythm=sampleBank?.takeIf{referenceDrumTracks.isNotEmpty()}?.let{ReferenceRhythmPlayer(referenceDrumTracks,it,sampleRate)}
     @Volatile var outputStatus: String = "Starting"
         private set
