@@ -1,6 +1,8 @@
 package com.hovait.orgx
 
-data class PlayableChord(val name: String, val notes: List<Int>)
+data class PlayableChord(val name: String, val notes: List<Int>) {
+    internal val renderNotes: IntArray = notes.toIntArray()
+}
 
 object PlayableChordLibrary {
     fun fromTable(text: String): List<PlayableChord> {

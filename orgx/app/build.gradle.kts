@@ -17,6 +17,9 @@ android {
     }
 
     buildFeatures { compose = true }
+    testOptions.unitTests.all {
+        it.systemProperty("orgx.chordTable", file("src/main/assets/Chord").absolutePath)
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

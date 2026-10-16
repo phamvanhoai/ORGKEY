@@ -256,7 +256,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val bar = (transportFrame / (beatFrames * 4)).toInt()
         val activeChord = if (autoChord) progressions[progression.coerceIn(0, 2)][bar % 4] else chordIndex
         val notes = if (!autoChord && referenceChords.isNotEmpty()) {
-            referenceChords[activeChord.coerceIn(0, referenceChords.lastIndex)].notes.toIntArray()
+            referenceChords[activeChord.coerceIn(0, referenceChords.lastIndex)].renderNotes
         } else chords[activeChord.coerceIn(0, chords.lastIndex)]
         if (notes.isEmpty()) return 0.0
         val time = transportFrame.toDouble() / sampleRate
