@@ -213,3 +213,6 @@ Bản 1.23.1 đã nối AudioEngine với AudioTrackBackend qua AudioBackend; AP
 
 
 Checkpoint phục hồi hiện tại: orgx-piano-sample-0.1.3 và orgx-metronome-sample-0.1.4. Source đã được commit theo từng bước; bản 0.1.4 đã thu thử WAV/MIDI trên thiết bị.
+
+
+Bản hiện tại của nhánh phục hồi là ORGX 0.1.5 (versionCode 40), đã có piano sample và metronome accent sample; các checkpoint nằm trong git tag orgx-piano-sample-0.1.3, orgx-metronome-sample-0.1.4 và orgx-metronome-accent-0.1.5.
