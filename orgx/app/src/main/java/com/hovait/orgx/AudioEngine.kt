@@ -53,6 +53,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private var midiStartNanos = 0L
     private var midiRecordBpm = 120
     @Volatile private var midiPlaybackThread:Thread?=null
+    private val midiSessionGate=PlaybackSessionGate()
 
     private var transportFrame = 0L
     private var noiseState = 0x13579BDF
@@ -153,13 +154,40 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (!enabled) transportFrame = 0L
     }
 
-    fun playMidi(song:MidiSong,onComplete:()->Unit){
-        stopMidi();val playback=thread(start=false,name="ORGX-MIDI"){
-            try{val clock=MidiPlaybackClock(song);song.events.forEach{event->if(Thread.currentThread().isInterrupted)return@thread;val waitMicros=clock.advance(event.tick);if(waitMicros>0)Thread.sleep(waitMicros/1000,(waitMicros%1000*1000).toInt());if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel)else noteOff(event.note,event.channel)}}
-            catch(_:InterruptedException){}finally{voices.values.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()}
-        };midiPlaybackThread=playback;playback.start()
+    @Synchronized fun playMidi(song:MidiSong,onComplete:()->Unit){
+        stopMidi()
+        val session=midiSessionGate.replace()
+        val playback=thread(start=false,name="ORGX-MIDI"){
+            try {
+                val clock=MidiPlaybackClock(song)
+                val start=System.nanoTime();var elapsedMicros=0L
+                song.events.forEach{event->
+                    if(Thread.currentThread().isInterrupted)return@thread
+                    elapsedMicros+=clock.advance(event.tick)
+                    val deadline=start+elapsedMicros*1000
+                    while(true){
+                        val remaining=deadline-System.nanoTime()
+                        if(remaining<=0)break
+                        Thread.sleep(remaining/1_000_000,(remaining%1_000_000).toInt())
+                    }
+                    if(!midiSessionGate.runIfCurrent(session){
+                        if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel)
+                        else noteOff(event.note,event.channel)
+                    })return@thread
+                }
+            } catch(_:InterruptedException){} finally {
+                midiSessionGate.runIfCurrent(session){
+                    voices.values.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()
+                }
+            }
+        }
+        midiPlaybackThread=playback;playback.start()
     }
-    fun stopMidi(){midiPlaybackThread?.interrupt();midiPlaybackThread=null}
+    @Synchronized fun stopMidi(){
+        val session=midiSessionGate.replace()
+        midiPlaybackThread?.interrupt();midiPlaybackThread=null
+        midiSessionGate.runIfCurrent(session){voices.values.forEach{it.releasing=true}}
+    }
 
     fun startRecording() {
         synchronized(recordingLock) {
