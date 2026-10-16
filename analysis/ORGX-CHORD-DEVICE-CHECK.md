@@ -22,3 +22,14 @@ Chưa kiểm chứng trong lượt đầu: lưu/nạp SET và project bằng UI,
 
 Kết quả: luồng lưu/nạp SET 2 khôi phục đúng chord và tempo trên thiết bị.
 Project và tín hiệu âm thanh vẫn chưa được xác nhận trong lượt này.
+
+## Lưu/nạp project bằng UI
+
+- Lưu project mới `ORGX-20261017-053342.orgx` (360 byte) từ D M, tempo 120.
+- Giữ nguyên project cũ trong danh sách.
+- Chuyển sang C M, tempo 125; preferences xác nhận trạng thái đã đổi.
+- Mở PROJECT và LOAD project mới.
+- UI Automator xác nhận `CHORD D M`, `D M`, `120 BPM` sau khi nạp.
+
+Kết quả: project mới khôi phục đúng chord và tempo qua UI trên thiết bị.
+Chưa kiểm chứng âm thanh, toàn bộ trường mixer và tương thích định dạng project APK gốc.
