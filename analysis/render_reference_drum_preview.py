@@ -51,7 +51,7 @@ for frame in range(frames):
             voice[3]+=1
             if voice[3]>=rate/100:del voices[identity]
     for value in (left,right):
-        value=round(value*0.55*0.65)
+        value=round(value*0.55*0.65*track.get('orgx_output_gain',1.0))
         peak=max(peak,abs(value));clipped+=abs(value)>32767
         if not args.report_only:output.extend(struct.pack('<h',max(-32768,min(32767,value))))
 args.output.parent.mkdir(parents=True,exist_ok=True)
@@ -59,6 +59,7 @@ if not args.report_only:
     with wave.open(str(args.output),'wb') as out:
         out.setnchannels(2);out.setsampwidth(2);out.setframerate(rate);out.writeframes(output)
 report={'style':track['display_name'],'tempo':track['tempo'],'frames':frames,'seconds':frames/rate,
+    'orgx_output_gain':track.get('orgx_output_gain',1.0),
     'peak_before_clipping':peak,'clipped_samples':clipped,'release':'ORGX approximation, 10 ms',
     'source':'Reference events and General Drumkit PCM; not a device recording'}
 args.output.with_suffix('.json').write_text(json.dumps(report,indent=2),encoding='utf-8')

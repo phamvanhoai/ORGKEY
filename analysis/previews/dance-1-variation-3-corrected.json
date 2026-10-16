@@ -1,0 +1,11 @@
+{
+  "style": "Dance 1 / Variation 3",
+  "tempo": 120,
+  "frames": 384000,
+  "seconds": 8.0,
+  "orgx_output_gain": 0.7087841988375939,
+  "peak_before_clipping": 30000,
+  "clipped_samples": 0,
+  "release": "ORGX approximation, 10 ms",
+  "source": "Reference events and General Drumkit PCM; not a device recording"
+}
