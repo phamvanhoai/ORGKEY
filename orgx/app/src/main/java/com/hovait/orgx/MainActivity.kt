@@ -324,7 +324,10 @@ private fun ORGXApp(engine: AudioEngine) {
                     context.contentResolver.openInputStream(uri)?.use{store.import(it)} ?: error("Cannot open SET")
                 }
                 imported=store.list()
-                importStatus="Imported ${result.second.version}: ${result.second.waves} waves. Playback not connected yet."
+                val instruments=withContext(Dispatchers.IO){
+                    if(result.second.version=="1.4.6")ImportedSetInstruments.read(result.first) else emptyList()
+                }
+                importStatus="Imported ${result.second.version}: ${result.second.waves} waves, ${instruments.size} indexed instruments. Playback not connected yet."
             } catch(error:Exception){importStatus=error.message ?: "SET import failed"}
             finally{importing=false}
         }
