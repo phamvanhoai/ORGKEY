@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun oneShotEndsInsteadOfWrappingAndTracksPitch() {
+        val pcm=SamplePcm(48000,1,shortArrayOf(1000,2000,3000,4000))
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,pcm,0,0,looping=false)),48000)
+        assertEquals(4000.0/32768,instrument.sample(60,3),1e-9)
+        assertEquals(0.0,instrument.sample(60,4),0.0)
+        assertEquals(3000.0/32768,instrument.sample(72,1),1e-9)
+        assertEquals(0.0,instrument.sample(72,2),0.0)
+    }
     @Test fun regionPanUsesIndependentLinearChannelGains() {
         val pcm=SamplePcm(48000,1,shortArrayOf(10000,10000))
         val right=SampledInstrument(listOf(InstrumentRegion(60,pcm,0,2,1.0,50)),48000)
