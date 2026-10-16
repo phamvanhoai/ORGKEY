@@ -333,6 +333,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             for (frame in 0 until frames) {
                 var mixedLeft = 0.0
                 var mixedRight = 0.0
+                var midiDrumLeft=0.0;var midiDrumRight=0.0;var melodicCount=0
                 voices.forEach { (note, voice) ->
                     val frequency = 440.0 * 2.0.pow((voice.note - 69) / 12.0)
                     val sample = (if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),0) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames)) ?: when (voice.instrument) {
@@ -345,16 +346,18 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     else if (voice.gain < 1f) voice.gain = (voice.gain + 1f / (sampleRate * 0.008f)).coerceAtMost(1f)
                     val naturalDecay = if (voice.instrument == 0) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
                     val gain=voice.gain.coerceAtLeast(0f)*voice.velocity*naturalDecay
-                    mixedLeft += sample*gain
-                    mixedRight += sampleRight*gain
+                    if(voice.instrument == -1){
+                        midiDrumLeft+=sample*gain;midiDrumRight+=sampleRight*gain
+                    } else {
+                        mixedLeft+=sample*gain;mixedRight+=sampleRight*gain;melodicCount++
+                    }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
                     if ((voice.gain <= 0f && voice.releasing) || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
-                val count=voices.size.coerceAtLeast(1)
                 val rhythm = rhythmSample() + padSample()
-                val mixedOutputLeft = mixedLeft/count * keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
-                val mixedOutputRight = mixedRight/count * keysVolume + accompanimentSample(1) * chordVolume + rhythm * drumsVolume
+                val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
+                val mixedOutputRight = VoiceMixer.mix(mixedRight,melodicCount,midiDrumRight,keysVolume,drumsVolume) + accompanimentSample(1) * chordVolume + rhythm * drumsVolume
                 val sound = sampleBank?.nextStereo() ?: 0L
                 var padLeft=0.0;var padRight=0.0
                 sampleBank?.let { bank->for(pad in 0..7){
