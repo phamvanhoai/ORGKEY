@@ -185,7 +185,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (!rhythmPlaying) return 0.0
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)
         val step = ((transportFrame / stepFrames) % 8).toInt()
-        val position = (transportFrame % stepFrames).toDouble() / sampleRate
+        val stepOffset = transportFrame % stepFrames
+        if(stepOffset==0L)sampleBank?.triggerMetronome()
+        val position = stepOffset.toDouble() / sampleRate
         transportFrame++
 
         noiseState = noiseState * 1664525 + 1013904223
