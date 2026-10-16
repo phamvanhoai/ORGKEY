@@ -318,8 +318,15 @@ private fun ORGXApp(engine: AudioEngine) {
 }
 @Composable private fun PadDialog(engine:AudioEngine,onDismiss:()->Unit){
     val names=listOf("KICK","SNARE","HI-HAT","CLAP","LOW TOM","HIGH TOM","CRASH","PERC")
-    AlertDialog(onDismissRequest=onDismiss,title={Text("Performance pads")},text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
+    AlertDialog(onDismissRequest=onDismiss,title={Text("Performance pads")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)){
         names.chunked(4).forEachIndexed{row,items->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){items.forEachIndexed{column,name->val index=row*4+column;Button(onClick={engine.triggerPad(index)},modifier=Modifier.weight(1f).height(62.dp),contentPadding=PaddingValues(3.dp),shape=RoundedCornerShape(9.dp)){Text(name,fontSize=9.sp,fontWeight=FontWeight.Bold,maxLines=2)}}}}
+        Text("SOUND EFFECTS",fontWeight=FontWeight.Bold)
+        SoundEffectCatalog.entries.chunked(2).forEach{items->
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                items.forEach{effect->Button(onClick={engine.triggerSoundEffect(effect)},modifier=Modifier.weight(1f).heightIn(min=48.dp),contentPadding=PaddingValues(6.dp)){Text(effect.name,fontSize=12.sp)}}
+            }
+        }
+        TextButton(onClick={engine.stopSoundEffects()},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("STOP SOUND")}
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
 @Composable private fun ProjectDialog(store:ProjectStore,current:ProjectState,onLoad:(ProjectState)->Unit,onDismiss:()->Unit){

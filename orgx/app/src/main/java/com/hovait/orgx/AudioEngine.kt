@@ -125,6 +125,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         captureMidi(0x90,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) { padAges.set(pad, 0);if(pad==6)sampleBank?.trigger("crash") } }
+    fun triggerSoundEffect(effect: SoundEffect) { sampleBank?.trigger(effect.key) }
+    fun stopSoundEffects() { sampleBank?.trigger("") }
     fun noteOff(note: Int) {
         voices[note]?.let { voice ->
             if (sustain) voice.pendingSustain = true else voice.releasing = true

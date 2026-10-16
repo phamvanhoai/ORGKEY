@@ -12,7 +12,7 @@ class SampleBank(resources:Resources, outputRate:Int=48000) {
         "metronomeLong" to load(resources,R.raw.orgx_metronome_long,outputRate),
         "pianoLow" to load(resources,R.raw.orgx_piano_low_eb2,outputRate),
         "pianoMid" to load(resources,R.raw.orgx_piano_dnc_csharp4,outputRate)
-    )
+    ) + SoundEffectCatalog.entries.associate { it.key to load(resources,it.resource,outputRate) }
     private var active:ShortArray?=null
     private val pianoSources = Array(128) { note -> samples.getValue(if(note<50) "pianoLow" else "pianoMid") }
     private val pianoSteps = DoubleArray(128) { note -> 2.0.pow((note - if(note<50) 39 else 61)/12.0) }
