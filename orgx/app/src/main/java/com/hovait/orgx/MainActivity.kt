@@ -294,11 +294,26 @@ private fun ORGXApp(engine: AudioEngine) {
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
 @Composable private fun ChordDialog(names:List<String>,selected:Int,autoChord:Boolean,progression:Int,onSelect:(Int)->Unit,onAuto:(Boolean,Int)->Unit,onDismiss:()->Unit){
+    val roots=remember(names){names.map{it.substringBefore(' ')}.distinct()}
+    var root by remember { mutableStateOf(names.getOrNull(selected)?.substringBefore(' ') ?: roots.firstOrNull().orEmpty()) }
+    val choices=names.withIndex().filter{it.value.substringBefore(' ')==root}
     AlertDialog(onDismissRequest=onDismiss,title={Text("Chord library")},text={Column(modifier=Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(6.dp)){
         Text("AUTO CHORD",fontWeight=FontWeight.Bold)
         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Pop","Ballad","Dance").forEachIndexed{index,name->FilterChip(selected=autoChord&&progression==index,onClick={onAuto(true,index)},label={Text(name)},modifier=Modifier.weight(1f))}}
-        Text("MANUAL",fontWeight=FontWeight.Bold)
-        names.chunked(6).forEachIndexed{row,items->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){items.forEachIndexed{column,name->val index=row*6+column;FilterChip(selected=!autoChord&&selected==index,onClick={onSelect(index)},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}}}
+        Text("ROOT",fontWeight=FontWeight.Bold)
+        roots.chunked(4).forEach{items->
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){
+                items.forEach{name->FilterChip(selected=root==name,onClick={root=name},label={Text(name,fontSize=12.sp)},modifier=Modifier.weight(1f).heightIn(min=48.dp))}
+                repeat(4-items.size){Spacer(Modifier.weight(1f))}
+            }
+        }
+        Text("CHORD TYPE — $root",fontWeight=FontWeight.Bold)
+        choices.chunked(2).forEach{items->
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){
+                items.forEach{item->FilterChip(selected=!autoChord&&selected==item.index,onClick={onSelect(item.index)},label={Text(item.value,fontSize=12.sp)},modifier=Modifier.weight(1f).heightIn(min=48.dp))}
+                if(items.size==1)Spacer(Modifier.weight(1f))
+            }
+        }
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
 @Composable private fun PadDialog(engine:AudioEngine,onDismiss:()->Unit){
