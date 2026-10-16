@@ -210,3 +210,6 @@ Bản dựng lại nằm trong thư mục `../orgx` và hiện phát hành ORGX 
 Khi tiếp tục phát triển, ưu tiên còn lại là thay engine Kotlin/AudioTrack bằng lớp native tương thích, dùng chính inventory sample/template đã phân tích và đối chiếu từng màn hình với skin gốc. Không nên gọi bản dựng hiện tại là bản sao 100% APK gốc.
 
 Bản 1.23.1 đã nối AudioEngine với AudioTrackBackend qua AudioBackend; APK đã build, cài và khởi chạy lại trên thiết bị thật, không ghi nhận lỗi AudioTrack.
+
+
+Checkpoint phục hồi hiện tại: orgx-piano-sample-0.1.3 và orgx-metronome-sample-0.1.4. Source đã được commit theo từng bước; bản 0.1.4 đã thu thử WAV/MIDI trên thiết bị.

@@ -158,3 +158,5 @@ py -3 tools/verify_midi_pitch.py --wav ban-thu.wav --transpose 1 --report pitch-
 - Trạng thái hiện tại: ORGX 1.23.1, 44 unit test đạt, APK debug đã cài trên thiết bị thật.
 
 - ORGX 0.1.4: metronome dùng sample WAV gốc với con trỏ phát riêng; Crash pad và metronome không chia sẻ trạng thái sample.
+
+- ORGX 0.1.4 đã kiểm tra trên thiết bị thật: thu 2 giây tạo đủ WAV/MIDI, không có crash hoặc AudioTrack underrun; Crash và metronome dùng sample WAV đã giải mã.
