@@ -12,10 +12,7 @@ data class ReferenceDrumTrack(val name:String,val group:Int,val parent:Int,val s
 object ReferenceDrumStore {
     fun playableVariations(assets:AssetManager):List<ReferenceDrumTrack> {
         val notes=ReferenceDrumPads.entries.map{it.note}.toSet()
-        return load(assets).filter { track->
-            !track.muted && track.loop && track.end>track.start && track.section==32 &&
-                track.events.count{it.type==2}>=16 && track.events.filter{it.type==2}.all{it.note in notes}
-        }
+        return load(assets).filter { ReferenceStyleEligibility.playable(it,notes) }
     }
     fun load(assets:AssetManager):List<ReferenceDrumTrack> {
         val json=assets.open("reference-drum-tracks.json").bufferedReader().use { JSONObject(it.readText()) }
