@@ -1,4 +1,4 @@
-﻿# ORGX 0.1.5
+# ORGX 0.1.5
 
 - Version code: 40
 - Metronome phách đầu dùng sample dài; các phách còn lại dùng sample ngắn.
@@ -6,3 +6,5 @@
 - APK đã cài và khởi chạy trên thiết bị thật.
 - Không có crash, AudioTrack failure hoặc underrun trong log cuối.
 - SHA-256: `9F0E1E7B211F43F11C8C9CA73896697DD403693E847C5AA55E73830D63599CAE`
+
+- 	ools/verify-release.ps1 -Build đã chạy thành công, đọc đúng versionCode 40 và SHA-256 APK.
