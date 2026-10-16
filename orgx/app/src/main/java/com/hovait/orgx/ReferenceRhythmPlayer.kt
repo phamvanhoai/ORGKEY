@@ -12,10 +12,22 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1)
     private val voices=LinkedHashMap<Int,Voice>()
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
+    private var children:List<ReferenceRhythmPlayer> = emptyList()
+    companion object {
+        fun combine(players:List<ReferenceRhythmPlayer>):ReferenceRhythmPlayer {
+            require(players.isNotEmpty())
+            return ReferenceRhythmPlayer(emptyList(),{0},{_,_,_->0.0},48000).also{it.children=players.toList()}
+        }
+    }
     var left=0.0;private set
     var right=0.0;private set
-    fun reset(){clock.reset();timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0}
+    fun reset(){clock.reset();timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;children.forEach{it.reset()}}
     fun next(selection:Int,tempo:Int) {
+        if(children.isNotEmpty()){
+            left=0.0;right=0.0
+            children.forEach{it.next(selection,tempo);left+=it.left;right+=it.right}
+            return
+        }
         if(tracks.isEmpty()){left=0.0;right=0.0;return}
         val selected=selection.coerceIn(tracks.indices)
         if(current!=selected){reset();current=selected;timeline=tracks[selected].timeline()}

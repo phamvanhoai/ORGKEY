@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun combinedTracksSumStereoAndResetTogether() {
+        val a=player(track(listOf(hit(0))))
+        val b=player(track(listOf(hit(0))))
+        val combined=ReferenceRhythmPlayer.combine(listOf(a,b))
+        combined.next(0,120)
+        assertEquals(2.0,combined.left,0.0);assertEquals(-2.0,combined.right,0.0)
+        combined.next(0,120);assertEquals(0.0,combined.left,0.0)
+        combined.reset();combined.next(0,120);assertEquals(2.0,combined.left,0.0)
+    }
     @Test fun perStyleHeadroomIsAppliedToBothChannels() {
         val player=player(track(listOf(hit(0))).copy(outputGain=0.7))
         player.next(0,120)

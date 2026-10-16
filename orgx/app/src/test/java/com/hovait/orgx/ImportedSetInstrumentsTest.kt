@@ -9,9 +9,11 @@ class ImportedSetInstrumentsTest {
         val path=System.getProperty("orgx.legacySet") ?: return
         val file=File(path);val index=ImportedSetInstruments.index(file)
         val groups=index.styles.filter{it.section in 16..35 && ImportedStyleSupport.reason(index,it)==null}
+        println("SET blockers: "+index.styles.filter{it.section in 16..35}.groupingBy{ImportedStyleSupport.reason(index,it) ?: "Playable"}.eachCount())
+        println("Drum section parameters: "+index.tracks.filter{index.instruments.getOrNull(it.instrument)?.type==1}.map{it.instrument}.distinct().flatMap{index.instruments[it].sounds.first().sections}.groupingBy{"start=${it.start}, loop=${it.loop}"}.eachCount())
         assertTrue("No playable imported style",groups.isNotEmpty())
         val group=groups.first()
-        val track=ImportedStyleSupport.drumTracks(index,group).single()
+        val track=ImportedStyleSupport.drumTracks(index,group).first()
         val kit=ImportedInstrumentLoader.load(file,index.instruments[track.instrument])
         val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,true,
             group.start.toLong(),group.end.toLong(),false,track.events)

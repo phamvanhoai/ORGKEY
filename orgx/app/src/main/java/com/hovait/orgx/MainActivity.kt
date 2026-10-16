@@ -413,17 +413,20 @@ private fun ORGXApp(engine: AudioEngine) {
             setGroups.filter{it.section in 16..35}.forEach{group->
                 val index=setIndex
                 val tracks=index?.let{ImportedStyleSupport.drumTracks(it,group)} ?: emptyList()
-                val track=tracks.singleOrNull()
+                val track=tracks.firstOrNull()
                 val reason=index?.let{ImportedStyleSupport.reason(it,group)} ?: "SET index unavailable"
                 val supported=reason==null
                 OutlinedButton(enabled=supported && !importing,onClick={scope.launch{
                     importing=true
                     try{
                         val player=withContext(Dispatchers.IO){
-                            val chosen=checkNotNull(track);val source=checkNotNull(index)
-                            val kit=ImportedInstrumentLoader.load(checkNotNull(setFile),source.instruments[chosen.instrument])
+                            val source=checkNotNull(index)
+                            val kits=tracks.map{it.instrument}.distinct().associateWith{ImportedInstrumentLoader.load(checkNotNull(setFile),source.instruments[it])}
+                            ReferenceRhythmPlayer.combine(tracks.map{chosen->
+                            val kit=kits.getValue(chosen.instrument)
                             val timeline=ReferenceDrumTrack(chosen.name,group.id,group.parent,group.section,group.tempo,true,group.start.toLong(),group.end.toLong(),false,chosen.events)
                             ReferenceRhythmPlayer(listOf(timeline),kit::durationFrames,{note,age,channel->kit.sample(note,age.toLong(),channel)},48000)
+                            })
                         }
                         engine.setRhythmEnabled(false);engine.importedRhythm=player;engine.importedRhythmName="${groups[group.parent]?.name.orEmpty()} / ${group.name}";engine.bpm=group.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
                         importStatus="SET Drum loaded: ${group.name}. Press PLAY. Bass/accompaniment not loaded."
