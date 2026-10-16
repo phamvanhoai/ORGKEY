@@ -156,3 +156,5 @@ py -3 tools/verify_midi_pitch.py --wav ban-thu.wav --transpose 1 --report pitch-
 - Kiểm tra kênh trống GM: fixture MIDI channel 10 đã được tạo và ánh xạ qua MidiDrumMap; kiểm thử UI picker trên thiết bị bị Android giữ ở màn hình chọn tệp nên chưa dùng kết quả WAV cho báo cáo.
 
 - Trạng thái hiện tại: ORGX 1.23.1, 44 unit test đạt, APK debug đã cài trên thiết bị thật.
+
+- ORGX 0.1.4: metronome dùng sample WAV gốc với con trỏ phát riêng; Crash pad và metronome không chia sẻ trạng thái sample.
