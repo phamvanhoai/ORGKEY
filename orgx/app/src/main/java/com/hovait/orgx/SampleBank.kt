@@ -5,6 +5,16 @@ import java.util.concurrent.atomic.AtomicInteger
 
 
 class SampleBank(resources:Resources, outputRate:Int=48000) {
+    private fun instrument(resources:Resources,regions:List<ReferenceRegion>,rate:Int)=SampledInstrument(regions.map{region->
+        InstrumentRegion(region.root,resources.openRawResource(region.resource).use(SamplePcmDecoder::decode),region.loopStart,region.loopEnd)
+    },rate)
+    private val organ=instrument(resources,ReferenceInstrumentRegions.organ,outputRate)
+    private val lead=instrument(resources,ReferenceInstrumentRegions.lead,outputRate)
+    fun instrument(index:Int,note:Int,age:Long):Double=when(index){
+        1->organ.sample(note,age)
+        2->lead.sample(note,age)
+        else->piano(note,age)
+    }
     private fun load(resources:Resources,id:Int,rate:Int):ShortArray = resources.openRawResource(id).use { SampleResampler.toRate(SamplePcmDecoder.decode(it),rate) }
     private val samples:Map<String,ShortArray> = mapOf(
         "crash" to load(resources,R.raw.orgx_crash,outputRate),

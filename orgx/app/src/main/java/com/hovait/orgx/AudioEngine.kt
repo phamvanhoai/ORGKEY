@@ -284,7 +284,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 var mixed = 0.0
                 voices.forEach { (note, voice) ->
                     val frequency = 440.0 * 2.0.pow((note - 69) / 12.0)
-                    val sample = if(instrument==0)sampleBank?.piano(voice.note,voice.ageFrames) ?: 0.0 else when (instrument) {
+                    val sample = sampleBank?.instrument(instrument,voice.note,voice.ageFrames) ?: when (instrument) {
                         1 -> sin(voice.phase) * 0.58 + sin(voice.phase * 2.0) * 0.28 + sin(voice.phase * 4.0) * 0.14
                         2 -> sin(voice.phase) * 0.55 + sin(voice.phase * 2.0) * 0.25 + sin(voice.phase * 3.0) * 0.12 + sin(voice.phase * 5.0) * 0.08
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
