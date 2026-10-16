@@ -8,7 +8,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.DataOutputStream
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicIntegerArray
 import kotlin.concurrent.thread
 import kotlin.math.PI
@@ -20,7 +19,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val sampleRate = 48_000
     private val pianoChordVoice: (Int, Long) -> Double = { note, age -> sampleBank?.piano(note, age) ?: 0.0 }
     private val voices = ConcurrentHashMap<Int, Voice>()
-    private val running = AtomicBoolean(true)
+    private val outputLoop: AudioOutputLoop
     @Volatile var masterVolume = 0.65f
     @Volatile var keysVolume = 0.78f
     @Volatile var chordVolume = 0.22f
@@ -103,8 +102,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
 
     init {
-        track.play()
-        thread(name = "ORGX-Audio", priority = Thread.MAX_PRIORITY) { renderLoop() }
+        outputLoop = AudioOutputLoop(AudioTrackBackend(track, sampleRate), ::renderBlock,
+            onError = { android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
 
     fun noteOn(note: Int, velocity: Float = 1f) {
@@ -278,10 +277,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         return dry * (1.0 - effectMix) + delayed * effectMix
     }
 
-    private fun renderLoop() {
-        val frames = 256
-        val output = ShortArray(frames * 2)
-        while (running.get()) {
+    private fun renderBlock(output: ShortArray) {
+        val frames = output.size / 2
             for (frame in 0 until frames) {
                 var mixed = 0.0
                 voices.forEach { (note, voice) ->
@@ -309,14 +306,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 output[frame * 2 + 1] = scaled
             }
             capture(output)
-            track.write(output, 0, output.size, AudioTrack.WRITE_BLOCKING)
-        }
+
     }
 
     fun close() {
         stopMidi()
-        running.set(false)
-        track.stop()
-        track.release()
+        outputLoop.close()
     }
 }
