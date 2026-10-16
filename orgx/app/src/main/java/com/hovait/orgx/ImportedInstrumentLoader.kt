@@ -6,9 +6,9 @@ import java.io.RandomAccessFile
 object ImportedInstrumentLoader {
     fun supported(instrument:ImportedInstrument):Boolean {
         val sound=instrument.sounds.firstOrNull() ?: return false
-        return instrument.type==0 && instrument.pan==0 && sound.envelope.getOrNull(4)==0 &&
+        return instrument.type==0 && sound.envelope.getOrNull(4)==0 &&
             sound.sections.isNotEmpty() && sound.sections.all{
-                it.frames>0 && it.pan==0 && it.tune==0 && it.start==0 && it.loop==2 &&
+                it.frames>0 && instrument.pan.toLong()+it.pan in -100L..100L && it.tune==0 && it.start==0 && it.loop==2 &&
                     it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.frames
             }
     }
@@ -26,7 +26,7 @@ object ImportedInstrumentLoader {
                     if(stereo==null)value(frame*2) else ((stereo[frame*2].toInt()+stereo[frame*2+1])/2).toShort()
                 }
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
-                    section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000)
+                    section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan)
             }
             SampledInstrument(regions,48000)
         }

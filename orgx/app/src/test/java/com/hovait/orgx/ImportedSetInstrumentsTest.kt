@@ -16,7 +16,10 @@ class ImportedSetInstrumentsTest {
             assertTrue(left.isFinite());assertEquals(left,right,0.0);energy+=left*left
         }
         assertTrue(energy>0)
-        assertFalse(ImportedInstrumentLoader.supported(organ.copy(pan=50)))
+        assertTrue(ImportedInstrumentLoader.supported(organ.copy(pan=50)))
+        val panned=ImportedInstrumentLoader.load(file,organ.copy(pan=100))
+        for(age in 48000L..48010L)assertEquals(0.0,panned.sample(60,age,0),0.0)
+        assertFalse(ImportedInstrumentLoader.supported(organ.copy(pan=101)))
     }
     @Test fun indexesAllReferenceInstrumentsWithoutLoadingPcm() {
         val file=File(requireNotNull(System.getProperty("orgx.referenceAssets")),"Default.Template")
