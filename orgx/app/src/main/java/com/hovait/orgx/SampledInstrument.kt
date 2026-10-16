@@ -13,7 +13,6 @@ class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int) {
     fun sample(note:Int,age:Long,channel:Int=0):Double {
         if(note !in 0..127 || age<0)return 0.0
         val region=selected[note]
-        val position=SampleLoop.position(age*steps[note],region.loopStart,region.loopEnd)
-        return SampleResampler.channel(region.sample,position,channel)*region.gain
+        return SampleResampler.looped(region.sample,age*steps[note],channel,region.loopStart,region.loopEnd)*region.gain
     }
 }

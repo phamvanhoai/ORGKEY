@@ -3,6 +3,17 @@ package com.hovait.orgx
 import kotlin.math.ceil
 
 object SampleResampler {
+    fun looped(sample:SamplePcm,position:Double,channel:Int,start:Int,endExclusive:Int):Double {
+        require(channel in 0..1 && start>=0 && endExclusive>start && endExclusive<=sample.frames.size)
+        if(!position.isFinite() || position<0)return 0.0
+        val wrapped=SampleLoop.position(position,start,endExclusive)
+        val index=wrapped.toInt()
+        val next=if(index+1>=endExclusive)start else index+1
+        val fraction=wrapped-index
+        fun value(frame:Int):Double = sample.stereo?.get(frame*2+channel)?.toDouble()
+            ?: sample.frames[frame].toDouble()
+        return (value(index)*(1-fraction)+value(next)*fraction)/32768.0
+    }
     fun channel(sample:SamplePcm,position:Double,channel:Int):Double {
         require(channel in 0..1)
         val stereo=sample.stereo ?: return at(sample.frames,position)

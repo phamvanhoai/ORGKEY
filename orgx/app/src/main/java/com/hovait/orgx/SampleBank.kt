@@ -66,8 +66,7 @@ class SampleBank(resources:Resources, outputRate:Int=48000) {
     fun piano(note:Int,age:Long):Double {
         if(note !in 0..127 || age<0) return 0.0
         val loop=pianoLoops.getValue(pianoRoots[note])
-        val position=SampleLoop.position(age*pianoSteps[note],loop.first,loop.second)
-        return SampleResampler.at(pianoSources[note],position)
+        return SampleResampler.looped(pianoRegions.getValue(pianoRoots[note]),age*pianoSteps[note],0,loop.first,loop.second)
     }
     @Synchronized fun clear(){active=null;cursor.set(0);metronomeActive=null;metronomeCursor.set(0)}
 }
