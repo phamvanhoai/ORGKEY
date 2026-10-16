@@ -26,4 +26,7 @@ class ReferenceAssetStore(private val context: Context) {
         val entry = zip.getEntry("Chord/$name.Chord") ?: return null
         zip.getInputStream(entry).use { it.readBytes() }
     }
+
+    fun readChordDefinition(name: String): ChordDefinition? =
+        readChord(name)?.let { ChordDefinitionParser.parse(name, it) }
 }
