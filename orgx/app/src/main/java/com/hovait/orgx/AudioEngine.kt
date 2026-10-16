@@ -39,6 +39,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var instrument = 0
     @Volatile var importedInstrument:SampledInstrument?=null
     @Volatile var importedInstrumentName:String?=null
+    @Volatile var activeSetFile:File?=null
+    @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
     @Volatile var chordIndex = 0
     @Volatile var referenceChords: List<PlayableChord> = emptyList()
     @Volatile var autoChord = false

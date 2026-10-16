@@ -78,11 +78,11 @@ private fun ORGXApp(engine: AudioEngine) {
             try{
                 val loaded=withContext(Dispatchers.IO){
                     val (file,sound)=ImportedSoundSelection.resolve(File(context.filesDir,"ReferenceSets"),fileName,soundName)
-                    ImportedInstrumentLoader.load(file,sound)
+                    Triple(ImportedInstrumentLoader.load(file,sound),file,ImportedInstrumentLoader.playableSounds(ImportedSetInstruments.read(file)))
                 }
                 // A user may have changed voices while the file was loading.
                 if(preferences.getString("importedSetFile",null)==fileName && preferences.getString("importedSetSound",null)==soundName){
-                    engine.importedInstrument=loaded;engine.importedInstrumentName=soundName;restoredSetName=soundName
+                    engine.importedInstrument=loaded.first;engine.activeSetFile=loaded.second;engine.activeSetSounds=loaded.third;engine.importedInstrumentName=soundName;restoredSetName=soundName
                 }
             }catch(error:Exception){Toast.makeText(context,"SET restore: ${error.message}",Toast.LENGTH_LONG).show()}
         }
@@ -292,6 +292,11 @@ private fun ORGXApp(engine: AudioEngine) {
     var fx by remember{mutableFloatStateOf(engine.effectMix)}
     var mixChannel by remember{mutableIntStateOf(0)}
     var showStylePicker by remember{mutableStateOf(false)}
+    val scope=rememberCoroutineScope()
+    var loadingSound by remember{mutableStateOf(false)}
+    var soundName by remember{mutableStateOf(engine.importedInstrumentName)}
+    var soundError by remember{mutableStateOf("")}
+    val setSounds=engine.activeSetSounds
     if(showStylePicker) {
         DrumStyleDialog(engine,style,onSelect={onStyle(it);showStylePicker=false},onDismiss={showStylePicker=false})
         return
@@ -299,13 +304,28 @@ private fun ORGXApp(engine: AudioEngine) {
     fun saveMix(){preferences.edit().putFloat("masterVolume",master).putFloat("keysVolume",keys).putFloat("chordVolume",chords).putFloat("drumsVolume",drums).putFloat("effectMix",fx).apply()}
     AlertDialog(onDismissRequest={saveMix();onDismiss()},title={Text("Sound & mixer")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState())){
         Text("VOICE",fontWeight=FontWeight.Bold)
-        InstrumentCatalog.shortNames.withIndex().chunked(2).forEach{items->
+        if(setSounds.isNotEmpty()){
+            Text("Imported SET / ${setSounds.size} supported sounds",fontSize=12.sp)
+            if(soundError.isNotEmpty())Text(soundError,fontSize=12.sp)
+            setSounds.forEach{sound->FilterChip(selected=soundName==sound.name,enabled=!loadingSound,
+                onClick={scope.launch{
+                    loadingSound=true
+                    try{
+                        val file=checkNotNull(engine.activeSetFile)
+                        val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(file,sound)}
+                        engine.importedInstrument=loaded;engine.importedInstrumentName=sound.name;soundName=sound.name
+                        preferences.edit().putString("importedSetFile",file.name).putString("importedSetSound",sound.name).apply()
+                    }catch(error:Exception){soundError=error.message ?: "Cannot load sound"}
+                    finally{loadingSound=false}
+                }},label={Text(sound.name)},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp))}
+        } else InstrumentCatalog.shortNames.withIndex().chunked(2).forEach{items->
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){
                 items.forEach{item->FilterChip(selected=instrument==item.index,onClick={onInstrument(item.index)},label={Text(item.value)},modifier=Modifier.weight(1f).heightIn(min=48.dp))}
             }
         }
         Text("DRUM STYLE",fontWeight=FontWeight.Bold)
-        OutlinedButton(onClick={showStylePicker=true},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
+        if(setSounds.isNotEmpty())Text("SET styles are not loaded. The current rhythm is from the built-in bank.",fontSize=12.sp)
+        OutlinedButton(enabled=setSounds.isEmpty(),onClick={showStylePicker=true},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
             Text("${engine.styleNames[style]} / ${engine.styleTempos[style]} BPM")
         }
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("FX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Dry","Delay","Reverb").forEachIndexed{index,name->FilterChip(selected=effect==index,onClick={onEffect(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
@@ -347,7 +367,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 val instruments=withContext(Dispatchers.IO){
                     if(result.second.version in listOf("1.2.8","1.4.6"))ImportedSetInstruments.read(result.first) else emptyList()
                 }
-                setFile=result.first;setInstruments=ImportedInstrumentLoader.playableSounds(instruments)
+                setFile=result.first;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=result.first;engine.activeSetSounds=setInstruments
                 importStatus="Imported ${result.second.version}: ${instruments.size} instruments, ${setInstruments.size} playable sounds."
             } catch(error:Exception){importStatus=error.message ?: "SET import failed"}
             finally{importing=false}
@@ -364,7 +384,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 importing=true
                 try{
                     val instruments=withContext(Dispatchers.IO){ImportedSetInstruments.read(file)}
-                    setFile=file;setInstruments=ImportedInstrumentLoader.playableSounds(instruments)
+                    setFile=file;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=file;engine.activeSetSounds=setInstruments
                     importStatus="${instruments.size} instruments, ${setInstruments.size} playable sounds."
                 }catch(error:Exception){importStatus=error.message ?: "Cannot read SET"}
                 finally{importing=false}
