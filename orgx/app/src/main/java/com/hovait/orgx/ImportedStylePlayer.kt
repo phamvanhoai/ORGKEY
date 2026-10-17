@@ -25,13 +25,13 @@ object ImportedStylePlayer {
         val byGroup=groups.associate{it.id to ImportedStyleSupport.playbackTracks(index,it,includeAccompaniment)}
         val tracks=byGroup.values.flatten()
         data class SoundKey(val instrument:Int,val type:Int,val system:Int,val settings:ImportedChannelSettings)
-        fun key(track:ImportedTrack)=SoundKey(track.instrument,checkNotNull(ImportedStyleSupport.instrument(index,track)).type,track.system,track.settings)
+        fun key(track:ImportedTrack)=SoundKey(track.instrument,checkNotNull(ImportedStyleSupport.instrument(index,track)).type,track.system,ImportedStyleSupport.channelSettings(index,track))
         val selected=tracks.groupBy(::key).mapValues{(_,parts)->
             val source=checkNotNull(ImportedStyleSupport.instrument(index,parts.first()))
             if(follow && source.type==0){
                 require(parts.all{it.chordRoot in 0..127 && checkNotNull(transposer).supports(it.chordType)}){"Unsupported source chord metadata"}
                 source
-            } else ImportedInstrumentLoader.forTrack(source,parts.flatMap{ImportedStyleSupport.sampleEvents(it,source.type==0)})
+            } else ImportedInstrumentLoader.forTrack(source,parts.flatMap{ImportedStyleSupport.sampleEvents(it.copy(settings=ImportedStyleSupport.channelSettings(index,it)),source.type==0)})
         }
         // PCM decoding retains mono plus stereo buffers; cap total source PCM before allocating.
         require(selected.values.sumOf{source->ImportedInstrumentLoader.layers(source).sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}}<=64L*1024*1024){
@@ -41,17 +41,17 @@ object ImportedStylePlayer {
         return groups.associate{group->group.id to ReferenceRhythmPlayer.combine(byGroup.getValue(group.id).map{track->
             val sound=sounds.getValue(key(track))
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0
+            val settings=ImportedStyleSupport.channelSettings(index,track)
             val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
                 group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,track.events,bounded=group.limit)
             ReferenceRhythmPlayer(listOf(timeline),sound::durationFrames,
-                {note,age,channel->sound.sample(note,age.toLong(),channel)*track.volume/100.0*
-                    (if(channel==0)minOf(100,100-track.pan) else minOf(100,100+track.pan))/100.0},48000,
+                {note,age,channel->sound.sample(note,age.toLong(),channel)},48000,
                 accompaniment=melodic,
                 mapNote={note->
                     val target=if(follow && melodic)targetChord?.invoke() else null
                     val mapped=if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target)
-                    ImportedStyleSupport.shiftedNote(mapped,track,melodic)
-                },sampled=sound,channelGain={channel->track.volume/100.0*(if(channel==0)minOf(100,100-track.pan) else minOf(100,100+track.pan))/100.0},fx=ImportedFxChain(track.settings))
+                    ImportedStyleSupport.shiftedNote(mapped,track.copy(settings=settings),melodic)
+                },sampled=sound,channelGain={channel->settings.volume/100.0*(if(channel==0)minOf(100,100-settings.pan) else minOf(100,100+settings.pan))/100.0},fx=ImportedFxChain(settings))
         }).withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings)}
     }
 }

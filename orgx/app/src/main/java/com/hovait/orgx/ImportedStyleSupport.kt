@@ -1,6 +1,9 @@
 package com.hovait.orgx
 
 object ImportedStyleSupport {
+    /** Track.ReadFromStream selects mode first, then restores Channels FX over it. */
+    fun channelSettings(index:ImportedSetIndex,track:ImportedTrack)=
+        track.settings.copy(volume=track.volume,pan=track.pan)
     fun shiftedNote(note:Int,track:ImportedTrack,melodic:Boolean):Int =
         if(melodic)(note.toLong()+track.settings.transpose+track.settings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt() else note
     fun sampleEvents(track:ImportedTrack,melodic:Boolean)=track.events.map{event->
@@ -39,7 +42,7 @@ object ImportedStyleSupport {
             it.type==0 && ImportedInstrumentLoader.layers(it).any{layer->layer.sounds.firstOrNull()?.envelope?.getOrNull(4)!=0}
         }==true})return "Chord following requires pitched sample mapping"
         if(tracks.any{track->instrument(index,track)?.let{
-            ImportedInstrumentLoader.supported(if(followChord && it.type==0)it else ImportedInstrumentLoader.forTrack(it,sampleEvents(track,it.type==0)))
+            ImportedInstrumentLoader.supported(if(followChord && it.type==0)it else ImportedInstrumentLoader.forTrack(it,sampleEvents(track.copy(settings=channelSettings(index,track)),it.type==0)))
         }!=true})return "Used track samples contain unsupported parameters"
         if(tracks.any{track->track.events.any{it.type !in 1..2 || it.note !in 0..127}})return "Track contains unsupported events"
         if(tracks.any{track->track.events.any{it.type==2 && it.tune!=0}})return "Track note tuning is not supported yet"

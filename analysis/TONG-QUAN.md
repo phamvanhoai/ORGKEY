@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã giữ FX header/module của mode và dùng tune/release khi nạp voice MODE trực tiếp. Đối chiếu thứ tự `Track.ReadFromStream`: mode được chọn trước rồi channel đã lưu ghi đè, nên style không tự dùng FX mặc định mode thay cấu hình track. Kiểm thử PCM stereo/ưu tiên cấu hình và release đạt. Chưa nối đầy đủ DSP/gain/pan/transpose mode cho tổng voice bàn phím, aftertouch/script còn thiếu.
+
 Đã dựng fallback section còn thiếu về group 0 theo caller gốc, áp dụng vào catalog và loader thật; không thay section riêng bằng fallback. Giữ ChordType/ChordBase của TrackGroup. Kiểm thử nạp/request PCM fallback và không nhân bản/không lấy nhầm style đạt. Chưa dựng ChordVars variant ở định dạng SET mới; bản 1.2.8/1.4.6 hiện hỗ trợ không lưu trường này.
 
 Đã dựng option nhấn lại section để đặt `tempLoop` theo `MainActivity.y1` và event 204, mặc định tắt. Settings có “Repeat section button to loop”, LCD hiện TEMP LOOP khi đang lặp tạm. Intro/Ending giữ lặp, chọn Main khác thoát được; option tắt giữ one-shot. Toàn bộ kiểm thử đạt trước cập nhật polling LCD; bản cuối build và kiểm thử session/tempLoop đạt. Chưa hoàn thiện GroupSection/control-mode khác.

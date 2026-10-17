@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Cấu hình mode và thứ tự khôi phục channel
+
+Đã giữ FX header/module của InstMode thay vì bỏ qua. `Track.ReadFromStream` gọi InstrumentChange/ModeSet trước, rồi Channels.ReadFromStream đọc cấu hình channel đã lưu đè lên. Vì vậy track style tiếp tục dùng cấu hình channel của track, không tự đổi gain/pan/FX sang mặc định mode. Caller có cấu hình channel tường minh thì cấu hình đó ưu tiên. Voice MODE khi load trực tiếp dùng tune/release của mode cho từng layer.
+
+Kiểm thử resolver/envelope release và PCM stereo xác nhận track volume 20/pan -100 vẫn ưu tiên trước mode volume 50/pan 100. Chưa dựng DSP mode dùng chung trên tổng voice bàn phím, gain/pan/transpose mode cho keyboard và mode Effects/script/aftertouch; không coi việc giữ payload là đã phát toàn bộ FX.
+
 ### Section fallback về group 0
 
 Đã dựng bước fallback `MainActivity.y1`: khi style không có section được yêu cầu, lấy section cùng mã từ parent/group 0. Bộ chọn và session cùng dùng danh sách đã bổ sung, player fallback được nạp PCM thật và có thể request/auto-fill. Section riêng của style luôn ưu tiên, kể cả khi không hỗ trợ (không âm thầm thay vì lỗi engine). Không lấy section từ parent style khác. Hàm bổ sung idempotent để gọi từ catalog và loader không nhân bản.
