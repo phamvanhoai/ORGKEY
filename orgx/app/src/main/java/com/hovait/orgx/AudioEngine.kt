@@ -44,7 +44,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var importedRhythm:ReferenceRhythmPlayer?=null
     @Volatile var importedRhythmName:String?=null
     @Volatile var chordIndex = 0
+    @Volatile private var autoChordMap=AutoChordProgression(emptyList())
     @Volatile var referenceChords: List<PlayableChord> = emptyList()
+        set(value){autoChordMap=AutoChordProgression(value);field=value}
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
     @Volatile var leftChordEnabled=false;private set
@@ -60,8 +62,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val chordKey=keyboardChordInput.release(note)
         if(!chordKey || voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
     }
-    fun selectedSetChord():Int? = if(autoChord || referenceChords.isEmpty())null else
-        (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
+    fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
+        autoChordMap.chord(progression,harmonyClock.time) else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
     @Volatile var autoChord = false
     @Volatile var progression = 0
     @Volatile var rhythmStyle = 0
@@ -79,6 +81,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val midiSessionGate=PlaybackSessionGate()
 
     private var transportFrame = 0L
+    private val harmonyClock=ReferenceStyleClock(sampleRate)
+    @Volatile private var resetHarmony=true
     private var noiseState = 0x13579BDF
     private val stereoEffect = StereoEffect(sampleRate)
     private val outputLimiter=StereoPeakLimiter(sampleRate)
@@ -132,11 +136,6 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             intArrayOf(41, 45, 48, 52), // Fmaj7
             intArrayOf(43, 47, 50, 53)  // G7
         )
-        private val accompanimentProgressions = arrayOf(
-            intArrayOf(0, 5, 3, 4),  // C Am F G
-            intArrayOf(0, 4, 5, 3),  // C G Am F
-            intArrayOf(5, 3, 0, 4)   // Am F C G
-        )
 
 
     init {
@@ -178,7 +177,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     fun setRhythmEnabled(enabled: Boolean) {
         rhythmPlaying = enabled
-        if (!enabled) transportFrame = 0L
+        if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
 
     @Synchronized fun playMidi(song:MidiSong,onComplete:()->Unit){
@@ -343,8 +342,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private fun accompanimentSample(channel:Int): Double {
         if (!rhythmPlaying || importedRhythm!=null) return 0.0
         val beatFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240)).toLong().coerceAtLeast(1)
-        val bar = (transportFrame / (beatFrames * 4)).toInt()
-        val activeChord = if (autoChord) accompanimentProgressions[progression.coerceIn(0, 2)][bar % 4] else chordIndex
+        val activeChord = if (autoChord) AutoChordProgression.builtinChord(progression,harmonyClock.time) else chordIndex
         val library = referenceChords
         val notes = if (!autoChord && library.isNotEmpty()) {
             library[activeChord.coerceIn(0, library.lastIndex)].renderNotes
@@ -357,6 +355,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private fun renderBlock(output: ShortArray) {
         val frames = output.size / 2
             for (frame in 0 until frames) {
+                if(resetHarmony || !rhythmPlaying){harmonyClock.reset();resetHarmony=false}
                 var mixedLeft = 0.0
                 var mixedRight = 0.0
                 var midiDrumLeft=0.0;var midiDrumRight=0.0;var melodicCount=0
@@ -409,6 +408,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
                 output[frame * 2] = pcm(outputLimiter.left)
                 output[frame * 2 + 1] = pcm(outputLimiter.right)
+                if(rhythmPlaying)harmonyClock.advance(1,bpm.coerceIn(40,240))
             }
             capture(output)
 

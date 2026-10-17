@@ -431,7 +431,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     Text("Follow selected chord")
                 }
             }
-            Text(if(previewAccompaniment && followSetChord) "Manual chords affect new notes. AUTO uses original notes. DNC is not applied."
+            Text(if(previewAccompaniment && followSetChord) "Manual, left-keyboard or AUTO chords affect new notes. AUTO presets use 4 beats per bar. DNC is not applied."
                 else if(previewAccompaniment) "Original notes only; chord changes and DNC are not applied." else "Drum tracks only.",fontSize=12.sp)
             val groups=setGroups.associateBy{it.id}
             setGroups.filter{it.section in 16..35}.forEach{group->
