@@ -21,11 +21,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     }
     var left=0.0;private set
     var right=0.0;private set
-    fun reset(){clock.reset();timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;children.forEach{it.reset()}}
+    var finished=false;private set
+    fun reset(){clock.reset();timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;children.forEach{it.reset()}}
     fun next(selection:Int,tempo:Int) {
         if(children.isNotEmpty()){
             left=0.0;right=0.0
             children.forEach{it.next(selection,tempo);left+=it.left;right+=it.right}
+            finished=children.all{it.finished}
             return
         }
         if(tracks.isEmpty()){left=0.0;right=0.0;return}
@@ -35,6 +37,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         val duration=track.end-track.start
         var local=clock.time-loopOrigin+track.start
         if(duration>0 && local>=track.end){
+            if(!track.loop){voices.clear();left=0.0;right=0.0;finished=true;return}
             loopOrigin+=(local-track.start)/duration*duration
             local=clock.time-loopOrigin+track.start
             timeline?.reset();voices.clear()

@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun oneShotStopsAtEndAndCanRestartAfterReset() {
+        val player=player(track(listOf(hit(0)),end=10).copy(loop=false))
+        player.next(0,120);assertEquals(1.0,player.left,0.0)
+        repeat(20){player.next(0,120)}
+        assertTrue(player.finished);assertEquals(0.0,player.left,0.0)
+        player.reset();player.next(0,120)
+        assertFalse(player.finished);assertEquals(1.0,player.left,0.0)
+    }
     @Test fun combinedTracksSumStereoAndResetTogether() {
         val a=player(track(listOf(hit(0))))
         val b=player(track(listOf(hit(0))))

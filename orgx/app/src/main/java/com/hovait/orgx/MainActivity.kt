@@ -95,6 +95,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var octave by remember { mutableIntStateOf(preferences.getInt("octave", 4)) }
     var bpm by remember { mutableIntStateOf(preferences.getInt("bpm", 120)) }
     var playing by remember { mutableStateOf(false) }
+    LaunchedEffect(engine){while(true){if(playing && !engine.rhythmPlaying)playing=false;kotlinx.coroutines.delay(100)}}
     var sustain by remember { mutableStateOf(false) }
     var instrument by remember { mutableIntStateOf(InstrumentCatalog.validIndex(preferences.getInt("instrument", 0))) }
     var chord by remember { mutableIntStateOf(ChordSelection.resolve(chordNames, preferences.getString("chordName", null), preferences.getInt("chord", 0))) }
@@ -424,7 +425,7 @@ private fun ORGXApp(engine: AudioEngine) {
                             val kits=tracks.map{it.instrument}.distinct().associateWith{ImportedInstrumentLoader.load(checkNotNull(setFile),source.instruments[it])}
                             ReferenceRhythmPlayer.combine(tracks.map{chosen->
                             val kit=kits.getValue(chosen.instrument)
-                            val timeline=ReferenceDrumTrack(chosen.name,group.id,group.parent,group.section,group.tempo,true,group.start.toLong(),group.end.toLong(),false,chosen.events)
+                            val timeline=ReferenceDrumTrack(chosen.name,group.id,group.parent,group.section,group.tempo,group.loop,group.start.toLong(),group.end.toLong(),false,chosen.events)
                             ReferenceRhythmPlayer(listOf(timeline),kit::durationFrames,{note,age,channel->kit.sample(note,age.toLong(),channel)},48000)
                             })
                         }

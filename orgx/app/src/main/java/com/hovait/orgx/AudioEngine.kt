@@ -265,7 +265,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     private fun rhythmSample(): Double {
         if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();importedRhythm?.reset();return 0.0 }
-        importedRhythm?.let{it.next(0,bpm.coerceIn(40,240));transportFrame++;return 0.0}
+        importedRhythm?.let{it.next(0,bpm.coerceIn(40,240));if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++;return 0.0}
         referenceRhythm?.let { it.next(rhythmStyle,bpm.coerceIn(40,240));transportFrame++;return 0.0 }
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)
         val step = ((transportFrame / stepFrames) % 8).toInt()
