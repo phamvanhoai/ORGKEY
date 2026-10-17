@@ -1,6 +1,11 @@
 package com.hovait.orgx
 
 object ImportedStyleSupport {
+    fun shiftedNote(note:Int,track:ImportedTrack,melodic:Boolean):Int =
+        if(melodic)(note.toLong()+track.settings.transpose+track.settings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt() else note
+    fun sampleEvents(track:ImportedTrack,melodic:Boolean)=track.events.map{event->
+        if(event.type==2)event.copy(note=shiftedNote(event.note,track,melodic)) else event
+    }
     /** Tracks.GroupPlayNext applies kind before rhythm playback. */
     fun instrument(index:ImportedSetIndex,track:ImportedTrack):ImportedInstrument? =
         index.instruments.getOrNull(track.instrument)?.let{source->
@@ -34,7 +39,7 @@ object ImportedStyleSupport {
             it.type==0 && ImportedInstrumentLoader.layers(it).any{layer->layer.sounds.firstOrNull()?.envelope?.getOrNull(4)!=0}
         }==true})return "Chord following requires pitched sample mapping"
         if(tracks.any{track->instrument(index,track)?.let{
-            ImportedInstrumentLoader.supported(if(followChord && it.type==0)it else ImportedInstrumentLoader.forTrack(it,track.events))
+            ImportedInstrumentLoader.supported(if(followChord && it.type==0)it else ImportedInstrumentLoader.forTrack(it,sampleEvents(track,it.type==0)))
         }!=true})return "Used track samples contain unsupported parameters"
         if(tracks.any{track->track.events.any{it.type !in 1..2 || it.note !in 0..127}})return "Track contains unsupported events"
         if(tracks.any{track->track.events.any{it.type==2 && it.tune!=0}})return "Track note tuning is not supported yet"

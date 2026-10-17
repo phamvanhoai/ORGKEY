@@ -43,12 +43,12 @@ object ImportedInstrumentLoader {
                     (it.loop==0 || (it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.frames))
             }
     }
-    fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null):SampledInstrument {
+    fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings=ImportedChannelSettings()):SampledInstrument {
         if(instrument.modes.isNotEmpty()){
             val layers=layers(instrument)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             require(layers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
-            return SampledInstrument.combine(layers.map{load(file,it,system)})
+            return SampledInstrument.combine(layers.map{load(file,it,system,settings)})
         }
         require(supported(instrument)){"Unsupported instrument parameters"}
         val sections=instrument.sounds.first().sections
@@ -63,10 +63,11 @@ object ImportedInstrumentLoader {
                     if(stereo==null)value(frame*2) else ((stereo[frame*2].toInt()+stereo[frame*2+1])/2).toShort()
                 }
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
-                    section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,section.tune)
+                    section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,
+                    section.tune+if(instrument.type==0)settings.tune else 0)
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
-                envelope=ImportedEnvelope.from(instrument.sounds.first().envelope),pitchMode=instrument.sounds.first().envelope[4],
+                envelope=ImportedEnvelope.from(instrument.sounds.first().envelope).let{it.copy(release=(it.release.toLong()*settings.releasePercent/100).coerceIn(0,100).toInt())},pitchMode=instrument.sounds.first().envelope[4],
                 tuning=if(instrument.type==0)system?.table.orEmpty() else emptyList())
         }
     }

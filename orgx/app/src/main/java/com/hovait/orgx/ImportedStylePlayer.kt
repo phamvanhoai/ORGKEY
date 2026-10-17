@@ -23,19 +23,20 @@ object ImportedStylePlayer {
         }}
         val byGroup=groups.associate{it.id to ImportedStyleSupport.playbackTracks(index,it,includeAccompaniment)}
         val tracks=byGroup.values.flatten()
-        fun key(track:ImportedTrack)=Triple(track.instrument,checkNotNull(ImportedStyleSupport.instrument(index,track)).type,track.system)
+        data class SoundKey(val instrument:Int,val type:Int,val system:Int,val settings:ImportedChannelSettings)
+        fun key(track:ImportedTrack)=SoundKey(track.instrument,checkNotNull(ImportedStyleSupport.instrument(index,track)).type,track.system,track.settings)
         val selected=tracks.groupBy(::key).mapValues{(_,parts)->
             val source=checkNotNull(ImportedStyleSupport.instrument(index,parts.first()))
             if(follow && source.type==0){
                 require(parts.all{it.chordRoot in 0..127 && checkNotNull(transposer).supports(it.chordType)}){"Unsupported source chord metadata"}
                 source
-            } else ImportedInstrumentLoader.forTrack(source,parts.flatMap{it.events})
+            } else ImportedInstrumentLoader.forTrack(source,parts.flatMap{ImportedStyleSupport.sampleEvents(it,source.type==0)})
         }
         // PCM decoding retains mono plus stereo buffers; cap total source PCM before allocating.
         require(selected.values.sumOf{source->ImportedInstrumentLoader.layers(source).sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}}<=64L*1024*1024){
             "Style exceeds 64 MB PCM budget"
         }
-        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.third))}
+        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings)}
         return groups.associate{group->group.id to ReferenceRhythmPlayer.combine(byGroup.getValue(group.id).map{track->
             val sound=sounds.getValue(key(track))
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0
@@ -47,7 +48,8 @@ object ImportedStylePlayer {
                 accompaniment=melodic,
                 mapNote={note->
                     val target=if(follow && melodic)targetChord?.invoke() else null
-                    if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target)
+                    val mapped=if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target)
+                    ImportedStyleSupport.shiftedNote(mapped,track,melodic)
                 },sampled=sound,channelGain={channel->track.volume/100.0*(if(channel==0)minOf(100,100-track.pan) else minOf(100,100+track.pan))/100.0})
         })}
     }

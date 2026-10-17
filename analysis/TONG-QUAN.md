@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã bổ sung đọc và áp dụng tune/transpose/octave/release-percent của channel SET theo `Channels.OpenKey`. Track melodic chọn sample sau transpose/octave; percussion giữ nốt và tune cũ. Thiết lập kênh tham gia khóa cache để các track không dùng chung sai envelope/sample. Header được dựng từng trường có bằng chứng, chưa phải toàn bộ module FX/DSP.
+
 Đã bổ sung đọc system và bảng tuning 24 phím theo `System_.ReadFromStream`/`Music.KeyToPitchEx`: style dùng system riêng của từng track, voice SET dùng system 0, percussion không chịu tuning melodic. Giữ StartKey/SelectedKeys nhưng chưa có giao diện chỉnh hai trường này. Build và toàn bộ kiểm thử đạt; kiểm thử riêng xác nhận bảng thay đổi PCM melodic nhưng không đổi percussion và phát hiện tham chiếu system thiếu. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md) để biết phần còn chưa dựng.
 
 Đã bổ sung default mode và Mix layer vào engine bàn phím/style: đọc 31 mode / 3 Mix slot bật trong SET cục bộ, chọn primary sound theo mode, trộn gain/pan từng layer và dùng envelope độc lập. Bộ chọn Voice có thêm mục MODE, lựa chọn được lưu/khôi phục qua cơ chế sound selection hiện tại. Build/toàn bộ kiểm thử và lượt kiểm tra lại mode/SET đều đạt; đã cài bản mới. Chưa hoàn thành aftertouch, script và DSP/DNC trong mode.
