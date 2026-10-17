@@ -16,7 +16,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 @Composable fun InstrumentConsole(modifier:Modifier,style:String,voice:String,chord:String,bpm:Int,octave:Int,
     playing:Boolean,sustain:Boolean,autoFill:Boolean,session:ImportedStyleSession?,current:Int,pending:Int?,
     onMenu:()->Unit,onStyle:()->Unit,onVoice:()->Unit,onChord:()->Unit,onPlay:()->Unit,
-    onTempo:(Int)->Unit,onOctave:(Int)->Unit,onSustain:()->Unit,onAutoFill:()->Unit,onPart:(Int)->Unit){
+    onTempo:(Int)->Unit,onOctave:(Int)->Unit,onSustain:()->Unit,onAutoFill:()->Unit,onPart:(Int)->Unit,
+    stylePage:Boolean=false,styleChoices:List<String> = emptyList(),styleEnabled:List<Boolean> = emptyList(),
+    page:Int=0,status:String="",onChoose:(Int)->Unit={},onPage:(Int)->Unit={},onExit:()->Unit={}){
     data class Key(val x:Float,val y:Float,val w:Float,val h:Float,val label:String,val active:Boolean=false,val enabled:Boolean=true,val action:()->Unit)
     val keys=mutableListOf<Key>()
     keys+=Key(8f,12f,110f,26f,"ORGX / hovait",action=onMenu)
@@ -31,6 +33,16 @@ import androidx.compose.ui.input.pointer.pointerInput
     keys+=Key(837f,110f,43f,26f,"+",action={onTempo(1)})
     keys+=Key(888f,110f,49f,26f,"OCT −",action={onOctave(-1)})
     keys+=Key(941f,110f,49f,26f,"OCT +",action={onOctave(1)})
+    if(stylePage){
+        keys+=Key(680f,16f,80f,18f,"EXIT",action=onExit)
+        repeat(6){slot->
+            val index=page*6+slot
+            if(index<styleChoices.size)keys+=Key(235f+(slot%2)*264,40f+(slot/2)*36,257f,31f,
+                styleChoices[index].take(32),enabled=styleEnabled.getOrElse(index){true},action={onChoose(index)})
+        }
+        keys+=Key(235f,153f,65f,23f,"PREV",enabled=page>0,action={onPage(-1)})
+        keys+=Key(695f,153f,65f,23f,"NEXT",enabled=(page+1)*6<styleChoices.size,action={onPage(1)})
+    }
     val slots=listOf(16,17,18,32,33,34,35,48,49,50,51,64,80,81,82)
     slots.forEachIndexed{i,section->
         val part=session?.style?.sections?.firstOrNull{it.section==section}
@@ -39,10 +51,11 @@ import androidx.compose.ui.input.pointer.pointerInput
             part!=null && session.available(part.id),action={part?.let{onPart(it.id)}})
     }
     val latest=rememberUpdatedState(keys)
+    val browsing=rememberUpdatedState(stylePage)
     Canvas(modifier.pointerInput(Unit){detectTapGestures{point->
         val x=point.x/size.width*1000;val y=point.y/size.height*250
         latest.value.lastOrNull{x>=it.x && x<it.x+it.w && y>=it.y && y<it.y+it.h && it.enabled}?.action?.invoke()
-            ?: when {x in 230f..480f && y in 40f..150f->onStyle();x in 485f..760f && y in 40f..150f->onVoice();x in 20f..110f && y in 40f..140f->onVoice();else->Unit}
+            ?: when {browsing.value && x in 230f..765f && y in 14f..180f->Unit;x in 230f..480f && y in 40f..150f->onStyle();x in 485f..760f && y in 40f..150f->onVoice();x in 20f..110f && y in 40f..140f->onVoice();else->Unit}
     }}){
         val sx=size.width/1000;val sy=size.height/250
         fun rect(x:Float,y:Float,w:Float,h:Float,color:Color)=drawRect(color,Offset(x*sx,y*sy),Size(w*sx,h*sy))
@@ -63,6 +76,13 @@ import androidx.compose.ui.input.pointer.pointerInput
         text("CHORD   $chord",239f,131f,16f,0xFF8CDEA4.toInt())
         text(if(playing)"RUNNING" else "READY",239f,164f,12f,0xFFDDDDDD.toInt())
         text(pending?.let{p->session?.style?.sections?.firstOrNull{it.id==p}?.let{"NEXT  ${ImportedStyleCatalog.label(it.section)}"}} ?: "SELECT STYLE / VOICE ON DISPLAY",490f,157f,11f,0xFFFFD36A.toInt())
+        if(stylePage){
+            rect(230f,16f,534f,162f,Color(0xFF152D3D))
+            rect(230f,16f,534f,18f,Color(0xFF98521B))
+            text("STYLE SELECT",237f,29f,12f,0xFFFFFFFF.toInt())
+            text(if(status.isNotEmpty())status.take(48) else "PAGE ${page+1} / ${((styleChoices.size+5)/6).coerceAtLeast(1)}",310f,169f,10f,0xFFFFD36A.toInt())
+            if(styleChoices.isEmpty())text("NO STYLES  /  MENU > IMPORT SET",245f,85f,13f,0xFFDDDDDD.toInt())
+        }
         for(x in listOf(62f,835f)){
             drawCircle(Color.Black,40f*minOf(sx,sy),Offset(x*sx,77f*sy))
             drawCircle(Brush.radialGradient(listOf(Color(0xFFB9BCC0),Color(0xFF5E6267),Color(0xFF292C30)),Offset(x*sx,77f*sy),38f*minOf(sx,sy)),38f*minOf(sx,sy),Offset(x*sx,77f*sy))
