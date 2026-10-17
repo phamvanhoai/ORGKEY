@@ -120,6 +120,7 @@ private fun ORGXApp(engine: AudioEngine) {
     }
     LaunchedEffect(Unit) {
         engine.referenceChords = playableChords
+        engine.referenceChordTransposer=runCatching{context.assets.open("Chord").bufferedReader().use{ReferenceChordTransposer.fromTable(it.readText())}}.getOrNull()
         engine.bpm = bpm; engine.instrument = instrument; engine.chordIndex = chord; engine.rhythmStyle = style;engine.effectType=effect
         engine.autoChord=autoChord;engine.progression=progression
         engine.masterVolume=preferences.getFloat("masterVolume",0.65f);engine.keysVolume=preferences.getFloat("keysVolume",0.78f)
@@ -360,6 +361,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var setGroups by remember{mutableStateOf<List<ImportedStyleGroup>>(emptyList())}
     var setIndex by remember{mutableStateOf<ImportedSetIndex?>(null)}
     var previewAccompaniment by remember{mutableStateOf(false)}
+    var followSetChord by remember{mutableStateOf(false)}
     val picker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
         if(uri!=null)scope.launch{
             importing=true
@@ -415,20 +417,29 @@ private fun ORGXApp(engine: AudioEngine) {
                 Checkbox(checked=previewAccompaniment,enabled=!importing,onCheckedChange={previewAccompaniment=it})
                 Text("Preview Drum + accompaniment")
             }
-            Text(if(previewAccompaniment) "Original notes only; chord changes and DNC are not applied." else "Drum tracks only.",fontSize=12.sp)
+            if(previewAccompaniment){
+                Row(verticalAlignment=Alignment.CenterVertically){
+                    Checkbox(checked=followSetChord,enabled=!importing && engine.referenceChordTransposer!=null,onCheckedChange={followSetChord=it})
+                    Text("Follow selected chord")
+                }
+            }
+            Text(if(previewAccompaniment && followSetChord) "Manual chords affect new notes. AUTO uses original notes. DNC is not applied."
+                else if(previewAccompaniment) "Original notes only; chord changes and DNC are not applied." else "Drum tracks only.",fontSize=12.sp)
             val groups=setGroups.associateBy{it.id}
             setGroups.filter{it.section in 16..35}.forEach{group->
                 val index=setIndex
-                val reason=index?.let{ImportedStyleSupport.reason(it,group,previewAccompaniment)} ?: "SET index unavailable"
+                val reason=index?.let{ImportedStyleSupport.reason(it,group,previewAccompaniment,previewAccompaniment && followSetChord)} ?: "SET index unavailable"
                 val supported=reason==null
                 OutlinedButton(enabled=supported && !importing,onClick={scope.launch{
                     importing=true
                     try{
                         val player=withContext(Dispatchers.IO){
-                            ImportedStylePlayer.load(checkNotNull(setFile),checkNotNull(index),group,previewAccompaniment)
+                            ImportedStylePlayer.load(checkNotNull(setFile),checkNotNull(index),group,previewAccompaniment,
+                                engine.referenceChordTransposer,if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
                         engine.setRhythmEnabled(false);engine.importedRhythm=player;engine.importedRhythmName="${groups[group.parent]?.name.orEmpty()} / ${group.name}";engine.bpm=group.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
-                        importStatus=if(previewAccompaniment) "SET preview loaded: ${group.name}. Press PLAY. Original notes; no chord changes." else "SET Drum loaded: ${group.name}. Press PLAY. Bass/accompaniment not loaded."
+                        importStatus=if(previewAccompaniment && followSetChord) "SET loaded: ${group.name}. Press PLAY; select a manual chord."
+                            else if(previewAccompaniment) "SET preview loaded: ${group.name}. Press PLAY. Original notes; no chord changes." else "SET Drum loaded: ${group.name}. Press PLAY. Bass/accompaniment not loaded."
                     }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}
                     finally{importing=false}
                 }},modifier=Modifier.fillMaxWidth()){

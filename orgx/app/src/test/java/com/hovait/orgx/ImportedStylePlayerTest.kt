@@ -44,11 +44,31 @@ class ImportedStylePlayerTest {
         assertNotNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(source.tracks.first().copy(instrument=99))),group,true))
         assertNotNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(source.tracks.first().copy(events=listOf(event.copy(tune=1))))),group))
     }
+    @Test fun exactNoteMelodicBankCannotSilentlyLoseTransposedNotes() {
+        val source=index()
+        val melodic=source.instruments[1]
+        val sound=melodic.sounds.first().copy(envelope=listOf(0,0,100,10,2,0))
+        val exact=source.copy(instruments=listOf(source.instruments[0],melodic.copy(sounds=listOf(sound))))
+        assertNull(ImportedStyleSupport.reason(exact,group,true))
+        assertNotNull(ImportedStyleSupport.reason(exact,group,true,true))
+    }
     @Test fun localSetPreviewCompatibility() {
         val path=System.getProperty("orgx.legacySet") ?: return
         val file=File(path);val index=ImportedSetInstruments.index(file)
         val groups=index.styles.filter{it.section in 16..35}
         println("Accompaniment preview: "+groups.groupingBy{ImportedStyleSupport.reason(index,it,true) ?: "Playable"}.eachCount())
+        val transposer=ReferenceChordTransposer.fromTable(File("src/main/assets/Chord").readText())
+        val followGroups=groups.filter{ImportedStyleSupport.reason(index,it,true,true)==null}
+        println("Manual chord compatible groups: ${followGroups.size}")
+        followGroups.forEach{group->
+            var chord=0
+            val player=ImportedStylePlayer.load(file,index,group,true,transposer){chord}
+            repeat(48000){frame->
+                if(frame==24000)chord=12
+                player.next(0,group.tempo.coerceIn(40,240))
+                assertTrue(player.left.isFinite() && player.right.isFinite())
+            }
+        }
         groups.filter{ImportedStyleSupport.reason(index,it,true)==null}.forEach{group->
             val player=ImportedStylePlayer.load(file,index,group,true)
             var energy=0.0

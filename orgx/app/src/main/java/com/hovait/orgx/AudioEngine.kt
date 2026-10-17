@@ -45,6 +45,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var importedRhythmName:String?=null
     @Volatile var chordIndex = 0
     @Volatile var referenceChords: List<PlayableChord> = emptyList()
+    @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
+    fun selectedSetChord():Int? = if(autoChord || referenceChords.isEmpty())null else chordIndex.coerceIn(referenceChords.indices)
     @Volatile var autoChord = false
     @Volatile var progression = 0
     @Volatile var rhythmStyle = 0

@@ -3,7 +3,7 @@ package com.hovait.orgx
 /** Sample track playback; accompaniment is kept separate for mixer routing. DNC is not applied. */
 class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int,
-    private val accompaniment:Boolean=false) {
+    private val accompaniment:Boolean=false,private val mapNote:(Int)->Int={it}) {
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -50,9 +50,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             timeline?.reset();voices.clear()
         }
         timeline?.advance(local){event->
-            if(event.type==2 && drumLength(event.note)>0){
+            val note=if(event.type==2)mapNote(event.note) else event.note
+            if(event.type==2 && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
-                voices[event.id]=Voice(event.note,event.touch.coerceAtLeast(0)/100.0)
+                voices[event.id]=Voice(note,event.touch.coerceAtLeast(0)/100.0)
             } else if(event.type==1)voices[event.id]?.release=0
         }
         left=0.0;right=0.0
