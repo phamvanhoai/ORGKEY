@@ -162,9 +162,16 @@ private fun ORGXApp(engine: AudioEngine) {
         Box(Modifier.fillMaxSize().background(Bg).systemBarsPadding()) {
             Column(Modifier.fillMaxSize().padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-                    Box{
-                        TextButton(onClick={showTools=true},modifier=Modifier.height(48.dp)){Text("ORGX\nMENU",fontWeight=FontWeight.Bold,fontSize=12.sp)}
+                Box(Modifier.weight(.55f).fillMaxWidth()){
+                    InstrumentConsole(Modifier.fillMaxSize(),setSession?.displayName ?: engine.styleNames[style],
+                        engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument],chordDisplay,bpm,octave,
+                        playing,sustain,styleAutoFill,setSession,sectionState.first,sectionState.second,
+                        onMenu={showTools=true},onStyle={showSets=true},onVoice={showMixer=true},onChord={showChords=true},
+                        onPlay={engine.setRhythmEnabled(!engine.rhythmPlaying)},
+                        onTempo={bpm=(bpm+it).coerceIn(40,240);engine.bpm=bpm},onOctave={octave=(octave+it).coerceIn(1,7)},
+                        onSustain={sustain=!sustain;engine.sustain=sustain;if(!sustain)engine.releaseSustain()},
+                        onAutoFill={styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},
+                        onPart={engine.requestStyleSection(it)})
                         DropdownMenu(expanded=showTools,onDismissRequest={showTools=false}){
                             DropdownMenuItem(text={Text("Files / Bản thu")},onClick={showTools=false;showFiles=true})
                             DropdownMenuItem(text={Text("Project")},onClick={showTools=false;showProjects=true})
@@ -177,33 +184,8 @@ private fun ORGXApp(engine: AudioEngine) {
                             })
                             DropdownMenuItem(text={Text("Designed by hovait / Cài đặt")},onClick={showTools=false;showAbout=true})
                         }
-                    }
-                    OutlinedButton(onClick={showSets=true},modifier=Modifier.weight(1.2f).heightIn(min=48.dp),shape=RoundedCornerShape(8.dp)){
-                        Column(Modifier.fillMaxWidth()){
-                            Text("STYLE / CHỌN ĐIỆU",fontSize=10.sp,color=Subtle)
-                            Text(setSession?.displayName ?: engine.styleNames[style],maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis,fontWeight=FontWeight.Bold)
-                        }
-                    }
-                    OutlinedButton(onClick={showMixer=true},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(8.dp)){
-                        Column(Modifier.fillMaxWidth()){
-                            Text("VOICE / ÂM SẮC & MIXER",fontSize=10.sp,color=Subtle)
-                            Text(engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument],maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis,fontWeight=FontWeight.Bold)
-                        }
-                    }
-                    ControlButton(chordDisplay,leftChord||autoChord,{showChords=true},Modifier.weight(.55f))
                 }
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalAlignment=Alignment.CenterVertically){
-                    ControlButton(if(playing) "STOP" else "PLAY",playing,{engine.setRhythmEnabled(!engine.rhythmPlaying)},Modifier.weight(.65f))
-                    Stepper("BPM",bpm,{bpm=(bpm-1).coerceAtLeast(40);engine.bpm=bpm},{bpm=(bpm+1).coerceAtMost(240);engine.bpm=bpm},Modifier.weight(1f))
-                    Stepper("OCT",octave,{octave=(octave-1).coerceAtLeast(1)},{octave=(octave+1).coerceAtMost(7)},Modifier.weight(.85f))
-                    ControlButton("SUSTAIN",sustain,{sustain=!sustain;engine.sustain=sustain;if(!sustain)engine.releaseSustain()},Modifier.weight(.65f))
-                    ControlButton("AUTO FILL",styleAutoFill,{styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},Modifier.weight(.7f))
-                }
-                setSession?.let{session->
-                    session.transitionError?.let{Text(it,color=MaterialTheme.colorScheme.error,fontSize=12.sp)}
-                    StyleSectionControls(session,sectionState.first,sectionState.second){engine.requestStyleSection(it)}
-                }
-                PianoKeyboard(octave, engine, Modifier.weight(1f).fillMaxWidth(),leftChord)
+                PianoKeyboard(octave, engine, Modifier.weight(.45f).fillMaxWidth(),leftChord)
             }
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
@@ -331,9 +313,19 @@ private fun ORGXApp(engine: AudioEngine) {
     }) {
         val whites=14; val w=size.width/whites
         val scale=intArrayOf(0,2,4,5,7,9,11)
-        for(i in 0 until whites){val x=i*w;val note=(octave+1)*12+(i/7)*12+scale[i%7];val color=if(active.containsKey(note)) Color(0xFF86EFAC) else Color(0xFFF4F4F5);drawRoundRect(color,Offset(x+1,1f),androidx.compose.ui.geometry.Size(w-2,size.height-2),cornerRadius=androidx.compose.ui.geometry.CornerRadius(5f));drawLine(Color(0xFF94A3B8),Offset(x,0f),Offset(x,size.height),2f)}
+        for(i in 0 until whites){
+            val x=i*w;val note=(octave+1)*12+(i/7)*12+scale[i%7]
+            val shades=if(active.containsKey(note))listOf(Color(0xFF899C8B),Color(0xFFD2DFD0))else listOf(Color(0xFF858786),Color(0xFFF6F5F0),Color(0xFFD1D2CF))
+            drawRoundRect(androidx.compose.ui.graphics.Brush.horizontalGradient(shades,x,x+w),Offset(x+2,2f),androidx.compose.ui.geometry.Size(w-4,size.height-4),cornerRadius=androidx.compose.ui.geometry.CornerRadius(4f))
+            drawLine(Color(0xFF666865),Offset(x+4,size.height-5),Offset(x+w-4,size.height-5),4f)
+        }
         val blackAfter=setOf(0,1,3,4,5)
-        for(i in 0 until whites-1) if(i%7 in blackAfter){val x=(i+1)*w-w*.29f;val note=(octave+1)*12+(i/7)*12+scale[i%7]+1;val color=if(active.containsKey(note)) Accent else Color(0xFF11111F);drawRoundRect(color,Offset(x,0f),androidx.compose.ui.geometry.Size(w*.58f,size.height*.62f),cornerRadius=androidx.compose.ui.geometry.CornerRadius(5f));drawRoundRect(Border,Offset(x,0f),androidx.compose.ui.geometry.Size(w*.58f,size.height*.62f),cornerRadius=androidx.compose.ui.geometry.CornerRadius(5f),style=Stroke(1.5f))}
+        for(i in 0 until whites-1) if(i%7 in blackAfter){
+            val x=(i+1)*w-w*.29f;val note=(octave+1)*12+(i/7)*12+scale[i%7]+1
+            val colors=if(active.containsKey(note))listOf(Color(0xFF333E34),Color(0xFF141C15))else listOf(Color(0xFF080909),Color(0xFF404343),Color(0xFF080909))
+            drawRoundRect(androidx.compose.ui.graphics.Brush.horizontalGradient(colors,x,x+w*.58f),Offset(x,0f),androidx.compose.ui.geometry.Size(w*.58f,size.height*.62f),cornerRadius=androidx.compose.ui.geometry.CornerRadius(3f))
+            drawLine(Color(0xFF555858),Offset(x+4,size.height*.60f),Offset(x+w*.58f-4,size.height*.60f),4f)
+        }
         if(active.isNotEmpty()) drawCircle(Accent,12f,Offset(size.width-24f,24f))
         if(leftChord)drawLine(Accent,Offset(size.width/2,0f),Offset(size.width/2,size.height),4f)
     }

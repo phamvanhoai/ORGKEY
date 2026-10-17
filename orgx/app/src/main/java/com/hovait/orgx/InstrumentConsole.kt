@@ -1,0 +1,83 @@
+package com.hovait.orgx
+
+import android.graphics.Paint
+import android.graphics.Typeface
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.input.pointer.pointerInput
+
+/** Hardware panel proportions taken from the installed reference main screen. */
+@Composable fun InstrumentConsole(modifier:Modifier,style:String,voice:String,chord:String,bpm:Int,octave:Int,
+    playing:Boolean,sustain:Boolean,autoFill:Boolean,session:ImportedStyleSession?,current:Int,pending:Int?,
+    onMenu:()->Unit,onStyle:()->Unit,onVoice:()->Unit,onChord:()->Unit,onPlay:()->Unit,
+    onTempo:(Int)->Unit,onOctave:(Int)->Unit,onSustain:()->Unit,onAutoFill:()->Unit,onPart:(Int)->Unit){
+    data class Key(val x:Float,val y:Float,val w:Float,val h:Float,val label:String,val active:Boolean=false,val enabled:Boolean=true,val action:()->Unit)
+    val keys=mutableListOf<Key>()
+    keys+=Key(8f,12f,110f,26f,"ORGX / hovait",action=onMenu)
+    keys+=Key(145f,12f,70f,26f,"MENU",action=onMenu)
+    keys+=Key(145f,48f,70f,26f,"SET",action=onStyle)
+    keys+=Key(145f,84f,70f,26f,"MIXER",action=onVoice)
+    keys+=Key(8f,155f,75f,26f,"AUTO FILL",autoFill,action=onAutoFill)
+    keys+=Key(90f,155f,55f,26f,if(playing)"STOP" else "START",playing,action=onPlay)
+    keys+=Key(790f,12f,88f,26f,"SUSTAIN",sustain,action=onSustain)
+    keys+=Key(888f,12f,102f,26f,"CHORD",action=onChord)
+    keys+=Key(790f,110f,43f,26f,"−",action={onTempo(-1)})
+    keys+=Key(837f,110f,43f,26f,"+",action={onTempo(1)})
+    keys+=Key(888f,110f,49f,26f,"OCT −",action={onOctave(-1)})
+    keys+=Key(941f,110f,49f,26f,"OCT +",action={onOctave(1)})
+    val slots=listOf(16,17,18,32,33,34,35,48,49,50,51,64,80,81,82)
+    slots.forEachIndexed{i,section->
+        val part=session?.style?.sections?.firstOrNull{it.section==section}
+        val label=when(section){in 16..18->"INTRO ${section-15}";in 32..35->"MAIN ${section-31}";in 48..51->"FILL ${section-47}";64->"BREAK";else->"END ${section-79}"}
+        keys+=Key(8f+i*65.8f,202f,62f,37f,label,part!=null && part.id==current,
+            part!=null && session.available(part.id),action={part?.let{onPart(it.id)}})
+    }
+    val latest=rememberUpdatedState(keys)
+    Canvas(modifier.pointerInput(Unit){detectTapGestures{point->
+        val x=point.x/size.width*1000;val y=point.y/size.height*250
+        latest.value.lastOrNull{x>=it.x && x<it.x+it.w && y>=it.y && y<it.y+it.h && it.enabled}?.action?.invoke()
+            ?: when {x in 230f..480f && y in 40f..150f->onStyle();x in 485f..760f && y in 40f..150f->onVoice();x in 20f..110f && y in 40f..140f->onVoice();else->Unit}
+    }}){
+        val sx=size.width/1000;val sy=size.height/250
+        fun rect(x:Float,y:Float,w:Float,h:Float,color:Color)=drawRect(color,Offset(x*sx,y*sy),Size(w*sx,h*sy))
+        val paint=Paint(Paint.ANTI_ALIAS_FLAG).apply{typeface=Typeface.create("sans-serif-condensed",Typeface.BOLD)}
+        fun text(value:String,x:Float,y:Float,font:Float,color:Int,center:Boolean=false){
+            paint.textSize=font*minOf(sx,sy);paint.color=color;paint.textAlign=if(center)Paint.Align.CENTER else Paint.Align.LEFT
+            drawContext.canvas.nativeCanvas.drawText(value,x*sx,y*sy,paint)
+        }
+        drawRect(Brush.verticalGradient(listOf(Color(0xFF34373B),Color(0xFF16191C),Color(0xFF303338))))
+        for(y in 0..250 step 3)rect(0f,y.toFloat(),1000f,.35f,Color(0xFF3C3F41))
+        rect(222f,8f,550f,178f,Color(0xFF070A0D));rect(228f,14f,538f,166f,Color(0xFF182B38))
+        rect(230f,16f,534f,18f,Color(0xFF98521B));text("ORGX  •  MAIN PAGE",238f,29f,12f,0xFFFFE1B0.toInt())
+        rect(233f,39f,245f,69f,Color(0xFF452C21));rect(484f,39f,275f,69f,Color(0xFF183F59))
+        text("STYLE",239f,52f,10f,0xFFE2C35B.toInt());text(style.take(32),239f,72f,15f,0xFFFFFFFF.toInt())
+        text("TEMPO $bpm    METER ${session?.style?.sections?.firstOrNull{it.id==current}?.let{"${it.meterX}/${it.meterY}"} ?: "4/4"}",239f,96f,12f,0xFFDDDDDD.toInt())
+        text("UPPER / VOICE",492f,52f,10f,0xFF8CD5FA.toInt());text(voice.take(30),492f,74f,14f,0xFFFFFFFF.toInt())
+        text("OCTAVE $octave",492f,98f,12f,0xFFDDDDDD.toInt())
+        text("CHORD   $chord",239f,131f,16f,0xFF8CDEA4.toInt())
+        text(if(playing)"RUNNING" else "READY",239f,164f,12f,0xFFDDDDDD.toInt())
+        text(pending?.let{p->session?.style?.sections?.firstOrNull{it.id==p}?.let{"NEXT  ${ImportedStyleCatalog.label(it.section)}"}} ?: "SELECT STYLE / VOICE ON DISPLAY",490f,157f,11f,0xFFFFD36A.toInt())
+        for(x in listOf(62f,835f)){
+            drawCircle(Color.Black,40f*minOf(sx,sy),Offset(x*sx,77f*sy))
+            drawCircle(Brush.radialGradient(listOf(Color(0xFFB9BCC0),Color(0xFF5E6267),Color(0xFF292C30)),Offset(x*sx,77f*sy),38f*minOf(sx,sy)),38f*minOf(sx,sy),Offset(x*sx,77f*sy))
+            drawLine(Color(0xFF25282C),Offset(x*sx,47f*sy),Offset(x*sx,63f*sy),3f*sx)
+        }
+        text("VOLUME / MIXER",62f,132f,10f,0xFFE2C35B.toInt(),true)
+        text("TEMPO",835f,100f,10f,0xFFE2C35B.toInt(),true)
+        text("STYLE CONTROL",500f,196f,10f,0xFFE2C35B.toInt(),true)
+        latest.value.forEach{k->
+            val p=Offset(k.x*sx,k.y*sy);val d=Size(k.w*sx,k.h*sy)
+            drawRoundRect(Color(0xFF070809),Offset(p.x-1,p.y-1),Size(d.width+2,d.height+2),androidx.compose.ui.geometry.CornerRadius(5f*sx))
+            drawRoundRect(Brush.verticalGradient(listOf(Color(0xFF777B80),Color(0xFF383C40),Color(0xFF54585B)),p.y,p.y+d.height),p,d,androidx.compose.ui.geometry.CornerRadius(4f*sx))
+            if(k.y>190){rect(k.x+k.w*.4f,k.y+4,k.w*.2f,3f,if(k.active)Color(0xFFFF4D34)else Color(0xFF16191B))}
+            text(k.label,k.x+k.w/2,k.y+k.h*.67f,if(k.y>190)10f else 11f,if(!k.enabled)0xFF7D8082.toInt()else if(k.active)0xFFFFD65B.toInt()else 0xFF101214.toInt(),true)
+        }
+        rect(0f,247f,1000f,3f,Color(0xFF9F2432))
+    }
+}
