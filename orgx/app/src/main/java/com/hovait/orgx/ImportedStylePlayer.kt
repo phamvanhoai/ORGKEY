@@ -23,8 +23,9 @@ object ImportedStylePlayer {
         }}
         val byGroup=groups.associate{it.id to ImportedStyleSupport.playbackTracks(index,it,includeAccompaniment)}
         val tracks=byGroup.values.flatten()
-        val selected=tracks.groupBy{it.instrument}.mapValues{(instrument,parts)->
-            val source=index.instruments[instrument]
+        fun key(track:ImportedTrack)=track.instrument to checkNotNull(ImportedStyleSupport.instrument(index,track)).type
+        val selected=tracks.groupBy(::key).mapValues{(_,parts)->
+            val source=checkNotNull(ImportedStyleSupport.instrument(index,parts.first()))
             if(follow && source.type==0){
                 require(parts.all{it.chordRoot in 0..127 && checkNotNull(transposer).supports(it.chordType)}){"Unsupported source chord metadata"}
                 source.copy(sounds=source.sounds.take(1))
@@ -36,15 +37,16 @@ object ImportedStylePlayer {
         }
         val sounds=selected.mapValues{ImportedInstrumentLoader.load(file,it.value)}
         return groups.associate{group->group.id to ReferenceRhythmPlayer.combine(byGroup.getValue(group.id).map{track->
-            val sound=sounds.getValue(track.instrument)
+            val sound=sounds.getValue(key(track))
+            val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0
             val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
                 group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,track.events,bounded=group.limit)
             ReferenceRhythmPlayer(listOf(timeline),sound::durationFrames,
                 {note,age,channel->sound.sample(note,age.toLong(),channel)*track.volume/100.0*
                     (if(channel==0)minOf(100,100-track.pan) else minOf(100,100+track.pan))/100.0},48000,
-                accompaniment=index.instruments[track.instrument].type==0,
+                accompaniment=melodic,
                 mapNote={note->
-                    val target=if(follow && index.instruments[track.instrument].type==0)targetChord?.invoke() else null
+                    val target=if(follow && melodic)targetChord?.invoke() else null
                     if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target)
                 },envelope=sound.envelope)
         })}

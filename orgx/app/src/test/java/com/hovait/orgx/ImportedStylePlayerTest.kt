@@ -52,6 +52,18 @@ class ImportedStylePlayerTest {
         assertTrue(ImportedStyleSupport.drumTracks(solo,group).isEmpty())
         assertFalse(solo.tracks.first().muted)
     }
+    @Test fun trackKindDeterminesMelodicAndPercussionRoutingWithoutMutatingBank(){
+        val source=index()
+        val percussion=source.tracks[1].copy(kind=1)
+        assertEquals(2,ImportedStyleSupport.instrument(source,percussion)?.type)
+        assertEquals(2,ImportedStyleSupport.instrument(source,percussion)?.sounds?.first()?.envelope?.get(4))
+        val bank=source.copy(instruments=listOf(source.instruments[0],instrument(2)))
+        val bass=percussion.copy(kind=2)
+        assertEquals(0,ImportedStyleSupport.instrument(bank,bass)?.type)
+        assertEquals(0,ImportedStyleSupport.instrument(bank,bass)?.sounds?.first()?.envelope?.get(4))
+        assertEquals(2,bank.instruments[1].type)
+        assertEquals(0,source.instruments[1].type)
+    }
     @Test fun unsupportedAccompanimentIsExplainedWithoutBlockingDrumMode() {
         val source=index()
         val bad=source.copy(instruments=listOf(instrument(1),instrument(3)))

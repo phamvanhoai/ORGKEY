@@ -7,3 +7,4 @@
 /tools/android-sdk/
 /tools/*.zip
 /tools/gradle-*/
+/analysis/decoded-original/
