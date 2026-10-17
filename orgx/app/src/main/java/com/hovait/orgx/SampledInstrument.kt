@@ -13,6 +13,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     }
     private val roots=regions.map{it.root}
     private var layers:List<SampledInstrument> = emptyList()
+    var keyboardSettings=ImportedChannelSettings();private set
+    private var keyboardMelodic=true
+    fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{keyboardSettings=settings;keyboardMelodic=melodic}
+    fun keyboardNote(note:Int):Int=if(!keyboardMelodic)note else
+        (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     companion object {
         fun combine(sounds:List<SampledInstrument>):SampledInstrument {
             require(sounds.isNotEmpty())

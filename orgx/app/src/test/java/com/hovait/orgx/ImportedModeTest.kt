@@ -5,6 +5,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedModeTest {
+    @Test fun keyboardModeConfigurationIsNotAppliedAgainToStyleSamples(){
+        val file=File.createTempFile("orgx-keyboard-mode",".pcm")
+        try{
+            file.writeBytes(ByteArray(2048){if(it%2==0)0 else 32})
+            val source=instrument()
+            val settings=ImportedChannelSettings(volume=50,pan=100,transpose=12)
+            val mode=source.copy(modes=listOf(source.modes.first().copy(sound=0,mix=List(8){-1},settings=settings)))
+            val keyboard=ImportedInstrumentLoader.load(file,mode)
+            assertEquals(72,keyboard.keyboardNote(60));assertEquals(settings,keyboard.keyboardSettings)
+            val style=ImportedInstrumentLoader.load(file,mode,settings=ImportedChannelSettings())
+            assertEquals(60,style.keyboardNote(60));assertEquals(100,style.keyboardSettings.volume)
+        }finally{file.delete()}
+    }
     @Test fun persistedTrackSettingsOverrideEarlierModeSelection(){
         val modeSettings=ImportedChannelSettings(volume=50,pan=100,tune=250,transpose=2,releasePercent=50)
         val sound=instrument().let{it.copy(modes=listOf(it.modes.first().copy(settings=modeSettings)))}

@@ -105,7 +105,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         var velocity: Float = 1f,
         var ageFrames: Long = 0
     ) {
-        val sampledPlayback=imported?.voice(note)
+        val renderedNote=imported?.keyboardNote(note) ?: note
+        val sampledPlayback=imported?.voice(renderedNote)
     }
 
     private val track by lazy { AudioTrack.Builder()
@@ -377,6 +378,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         } else ChordSignal.sample(notes, transportFrame, sampleRate)
     }
 
+    private val importedKeyboardMixer=ImportedKeyboardMixer()
     private fun renderBlock(output: ShortArray) {
         val frames = output.size / 2
             for (frame in 0 until frames) {
@@ -384,6 +386,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 var mixedLeft = 0.0
                 var mixedRight = 0.0
                 var midiDrumLeft=0.0;var midiDrumRight=0.0;var melodicCount=0
+                importedKeyboardMixer.beginFrame()
                 voices.forEach { (note, voice) ->
                     val frequency = 440.0 * 2.0.pow((voice.note - 69) / 12.0)
                     voice.sampledPlayback?.next(voice.releasing)
@@ -398,16 +401,19 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     val gain=voice.gain.coerceAtLeast(0f)*voice.velocity*naturalDecay
                     if(voice.instrument == -1){
                         midiDrumLeft+=sample*gain;midiDrumRight+=sampleRight*gain
+                    } else if(voice.imported!=null){
+                        importedKeyboardMixer.add(voice.imported,sample*gain,sampleRight*gain)
                     } else {
                         mixedLeft+=sample*gain;mixedRight+=sampleRight*gain;melodicCount++
                     }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
-                    if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || voice.imported?.finished(voice.note,voice.ageFrames)==true || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
+                    if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || voice.imported?.finished(voice.renderedNote,voice.ageFrames)==true || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
+                importedKeyboardMixer.finishFrame()
                 val rhythm = rhythmSample() + padSample()
-                val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
-                val mixedOutputRight = VoiceMixer.mix(mixedRight,melodicCount,midiDrumRight,keysVolume,drumsVolume) + accompanimentSample(1) * chordVolume + rhythm * drumsVolume
+                val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + importedKeyboardMixer.left*keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
+                val mixedOutputRight = VoiceMixer.mix(mixedRight,melodicCount,midiDrumRight,keysVolume,drumsVolume) + importedKeyboardMixer.right*keysVolume + accompanimentSample(1) * chordVolume + rhythm * drumsVolume
                 val sound = sampleBank?.nextStereo() ?: 0L
                 var padLeft=0.0;var padRight=0.0
                 sampleBank?.let { bank->for(pad in 0..7){

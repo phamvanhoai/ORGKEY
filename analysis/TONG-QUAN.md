@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã nối keyboard MODE: transpose/octave melodic trước chọn sample, channel volume/pan và DSP 4/6/20 sau cộng note/layer. Echo bus tiếp tục sau khi thả hết phím; style không bị áp MODE lần thứ hai. Imported keyboard dùng tổng tuyến tính, không trung bình theo polyphony như đường cũ; limiter cuối vẫn giữ. Build/kiểm thử đạt, chưa so sánh loudness/âm thanh bản thu với APK gốc. Aftertouch/script/mode Effects và FX Music toàn cục còn thiếu.
+
 Đã giữ FX header/module của mode và dùng tune/release khi nạp voice MODE trực tiếp. Đối chiếu thứ tự `Track.ReadFromStream`: mode được chọn trước rồi channel đã lưu ghi đè, nên style không tự dùng FX mặc định mode thay cấu hình track. Kiểm thử PCM stereo/ưu tiên cấu hình và release đạt. Chưa nối đầy đủ DSP/gain/pan/transpose mode cho tổng voice bàn phím, aftertouch/script còn thiếu.
 
 Đã dựng fallback section còn thiếu về group 0 theo caller gốc, áp dụng vào catalog và loader thật; không thay section riêng bằng fallback. Giữ ChordType/ChordBase của TrackGroup. Kiểm thử nạp/request PCM fallback và không nhân bản/không lấy nhầm style đạt. Chưa dựng ChordVars variant ở định dạng SET mới; bản 1.2.8/1.4.6 hiện hỗ trợ không lưu trường này.

@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Keyboard MODE channel mixer
+
+Voice MODE nạp trực tiếp giữ cấu hình channel hiệu lực trên sample đã load; bàn phím melodic áp transpose/octave trước chọn region, percussion giữ key. Mixer dùng bus theo identity của sound đã load, cộng các nốt/layer trước rồi áp volume/pan và DSP đã hỗ trợ (4/6/20) một lần trên tổng stereo. Không nhân lại gain của từng layer. Echo buffer tiếp tục chạy với input 0 khi hết nốt. Voice cũ giữ bus của sound cũ khi đổi voice; bus im và hết note được loại.
+
+Voice SET nhập được cộng tuyến tính thay vì trung bình theo số nốt; limiter cuối vẫn giới hạn peak. Kiểm thử gain/pan hai note, echo sau thả phím/reset và transpose melodic/percussion. Chưa đối chiếu loudness bản thu; DSP Music global, module còn thiếu, aftertouch/script và mode Effects vẫn chưa hoàn chỉnh. Không áp cấu hình bàn phím lần nữa lên style vì loader style truyền channel settings tường minh.
+
 ### Cấu hình mode và thứ tự khôi phục channel
 
 Đã giữ FX header/module của InstMode thay vì bỏ qua. `Track.ReadFromStream` gọi InstrumentChange/ModeSet trước, rồi Channels.ReadFromStream đọc cấu hình channel đã lưu đè lên. Vì vậy track style tiếp tục dùng cấu hình channel của track, không tự đổi gain/pan/FX sang mặc định mode. Caller có cấu hình channel tường minh thì cấu hình đó ưu tiên. Voice MODE khi load trực tiếp dùng tune/release của mode cho từng layer.

@@ -49,7 +49,8 @@ object ImportedInstrumentLoader {
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             require(layers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
             val modeSettings=settings ?: instrument.modes.first().settings
-            return SampledInstrument.combine(layers.map{load(file,it,system,modeSettings)})
+            val loaded=SampledInstrument.combine(layers.map{load(file,it,system,modeSettings)})
+            return if(settings==null)loaded.withKeyboardSettings(modeSettings,instrument.type==0) else loaded
         }
         require(supported(instrument)){"Unsupported instrument parameters"}
         val channel=settings ?: ImportedChannelSettings()
