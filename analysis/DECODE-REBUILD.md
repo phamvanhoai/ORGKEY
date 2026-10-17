@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Group/style FX inheritance
+
+Đã giữ FX block trong TrackGroup với version từ 1.4.2, và dựng cách tìm `Tracks.GroupFXs`: ưu tiên block của phần nếu enabled và có module; nếu không lần theo cha, cuối cùng về group 0. Có chống chu kỳ cha lỗi. Output style trộn drum/chord gain trước rồi chạy module đã hỗ trợ một lần cho cả stereo. Không áp dụng các header volume/pan/tune của group vì `GroupPlayNext` chỉ copy module với các cờ header false.
+
+Kiểm thử ưu tiên/fallback, block có module disabled vẫn chặn kế thừa như gốc, chu kỳ cha và PCM tổng sau gain. Giới hạn: phiên bản SET 1.2.8 không có FX block tại TrackGroup; các module chưa dựng không tự trở thành được hỗ trợ. Chain hiện sở hữu theo player section và reset khi section reset; chưa giữ đuôi xuyên phần như engine FX rhythm dùng chung của gốc, và fallback global rhythm chưa hoàn chỉnh.
+
 Đây là bản xuất để phân tích và bước sửa engine có bằng chứng, chưa phải bản dựng lại APK gốc 100%. Mode/layer/DNC, toàn bộ FX, STS/system, GroupSection và toàn bộ giao diện gốc còn phải đối chiếu và thực thi. Không lấy “export xong” hoặc “build đạt” làm kết luận các phần này đã đúng.
 
 ## Mode và layer đã bổ sung

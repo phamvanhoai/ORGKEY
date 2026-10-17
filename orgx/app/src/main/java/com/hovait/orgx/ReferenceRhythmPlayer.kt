@@ -17,6 +17,16 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val voices=LinkedHashMap<Int,Voice>()
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
     private var children:List<ReferenceRhythmPlayer> = emptyList()
+    private var groupFx:ImportedFxChain?=null
+    var outputLeft=0.0;private set
+    var outputRight=0.0;private set
+    fun withGroupFx(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{groupFx=ImportedFxChain(settings)}
+    /** Called once per audio frame after the drum/chord mixer, not once per output channel. */
+    fun mixOutput(drumGain:Float,chordGain:Float){
+        val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain)
+        val processor=groupFx
+        if(processor==null){outputLeft=l;outputRight=r}else{processor.process(l,r);outputLeft=processor.left;outputRight=processor.right}
+    }
     companion object {
         fun combine(players:List<ReferenceRhythmPlayer>):ReferenceRhythmPlayer {
             require(players.isNotEmpty())
@@ -32,7 +42,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     fun mixedRight(drumGain:Float,chordGain:Float):Double =
         if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain)
-    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();children.forEach{it.reset()}}
+    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     fun startAt(referenceTime:Long){require(referenceTime>=0);reset();initialTime=referenceTime;children.forEach{it.startAt(referenceTime)}}
     fun next(selection:Int,tempo:Int) {
         if(children.isNotEmpty()){

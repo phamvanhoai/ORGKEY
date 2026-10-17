@@ -424,8 +424,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                 }
                 val setPlayer=importedRhythm
-                val styleLeft=setPlayer?.mixedLeft(drumsVolume,chordVolume) ?: ((referenceRhythm?.left ?: 0.0)*drumsVolume)
-                val styleRight=setPlayer?.mixedRight(drumsVolume,chordVolume) ?: ((referenceRhythm?.right ?: 0.0)*drumsVolume)
+                setPlayer?.mixOutput(drumsVolume,chordVolume)
+                val styleLeft=setPlayer?.outputLeft ?: ((referenceRhythm?.left ?: 0.0)*drumsVolume)
+                val styleRight=setPlayer?.outputRight ?: ((referenceRhythm?.right ?: 0.0)*drumsVolume)
                 stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume+styleLeft,
                     mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume+styleRight,effectType,effectMix)
                 outputLimiter.process(stereoEffect.left*masterVolume,stereoEffect.right*masterVolume)
