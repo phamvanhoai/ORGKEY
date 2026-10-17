@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã dựng option nhấn lại section để đặt `tempLoop` theo `MainActivity.y1` và event 204, mặc định tắt. Settings có “Repeat section button to loop”, LCD hiện TEMP LOOP khi đang lặp tạm. Intro/Ending giữ lặp, chọn Main khác thoát được; option tắt giữ one-shot. Toàn bộ kiểm thử đạt trước cập nhật polling LCD; bản cuối build và kiểm thử session/tempLoop đạt. Chưa hoàn thiện GroupSection/control-mode khác.
+
 Đã sửa restart cùng section theo `GroupPlayNext`: không gọi đóng nốt như khi đổi group; giữ voice/sample age và FX track khi reset timeline. Khởi tạo lại timeline không xóa channel lần thứ hai. Stop/reset vẫn xóa. Kiểm thử riêng phân biệt nốt còn vang với sự kiện phát lại sau seek. Chưa dựng nhấn đôi tempLoop và đầy đủ control-mode.
 
 Đã giữ state FX từng track trong release tail khi đổi phần, kể cả echo còn ngân sau khi voice kết thúc. Source có chain mới để reset/reuse không làm mất đuôi đã chuyển. Kiểm thử impulse sau chuyển/reset source đạt; Stop destination xóa đuôi. Giới hạn module 4/6/20, ngưỡng im lặng và 32 nhóm tail; chưa hoàn chỉnh Ending hoặc restart cùng player.

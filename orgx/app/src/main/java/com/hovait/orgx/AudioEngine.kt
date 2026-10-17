@@ -190,9 +190,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val session=importedStyleSession ?: return
         if(!session.available(id))return
         val startNow=!rhythmPlaying
-        session.press(id,running=!startNow,autoFill=styleAutoFill)
+        session.press(id,running=!startNow,autoFill=styleAutoFill,repeatToLoop=styleRepeatToLoop)
         if(startNow)setRhythmEnabled(true)
     }
+    @Volatile var styleRepeatToLoop=false
 
     @Synchronized fun playMidi(song:MidiSong,onComplete:()->Unit){
         stopMidi()

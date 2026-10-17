@@ -19,7 +19,7 @@ import androidx.compose.ui.input.pointer.pointerInput
     onTempo:(Int)->Unit,onOctave:(Int)->Unit,onSustain:()->Unit,onAutoFill:()->Unit,onPart:(Int)->Unit,
     stylePage:Boolean=false,styleChoices:List<String> = emptyList(),styleEnabled:List<Boolean> = emptyList(),
     page:Int=0,status:String="",onChoose:(Int)->Unit={},onPage:(Int)->Unit={},onExit:()->Unit={},
-    modeLabel:String="",onMode:()->Unit={},selectionTitle:String="STYLE SELECT",selectedChoice:Int=-1,onMixer:()->Unit=onVoice){
+    modeLabel:String="",onMode:()->Unit={},selectionTitle:String="STYLE SELECT",selectedChoice:Int=-1,onMixer:()->Unit=onVoice,temporaryLoop:Boolean=false){
     data class Key(val x:Float,val y:Float,val w:Float,val h:Float,val label:String,val active:Boolean=false,val enabled:Boolean=true,val action:()->Unit)
     val keys=mutableListOf<Key>()
     keys+=Key(8f,12f,110f,26f,"ORGX / hovait",action=onMenu)
@@ -76,7 +76,7 @@ import androidx.compose.ui.input.pointer.pointerInput
         text("UPPER / VOICE",492f,52f,10f,0xFF8CD5FA.toInt());text(voice.take(30),492f,74f,14f,0xFFFFFFFF.toInt())
         text("OCTAVE $octave",492f,98f,12f,0xFFDDDDDD.toInt())
         text("CHORD   $chord",239f,131f,16f,0xFF8CDEA4.toInt())
-        text(if(playing)"RUNNING" else "READY",239f,164f,12f,0xFFDDDDDD.toInt())
+        text(if(playing && temporaryLoop)"RUNNING / TEMP LOOP" else if(playing)"RUNNING" else "READY",239f,164f,12f,0xFFDDDDDD.toInt())
         text(pending?.let{p->session?.style?.sections?.firstOrNull{it.id==p}?.let{"NEXT  ${ImportedStyleCatalog.label(it.section)}"}} ?: "SELECT STYLE / VOICE ON DISPLAY",490f,157f,11f,0xFFFFD36A.toInt())
         if(stylePage){
             rect(230f,16f,534f,162f,Color(0xFF152D3D))

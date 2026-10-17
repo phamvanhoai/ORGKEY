@@ -135,10 +135,12 @@ private fun ORGXApp(engine: AudioEngine) {
     var styleAutoFill by remember{mutableStateOf(preferences.getBoolean("styleAutoFill",false))}
     LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
+    var temporaryLoop by remember{mutableStateOf(false)}
     LaunchedEffect(engine){while(true){
         playing=engine.rhythmPlaying
         bankIndex=engine.activeSetIndex
         setSession=engine.importedStyleSession
+        temporaryLoop=setSession?.temporaryLoop==true
         setSession?.let{sectionState=it.currentId to it.pendingId;bpm=engine.bpm}
         kotlinx.coroutines.delay(100)
     }}
@@ -190,6 +192,7 @@ private fun ORGXApp(engine: AudioEngine) {
         engine.referenceChordTransposer=runCatching{context.assets.open("Chord").bufferedReader().use{ReferenceChordTransposer.fromTable(it.readText())}}.getOrNull()
         engine.bpm = bpm; engine.instrument = instrument; engine.chordIndex = chord; engine.rhythmStyle = style;engine.effectType=effect
         engine.autoChord=autoChord;engine.progression=progression
+        engine.styleRepeatToLoop=preferences.getBoolean("styleRepeatToLoop",false)
         engine.masterVolume=preferences.getFloat("masterVolume",0.65f);engine.keysVolume=preferences.getFloat("keysVolume",0.78f)
         engine.chordVolume=preferences.getFloat("chordVolume",0.22f);engine.drumsVolume=preferences.getFloat("drumsVolume",0.55f)
         engine.effectMix=preferences.getFloat("effectMix",0.28f)
@@ -207,6 +210,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     InstrumentConsole(Modifier.fillMaxSize(),if(restoringSet) "LOADING SAVED SET..." else setSession?.displayName ?: if(bankIndex!=null) "SELECT SET STYLE" else engine.styleNames[style],
                         engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument],chordDisplay,bpm,octave,
                         playing,sustain,styleAutoFill,setSession,sectionState.first,sectionState.second,
+                        temporaryLoop=temporaryLoop,
                         onMenu={closePages();showTools=true},onStyle={closePages();browseVoices=false;browseStyles=true;bankPage=0;bankStatus=""},
                         onVoice={closePages();browseStyles=false;browseVoices=true;bankPage=0;bankStatus=""},onMixer={closePages();showMixer=true},onChord={closePages();showChords=true},
                         onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null))engine.setRhythmEnabled(!engine.rhythmPlaying)},
@@ -678,9 +682,13 @@ private fun ORGXApp(engine: AudioEngine) {
     val context=LocalContext.current
     val preferences=remember { context.getSharedPreferences("orgx-settings",0) }
     var nativeOutput by remember { mutableStateOf(preferences.getBoolean("nativeOutput",false)) }
+    var repeatToLoop by remember { mutableStateOf(preferences.getBoolean("styleRepeatToLoop",false)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
     LaunchedEffect(engine) { while(true) { outputStatus=engine.outputStatus;kotlinx.coroutines.delay(300) } }
     InstrumentPage(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column(Modifier.verticalScroll(rememberScrollState())){Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle);
+        Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
+            Text("Repeat section button to loop",Modifier.weight(1f));Switch(checked=repeatToLoop,onCheckedChange={repeatToLoop=it;engine.styleRepeatToLoop=it;preferences.edit().putBoolean("styleRepeatToLoop",it).apply()})
+        }
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Experimental NOpenSL",Modifier.weight(1f));Switch(checked=nativeOutput,onCheckedChange={nativeOutput=it;preferences.edit().putBoolean("nativeOutput",it).apply()})
         };Text("Applies after closing and reopening the app. AudioTrack is used if OpenSL initialization fails.",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}

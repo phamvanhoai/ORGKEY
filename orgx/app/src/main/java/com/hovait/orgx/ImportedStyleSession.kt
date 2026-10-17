@@ -9,6 +9,8 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     private data class Request(val id:Int,val immediate:Boolean)
     private val queue=ArrayDeque<Request>()
     private var jumpId:Int?=null
+    private val temporaryLoops=HashSet<Int>()
+    val temporaryLoop get()=synchronized(this){currentId in temporaryLoops}
     private var lastLoop:Int?=main.id.takeIf{main.loop}
     private var startedAt=0L
     private var rhythmScale=ReferenceSectionTiming.scale(main,changeMethod).takeIf{it>0} ?: 1000
@@ -34,16 +36,21 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     }
     @Synchronized fun request(id:Int,immediate:Boolean=false){
         if(id !in players)return
+        temporaryLoops.remove(id)
         if(immediate){queue.clear();queue.addLast(Request(id,true));return}
         val previous=queue.lastOrNull()?.id ?: currentId
         if(previous==id && groups.getValue(id).loop)return
         if(queue.size<=8)queue.addLast(Request(id,false))
     }
-    @Synchronized fun jump(id:Int){if(id in players)jumpId=id}
+    @Synchronized fun jump(id:Int){if(id in players){temporaryLoops.remove(id);jumpId=id}}
     /** MainActivity.y1: Main + Auto Fill emits Rhythm(fill), then RhythmJump(main). */
-    @Synchronized fun press(id:Int,running:Boolean,autoFill:Boolean){
+    @Synchronized fun press(id:Int,running:Boolean,autoFill:Boolean,repeatToLoop:Boolean=false){
         if(id !in players)return
         val group=groups.getValue(id)
+        if(repeatToLoop && running && (queue.lastOrNull()?.id ?: currentId)==id){
+            if(!group.loop && (group.limit || group.end-group.start>10))temporaryLoops.add(id)
+            return
+        }
         val fill=if(running && autoFill && group.section in 32..35)
             style.sections.firstOrNull{it.section==group.section-32+48 && it.id in players} else null
         if(fill!=null){request(fill.id);jumpId=id}else {
@@ -84,8 +91,9 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         val section=groups.getValue(currentId)
         val completed=if(section.limit)clock.time-startedAt>=section.end.toLong()-section.start else player.finished
         if(section.type==1 && ReferenceSectionTiming.inWindow(clock.time,rhythmScale,tempo)){
-            if(queue.isNotEmpty() && (section.loop || completed))select(queue.removeFirst().id)
-            else if(completed && !section.loop){
+            val loop=section.loop || currentId in temporaryLoops
+            if(queue.isNotEmpty() && (loop || completed))select(queue.removeFirst().id)
+            else if(completed && !loop){
                 val target=jumpId ?: when {
                     section.jumpGroup<0->lastLoop
                     section.jumpGroup>0->section.jumpGroup
@@ -94,7 +102,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
                 jumpId=null
                 if(target==null){finished=true;player.reset();return}else select(target)
             }
-            else if(completed && !section.limit && section.loop)select(currentId)
+            else if(completed && ((!section.limit && section.loop) || currentId in temporaryLoops))select(currentId)
         }
         if(finished)return
         val effectiveTempo=tempoChange ?: tempo

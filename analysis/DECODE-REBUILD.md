@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### RhythmTempLoop / nhấn lại để lặp tạm
+
+Đối chiếu `MainActivity.y1`, field `q1` (không phải method q1 đặt password), `Track.Play` event 204 và `GroupPlayAdd/Jump`. Option `rhythm_loop_double` mặc định false. Khi đang chạy và target là group cuối queue hoặc current, nhấn lại đặt tempLoop=true nếu group không Loop và có Limit hoặc độ dài >10. Đây không phải toggle double-tap theo timeout. Request/Jump group đó xóa tempLoop; chọn group khác có thể thoát ở cửa sổ chuyển phần.
+
+ORGX có setting lưu `styleRepeatToLoop` và hiển thị TEMP LOOP qua state polling. Engine lặp phần một lần khi hết vòng, ưu tiên queue nếu có phần đích, giữ Jump để dùng khi hết one-shot sau lần chọn lại. Kiểm thử Intro/Ending lặp và chuyển Main, option tắt Ending vẫn kết thúc. Chưa port GroupSection hợp âm và mọi event record/control của gốc.
+
 ### Restart cùng section / channel continuity
 
 Đối chiếu `GroupPlayNext`: chỉ gọi `CloseAll(false)` khi group cũ khác group mới. Restart cùng group gọi `GroupPlayStart`/`Track.Start`, không đóng toàn bộ channel. `startAt(preserveVoices=true)` hiện reset timeline/clock nhưng giữ voice, sample age, FX track và tail đang chạy; bus group giữ khi yêu cầu. Khởi tạo timeline sau đó không reset channel lần nữa. Stop/reset vẫn xóa toàn bộ. Kiểm thử nốt có interval đã bỏ lỡ sau seek: không phát lại sự kiện, voice cũ tiếp tục hơn thời gian release, reset xóa tiếng.
