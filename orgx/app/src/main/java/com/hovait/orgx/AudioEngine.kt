@@ -43,6 +43,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var activeSetIndex:ImportedSetIndex?=null
     @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
     @Volatile var importedRhythm:ReferenceRhythmPlayer?=null
+    @Volatile var importedStyleSession:ImportedStyleSession?=null
     @Volatile var importedRhythmName:String?=null
     @Volatile var chordIndex = 0
     @Volatile private var autoChordMap=AutoChordProgression(emptyList())
@@ -282,7 +283,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private fun rhythmSample(): Double {
-        if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();importedRhythm?.reset();return 0.0 }
+        if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();importedStyleSession?.let{it.reset();importedRhythm=it.player;importedRhythmName=it.displayName};importedRhythm?.reset();return 0.0 }
+        importedStyleSession?.let{
+            it.next(bpm.coerceIn(40,240));importedRhythm=it.player;importedRhythmName=it.displayName
+            if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++
+            return 0.0
+        }
         importedRhythm?.let{it.next(0,bpm.coerceIn(40,240));if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++;return 0.0}
         referenceRhythm?.let { it.next(rhythmStyle,bpm.coerceIn(40,240));transportFrame++;return 0.0 }
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)

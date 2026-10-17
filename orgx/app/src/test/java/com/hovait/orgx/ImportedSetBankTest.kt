@@ -13,6 +13,17 @@ class ImportedSetBankTest {
         assertTrue("SET has no style tracks",bank.index.tracks.any{track->sections.any{it.id==track.group}})
         assertTrue(bank.sounds.isNotEmpty())
         assertTrue(sections.any{ImportedStyleSupport.reason(bank.index,it)==null})
+        val catalog=ImportedStyleCatalog.styles(bank.index)
+        assertTrue(catalog.size<catalog.sumOf{it.sections.size})
+        var loaded=0
+        catalog.filter{style->style.sections.any{it.section in 32..35 && ImportedStyleSupport.reason(bank.index,it)==null}}.forEach{style->
+            val session=ImportedStylePlayer.loadStyle(bank.file,bank.index,style)
+            assertTrue(style.sections.any{it.id==session.currentId && it.section in 32..35})
+            session.next(120);assertTrue(session.player.left.isFinite())
+            loaded++
+        }
+        println("Grouped SET styles: ${catalog.size}, playable styles: $loaded, parts: ${catalog.sumOf{it.sections.size}}")
+        catalog.forEach{println("Style ${it.id}: ${it.name}, sections=${it.sections.map{part->part.section}}")}
     }
     @Test fun restoreRejectsPathsOutsideSetStorage() {
         try{ImportedSetBank.restore(File("."),"../sample.Set");fail("Accepted path traversal")}

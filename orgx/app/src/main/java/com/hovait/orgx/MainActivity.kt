@@ -1,6 +1,7 @@
 package com.hovait.orgx
 
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 
 import android.content.SharedPreferences
@@ -104,7 +105,14 @@ private fun ORGXApp(engine: AudioEngine) {
     var octave by remember { mutableIntStateOf(preferences.getInt("octave", 4)) }
     var bpm by remember { mutableIntStateOf(preferences.getInt("bpm", 120)) }
     var playing by remember { mutableStateOf(false) }
-    LaunchedEffect(engine){while(true){if(playing && !engine.rhythmPlaying)playing=false;kotlinx.coroutines.delay(100)}}
+    var setSession by remember{mutableStateOf(engine.importedStyleSession)}
+    var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
+    LaunchedEffect(engine){while(true){
+        if(playing && !engine.rhythmPlaying)playing=false
+        setSession=engine.importedStyleSession
+        setSession?.let{sectionState=it.currentId to it.pendingId}
+        kotlinx.coroutines.delay(100)
+    }}
     var sustain by remember { mutableStateOf(false) }
     var instrument by remember { mutableIntStateOf(InstrumentCatalog.validIndex(preferences.getInt("instrument", 0))) }
     var chord by remember { mutableIntStateOf(ChordSelection.resolve(chordNames, preferences.getString("chordName", null), preferences.getInt("chord", 0))) }
@@ -170,12 +178,20 @@ private fun ORGXApp(engine: AudioEngine) {
                     val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
                     StatusPanel(bpm, octave, playing, chordDisplay, (engine.importedRhythmName ?: engine.styleNames[style]), (engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
                 }
+                setSession?.let{session->
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)){
+                        session.style.sections.forEach{part->
+                            FilterChip(selected=sectionState.first==part.id,enabled=session.available(part.id),onClick={session.request(part.id)},
+                                label={Text(ImportedStyleCatalog.label(part.section)+if(sectionState.second==part.id)" • QUEUED" else "")},modifier=Modifier.heightIn(min=48.dp))
+                        }
+                    }
+                }
                 PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth(),leftChord)
             }
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
                     preferences.edit().remove("importedSetFile").remove("importedSetSound").apply() },
-                onStyle = { engine.importedRhythm=null;engine.importedRhythmName=null;style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
+                onStyle = { engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null;style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
                 onEffect = { effect = it; engine.effectType = it },
                 onSetStyles={showMixer=false;showSets=true},
                 onDismiss = { showMixer = false })
@@ -385,12 +401,12 @@ private fun ORGXApp(engine: AudioEngine) {
     var previewAccompaniment by remember{mutableStateOf(false)}
     var followSetChord by remember{mutableStateOf(false)}
     fun activate(bank:ImportedSetBank){
-        engine.setRhythmEnabled(false);engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm)
+        engine.setRhythmEnabled(false);engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm)
         setFile=bank.file;setIndex=bank.index;setGroups=bank.index.styles;setInstruments=bank.sounds
         engine.activeSetFile=bank.file;engine.activeSetIndex=bank.index;engine.activeSetSounds=bank.sounds
         preferences.edit().putString("activeSetFile",bank.file.name).apply()
         showSetVoices=false;styleQuery=""
-        importStatus="SET read: ${bank.index.styles.count{it.section in 16..35}} style sections, ${bank.sounds.size} supported sounds. Select a style below."
+        importStatus="SET read: ${ImportedStyleCatalog.styles(bank.index).size} styles, ${bank.sounds.size} supported sounds."
     }
     LaunchedEffect(setFile){
         val file=setFile
@@ -431,7 +447,7 @@ private fun ORGXApp(engine: AudioEngine) {
             }}){Text("OPEN SET ${file.name.take(12)}")}
         }
         if(setFile!=null)Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){
-            FilterChip(selected=!showSetVoices,onClick={showSetVoices=false},label={Text("STYLES (${setGroups.count{it.section in 16..35}})")})
+            FilterChip(selected=!showSetVoices,onClick={showSetVoices=false},label={Text("STYLES (${setIndex?.let{ImportedStyleCatalog.styles(it).size} ?: 0})")})
             FilterChip(selected=showSetVoices,onClick={showSetVoices=true},label={Text("VOICES (${setInstruments.size})")})
         }
         if(showSetVoices)setInstruments.forEach{item->
@@ -447,7 +463,7 @@ private fun ORGXApp(engine: AudioEngine) {
             }},modifier=Modifier.fillMaxWidth()){Text(item.name)}
         }
         if(!showSetVoices && setGroups.isNotEmpty()){
-            Text("SET groups: ${setGroups.size}",fontWeight=FontWeight.Bold)
+            Text("Select a style; control its parts on the main screen.",fontWeight=FontWeight.Bold)
             Row(verticalAlignment=Alignment.CenterVertically){
                 Checkbox(checked=previewAccompaniment,enabled=!importing,onCheckedChange={previewAccompaniment=it})
                 Text("Preview Drum + accompaniment")
@@ -460,28 +476,28 @@ private fun ORGXApp(engine: AudioEngine) {
             }
             Text(if(previewAccompaniment && followSetChord) "Manual, left-keyboard or AUTO chords affect new notes. AUTO presets use 4 beats per bar. DNC is not applied."
                 else if(previewAccompaniment) "Original notes only; chord changes and DNC are not applied." else "Drum tracks only.",fontSize=12.sp)
-            val groups=setGroups.associateBy{it.id}
             OutlinedTextField(value=styleQuery,onValueChange={styleQuery=it},label={Text("Search SET style")},singleLine=true)
-            val matches=setGroups.filter{it.section in 16..35 && "${groups[it.parent]?.name.orEmpty()} / ${it.name}".contains(styleQuery.trim(),true)}
-            if(matches.isEmpty())Text("No matching SET style sections")
-            matches.forEach{group->
+            val matches=setIndex?.let{ImportedStyleCatalog.styles(it)}.orEmpty().filter{it.name.contains(styleQuery.trim(),true)}
+            if(matches.isEmpty())Text("No matching SET styles")
+            matches.forEach{definition->
                 val index=setIndex
-                val reason=ImportedStyleSupport.reason(index,group,previewAccompaniment,previewAccompaniment && followSetChord)
+                val available=definition.sections.filter{ImportedStyleSupport.reason(index,it,previewAccompaniment,previewAccompaniment && followSetChord)==null}
+                val reason=if(available.any{it.section in 32..35})null else "No supported Main section"
                 val supported=reason==null
                 OutlinedButton(enabled=supported && !importing,onClick={scope.launch{
                     importing=true
                     try{
-                        val player=withContext(Dispatchers.IO){
-                            ImportedStylePlayer.load(checkNotNull(setFile),checkNotNull(index),group,previewAccompaniment,
+                        val session=withContext(Dispatchers.IO){
+                            ImportedStylePlayer.loadStyle(checkNotNull(setFile),checkNotNull(index),definition,previewAccompaniment,
                                 engine.referenceChordTransposer,if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
-                        engine.setRhythmEnabled(false);engine.importedRhythm=player;engine.importedRhythmName="${groups[group.parent]?.name.orEmpty()} / ${group.name}";engine.bpm=group.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
-                        importStatus=if(previewAccompaniment && followSetChord) "SET loaded: ${group.name}. Press PLAY; select a manual chord."
-                            else if(previewAccompaniment) "SET preview loaded: ${group.name}. Press PLAY. Original notes; no chord changes." else "SET Drum loaded: ${group.name}. Press PLAY. Bass/accompaniment not loaded."
+                        engine.setRhythmEnabled(false);engine.importedStyleSession=session;engine.importedRhythm=session.player;engine.importedRhythmName=session.displayName
+                        engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
+                        onDismiss()
                     }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}
                     finally{importing=false}
                 }},modifier=Modifier.fillMaxWidth()){
-                    Column{Text("${groups[group.parent]?.name.orEmpty()} / ${group.name} (${group.tempo} BPM)");if(reason!=null)Text(reason,fontSize=12.sp)}
+                    Column{Text(definition.name);Text("${available.size}/${definition.sections.size} parts supported",fontSize=12.sp);if(reason!=null)Text(reason,fontSize=12.sp)}
                 }
             }
         }
