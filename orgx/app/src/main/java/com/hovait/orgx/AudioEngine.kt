@@ -64,6 +64,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private var transportFrame = 0L
     private var noiseState = 0x13579BDF
     private val stereoEffect = StereoEffect(sampleRate)
+    private val outputLimiter=StereoPeakLimiter(sampleRate)
     private val padAges = AtomicIntegerArray(8).apply { for (i in 0 until length()) set(i, -1) }
     private val rhythmAges=IntArray(3){-1}
     private val rhythmGains=DoubleArray(3)
@@ -383,10 +384,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 }
                 stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft+((importedRhythm ?: referenceRhythm)?.left ?: 0.0))*drumsVolume,
                     mixedOutputRight + (StereoSample.right(sound)+padRight+((importedRhythm ?: referenceRhythm)?.right ?: 0.0))*drumsVolume,effectType,effectMix)
-                fun pcm(value:Double)=(value * masterVolume * Short.MAX_VALUE)
+                outputLimiter.process(stereoEffect.left*masterVolume,stereoEffect.right*masterVolume)
+                fun pcm(value:Double)=(value * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
-                output[frame * 2] = pcm(stereoEffect.left)
-                output[frame * 2 + 1] = pcm(stereoEffect.right)
+                output[frame * 2] = pcm(outputLimiter.left)
+                output[frame * 2 + 1] = pcm(outputLimiter.right)
             }
             capture(output)
 

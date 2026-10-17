@@ -220,3 +220,5 @@ Bản hiện tại của nhánh phục hồi là ORGX 0.1.5 (versionCode 40), đ
 
 Bản sample hiện có kiểm thử SamplePcmDecoder cho PCM16 hợp lệ và WAV bị cắt; erify-release.ps1 -Build xác nhận versionCode 40 và checksum APK 0.1.5.
 Bổ sung cập nhật 2026-10-17: ORGX hiện là bản 0.1.6 (versionCode 41). APK đã cài và chạy trên thiết bị thật; thư viện native tham chiếu nạp được. Wrapper `sofeh.audio.NOpenSL` và `NOpenSLBackend` đã có trong mã nguồn nhưng chưa được chọn mặc định; đường phát chính vẫn là AudioTrack để giữ fallback an toàn. Vì vậy chưa thể gọi ORGX là bản sao 100% APK gốc.
+
+Cập nhật xử lý SET: 41 nhóm Drum tương thích trong SET thử đã được render kiểm thử bằng sample của SET. Đây chỉ là phần Drum, chưa chứng minh toàn bộ Bass/accompaniment và voice của SET tương thích. Đầu ra ORGX hiện có limiter stereo chung, trần 0,98, giảm gain tức thời và hồi phục dần để tránh cắt ngọn khi nhiều track cộng lại. Limiter là xử lý bổ sung của ORGX, chưa đối chiếu với DSP gốc. Build debug và unit test đã đạt; APK đã cài lên thiết bị. Chất lượng nghe thực tế của thay đổi limiter chưa được xác nhận.
