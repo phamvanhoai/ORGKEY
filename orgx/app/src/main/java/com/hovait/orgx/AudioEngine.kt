@@ -46,7 +46,22 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var chordIndex = 0
     @Volatile var referenceChords: List<PlayableChord> = emptyList()
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
-    fun selectedSetChord():Int? = if(autoChord || referenceChords.isEmpty())null else chordIndex.coerceIn(referenceChords.indices)
+    private val keyboardChordInput=KeyboardChordInput()
+    @Volatile var leftChordEnabled=false;private set
+    val detectedKeyboardChord:Int? get()=if(leftChordEnabled)keyboardChordInput.chord else null
+    fun setLeftChordEnabled(enabled:Boolean){keyboardChordInput.reset();leftChordEnabled=enabled}
+    fun keyboardNoteOn(note:Int,velocity:Float,splitNote:Int){
+        if(leftChordEnabled && note<splitNote){
+            if(voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
+            keyboardChordInput.press(note,referenceChords)
+        } else noteOn(note,velocity)
+    }
+    fun keyboardNoteOff(note:Int){
+        val chordKey=keyboardChordInput.release(note)
+        if(!chordKey || voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
+    }
+    fun selectedSetChord():Int? = if(autoChord || referenceChords.isEmpty())null else
+        (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
     @Volatile var autoChord = false
     @Volatile var progression = 0
     @Volatile var rhythmStyle = 0

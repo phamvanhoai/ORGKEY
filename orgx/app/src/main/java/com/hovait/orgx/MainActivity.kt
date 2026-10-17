@@ -99,6 +99,11 @@ private fun ORGXApp(engine: AudioEngine) {
     var sustain by remember { mutableStateOf(false) }
     var instrument by remember { mutableIntStateOf(InstrumentCatalog.validIndex(preferences.getInt("instrument", 0))) }
     var chord by remember { mutableIntStateOf(ChordSelection.resolve(chordNames, preferences.getString("chordName", null), preferences.getInt("chord", 0))) }
+    var leftChord by remember{mutableStateOf(preferences.getBoolean("leftChord",false))}
+    LaunchedEffect(engine){while(true){
+        if(!engine.autoChord)engine.detectedKeyboardChord?.let{if(it in chordNames.indices){chord=it;engine.chordIndex=it}}
+        kotlinx.coroutines.delay(40)
+    }}
     var style by remember { mutableIntStateOf(StyleSelection.resolve(engine.styleIds,if(preferences.contains("styleId"))preferences.getInt("styleId",0) else null,preferences.getInt("style",0))) }
     var effect by remember { mutableIntStateOf(preferences.getInt("effect", 0).coerceIn(0, 2)) }
     var autoChord by remember { mutableStateOf(preferences.getBoolean("autoChord",false)) }
@@ -120,6 +125,7 @@ private fun ORGXApp(engine: AudioEngine) {
     }
     LaunchedEffect(Unit) {
         engine.referenceChords = playableChords
+        engine.setLeftChordEnabled(leftChord)
         engine.referenceChordTransposer=runCatching{context.assets.open("Chord").bufferedReader().use{ReferenceChordTransposer.fromTable(it.readText())}}.getOrNull()
         engine.bpm = bpm; engine.instrument = instrument; engine.chordIndex = chord; engine.rhythmStyle = style;engine.effectType=effect
         engine.autoChord=autoChord;engine.progression=progression
@@ -155,7 +161,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
                     StatusPanel(bpm, octave, playing, chordDisplay, (engine.importedRhythmName ?: engine.styleNames[style]), (engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
                 }
-                PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth())
+                PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth(),leftChord)
             }
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
@@ -170,9 +176,10 @@ private fun ORGXApp(engine: AudioEngine) {
                     engine.instrument = instrument; engine.chordIndex = chord
                     engine.rhythmStyle = style;engine.effectType=effect; engine.masterVolume = loadedVolume
                 }, onRhythmSelected={tempo->bpm=tempo;playing=false}, onDismiss = { showSets = false })
-            if(showChords) ChordDialog(chordNames,chord,autoChord,progression,
-                onSelect={chord=it;autoChord=false;engine.autoChord=false;engine.chordIndex=it;showChords=false},
-                onAuto={enabled,preset->autoChord=enabled;progression=preset;engine.autoChord=enabled;engine.progression=preset;showChords=false},
+            if(showChords) ChordDialog(chordNames,chord,autoChord,progression,leftChord,
+                onLeftChord={enabled->leftChord=enabled;engine.setLeftChordEnabled(enabled);preferences.edit().putBoolean("leftChord",enabled).apply();if(enabled){autoChord=false;engine.autoChord=false}},
+                onSelect={leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();chord=it;autoChord=false;engine.autoChord=false;engine.chordIndex=it;showChords=false},
+                onAuto={enabled,preset->leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();autoChord=enabled;progression=preset;engine.autoChord=enabled;engine.progression=preset;showChords=false},
                 onDismiss={showChords=false})
             if(showPads) PadDialog(engine,onDismiss={showPads=false})
             if(showFiles) RecordingDialog(engine,onDismiss={showFiles=false})
@@ -224,9 +231,9 @@ private fun ORGXApp(engine: AudioEngine) {
 @Composable private fun ControlButton(label:String,active:Boolean,onClick:()->Unit,modifier:Modifier=Modifier){Button(onClick=onClick,modifier=modifier.height(48.dp),contentPadding=PaddingValues(horizontal=4.dp),colors=ButtonDefaults.buttonColors(containerColor=if(active) Accent else Muted,contentColor=if(active) Bg else Text),shape=RoundedCornerShape(9.dp)){Text(label,fontWeight=FontWeight.Bold,fontSize=10.sp,maxLines=1)}}
 @Composable private fun Stepper(label:String,value:Int,onMinus:()->Unit,onPlus:()->Unit,modifier:Modifier){Row(modifier.height(44.dp).background(Muted,RoundedCornerShape(9.dp)),verticalAlignment=Alignment.CenterVertically){TextButton(onClick=onMinus,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(44.dp)){Text("-",color=Text,fontSize=18.sp)};Text("$label  $value",modifier=Modifier.weight(1f),color=Text,fontSize=11.sp,fontWeight=FontWeight.Bold);TextButton(onClick=onPlus,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(44.dp)){Text("+",color=Text,fontSize=18.sp)}}}
 
-@Composable private fun PianoKeyboard(octave:Int, engine:AudioEngine, modifier:Modifier) {
+@Composable private fun PianoKeyboard(octave:Int, engine:AudioEngine, modifier:Modifier,leftChord:Boolean=false) {
     val active = remember { mutableStateMapOf<Int,Int>() }
-    Canvas(modifier.background(Color(0xFF080811), RoundedCornerShape(12.dp)).pointerInput(octave) {
+    Canvas(modifier.background(Color(0xFF080811), RoundedCornerShape(12.dp)).pointerInput(octave,leftChord) {
         fun noteAt(position: Offset): Int {
             val whites = 14
             val width = size.width / whites
@@ -255,28 +262,28 @@ private fun ORGXApp(engine: AudioEngine) {
                             val velocity = (0.25f + 0.75f * (change.position.y / size.height)).coerceIn(0.25f, 1f)
                             pointerNotes[id] = note
                             active[note] = (active[note] ?: 0) + 1
-                            engine.noteOn(note,velocity)
+                            engine.keyboardNoteOn(note,velocity,(octave+2)*12)
                         } else if (change.changedToUpIgnoreConsumed()) {
                             pointerNotes.remove(id)?.let { note ->
                                 val count = (active[note] ?: 1) - 1
-                                if (count <= 0) { active.remove(note); engine.noteOff(note) } else active[note] = count
+                                if (count <= 0) { active.remove(note); engine.keyboardNoteOff(note) } else active[note] = count
                             }
                         } else if (change.pressed) {
                             val previous = pointerNotes[id]
                             val current = noteAt(change.position)
                             if (previous != null && previous != current) {
                                 val count = (active[previous] ?: 1) - 1
-                                if (count <= 0) { active.remove(previous); engine.noteOff(previous) } else active[previous] = count
+                                if (count <= 0) { active.remove(previous); engine.keyboardNoteOff(previous) } else active[previous] = count
                                 pointerNotes[id] = current
                                 active[current] = (active[current] ?: 0) + 1
                                 val velocity = (0.25f + 0.75f * (change.position.y / size.height)).coerceIn(0.25f, 1f)
-                                engine.noteOn(current,velocity)
+                                engine.keyboardNoteOn(current,velocity,(octave+2)*12)
                             }
                         }
                         change.consume()
                     }
             } while (event.changes.any { it.pressed })
-            pointerNotes.values.forEach { engine.noteOff(it); active.remove(it) }
+            pointerNotes.values.forEach { engine.keyboardNoteOff(it); active.remove(it) }
         }
     }) {
         val whites=14; val w=size.width/whites
@@ -285,6 +292,7 @@ private fun ORGXApp(engine: AudioEngine) {
         val blackAfter=setOf(0,1,3,4,5)
         for(i in 0 until whites-1) if(i%7 in blackAfter){val x=(i+1)*w-w*.29f;val note=(octave+1)*12+(i/7)*12+scale[i%7]+1;val color=if(active.containsKey(note)) Accent else Color(0xFF11111F);drawRoundRect(color,Offset(x,0f),androidx.compose.ui.geometry.Size(w*.58f,size.height*.62f),cornerRadius=androidx.compose.ui.geometry.CornerRadius(5f));drawRoundRect(Border,Offset(x,0f),androidx.compose.ui.geometry.Size(w*.58f,size.height*.62f),cornerRadius=androidx.compose.ui.geometry.CornerRadius(5f),style=Stroke(1.5f))}
         if(active.isNotEmpty()) drawCircle(Accent,12f,Offset(size.width-24f,24f))
+        if(leftChord)drawLine(Accent,Offset(size.width/2,0f),Offset(size.width/2,size.height),4f)
     }
 }
 
@@ -457,11 +465,13 @@ private fun ORGXApp(engine: AudioEngine) {
         }
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
-@Composable private fun ChordDialog(names:List<String>,selected:Int,autoChord:Boolean,progression:Int,onSelect:(Int)->Unit,onAuto:(Boolean,Int)->Unit,onDismiss:()->Unit){
+@Composable private fun ChordDialog(names:List<String>,selected:Int,autoChord:Boolean,progression:Int,leftChord:Boolean,onLeftChord:(Boolean)->Unit,onSelect:(Int)->Unit,onAuto:(Boolean,Int)->Unit,onDismiss:()->Unit){
     val roots=remember(names){names.map{it.substringBefore(' ')}.distinct()}
     var root by remember { mutableStateOf(names.getOrNull(selected)?.substringBefore(' ') ?: roots.firstOrNull().orEmpty()) }
     val choices=names.withIndex().filter{it.value.substringBefore(' ')==root}
     AlertDialog(onDismissRequest=onDismiss,title={Text("Chord library")},text={Column(modifier=Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(6.dp)){
+        Row(verticalAlignment=Alignment.CenterVertically){Checkbox(checked=leftChord,onCheckedChange=onLeftChord);Text("Left keyboard chords")}
+        Text("Left octave: hold 3 or more chord tones. Last match stays after release. Right octave: melody. SET requires Follow selected chord.",fontSize=12.sp)
         Text("AUTO CHORD",fontWeight=FontWeight.Bold)
         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Pop","Ballad","Dance").forEachIndexed{index,name->FilterChip(selected=autoChord&&progression==index,onClick={onAuto(true,index)},label={Text(name)},modifier=Modifier.weight(1f))}}
         Text("ROOT",fontWeight=FontWeight.Bold)
