@@ -135,6 +135,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var showFiles by remember { mutableStateOf(false) }
     var showProjects by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
+    var showTools by remember{mutableStateOf(false)}
     var midiPlaying by remember { mutableStateOf(false) }
     val midiPicker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
         if(uri!=null) runCatching{context.contentResolver.openInputStream(uri)?.use{MidiFile.read(it)}?:error("Cannot read MIDI")}.onSuccess{song->
@@ -159,39 +160,50 @@ private fun ORGXApp(engine: AudioEngine) {
     }
     MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Bg, surface = Panel)) {
         Box(Modifier.fillMaxSize().background(Bg).systemBarsPadding()) {
-            Column(Modifier.fillMaxSize().padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Header(recording, onRecord = {
-                    if (recording) {
-                        val file = engine.stopRecording()
-                        recording = false
-                        Toast.makeText(context, file?.let { "Saved: ${it.name}" } ?: "Nothing recorded", Toast.LENGTH_LONG).show()
-                    } else {
-                        engine.startRecording(); recording = true
+            Column(Modifier.fillMaxSize().padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                    Box{
+                        TextButton(onClick={showTools=true},modifier=Modifier.height(48.dp)){Text("ORGX\nMENU",fontWeight=FontWeight.Bold,fontSize=12.sp)}
+                        DropdownMenu(expanded=showTools,onDismissRequest={showTools=false}){
+                            DropdownMenuItem(text={Text("Files / Bản thu")},onClick={showTools=false;showFiles=true})
+                            DropdownMenuItem(text={Text("Project")},onClick={showTools=false;showProjects=true})
+                            DropdownMenuItem(text={Text(if(midiPlaying)"Dừng MIDI" else "Mở MIDI")},onClick={showTools=false;if(midiPlaying){engine.stopMidi();midiPlaying=false}else midiPicker.launch(arrayOf("audio/midi","audio/x-midi","application/octet-stream"))})
+                            DropdownMenuItem(text={Text("Pad / Hiệu ứng")},onClick={showTools=false;showPads=true})
+                            DropdownMenuItem(text={Text(if(recording)"Dừng ghi âm" else "Ghi âm")},onClick={
+                                showTools=false
+                                if(recording){val file=engine.stopRecording();recording=false;Toast.makeText(context,file?.name ?: "Nothing recorded",Toast.LENGTH_LONG).show()}
+                                else {engine.startRecording();recording=true}
+                            })
+                            DropdownMenuItem(text={Text("Designed by hovait / Cài đặt")},onClick={showTools=false;showAbout=true})
+                        }
                     }
-                }, onFiles={showFiles=true},onProjects={showProjects=true},midiPlaying=midiPlaying,onMidi={if(midiPlaying){engine.stopMidi();midiPlaying=false}else midiPicker.launch(arrayOf("audio/midi","audio/x-midi","application/octet-stream"))},onPads={showPads=true},onSets = { showSets = true }, onAbout = { showAbout = true })
-                Row(Modifier.weight(0.52f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PerformancePanel(octave, bpm, playing, sustain, chordNames[chord],
-                        onOctave = { octave = (octave + it).coerceIn(1, 7) },
-                        onBpm = { delta -> bpm = (bpm + delta).coerceIn(40, 240); engine.bpm = bpm },
-                        onPlay = { playing = !playing; engine.setRhythmEnabled(playing) },
-                        onSustain = { sustain = !sustain; engine.sustain = sustain; if (!sustain) engine.releaseSustain() },
-                        onChord = { showChords = true },
-                        onMixer = { showMixer = true }, modifier = Modifier.weight(1f))
-                    val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
-                    StatusPanel(bpm, octave, playing, chordDisplay, (engine.importedRhythmName ?: engine.styleNames[style]), (engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
+                    OutlinedButton(onClick={showSets=true},modifier=Modifier.weight(1.2f).heightIn(min=48.dp),shape=RoundedCornerShape(8.dp)){
+                        Column(Modifier.fillMaxWidth()){
+                            Text("STYLE / CHỌN ĐIỆU",fontSize=10.sp,color=Subtle)
+                            Text(setSession?.displayName ?: engine.styleNames[style],maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis,fontWeight=FontWeight.Bold)
+                        }
+                    }
+                    OutlinedButton(onClick={showMixer=true},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(8.dp)){
+                        Column(Modifier.fillMaxWidth()){
+                            Text("VOICE / ÂM SẮC & MIXER",fontSize=10.sp,color=Subtle)
+                            Text(engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument],maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis,fontWeight=FontWeight.Bold)
+                        }
+                    }
+                    ControlButton(chordDisplay,leftChord||autoChord,{showChords=true},Modifier.weight(.55f))
+                }
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalAlignment=Alignment.CenterVertically){
+                    ControlButton(if(playing) "STOP" else "PLAY",playing,{engine.setRhythmEnabled(!engine.rhythmPlaying)},Modifier.weight(.65f))
+                    Stepper("BPM",bpm,{bpm=(bpm-1).coerceAtLeast(40);engine.bpm=bpm},{bpm=(bpm+1).coerceAtMost(240);engine.bpm=bpm},Modifier.weight(1f))
+                    Stepper("OCT",octave,{octave=(octave-1).coerceAtLeast(1)},{octave=(octave+1).coerceAtMost(7)},Modifier.weight(.85f))
+                    ControlButton("SUSTAIN",sustain,{sustain=!sustain;engine.sustain=sustain;if(!sustain)engine.releaseSustain()},Modifier.weight(.65f))
+                    ControlButton("AUTO FILL",styleAutoFill,{styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},Modifier.weight(.7f))
                 }
                 setSession?.let{session->
                     session.transitionError?.let{Text(it,color=MaterialTheme.colorScheme.error,fontSize=12.sp)}
-                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)){
-                        FilterChip(selected=styleAutoFill,onClick={styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},
-                            label={Text("AUTO FILL")},modifier=Modifier.heightIn(min=48.dp))
-                        session.style.sections.forEach{part->
-                            FilterChip(selected=sectionState.first==part.id,enabled=session.available(part.id),onClick={engine.requestStyleSection(part.id)},
-                                label={Text(ImportedStyleCatalog.label(part.section)+if(sectionState.second==part.id)" • QUEUED" else "")},modifier=Modifier.heightIn(min=48.dp))
-                        }
-                    }
+                    StyleSectionControls(session,sectionState.first,sectionState.second){engine.requestStyleSection(it)}
                 }
-                PianoKeyboard(octave, engine, Modifier.weight(0.48f).fillMaxWidth(),leftChord)
+                PianoKeyboard(octave, engine, Modifier.weight(1f).fillMaxWidth(),leftChord)
             }
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
@@ -227,8 +239,8 @@ private fun ORGXApp(engine: AudioEngine) {
 @Composable private fun Header(recording:Boolean,onRecord:()->Unit,onFiles:()->Unit,onProjects:()->Unit,midiPlaying:Boolean,onMidi:()->Unit,onPads:()->Unit,onSets:()->Unit,onAbout: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text("ORGX", color = Text, fontWeight = FontWeight.Black, fontSize = 25.sp)
-        Spacer(Modifier.width(10.dp)); Text("MUSIC WORKSTATION", color = Accent, fontSize = 12.sp, letterSpacing = 2.sp)
-        Spacer(Modifier.weight(1f));TextButton(onClick=onFiles){Text("FILES",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onProjects){Text("PROJECT",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onMidi){Text(if(midiPlaying) "STOP MIDI" else "MIDI",color=if(midiPlaying) Accent else Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onPads){Text("PAD",color=Subtle,fontWeight=FontWeight.Bold)}; TextButton(onClick=onSets){Text("SET",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onRecord,colors=ButtonDefaults.textButtonColors(contentColor=if(recording) Color(0xFFEF4444) else Subtle)){Text(if(recording) "STOP REC" else "REC",fontWeight=FontWeight.Bold)};TextButton(onClick = onAbout) { Text("DESIGNED BY HOVAIT", color = Subtle) }
+        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.weight(1f));TextButton(onClick=onFiles){Text("FILES",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onProjects){Text("PROJECT",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onMidi){Text(if(midiPlaying) "STOP MIDI" else "MIDI",color=if(midiPlaying) Accent else Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onPads){Text("PAD",color=Subtle,fontWeight=FontWeight.Bold)}; TextButton(onClick=onSets){Text("SET",color=Subtle,fontWeight=FontWeight.Bold)};TextButton(onClick=onRecord,colors=ButtonDefaults.textButtonColors(contentColor=if(recording) Color(0xFFEF4444) else Subtle)){Text(if(recording) "STOP REC" else "REC",fontWeight=FontWeight.Bold)};TextButton(onClick = onAbout) { Text("hovait / INFO", color = Subtle) }
     }
 }
 
@@ -260,7 +272,7 @@ private fun ORGXApp(engine: AudioEngine) {
 @Composable private fun StatusDot(active:Boolean){Box(Modifier.size(12.dp).background(if(active) Accent else Color(0xFF475569), RoundedCornerShape(99.dp)))}
 
 @Composable private fun ControlButton(label:String,active:Boolean,onClick:()->Unit,modifier:Modifier=Modifier){Button(onClick=onClick,modifier=modifier.height(48.dp),contentPadding=PaddingValues(horizontal=4.dp),colors=ButtonDefaults.buttonColors(containerColor=if(active) Accent else Muted,contentColor=if(active) Bg else Text),shape=RoundedCornerShape(9.dp)){Text(label,fontWeight=FontWeight.Bold,fontSize=10.sp,maxLines=1)}}
-@Composable private fun Stepper(label:String,value:Int,onMinus:()->Unit,onPlus:()->Unit,modifier:Modifier){Row(modifier.height(44.dp).background(Muted,RoundedCornerShape(9.dp)),verticalAlignment=Alignment.CenterVertically){TextButton(onClick=onMinus,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(44.dp)){Text("-",color=Text,fontSize=18.sp)};Text("$label  $value",modifier=Modifier.weight(1f),color=Text,fontSize=11.sp,fontWeight=FontWeight.Bold);TextButton(onClick=onPlus,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(44.dp)){Text("+",color=Text,fontSize=18.sp)}}}
+@Composable private fun Stepper(label:String,value:Int,onMinus:()->Unit,onPlus:()->Unit,modifier:Modifier){Row(modifier.height(48.dp).background(Muted,RoundedCornerShape(9.dp)),verticalAlignment=Alignment.CenterVertically){TextButton(onClick=onMinus,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(44.dp)){Text("-",color=Text,fontSize=18.sp)};Text("$label  $value",modifier=Modifier.weight(1f),color=Text,fontSize=11.sp,fontWeight=FontWeight.Bold);TextButton(onClick=onPlus,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(44.dp)){Text("+",color=Text,fontSize=18.sp)}}}
 
 @Composable private fun PianoKeyboard(octave:Int, engine:AudioEngine, modifier:Modifier,leftChord:Boolean=false) {
     val active = remember { mutableStateMapOf<Int,Int>() }
@@ -403,14 +415,17 @@ private fun ORGXApp(engine: AudioEngine) {
     var setIndex by remember{mutableStateOf(engine.activeSetIndex)}
     var showSetVoices by remember{mutableStateOf(false)}
     var styleQuery by remember{mutableStateOf("")}
+    var showBankFiles by remember{mutableStateOf(engine.activeSetFile==null)}
     var previewAccompaniment by remember{mutableStateOf(false)}
     var followSetChord by remember{mutableStateOf(false)}
+    var showStyleOptions by remember{mutableStateOf(false)}
     fun activate(bank:ImportedSetBank){
         engine.setRhythmEnabled(false);engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm)
         setFile=bank.file;setIndex=bank.index;setGroups=bank.index.styles;setInstruments=bank.sounds
         engine.activeSetFile=bank.file;engine.activeSetIndex=bank.index;engine.activeSetSounds=bank.sounds
         preferences.edit().putString("activeSetFile",bank.file.name).apply()
         showSetVoices=false;styleQuery=""
+        showBankFiles=false
         importStatus="SET read: ${ImportedStyleCatalog.styles(bank.index).size} styles, ${bank.sounds.size} supported sounds."
     }
     LaunchedEffect(setFile){
@@ -437,12 +452,13 @@ private fun ORGXApp(engine: AudioEngine) {
     }
     var revision by remember{mutableIntStateOf(0)}
     AlertDialog(onDismissRequest=onDismiss,title={Text("SET memory")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)){
-        OutlinedButton(enabled=!importing,onClick={picker.launch(arrayOf("*/*"))},modifier=Modifier.fillMaxWidth()){
+        TextButton(onClick={showBankFiles=!showBankFiles}){Text(if(showBankFiles)"ẨN FILE SET" else "ĐỔI / NHẬP FILE SET")}
+        if(showBankFiles)OutlinedButton(enabled=!importing,onClick={picker.launch(arrayOf("*/*"))},modifier=Modifier.fillMaxWidth()){
             Text(if(importing)"IMPORTING…" else "IMPORT SET / TEMPLATE")
         }
         if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)
-        Text("Imported SET files: ${imported.size}. Open a SET to list its styles and voices.",fontSize=12.sp)
-        imported.forEach{file->
+        if(showBankFiles)Text("Imported SET files: ${imported.size}. Open a SET to list its styles and voices.",fontSize=12.sp)
+        if(showBankFiles)imported.forEach{file->
             TextButton(enabled=!importing,onClick={scope.launch{
                 importing=true
                 try{
@@ -468,7 +484,8 @@ private fun ORGXApp(engine: AudioEngine) {
             }},modifier=Modifier.fillMaxWidth()){Text(item.name)}
         }
         if(!showSetVoices && setGroups.isNotEmpty()){
-            Text("Select a style; control its parts on the main screen.",fontWeight=FontWeight.Bold)
+            TextButton(onClick={showStyleOptions=!showStyleOptions}){Text("TÙY CHỌN NHẠC ĐỆM")}
+            if(showStyleOptions){
             Row(verticalAlignment=Alignment.CenterVertically){
                 Checkbox(checked=previewAccompaniment,enabled=!importing,onCheckedChange={previewAccompaniment=it})
                 Text("Preview Drum + accompaniment")
@@ -481,6 +498,7 @@ private fun ORGXApp(engine: AudioEngine) {
             }
             Text(if(previewAccompaniment && followSetChord) "Manual, left-keyboard or AUTO chords affect new notes. AUTO presets use 4 beats per bar. DNC is not applied."
                 else if(previewAccompaniment) "Original notes only; chord changes and DNC are not applied." else "Drum tracks only.",fontSize=12.sp)
+            }
             OutlinedTextField(value=styleQuery,onValueChange={styleQuery=it},label={Text("Search SET style")},singleLine=true)
             val matches=setIndex?.let{ImportedStyleCatalog.styles(it)}.orEmpty().filter{it.name.contains(styleQuery.trim(),true)}
             if(matches.isEmpty())Text("No matching SET styles")
