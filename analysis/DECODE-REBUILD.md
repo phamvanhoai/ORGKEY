@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Giữ bus FX khi chuyển phần
+
+Đã chuyển ownership chain group/rhythm đang chạy sang player đích khi cấu hình FX bằng nhau, sau khi player đích chuẩn bị timeline. Áp dụng khi đổi section và đổi style đang chạy. Chọn lại cùng section có thể giữ bus; reset/Stop vẫn xóa. Không giữ hai player cùng tiến buffer, không reset chain sau khi đã chuyển ownership. Kiểm thử impulse echo trước đổi phần và đuôi tại frame 480 sau đổi phần, cấu hình khác không dùng buffer cũ, reset xóa đuôi.
+
+Đây là tiếp nối state cho cấu hình không đổi, chưa mô phỏng cơ chế copy/update từng module khi tham số khác nhau của `z01.e`; chưa bảo toàn đuôi khi module đổi hoặc track cũ còn voice release. Không kết luận tương đương toàn bộ mixer gốc.
+
 ### Global rhythm FX từ SET
 
 Đã giữ ba FX block Music/Wave/Rhythm theo thứ tự `Music.ReadFromStream`; `ImportedGroupFx` khi tới group 0 dùng global rhythm như mã gốc. Nếu không có block group phù hợp, global rhythm là fallback thay cho cấu hình trống. Các module đã dựng (4/6/20) của block này chạy trên stereo output style.

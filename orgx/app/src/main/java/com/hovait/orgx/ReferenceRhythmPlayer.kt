@@ -18,10 +18,18 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
     private var children:List<ReferenceRhythmPlayer> = emptyList()
     private var groupFx:ImportedFxChain?=null
+    private var groupFxSettings:ImportedChannelSettings?=null
     private var rhythmSettings=ImportedChannelSettings()
     var outputLeft=0.0;private set
     var outputRight=0.0;private set
-    fun withGroupFx(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{groupFx=ImportedFxChain(settings)}
+    fun withGroupFx(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{groupFxSettings=settings;groupFx=ImportedFxChain(settings)}
+    /** Move the live rhythm bus only when its DSP configuration is unchanged. */
+    fun continueGroupFxFrom(previous:ReferenceRhythmPlayer){
+        if(previous===this || groupFxSettings!=previous.groupFxSettings)return
+        val live=previous.groupFx ?: return
+        previous.groupFx=null
+        groupFx=live
+    }
     fun withRhythmSettings(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{rhythmSettings=settings}
     /** Called once per audio frame after the drum/chord mixer, not once per output channel. */
     fun mixOutput(drumGain:Float,chordGain:Float){
@@ -49,7 +57,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain)
     fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
-    fun startAt(referenceTime:Long){require(referenceTime>=0);reset();initialTime=referenceTime;children.forEach{it.startAt(referenceTime)}}
+    fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false){
+        require(referenceTime>=0)
+        val live=if(preserveGroupFx)groupFx else null
+        if(preserveGroupFx)groupFx=null
+        reset();if(live!=null)groupFx=live
+        initialTime=referenceTime;children.forEach{it.startAt(referenceTime)}
+    }
     fun next(selection:Int,tempo:Int) {
         if(children.isNotEmpty()){
             left=0.0;right=0.0

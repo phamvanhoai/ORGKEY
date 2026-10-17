@@ -28,6 +28,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
             val target=style.sections.firstOrNull{it.section==wanted && available(it.id)}
                 ?: style.sections.firstOrNull{it.section==32 && available(it.id)} ?: main
             queue.clear();jumpId=null;clock.seek(time);select(target.id)
+            player.continueGroupFxFrom(previous.player)
         }
     }
     @Synchronized fun request(id:Int,immediate:Boolean=false){
@@ -55,13 +56,15 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         if(section==null || id !in players){
             transitionError="SET jump target $id is unavailable";finished=true;player.reset();return
         }
+        val previous=player
         currentId=id
         if(section.loop)lastLoop=id
         val newScale=ReferenceSectionTiming.scale(section,changeMethod)
         if(newScale in 1..10)rhythmScale=newScale
         val offset=ReferenceSectionTiming.startOffset(clock.time,section,rhythmScale,changeMethod)
         startedAt=clock.time-offset
-        player.startAt(offset)
+        player.startAt(offset,preserveGroupFx=previous===player)
+        player.continueGroupFxFrom(previous)
         if(newScale>0)rhythmScale=newScale
         if(!tempoLock && section.tempo>0)tempoChange=section.tempo.coerceIn(40,240)
         displayName="${style.name} / ${ImportedStyleCatalog.label(section.section)}"
