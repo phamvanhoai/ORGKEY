@@ -44,6 +44,11 @@ class ImportedStylePlayerTest {
         assertNotNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(source.tracks.first().copy(instrument=99))),group,true))
         assertNotNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(source.tracks.first().copy(events=listOf(event.copy(tune=1))))),group))
     }
+    @Test fun stylePickerDistinguishesMissingIndexFromSupportedStyle() {
+        assertEquals("SET index unavailable",ImportedStyleSupport.reason(null,group))
+        assertNull(ImportedStyleSupport.reason(index(),group))
+        assertNotNull(ImportedStyleSupport.reason(index().copy(tracks=emptyList()),group))
+    }
     @Test fun exactNoteMelodicBankCannotSilentlyLoseTransposedNotes() {
         val source=index()
         val melodic=source.instruments[1]

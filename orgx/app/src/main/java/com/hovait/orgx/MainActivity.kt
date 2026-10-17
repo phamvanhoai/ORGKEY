@@ -78,13 +78,22 @@ private fun ORGXApp(engine: AudioEngine) {
             try{
                 val loaded=withContext(Dispatchers.IO){
                     val (file,sound)=ImportedSoundSelection.resolve(File(context.filesDir,"ReferenceSets"),fileName,soundName)
-                    Triple(ImportedInstrumentLoader.load(file,sound),file,ImportedInstrumentLoader.playableSounds(ImportedSetInstruments.read(file)))
+                    Triple(ImportedInstrumentLoader.load(file,sound),file,ImportedSetInstruments.index(file))
                 }
                 // A user may have changed voices while the file was loading.
                 if(preferences.getString("importedSetFile",null)==fileName && preferences.getString("importedSetSound",null)==soundName){
-                    engine.importedInstrument=loaded.first;engine.activeSetFile=loaded.second;engine.activeSetSounds=loaded.third;engine.importedInstrumentName=soundName;restoredSetName=soundName
+                    engine.importedInstrument=loaded.first;engine.activeSetFile=loaded.second;engine.activeSetIndex=loaded.third;engine.activeSetSounds=ImportedInstrumentLoader.playableSounds(loaded.third.instruments);engine.importedInstrumentName=soundName;restoredSetName=soundName
                 }
             }catch(error:Exception){Toast.makeText(context,"SET restore: ${error.message}",Toast.LENGTH_LONG).show()}
+        }
+        val bankName=preferences.getString("activeSetFile",fileName)
+        if(bankName!=null && (engine.activeSetFile?.name!=bankName || engine.activeSetIndex==null)){
+            try{
+                val bank=withContext(Dispatchers.IO){ImportedSetBank.restore(File(context.filesDir,"ReferenceSets"),bankName)}
+                if(preferences.getString("activeSetFile",fileName)==bankName){
+                    engine.activeSetFile=bank.file;engine.activeSetIndex=bank.index;engine.activeSetSounds=bank.sounds
+                }
+            }catch(error:Exception){Toast.makeText(context,"SET styles: ${error.message}",Toast.LENGTH_LONG).show()}
         }
     }
     val builtInChordNames = listOf("C","Dm","Em","F","G","Am","Bdim","C7","D7","E7","Fmaj7","G7")
@@ -168,6 +177,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     preferences.edit().remove("importedSetFile").remove("importedSetSound").apply() },
                 onStyle = { engine.importedRhythm=null;engine.importedRhythmName=null;style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
                 onEffect = { effect = it; engine.effectType = it },
+                onSetStyles={showMixer=false;showSets=true},
                 onDismiss = { showMixer = false })
             if (showSets) SetMemoryDialog(chordNames, preferences, octave, bpm, instrument, chord, style, effect, engine,
                 onLoad = { loadedOctave, loadedBpm, loadedInstrument, loadedChord, loadedStyle, loadedEffect, loadedVolume ->
@@ -296,7 +306,7 @@ private fun ORGXApp(engine: AudioEngine) {
     }
 }
 
-@Composable private fun MixerDialog(engine:AudioEngine,preferences:SharedPreferences,instrument:Int,style:Int,effect:Int,onInstrument:(Int)->Unit,onStyle:(Int)->Unit,onEffect:(Int)->Unit,onDismiss:()->Unit){
+@Composable private fun MixerDialog(engine:AudioEngine,preferences:SharedPreferences,instrument:Int,style:Int,effect:Int,onInstrument:(Int)->Unit,onStyle:(Int)->Unit,onEffect:(Int)->Unit,onSetStyles:()->Unit,onDismiss:()->Unit){
     var master by remember{mutableFloatStateOf(engine.masterVolume)};var keys by remember{mutableFloatStateOf(engine.keysVolume)}
     var chords by remember{mutableFloatStateOf(engine.chordVolume)};var drums by remember{mutableFloatStateOf(engine.drumsVolume)}
     var fx by remember{mutableFloatStateOf(engine.effectMix)}
@@ -313,6 +323,9 @@ private fun ORGXApp(engine: AudioEngine) {
     }
     fun saveMix(){preferences.edit().putFloat("masterVolume",master).putFloat("keysVolume",keys).putFloat("chordVolume",chords).putFloat("drumsVolume",drums).putFloat("effectMix",fx).apply()}
     AlertDialog(onDismissRequest={saveMix();onDismiss()},title={Text("Sound & mixer")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState())){
+        if(engine.activeSetFile!=null)OutlinedButton(onClick={saveMix();onSetStyles()},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
+            Text("SET STYLES / ${engine.importedRhythmName ?: "SELECT STYLE"}")
+        }
         Text("VOICE",fontWeight=FontWeight.Bold)
         if(setSounds.isNotEmpty()){
             Text("Imported SET / ${setSounds.size} supported sounds",fontSize=12.sp)
@@ -334,9 +347,8 @@ private fun ORGXApp(engine: AudioEngine) {
             }
         }
         Text("DRUM STYLE",fontWeight=FontWeight.Bold)
-        if(setSounds.isNotEmpty())Text("SET styles are not loaded. The current rhythm is from the built-in bank.",fontSize=12.sp)
-        OutlinedButton(enabled=setSounds.isEmpty(),onClick={showStylePicker=true},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
-            Text("${engine.styleNames[style]} / ${engine.styleTempos[style]} BPM")
+        OutlinedButton(onClick={if(engine.activeSetFile!=null){saveMix();onSetStyles()}else showStylePicker=true},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
+            Text(if(engine.activeSetFile!=null)"SET STYLES / ${engine.importedRhythmName ?: "SELECT STYLE"}" else "${engine.styleNames[style]} / ${engine.styleTempos[style]} BPM")
         }
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("FX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Dry","Delay","Reverb").forEachIndexed{index,name->FilterChip(selected=effect==index,onClick={onEffect(index)},label={Text(name,maxLines=1)},modifier=Modifier.weight(1f))}}}
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("MIX",Modifier.width(64.dp),fontWeight=FontWeight.Bold);Column(Modifier.weight(1f)){Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Keys","Chord","Drums").forEachIndexed{index,name->FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}};Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)){listOf("Master","FX").forEachIndexed{offset,name->val index=offset+3;FilterChip(selected=mixChannel==index,onClick={mixChannel=index},label={Text(name,fontSize=8.sp,maxLines=1)},modifier=Modifier.weight(1f))}}}}
@@ -364,12 +376,31 @@ private fun ORGXApp(engine: AudioEngine) {
     var imported by remember{mutableStateOf(store.list())}
     var importing by remember{mutableStateOf(false)}
     var importStatus by remember{mutableStateOf("")}
-    var setFile by remember{mutableStateOf<File?>(null)}
-    var setInstruments by remember{mutableStateOf<List<ImportedInstrument>>(emptyList())}
-    var setGroups by remember{mutableStateOf<List<ImportedStyleGroup>>(emptyList())}
-    var setIndex by remember{mutableStateOf<ImportedSetIndex?>(null)}
+    var setFile by remember{mutableStateOf(engine.activeSetFile)}
+    var setInstruments by remember{mutableStateOf(engine.activeSetSounds)}
+    var setGroups by remember{mutableStateOf(engine.activeSetIndex?.styles.orEmpty())}
+    var setIndex by remember{mutableStateOf(engine.activeSetIndex)}
+    var showSetVoices by remember{mutableStateOf(false)}
+    var styleQuery by remember{mutableStateOf("")}
     var previewAccompaniment by remember{mutableStateOf(false)}
     var followSetChord by remember{mutableStateOf(false)}
+    fun activate(bank:ImportedSetBank){
+        engine.setRhythmEnabled(false);engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm)
+        setFile=bank.file;setIndex=bank.index;setGroups=bank.index.styles;setInstruments=bank.sounds
+        engine.activeSetFile=bank.file;engine.activeSetIndex=bank.index;engine.activeSetSounds=bank.sounds
+        preferences.edit().putString("activeSetFile",bank.file.name).apply()
+        showSetVoices=false;styleQuery=""
+        importStatus="SET read: ${bank.index.styles.count{it.section in 16..35}} style sections, ${bank.sounds.size} supported sounds. Select a style below."
+    }
+    LaunchedEffect(setFile){
+        val file=setFile
+        if(file!=null && setIndex==null){
+            importing=true
+            try{activate(withContext(Dispatchers.IO){ImportedSetBank.open(file)})}
+            catch(error:Exception){importStatus="Cannot read SET styles: ${error.message}"}
+            finally{importing=false}
+        }
+    }
     val picker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
         if(uri!=null)scope.launch{
             importing=true
@@ -378,11 +409,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     context.contentResolver.openInputStream(uri)?.use{store.import(it)} ?: error("Cannot open SET")
                 }
                 imported=store.list()
-                val instruments=withContext(Dispatchers.IO){
-                    if(result.second.version in listOf("1.2.8","1.4.6"))ImportedSetInstruments.read(result.first) else emptyList()
-                }
-                engine.setRhythmEnabled(false);engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm);setFile=result.first;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=result.first;engine.activeSetSounds=setInstruments
-                importStatus="Imported ${result.second.version}: ${instruments.size} instruments, ${setInstruments.size} playable sounds."
+                activate(withContext(Dispatchers.IO){ImportedSetBank.open(result.first)})
             } catch(error:Exception){importStatus=error.message ?: "SET import failed"}
             finally{importing=false}
         }
@@ -392,21 +419,22 @@ private fun ORGXApp(engine: AudioEngine) {
         OutlinedButton(enabled=!importing,onClick={picker.launch(arrayOf("*/*"))},modifier=Modifier.fillMaxWidth()){
             Text(if(importing)"IMPORTING…" else "IMPORT SET / TEMPLATE")
         }
-        Text("Imported SET files: ${imported.size}. Select a file, then a supported sound. SET styles are not loaded yet.",fontSize=12.sp)
+        if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)
+        Text("Imported SET files: ${imported.size}. Open a SET to list its styles and voices.",fontSize=12.sp)
         imported.forEach{file->
             TextButton(enabled=!importing,onClick={scope.launch{
                 importing=true
                 try{
-                    val instruments=withContext(Dispatchers.IO){ImportedSetInstruments.read(file)}
-                    engine.setRhythmEnabled(false);engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm);setFile=file;setInstruments=ImportedInstrumentLoader.playableSounds(instruments);engine.activeSetFile=file;engine.activeSetSounds=setInstruments
-                    val index=withContext(Dispatchers.IO){ImportedSetInstruments.index(file)}
-                    setIndex=index;setGroups=index.styles
-                    importStatus="${instruments.size} instruments, ${setInstruments.size} playable sounds."
+                    activate(withContext(Dispatchers.IO){ImportedSetBank.open(file)})
                 }catch(error:Exception){importStatus=error.message ?: "Cannot read SET"}
                 finally{importing=false}
             }}){Text("OPEN SET ${file.name.take(12)}")}
         }
-        setInstruments.forEach{item->
+        if(setFile!=null)Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){
+            FilterChip(selected=!showSetVoices,onClick={showSetVoices=false},label={Text("STYLES (${setGroups.count{it.section in 16..35}})")})
+            FilterChip(selected=showSetVoices,onClick={showSetVoices=true},label={Text("VOICES (${setInstruments.size})")})
+        }
+        if(showSetVoices)setInstruments.forEach{item->
             OutlinedButton(enabled=!importing,onClick={scope.launch{
                 importing=true
                 try{
@@ -418,8 +446,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 finally{importing=false}
             }},modifier=Modifier.fillMaxWidth()){Text(item.name)}
         }
-        if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)
-        if(setGroups.isNotEmpty()){
+        if(!showSetVoices && setGroups.isNotEmpty()){
             Text("SET groups: ${setGroups.size}",fontWeight=FontWeight.Bold)
             Row(verticalAlignment=Alignment.CenterVertically){
                 Checkbox(checked=previewAccompaniment,enabled=!importing,onCheckedChange={previewAccompaniment=it})
@@ -434,9 +461,12 @@ private fun ORGXApp(engine: AudioEngine) {
             Text(if(previewAccompaniment && followSetChord) "Manual, left-keyboard or AUTO chords affect new notes. AUTO presets use 4 beats per bar. DNC is not applied."
                 else if(previewAccompaniment) "Original notes only; chord changes and DNC are not applied." else "Drum tracks only.",fontSize=12.sp)
             val groups=setGroups.associateBy{it.id}
-            setGroups.filter{it.section in 16..35}.forEach{group->
+            OutlinedTextField(value=styleQuery,onValueChange={styleQuery=it},label={Text("Search SET style")},singleLine=true)
+            val matches=setGroups.filter{it.section in 16..35 && "${groups[it.parent]?.name.orEmpty()} / ${it.name}".contains(styleQuery.trim(),true)}
+            if(matches.isEmpty())Text("No matching SET style sections")
+            matches.forEach{group->
                 val index=setIndex
-                val reason=index?.let{ImportedStyleSupport.reason(it,group,previewAccompaniment,previewAccompaniment && followSetChord)} ?: "SET index unavailable"
+                val reason=ImportedStyleSupport.reason(index,group,previewAccompaniment,previewAccompaniment && followSetChord)
                 val supported=reason==null
                 OutlinedButton(enabled=supported && !importing,onClick={scope.launch{
                     importing=true

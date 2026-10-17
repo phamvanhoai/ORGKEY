@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-17",
+  "package": "com.hovait.orgx",
+  "method": "ADB input and UIAutomator hierarchy on connected Android device",
+  "observations": {
+    "restoredBankStyleSections": 46,
+    "restoredBankPlayableSounds": 92,
+    "unsupportedFirstRowDisabledWithReason": "No supported tracks found",
+    "supportedVariationButtonEnabled": true,
+    "selectedStyleOnMainScreen": "LIVE SET • DJ NEW CLUB / VARIATION 1",
+    "selectedTempoBpm": 141,
+    "playButtonChangedToStop": true,
+    "styleSectionsAfterClosingAndReopeningDialog": 46,
+    "recentAndroidRuntimeErrorOutput": "empty"
+  },
+  "limitations": [
+    "The file was already imported; the document picker import was not repeated in this UI check.",
+    "PLAY/STOP and the selected style were verified through the UI; audible output and acoustic fidelity were not measured.",
+    "Selected rhythm playback is not restored automatically after restarting the app; the SET bank index is restored."
+  ]
+}

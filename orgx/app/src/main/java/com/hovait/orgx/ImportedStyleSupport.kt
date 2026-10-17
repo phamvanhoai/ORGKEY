@@ -9,7 +9,8 @@ object ImportedStyleSupport {
         if(!includeAccompaniment)drumTracks(index,group) else index.tracks.filter{
             it.group==group.id && !it.muted && it.events.any{event->event.type==2}
         }
-    fun reason(index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,followChord:Boolean=false):String? {
+    fun reason(index:ImportedSetIndex?,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,followChord:Boolean=false):String? {
+        if(index==null)return "SET index unavailable"
         val tracks=playbackTracks(index,group,includeAccompaniment)
         if(tracks.isEmpty())return "No supported tracks found"
         if(group.start<0 || group.end<=group.start)return "Unsupported loop boundaries"
