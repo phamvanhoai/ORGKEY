@@ -5,6 +5,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun importedModeThreeRepeatsStoredLoopWithoutEnablingTempoSync() {
+        val file=File.createTempFile("orgx-loop3-",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0xe8.toByte(),3,0xd0.toByte(),7,0xb8.toByte(),11))
+            val section=ImportedSection(60,48000,1,3,100,0,0,0,3,1,3,ImportedWave(0,6))
+            val sound=ImportedSound("Loop",listOf(0,0,100,10,0,0),listOf(section))
+            val instrument=ImportedInstrument("Test",100,0,1,listOf(sound))
+            assertTrue(ImportedInstrumentLoader.supported(instrument))
+            val loaded=ImportedInstrumentLoader.load(file,instrument)
+            assertEquals(2000.0/32768,loaded.sample(60,3),1e-9)
+            assertEquals(3000.0/32768,loaded.sample(60,4),1e-9)
+            assertFalse(loaded.finished(60,480000))
+        }finally{file.delete()}
+    }
     @Test fun legacyStyleRendersItsOwnDrumkitThroughActualTimeline() {
         val path=System.getProperty("orgx.legacySet") ?: return
         val file=File(path);val index=ImportedSetInstruments.index(file)
