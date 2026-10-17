@@ -19,13 +19,13 @@ import androidx.compose.ui.input.pointer.pointerInput
     onTempo:(Int)->Unit,onOctave:(Int)->Unit,onSustain:()->Unit,onAutoFill:()->Unit,onPart:(Int)->Unit,
     stylePage:Boolean=false,styleChoices:List<String> = emptyList(),styleEnabled:List<Boolean> = emptyList(),
     page:Int=0,status:String="",onChoose:(Int)->Unit={},onPage:(Int)->Unit={},onExit:()->Unit={},
-    modeLabel:String="",onMode:()->Unit={}){
+    modeLabel:String="",onMode:()->Unit={},selectionTitle:String="STYLE SELECT",selectedChoice:Int=-1,onMixer:()->Unit=onVoice){
     data class Key(val x:Float,val y:Float,val w:Float,val h:Float,val label:String,val active:Boolean=false,val enabled:Boolean=true,val action:()->Unit)
     val keys=mutableListOf<Key>()
     keys+=Key(8f,12f,110f,26f,"ORGX / hovait",action=onMenu)
     keys+=Key(145f,12f,70f,26f,"MENU",action=onMenu)
     keys+=Key(145f,48f,70f,26f,"SET",action=onStyle)
-    keys+=Key(145f,84f,70f,26f,"MIXER",action=onVoice)
+    keys+=Key(145f,84f,70f,26f,"MIXER",action=onMixer)
     keys+=Key(8f,155f,75f,26f,"AUTO FILL",autoFill,action=onAutoFill)
     keys+=Key(90f,155f,55f,26f,if(playing)"STOP" else "START",playing,action=onPlay)
     keys+=Key(790f,12f,88f,26f,"SUSTAIN",sustain,action=onSustain)
@@ -39,7 +39,7 @@ import androidx.compose.ui.input.pointer.pointerInput
         repeat(6){slot->
             val index=page*6+slot
             if(index<styleChoices.size)keys+=Key(235f+(slot%2)*264,40f+(slot/2)*36,257f,31f,
-                styleChoices[index].take(32),enabled=styleEnabled.getOrElse(index){true},action={onChoose(index)})
+                styleChoices[index].take(32),active=index==selectedChoice,enabled=styleEnabled.getOrElse(index){true},action={onChoose(index)})
         }
         keys+=Key(235f,153f,65f,23f,"PREV",enabled=page>0,action={onPage(-1)})
         keys+=Key(695f,153f,65f,23f,"NEXT",enabled=(page+1)*6<styleChoices.size,action={onPage(1)})
@@ -81,7 +81,7 @@ import androidx.compose.ui.input.pointer.pointerInput
         if(stylePage){
             rect(230f,16f,534f,162f,Color(0xFF152D3D))
             rect(230f,16f,534f,18f,Color(0xFF98521B))
-            text("STYLE SELECT",237f,29f,12f,0xFFFFFFFF.toInt())
+            text(selectionTitle,237f,29f,12f,0xFFFFFFFF.toInt())
             text(if(status.isNotEmpty())status.take(48) else "PAGE ${page+1} / ${((styleChoices.size+5)/6).coerceAtLeast(1)}",310f,169f,10f,0xFFFFD36A.toInt())
             if(styleChoices.isEmpty())text("NO STYLES  /  MENU > IMPORT SET",245f,85f,13f,0xFFDDDDDD.toInt())
         }

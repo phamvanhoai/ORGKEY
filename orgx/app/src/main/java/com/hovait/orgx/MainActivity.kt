@@ -163,12 +163,16 @@ private fun ORGXApp(engine: AudioEngine) {
     var showAbout by remember { mutableStateOf(false) }
     var showTools by remember{mutableStateOf(false)}
     var browseStyles by remember{mutableStateOf(false)}
+    var browseVoices by remember{mutableStateOf(false)}
+    var factoryVoices by remember{mutableStateOf(false)}
     var bankPage by remember{mutableIntStateOf(0)}
     var bankBusy by remember{mutableStateOf(false)}
     var bankStatus by remember{mutableStateOf("")}
     var bankMode by remember{mutableIntStateOf(preferences.getInt("bankMode",0).coerceIn(0,2))}
     val bankScope=rememberCoroutineScope()
     val bankStyles=remember(bankIndex){bankIndex?.let{ImportedStyleCatalog.styles(it)}.orEmpty()}
+    val voiceSounds=engine.activeSetSounds
+    val useSetVoices=voiceSounds.isNotEmpty() && !factoryVoices
     val bankEnabled=remember(bankIndex,bankMode){bankStyles.map{definition->definition.sections.any{it.section in 32..35 && ImportedStyleSupport.reason(bankIndex,it,bankMode>0,bankMode==2)==null}}}
     var midiPlaying by remember { mutableStateOf(false) }
     val midiPicker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
@@ -200,20 +204,39 @@ private fun ORGXApp(engine: AudioEngine) {
                     InstrumentConsole(Modifier.fillMaxSize(),if(restoringSet) "LOADING SAVED SET..." else setSession?.displayName ?: if(bankIndex!=null) "SELECT SET STYLE" else engine.styleNames[style],
                         engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument],chordDisplay,bpm,octave,
                         playing,sustain,styleAutoFill,setSession,sectionState.first,sectionState.second,
-                        onMenu={showTools=true},onStyle={browseStyles=true;bankPage=0;bankStatus=""},onVoice={showMixer=true},onChord={showChords=true},
+                        onMenu={showTools=true},onStyle={browseVoices=false;browseStyles=true;bankPage=0;bankStatus=""},
+                        onVoice={browseStyles=false;browseVoices=true;bankPage=0;bankStatus=""},onMixer={showMixer=true},onChord={showChords=true},
                         onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null))engine.setRhythmEnabled(!engine.rhythmPlaying)},
                         onTempo={bpm=(bpm+it).coerceIn(40,240);engine.bpm=bpm},onOctave={octave=(octave+it).coerceIn(1,7)},
                         onSustain={sustain=!sustain;engine.sustain=sustain;if(!sustain)engine.releaseSustain()},
                         onAutoFill={styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},
                         onPart={engine.requestStyleSection(it)},
-                        stylePage=browseStyles,styleChoices=if(bankIndex!=null)bankStyles.map{it.name} else engine.styleNames,
-                        styleEnabled=if(bankBusy || restoringSet)List(if(bankIndex!=null)bankStyles.size else engine.styleNames.size){false} else if(bankIndex!=null)bankEnabled else emptyList(),
-                        page=bankPage,status=bankStatus,onPage={bankPage=(bankPage+it).coerceAtLeast(0)},onExit={if(!bankBusy)browseStyles=false},
-                        modeLabel=if(bankIndex==null)"" else listOf("MODE: DRUM","MODE: FULL / ORIGINAL NOTES","MODE: FULL / FOLLOW CHORD")[bankMode],
-                        onMode={if(!bankBusy){bankMode=(bankMode+1)%3;preferences.edit().putInt("bankMode",bankMode).apply();bankStatus=""}},
+                        stylePage=browseStyles || browseVoices,
+                        selectionTitle=if(browseVoices)"VOICE SELECT" else "STYLE SELECT",
+                        selectedChoice=if(!browseVoices)-1 else if(useSetVoices)voiceSounds.indexOfFirst{it.name==engine.importedInstrumentName} else if(engine.importedInstrument==null)instrument else -1,
+                        styleChoices=if(browseVoices){if(useSetVoices)voiceSounds.map{it.name} else InstrumentCatalog.names} else if(bankIndex!=null)bankStyles.map{it.name} else engine.styleNames,
+                        styleEnabled=if(bankBusy || restoringSet)List(if(browseVoices){if(useSetVoices)voiceSounds.size else InstrumentCatalog.names.size} else if(bankIndex!=null)bankStyles.size else engine.styleNames.size){false} else if(browseVoices)emptyList() else if(bankIndex!=null)bankEnabled else emptyList(),
+                        page=bankPage,status=bankStatus,onPage={bankPage=(bankPage+it).coerceAtLeast(0)},onExit={if(!bankBusy){browseStyles=false;browseVoices=false}},
+                        modeLabel=if(browseVoices)if(useSetVoices)"BANK: IMPORTED SET" else "BANK: FACTORY" else if(bankIndex==null)"" else listOf("MODE: DRUM","MODE: FULL / ORIGINAL NOTES","MODE: FULL / FOLLOW CHORD")[bankMode],
+                        onMode={if(!bankBusy){if(browseVoices){factoryVoices=!factoryVoices;bankPage=0}else{bankMode=(bankMode+1)%3;preferences.edit().putInt("bankMode",bankMode).apply()};bankStatus=""}},
                         onChoose={chosen->
                             if(!bankBusy && !restoringSet){
-                                if(bankIndex==null){
+                                if(browseVoices){
+                                    if(useSetVoices)bankScope.launch{
+                                        bankBusy=true;bankStatus="LOADING VOICE..."
+                                        try{
+                                            val sound=voiceSounds[chosen];val file=checkNotNull(engine.activeSetFile)
+                                            val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(file,sound)}
+                                            engine.importedInstrument=loaded;engine.importedInstrumentName=sound.name;restoredSetName=sound.name
+                                            preferences.edit().putString("importedSetFile",file.name).putString("importedSetSound",sound.name).apply()
+                                            bankStatus="SELECTED: ${sound.name}"
+                                        }catch(error:Exception){bankStatus=error.message ?: "Cannot load voice"}
+                                        finally{bankBusy=false}
+                                    }else{
+                                        instrument=chosen;engine.instrument=chosen;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
+                                        preferences.edit().remove("importedSetFile").remove("importedSetSound").apply();bankStatus="SELECTED: ${InstrumentCatalog.names[chosen]}"
+                                    }
+                                }else if(bankIndex==null){
                                     engine.setRhythmEnabled(false);engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null
                                     preferences.edit().remove("selectedStyleSet").remove("selectedSetStyleId").apply();style=chosen;engine.rhythmStyle=chosen;bpm=engine.styleTempos[chosen];engine.bpm=bpm;browseStyles=false
                                 }else bankScope.launch{
