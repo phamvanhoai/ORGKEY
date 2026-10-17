@@ -77,4 +77,28 @@ class ReferenceStyleTransitionTest {
         val stopped=session(lock=true);stopped.press(2,false,true);stopped.next(120)
         assertEquals(2,stopped.currentId)
     }
+    @Test fun introButtonOverridesStoredIntroChainAndReturnsToSelectedMain() {
+        val groups=listOf(
+            ImportedStyleGroup(1,100,"Main",32,true,0,1000,120),
+            ImportedStyleGroup(2,100,"Main 2",33,true,0,1000,120),
+            ImportedStyleGroup(3,100,"Intro 1",16,false,0,1000,120,jumpGroup=4),
+            ImportedStyleGroup(4,100,"Intro 2",17,false,0,1000,120,jumpGroup=0))
+        fun create():ImportedStyleSession {
+            val players=groups.associate{g->g.id to ReferenceRhythmPlayer(listOf(
+                ReferenceDrumTrack(g.name,g.id,100,g.section,120,g.loop,0,1000,false,
+                    listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),{10000},{_,_,_->0.1},1000)}
+            return ImportedStyleSession(ImportedStyleDefinition(100,"Test",groups),players,1000)
+        }
+        val stopped=create();stopped.press(3,false,false)
+        stopped.reset() // Audio idle/reset must preserve the Intro button's return command.
+        repeat(1001){stopped.next(120)}
+        assertEquals(1,stopped.currentId);assertFalse(stopped.finished)
+        val running=create();running.press(2,false,false);running.next(120)
+        running.press(3,true,false)
+        repeat(2000){running.next(120)}
+        assertEquals(2,running.currentId);assertFalse(running.finished)
+        val raw=create();raw.request(3,true)
+        repeat(1001){raw.next(120)}
+        assertEquals(4,raw.currentId) // Raw playback still honors the unmodified SET jump.
+    }
 }

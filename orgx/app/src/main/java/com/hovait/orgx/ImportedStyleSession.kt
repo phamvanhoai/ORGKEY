@@ -34,7 +34,10 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         val group=groups.getValue(id)
         val fill=if(running && autoFill && group.section in 32..35)
             style.sections.firstOrNull{it.section==group.section-32+48 && it.id in players} else null
-        if(fill!=null){request(fill.id);jumpId=id}else request(id,immediate=!running)
+        if(fill!=null){request(fill.id);jumpId=id}else {
+            request(id,immediate=!running)
+            if(group.section in 16..18)jumpId=lastLoop ?: main.id
+        }
     }
     @Synchronized fun takeTempoChange():Int?=tempoChange.also{tempoChange=null}
     private fun select(id:Int){
@@ -56,7 +59,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     }
     @Synchronized fun reset(){
         val immediate=queue.firstOrNull()?.takeIf{it.immediate}
-        queue.clear();jumpId=null;clock.reset();startedAt=0;tempoChange=null
+        queue.clear();if(immediate==null)jumpId=null;clock.reset();startedAt=0;tempoChange=null
         if(immediate!=null)select(immediate.id)
         player.reset();finished=false
     }
