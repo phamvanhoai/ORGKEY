@@ -46,7 +46,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         val track=tracks[selected]
         val duration=track.end-track.start
         var local=clock.time-loopOrigin+track.start
-        if(duration>0 && local>=track.end){
+        if(track.bounded && duration>0 && local>=track.end){
             if(!track.loop){voices.clear();left=0.0;right=0.0;finished=true;return}
             loopOrigin+=(local-track.start)/duration*duration
             local=clock.time-loopOrigin+track.start
@@ -71,6 +71,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(voice.age>=drumLength(voice.note) || voice.envelope?.finished==true || (voice.envelope==null && voice.release>=releaseFrames))iterator.remove()
         }
         left*=track.outputGain;right*=track.outputGain
+        if(!track.bounded && timeline?.exhausted==true && (timeline?.endsWithNoteOff==true || voices.isEmpty()))finished=true
         clock.advance(1,tempo)
     }
 }

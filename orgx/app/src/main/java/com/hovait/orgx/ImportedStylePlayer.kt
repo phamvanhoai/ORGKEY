@@ -38,7 +38,7 @@ object ImportedStylePlayer {
         return groups.associate{group->group.id to ReferenceRhythmPlayer.combine(byGroup.getValue(group.id).map{track->
             val sound=sounds.getValue(track.instrument)
             val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
-                group.loop,group.start.toLong(),group.end.toLong(),false,track.events)
+                group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,track.events,bounded=group.limit)
             ReferenceRhythmPlayer(listOf(timeline),sound::durationFrames,
                 {note,age,channel->sound.sample(note,age.toLong(),channel)},48000,
                 accompaniment=index.instruments[track.instrument].type==0,

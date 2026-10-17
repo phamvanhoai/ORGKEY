@@ -33,7 +33,7 @@ class ImportedStylePlayerTest {
     }
     @Test fun unsupportedAccompanimentIsExplainedWithoutBlockingDrumMode() {
         val source=index()
-        val bad=source.copy(instruments=listOf(instrument(1),instrument(2)))
+        val bad=source.copy(instruments=listOf(instrument(1),instrument(3)))
         assertNull(ImportedStyleSupport.reason(bad,group))
         assertNotNull(ImportedStyleSupport.reason(bad,group,true))
         val muted=bad.copy(tracks=bad.tracks.map{if(it.instrument==1)it.copy(muted=true) else it})

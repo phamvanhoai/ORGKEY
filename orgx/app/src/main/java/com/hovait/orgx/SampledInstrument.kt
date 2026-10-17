@@ -2,7 +2,8 @@ package com.hovait.orgx
 
 data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true,val tune:Int=0)
 
-class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null) {
+class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null,
+    private val pitchMode:Int=if(exactNotes)2 else 0) {
     init {
         require(regions.isNotEmpty())
         regions.forEach {
@@ -11,9 +12,14 @@ class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private va
         }
     }
     private val roots=regions.map{it.root}
-    private val selected=Array(128){note->regions.first{it.root==SampleRegionMap.nearestRoot(note,roots)}}
-    private val steps=DoubleArray(128){note->SamplePitch.step(note,selected[note].root,selected[note].sample.sampleRate,outputRate,selected[note].tune)}
-    private fun missing(note:Int)=exactNotes && selected[note].root!=note
+    private val mapped=Array(128){note->when(pitchMode){
+        1->SampleRegionMap.repeatedRoot(note,roots)
+        2->note.takeIf{it in roots}
+        else->SampleRegionMap.nearestRoot(note,roots)
+    }}
+    private val selected=Array(128){note->regions.firstOrNull{it.root==mapped[note]} ?: regions.first()}
+    private val steps=DoubleArray(128){note->SamplePitch.step(if(pitchMode==1)mapped[note] ?: note else note,selected[note].root,selected[note].sample.sampleRate,outputRate,selected[note].tune)}
+    private fun missing(note:Int)=mapped[note]==null
     fun durationFrames(note:Int):Int {
         if(note !in 0..127 || missing(note))return 0
         val region=selected[note]

@@ -40,7 +40,7 @@ class ImportedSetInstrumentsTest {
     }
     @Test fun unusedUnsupportedRegionDoesNotBlockTrackButUsedRegionStillDoes() {
         val good=ImportedSection(36,48000,1,4,100,0,0,0,0,0,0,ImportedWave(0,8))
-        val bad=good.copy(note=80,start=10)
+        val bad=good.copy(note=80,loop=9)
         val kit=ImportedInstrument("Kit",100,0,1,listOf(ImportedSound("Primary",listOf(0,0,100,10,0,0),listOf(good,bad))))
         fun events(note:Int)=listOf(ReferenceDrumEvent(2,1,note,100,0,10))
         assertFalse(ImportedInstrumentLoader.supported(kit))
@@ -102,22 +102,22 @@ class ImportedSetInstrumentsTest {
         println("Loaded legacy PCM sound: ${selected.name}")
         println("Legacy SET: ${instruments.size} instruments, ${ImportedInstrumentLoader.playableSounds(instruments).size} playable sounds")
     }
-    @Test fun percussionSupportsNearestAndExactButNotCyclicMapping() {
+    @Test fun percussionSupportsNearestExactAndRepeatedMapping() {
         val wave=ImportedWave(0,8)
         val section=ImportedSection(36,48000,1,4,100,0,0,0,0,0,0,wave)
         val sound=ImportedSound("Kit",listOf(0,0,100,10,2,0),listOf(section))
         val instrument=ImportedInstrument("Percussion",100,0,1,listOf(sound))
         assertTrue(ImportedInstrumentLoader.supported(instrument))
         assertTrue(ImportedInstrumentLoader.supported(instrument.copy(sounds=listOf(sound.copy(envelope=listOf(0,0,100,10,0,0))))))
-        assertFalse(ImportedInstrumentLoader.supported(instrument.copy(sounds=listOf(sound.copy(envelope=listOf(0,0,100,10,1,0))))))
-        assertFalse(ImportedInstrumentLoader.supported(instrument.copy(type=2)))
+        assertTrue(ImportedInstrumentLoader.supported(instrument.copy(sounds=listOf(sound.copy(envelope=listOf(0,0,100,10,1,0))))))
+        assertTrue(ImportedInstrumentLoader.supported(instrument.copy(type=2)))
     }
-    @Test fun loadsCompatibleDrumkitRegionsAndRejectsUnimplementedStartOffsets() {
+    @Test fun loadsDrumkitWithStoredStartMetadata() {
         val file=File(requireNotNull(System.getProperty("orgx.referenceAssets")),"Default.Template")
         val original=ImportedSetInstruments.read(file).first{it.name=="General Drumkit"}
-        assertFalse(ImportedInstrumentLoader.supported(original))
+        assertTrue(ImportedInstrumentLoader.supported(original))
         val sound=original.sounds.first()
-        val kit=original.copy(sounds=listOf(sound.copy(sections=sound.sections.filter{it.start==0})))
+        val kit=original.copy(sounds=listOf(sound))
         assertTrue(ImportedInstrumentLoader.supported(kit))
         val loaded=ImportedInstrumentLoader.load(file,kit)
         var energy=0.0
@@ -130,7 +130,7 @@ class ImportedSetInstrumentsTest {
         val section=ImportedSection(60,48000,1,4,100,0,0,0,0,0,0,wave)
         val first=ImportedSound("Primary",listOf(0,0,100,10,0,0),listOf(section))
         val second=first.copy(name="Alternate",sections=listOf(section.copy(volume=54)))
-        val unsupported=first.copy(name="Cyclic mapping",envelope=listOf(0,0,100,10,1,0))
+        val unsupported=first.copy(name="Unknown mapping",envelope=listOf(0,0,100,10,9,0))
         val instrument=ImportedInstrument("Test",100,0,0,listOf(first,second,unsupported))
         val choices=ImportedInstrumentLoader.playableSounds(listOf(instrument))
         assertEquals(listOf("Test / Primary","Test / Alternate"),choices.map{it.name})

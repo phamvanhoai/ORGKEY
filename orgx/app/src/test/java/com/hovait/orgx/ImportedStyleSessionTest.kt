@@ -32,6 +32,20 @@ class ImportedStyleSessionTest {
         replacement.next(120);assertEquals(4,replacement.currentId)
         assertFalse(replacement.finished)
     }
+    @Test fun unboundedEndingUsesEventsInsteadOfStoredZeroBounds(){
+        val ending=part(9,80).copy(limit=false,end=0)
+        val main=parts.first()
+        fun player(group:ImportedStyleGroup,events:List<ReferenceDrumEvent>)=ReferenceRhythmPlayer(listOf(
+            ReferenceDrumTrack("Part",group.id,100,group.section,120,group.loop,0,group.end.toLong(),false,events,bounded=group.limit)),
+            {10000},{_,_,_->1.0},1000)
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",listOf(main,ending)),mapOf(
+            main.id to player(main,listOf(ReferenceDrumEvent(2,1,60,100,0,1000))),
+            ending.id to player(ending,listOf(ReferenceDrumEvent(2,1,60,100,0,100),ReferenceDrumEvent(1,1,60,0,100,0)))),1000)
+        session.request(ending.id,true)
+        repeat(101){session.next(120);assertFalse(session.finished)}
+        repeat(1000){session.next(120)}
+        assertTrue(session.finished)
+    }
     @Test fun changingStyleDuringFillOrBreakReturnsToCorrespondingMain(){
         for(id in listOf(4,5)){
             val old=session();old.request(id,immediate=true);old.next(120)

@@ -5,7 +5,7 @@ import org.json.JSONObject
 
 data class ReferenceDrumTrack(val name:String,val group:Int,val parent:Int,val section:Int,
     val tempo:Int,val loop:Boolean,val start:Long,val end:Long,val muted:Boolean,
-    val events:List<ReferenceDrumEvent>,val displayName:String=name,val outputGain:Double=1.0) {
+    val events:List<ReferenceDrumEvent>,val displayName:String=name,val outputGain:Double=1.0,val bounded:Boolean=true) {
     fun timeline()=ReferenceDrumTimeline(events)
 }
 

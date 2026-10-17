@@ -77,7 +77,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         if(queue.firstOrNull()?.immediate==true){clock.reset();select(queue.removeFirst().id)}
         if(finished)return
         val section=groups.getValue(currentId)
-        val completed=clock.time-startedAt>=section.end.toLong()-section.start
+        val completed=if(section.limit)clock.time-startedAt>=section.end.toLong()-section.start else player.finished
         if(section.type==1 && ReferenceSectionTiming.inWindow(clock.time,rhythmScale,tempo)){
             if(queue.isNotEmpty() && (section.loop || completed))select(queue.removeFirst().id)
             else if(completed && !section.loop){
@@ -89,6 +89,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
                 jumpId=null
                 if(target==null){finished=true;player.reset();return}else select(target)
             }
+            else if(completed && !section.limit && section.loop)select(currentId)
         }
         if(finished)return
         val effectiveTempo=tempoChange ?: tempo
