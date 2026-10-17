@@ -102,7 +102,7 @@ object ImportedSetInstruments {
                 val tune=java.lang.Short.reverseBytes(f.readShort()).toInt()
                 val id=int();val note=int();val touch=int();val time=int();val length=int()
                 require(type!=101){"Embedded wave events in SET tracks are not supported yet"}
-                ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong())
+                ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune)
             }
             ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events)
         }

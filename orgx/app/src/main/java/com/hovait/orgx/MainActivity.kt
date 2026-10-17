@@ -359,6 +359,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var setInstruments by remember{mutableStateOf<List<ImportedInstrument>>(emptyList())}
     var setGroups by remember{mutableStateOf<List<ImportedStyleGroup>>(emptyList())}
     var setIndex by remember{mutableStateOf<ImportedSetIndex?>(null)}
+    var previewAccompaniment by remember{mutableStateOf(false)}
     val picker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
         if(uri!=null)scope.launch{
             importing=true
@@ -409,28 +410,25 @@ private fun ORGXApp(engine: AudioEngine) {
         }
         if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)
         if(setGroups.isNotEmpty()){
-            Text("SET groups: ${setGroups.size} / compatible Drum tracks only",fontWeight=FontWeight.Bold)
+            Text("SET groups: ${setGroups.size}",fontWeight=FontWeight.Bold)
+            Row(verticalAlignment=Alignment.CenterVertically){
+                Checkbox(checked=previewAccompaniment,enabled=!importing,onCheckedChange={previewAccompaniment=it})
+                Text("Preview Drum + accompaniment")
+            }
+            Text(if(previewAccompaniment) "Original notes only; chord changes and DNC are not applied." else "Drum tracks only.",fontSize=12.sp)
             val groups=setGroups.associateBy{it.id}
             setGroups.filter{it.section in 16..35}.forEach{group->
                 val index=setIndex
-                val tracks=index?.let{ImportedStyleSupport.drumTracks(it,group)} ?: emptyList()
-                val track=tracks.firstOrNull()
-                val reason=index?.let{ImportedStyleSupport.reason(it,group)} ?: "SET index unavailable"
+                val reason=index?.let{ImportedStyleSupport.reason(it,group,previewAccompaniment)} ?: "SET index unavailable"
                 val supported=reason==null
                 OutlinedButton(enabled=supported && !importing,onClick={scope.launch{
                     importing=true
                     try{
                         val player=withContext(Dispatchers.IO){
-                            val source=checkNotNull(index)
-                            val kits=tracks.map{it.instrument}.distinct().associateWith{ImportedInstrumentLoader.load(checkNotNull(setFile),ImportedInstrumentLoader.forTrack(source.instruments[it],tracks.filter{track->track.instrument==it}.flatMap{track->track.events}))}
-                            ReferenceRhythmPlayer.combine(tracks.map{chosen->
-                            val kit=kits.getValue(chosen.instrument)
-                            val timeline=ReferenceDrumTrack(chosen.name,group.id,group.parent,group.section,group.tempo,group.loop,group.start.toLong(),group.end.toLong(),false,chosen.events)
-                            ReferenceRhythmPlayer(listOf(timeline),kit::durationFrames,{note,age,channel->kit.sample(note,age.toLong(),channel)},48000)
-                            })
+                            ImportedStylePlayer.load(checkNotNull(setFile),checkNotNull(index),group,previewAccompaniment)
                         }
                         engine.setRhythmEnabled(false);engine.importedRhythm=player;engine.importedRhythmName="${groups[group.parent]?.name.orEmpty()} / ${group.name}";engine.bpm=group.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
-                        importStatus="SET Drum loaded: ${group.name}. Press PLAY. Bass/accompaniment not loaded."
+                        importStatus=if(previewAccompaniment) "SET preview loaded: ${group.name}. Press PLAY. Original notes; no chord changes." else "SET Drum loaded: ${group.name}. Press PLAY. Bass/accompaniment not loaded."
                     }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}
                     finally{importing=false}
                 }},modifier=Modifier.fillMaxWidth()){
