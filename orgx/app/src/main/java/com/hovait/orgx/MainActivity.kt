@@ -72,6 +72,8 @@ private fun ORGXApp(engine: AudioEngine) {
     val context = LocalContext.current
     val preferences = remember { context.getSharedPreferences("orgx-settings", 0) }
     var restoredSetName by remember{mutableStateOf<String?>(null)}
+    var restoringSet by remember{mutableStateOf(preferences.getString("activeSetFile",preferences.getString("importedSetFile",null))!=null)}
+    var bankIndex by remember{mutableStateOf(engine.activeSetIndex)}
     LaunchedEffect(Unit){
         val fileName=preferences.getString("importedSetFile",null)
         val soundName=preferences.getString("importedSetSound",null)
@@ -96,6 +98,23 @@ private fun ORGXApp(engine: AudioEngine) {
                 }
             }catch(error:Exception){Toast.makeText(context,"SET styles: ${error.message}",Toast.LENGTH_LONG).show()}
         }
+        bankIndex=engine.activeSetIndex
+        val savedStyle=preferences.getString("selectedStyleSet",null)
+        if(savedStyle!=null && savedStyle==engine.activeSetFile?.name){
+            try{
+                val file=checkNotNull(engine.activeSetFile)
+                val index=checkNotNull(engine.activeSetIndex)
+                val definition=ImportedStyleCatalog.styles(index).firstOrNull{it.id==preferences.getInt("selectedSetStyleId",Int.MIN_VALUE)}
+                if(definition!=null){
+                    val mode=preferences.getInt("bankMode",0).coerceIn(0,2)
+                    val session=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
+                        engine.referenceChordTransposer,if(mode==2)engine::selectedSetChord else null)}
+                    engine.importedStyleSession=session;engine.importedRhythm=session.player;engine.importedRhythmName=session.displayName
+                    engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240)
+                }
+            }catch(error:Exception){Toast.makeText(context,"SET style restore: ${error.message}",Toast.LENGTH_LONG).show()}
+        }
+        restoringSet=false
     }
     val builtInChordNames = listOf("C","Dm","Em","F","G","Am","Bdim","C7","D7","E7","Fmaj7","G7")
     val playableChords = remember { runCatching {
@@ -111,6 +130,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     LaunchedEffect(engine){while(true){
         playing=engine.rhythmPlaying
+        bankIndex=engine.activeSetIndex
         setSession=engine.importedStyleSession
         setSession?.let{sectionState=it.currentId to it.pendingId;bpm=engine.bpm}
         kotlinx.coroutines.delay(100)
@@ -142,7 +162,6 @@ private fun ORGXApp(engine: AudioEngine) {
     var bankStatus by remember{mutableStateOf("")}
     var bankMode by remember{mutableIntStateOf(preferences.getInt("bankMode",0).coerceIn(0,2))}
     val bankScope=rememberCoroutineScope()
-    val bankIndex=engine.activeSetIndex
     val bankStyles=remember(bankIndex){bankIndex?.let{ImportedStyleCatalog.styles(it)}.orEmpty()}
     val bankEnabled=remember(bankIndex,bankMode){bankStyles.map{definition->definition.sections.any{it.section in 32..35 && ImportedStyleSupport.reason(bankIndex,it,bankMode>0,bankMode==2)==null}}}
     var midiPlaying by remember { mutableStateOf(false) }
@@ -172,32 +191,33 @@ private fun ORGXApp(engine: AudioEngine) {
             Column(Modifier.fillMaxSize().padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
                 Box(Modifier.weight(.55f).fillMaxWidth()){
-                    InstrumentConsole(Modifier.fillMaxSize(),setSession?.displayName ?: engine.styleNames[style],
+                    InstrumentConsole(Modifier.fillMaxSize(),if(restoringSet) "LOADING SAVED SET..." else setSession?.displayName ?: if(bankIndex!=null) "SELECT SET STYLE" else engine.styleNames[style],
                         engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument],chordDisplay,bpm,octave,
                         playing,sustain,styleAutoFill,setSession,sectionState.first,sectionState.second,
                         onMenu={showTools=true},onStyle={browseStyles=true;bankPage=0;bankStatus=""},onVoice={showMixer=true},onChord={showChords=true},
-                        onPlay={engine.setRhythmEnabled(!engine.rhythmPlaying)},
+                        onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null))engine.setRhythmEnabled(!engine.rhythmPlaying)},
                         onTempo={bpm=(bpm+it).coerceIn(40,240);engine.bpm=bpm},onOctave={octave=(octave+it).coerceIn(1,7)},
                         onSustain={sustain=!sustain;engine.sustain=sustain;if(!sustain)engine.releaseSustain()},
                         onAutoFill={styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},
                         onPart={engine.requestStyleSection(it)},
                         stylePage=browseStyles,styleChoices=if(bankIndex!=null)bankStyles.map{it.name} else engine.styleNames,
-                        styleEnabled=if(bankBusy)List(if(bankIndex!=null)bankStyles.size else engine.styleNames.size){false} else if(bankIndex!=null)bankEnabled else emptyList(),
+                        styleEnabled=if(bankBusy || restoringSet)List(if(bankIndex!=null)bankStyles.size else engine.styleNames.size){false} else if(bankIndex!=null)bankEnabled else emptyList(),
                         page=bankPage,status=bankStatus,onPage={bankPage=(bankPage+it).coerceAtLeast(0)},onExit={if(!bankBusy)browseStyles=false},
                         modeLabel=if(bankIndex==null)"" else listOf("MODE: DRUM","MODE: FULL / ORIGINAL NOTES","MODE: FULL / FOLLOW CHORD")[bankMode],
                         onMode={if(!bankBusy){bankMode=(bankMode+1)%3;preferences.edit().putInt("bankMode",bankMode).apply();bankStatus=""}},
                         onChoose={chosen->
-                            if(!bankBusy){
+                            if(!bankBusy && !restoringSet){
                                 if(bankIndex==null){
                                     engine.setRhythmEnabled(false);engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null
-                                    style=chosen;engine.rhythmStyle=chosen;bpm=engine.styleTempos[chosen];engine.bpm=bpm;browseStyles=false
+                                    preferences.edit().remove("selectedStyleSet").remove("selectedSetStyleId").apply();style=chosen;engine.rhythmStyle=chosen;bpm=engine.styleTempos[chosen];engine.bpm=bpm;browseStyles=false
                                 }else bankScope.launch{
                                     bankBusy=true;bankStatus="LOADING..."
                                     try{
-                                        val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(checkNotNull(engine.activeSetFile),bankIndex,bankStyles[chosen],bankMode>0,
+                                        val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(checkNotNull(engine.activeSetFile),checkNotNull(bankIndex),bankStyles[chosen],bankMode>0,
                                             engine.referenceChordTransposer,if(bankMode==2)engine::selectedSetChord else null)}
                                         engine.setRhythmEnabled(false);engine.importedStyleSession=loaded;engine.importedRhythm=loaded.player;engine.importedRhythmName=loaded.displayName
                                         setSession=loaded;sectionState=loaded.currentId to null
+                                        preferences.edit().putString("selectedStyleSet",engine.activeSetFile?.name).putInt("selectedSetStyleId",loaded.style.id).apply()
                                         val tempo=loaded.style.sections.first{it.id==loaded.currentId}.tempo
                                         if(tempo>0){bpm=tempo.coerceIn(40,240);engine.bpm=bpm}
                                         browseStyles=false;bankStatus=""
@@ -542,6 +562,8 @@ private fun ORGXApp(engine: AudioEngine) {
                                 engine.referenceChordTransposer,if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
                         engine.setRhythmEnabled(false);engine.importedStyleSession=session;engine.importedRhythm=session.player;engine.importedRhythmName=session.displayName
+                        preferences.edit().putString("selectedStyleSet",setFile?.name).putInt("selectedSetStyleId",definition.id)
+                            .putInt("bankMode",if(!previewAccompaniment)0 else if(followSetChord)2 else 1).apply()
                         engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
                         onDismiss()
                     }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}

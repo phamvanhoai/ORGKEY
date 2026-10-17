@@ -272,3 +272,10 @@ Sửa engine sau kiểm kê: sound SET có `ImportedEnvelope`, cấp state riên
 Build debug và 169 unit test đã đạt cho bản envelope/MODE, gồm kiểm thử timeline track nhả kéo dài đúng cấu hình thay vì bị cắt sau 10 ms. APK đã cài, mở trên thiết bị và không có lỗi AndroidRuntime gần nhất. Chưa thu/nghe đối chiếu tiếng của bản envelope với APK gốc. Các dữ liệu mode/layer/DNC, FX chain, system tuning và STS vẫn chưa áp dụng đầy đủ; lượt sửa không thay file SET.
 
 Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, nhấn PLAY và chọn hợp âm thủ công trong thư viện Chord. Chỉ note-on mới của track type 0 được đổi; track Drum và ID note-off giữ nguyên. Khi AUTO bật hoặc thiếu thư viện hợp âm, phát nốt gốc. Chế độ này nạp toàn bộ vùng của sound đầu để nốt chuyển chọn đúng sample, nên điều kiện tương thích nghiêm hơn preview nốt gốc; ngân sách PCM toàn nhóm vẫn 64 MB. Bank melodic exact-note chưa hỗ trợ chuyển hợp âm sẽ bị chặn để tránh mất tiếng. Trong SET thử có 26 nhóm qua điều kiện và render thử một giây/nhóm, đổi C trưởng sang C thứ giữa lượt; có unit test chuyển bậc/root, control/octave, giới hạn nốt, thay hợp âm giữa các note-on và release theo ID. Chưa xác nhận nghe/so sánh với APK gốc, nhận diện hợp âm từ phím trái, đổi nốt đang ngân, AUTO và DNC vẫn chưa đầy đủ.
+# Sửa khôi phục SET khi khởi động
+
+- Giao diện theo dõi index SET được khôi phục bất đồng bộ, không cần mở lại bộ chọn style để cập nhật.
+- Lưu ID style cùng tên file SET và chế độ phát tại cả hai nơi chọn style; lần mở sau khôi phục session nhưng không tự bật phát.
+- Trong khi khôi phục hiển thị `LOADING SAVED SET...`, chặn Play/style để tránh phát nhầm mặc định. Với dữ liệu cũ chưa lưu ID style, cần chọn style một lần; sau đó ứng dụng nhớ lựa chọn.
+- Giữ nguyên file SET nhập vào.
+
