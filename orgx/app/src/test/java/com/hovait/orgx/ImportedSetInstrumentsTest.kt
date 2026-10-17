@@ -5,6 +5,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun unusedUnsupportedRegionDoesNotBlockTrackButUsedRegionStillDoes() {
+        val good=ImportedSection(36,48000,1,4,100,0,0,0,0,0,0,ImportedWave(0,8))
+        val bad=good.copy(note=80,start=10)
+        val kit=ImportedInstrument("Kit",100,0,1,listOf(ImportedSound("Primary",listOf(0,0,100,10,0,0),listOf(good,bad))))
+        fun events(note:Int)=listOf(ReferenceDrumEvent(2,1,note,100,0,10))
+        assertFalse(ImportedInstrumentLoader.supported(kit))
+        val selected=ImportedInstrumentLoader.forTrack(kit,events(38))
+        assertTrue(ImportedInstrumentLoader.supported(selected))
+        assertEquals(listOf(36),selected.sounds.single().sections.map{it.note})
+        assertFalse(ImportedInstrumentLoader.supported(ImportedInstrumentLoader.forTrack(kit,events(79))))
+    }
     @Test fun importedModeThreeRepeatsStoredLoopWithoutEnablingTempoSync() {
         val file=File.createTempFile("orgx-loop3-",".pcm")
         try{
@@ -28,7 +39,7 @@ class ImportedSetInstrumentsTest {
         assertTrue("No playable imported style",groups.isNotEmpty())
         val group=groups.first()
         val track=ImportedStyleSupport.drumTracks(index,group).first()
-        val kit=ImportedInstrumentLoader.load(file,index.instruments[track.instrument])
+        val kit=ImportedInstrumentLoader.load(file,ImportedInstrumentLoader.forTrack(index.instruments[track.instrument],track.events))
         val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,true,
             group.start.toLong(),group.end.toLong(),false,track.events)
         val player=ReferenceRhythmPlayer(listOf(timeline),kit::durationFrames,{note,age,channel->kit.sample(note,age.toLong(),channel)},48000)

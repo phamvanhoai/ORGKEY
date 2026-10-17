@@ -422,7 +422,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     try{
                         val player=withContext(Dispatchers.IO){
                             val source=checkNotNull(index)
-                            val kits=tracks.map{it.instrument}.distinct().associateWith{ImportedInstrumentLoader.load(checkNotNull(setFile),source.instruments[it])}
+                            val kits=tracks.map{it.instrument}.distinct().associateWith{ImportedInstrumentLoader.load(checkNotNull(setFile),ImportedInstrumentLoader.forTrack(source.instruments[it],tracks.filter{track->track.instrument==it}.flatMap{track->track.events}))}
                             ReferenceRhythmPlayer.combine(tracks.map{chosen->
                             val kit=kits.getValue(chosen.instrument)
                             val timeline=ReferenceDrumTrack(chosen.name,group.id,group.parent,group.section,group.tempo,group.loop,group.start.toLong(),group.end.toLong(),false,chosen.events)

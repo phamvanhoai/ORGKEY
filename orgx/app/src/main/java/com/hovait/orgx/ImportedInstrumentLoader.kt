@@ -4,6 +4,17 @@ import java.io.File
 import java.io.RandomAccessFile
 
 object ImportedInstrumentLoader {
+    /** Preserve original nearest-root decisions, while loading only regions used by this track. */
+    fun forTrack(instrument:ImportedInstrument,events:List<ReferenceDrumEvent>):ImportedInstrument {
+        val sound=instrument.sounds.firstOrNull() ?: return instrument
+        val roots=sound.sections.map{it.note}
+        if(roots.isEmpty())return instrument
+        val exact=sound.envelope.getOrNull(4)==2
+        val required=events.filter{it.type==2 && it.note in 0..127}.mapNotNull{event->
+            if(exact)event.note.takeIf{it in roots} else SampleRegionMap.nearestRoot(event.note,roots)
+        }.toSet()
+        return instrument.copy(sounds=listOf(sound.copy(sections=sound.sections.filter{it.note in required})))
+    }
     /** Each entry contains exactly the selected sound; no DNC mode mixing is implied. */
     fun playableSounds(instruments:List<ImportedInstrument>):List<ImportedInstrument> =
         instruments.flatMap { instrument ->
