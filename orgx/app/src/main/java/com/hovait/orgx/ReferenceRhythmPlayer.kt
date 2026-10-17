@@ -18,12 +18,18 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
     private var children:List<ReferenceRhythmPlayer> = emptyList()
     private var groupFx:ImportedFxChain?=null
+    private var rhythmSettings=ImportedChannelSettings()
     var outputLeft=0.0;private set
     var outputRight=0.0;private set
     fun withGroupFx(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{groupFx=ImportedFxChain(settings)}
+    fun withRhythmSettings(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{rhythmSettings=settings}
     /** Called once per audio frame after the drum/chord mixer, not once per output channel. */
     fun mixOutput(drumGain:Float,chordGain:Float){
-        val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain)
+        // fFXRhythm.c balances chord against drum, rather than stereo left against right.
+        val global=rhythmSettings.volume/100f
+        val drums=drumGain*global*minOf(100,100+rhythmSettings.pan)/100f
+        val chords=chordGain*global*minOf(100,100-rhythmSettings.pan)/100f
+        val l=mixedLeft(drums,chords);val r=mixedRight(drums,chords)
         val processor=groupFx
         if(processor==null){outputLeft=l;outputRight=r}else{processor.process(l,r);outputLeft=processor.left;outputRight=processor.right}
     }

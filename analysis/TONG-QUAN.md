@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã nối global rhythm FX fallback và volume/balance vào output style, giữ ba block Music/Wave/Rhythm từ SET. SET cục bộ có rhythm volume 100/balance 2; module 20 bật riêng nhưng block FX tắt nên không tự bật DSP. Toàn bộ 201 kiểm thử đạt, build/cài APK thành công. DSP Music/Wave, các module còn thiếu và đuôi xuyên section chưa hoàn chỉnh.
+
 Đã giữ FX block của group (format từ 1.4.2), dựng kế thừa phần → cha → group 0 và chạy DSP đã hỗ trợ sau mixer drum/chord. Kiểm thử fallback/chu kỳ/PCM đạt. SET 1.2.8 không lưu group FX ở layout này; chưa hoàn thành FX global rhythm và giữ đuôi xuyên section. Chi tiết tại [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã dựng Stereo Echo type 4 theo `t01`: phase tam giác điều biến output hai kênh, feedback đầy đủ và độc lập. Delay 0 báo lỗi thay vì chia cho 0. Build và toàn bộ kiểm thử đạt; chưa so sánh bản thu/độ lượng tử với APK gốc. Reverb và chuỗi FX mode/global/group vẫn chưa hoàn chỉnh.

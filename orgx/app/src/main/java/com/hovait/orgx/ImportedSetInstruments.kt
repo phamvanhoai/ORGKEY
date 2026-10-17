@@ -17,7 +17,8 @@ data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val sect
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
     val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings())
 data class ImportedSystem(val name:String,val startKey:Int,val selectedKeys:Int,val table:List<Double>)
-data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList(),val systems:List<ImportedSystem> = emptyList())
+data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList(),val systems:List<ImportedSystem> = emptyList(),
+    val musicSettings:ImportedChannelSettings=ImportedChannelSettings(),val waveSettings:ImportedChannelSettings=ImportedChannelSettings(),val rhythmSettings:ImportedChannelSettings=ImportedChannelSettings())
 
 /** Bounded, lazy PCM indexing for Music Studio 1.4.6; sample bytes stay on disk. */
 object ImportedSetInstruments {
@@ -53,7 +54,7 @@ object ImportedSetInstruments {
             require(index in 0 until slots && index !in waves)
             waves[index]=ImportedWave(f.filePointer,length);skip(length.toLong())
         }
-        repeat(3){fx()};common()
+        val musicSettings=fx();val waveSettings=fx();val rhythmSettings=fx();common()
         val instruments=List(count(10000)){
             val metadata=common();val version=metadata.getOrNull(1)
             require(version in listOf("1.2.8","1.4.6","1.4.2")){"Unsupported instrument version $version"}
@@ -98,7 +99,7 @@ object ImportedSetInstruments {
             }
             ImportedInstrument(metadata.firstOrNull().orEmpty(),volume,pan,type,sounds,modes)
         }
-        if(!includeStyles)return@use ImportedSetIndex(instruments,emptyList())
+        if(!includeStyles)return@use ImportedSetIndex(instruments,emptyList(),musicSettings=musicSettings,waveSettings=waveSettings,rhythmSettings=rhythmSettings)
         common();val systems=List(count(10000)){
             val metadata=common();val startKey=f.readByte().toInt();val selectedKeys=int();skip(28)
             val table=List(24){java.lang.Double.longBitsToDouble(java.lang.Long.reverseBytes(f.readLong()))}
@@ -142,6 +143,6 @@ object ImportedSetInstruments {
             val settings=if(musicVersion>="1.4.2")fx() else ImportedChannelSettings()
             ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo,type,limit,jump,meterX,meterY,settings)
         }
-        ImportedSetIndex(instruments,styles,tracks,systems)
+        ImportedSetIndex(instruments,styles,tracks,systems,musicSettings,waveSettings,rhythmSettings)
     }
 }

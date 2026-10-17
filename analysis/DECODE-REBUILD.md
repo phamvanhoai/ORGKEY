@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Global rhythm FX từ SET
+
+Đã giữ ba FX block Music/Wave/Rhythm theo thứ tự `Music.ReadFromStream`; `ImportedGroupFx` khi tới group 0 dùng global rhythm như mã gốc. Nếu không có block group phù hợp, global rhythm là fallback thay cho cấu hình trống. Các module đã dựng (4/6/20) của block này chạy trên stereo output style.
+
+Đã áp dụng volume và balance của global rhythm: balance dương giảm chord, âm giảm drum; không coi là stereo pan (`Channels.OpenKey`). Kiểm thử +/-100 và volume 50 xác nhận hai kênh giữ cân bằng stereo. Music/Wave block được giữ nhưng chưa nối đầy đủ DSP của chúng. Các header tune/octave/release global, module chưa hỗ trợ và đuôi xuyên section vẫn cần dựng tiếp. Kiểm thử unit chưa thay thế so sánh bản thu APK gốc.
+
 ### Group/style FX inheritance
 
 Đã giữ FX block trong TrackGroup với version từ 1.4.2, và dựng cách tìm `Tracks.GroupFXs`: ưu tiên block của phần nếu enabled và có module; nếu không lần theo cha, cuối cùng về group 0. Có chống chu kỳ cha lỗi. Output style trộn drum/chord gain trước rồi chạy module đã hỗ trợ một lần cho cả stereo. Không áp dụng các header volume/pan/tune của group vì `GroupPlayNext` chỉ copy module với các cờ header false.

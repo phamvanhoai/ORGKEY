@@ -7,10 +7,10 @@ object ImportedGroupFx {
         val visited=HashSet<Int>()
         var current:ImportedStyleGroup?=group
         while(current!=null && visited.add(current.id)){
-            if(current.id==0)return current.settings
+            if(current.id==0)return index.rhythmSettings
             if(current.settings.fxEnabled && current.settings.modules.isNotEmpty())return current.settings
             current=groups[current.parent]
         }
-        return groups[0]?.settings ?: ImportedChannelSettings()
+        return groups[0]?.settings?.takeIf{it.fxEnabled && it.modules.isNotEmpty()} ?: index.rhythmSettings
     }
 }
