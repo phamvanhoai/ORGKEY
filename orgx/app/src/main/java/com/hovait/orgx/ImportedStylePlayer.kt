@@ -22,7 +22,8 @@ object ImportedStylePlayer {
             val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
                 group.loop,group.start.toLong(),group.end.toLong(),false,track.events)
             ReferenceRhythmPlayer(listOf(timeline),sound::durationFrames,
-                {note,age,channel->sound.sample(note,age.toLong(),channel)},48000)
+                {note,age,channel->sound.sample(note,age.toLong(),channel)},48000,
+                accompaniment=index.instruments[track.instrument].type==0)
         })
     }
 }

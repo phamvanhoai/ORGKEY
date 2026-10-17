@@ -1,8 +1,9 @@
 package com.hovait.orgx
 
-/** Plays the drum track only; accompaniment tracks and DNC scripts are separate. */
+/** Sample track playback; accompaniment is kept separate for mixer routing. DNC is not applied. */
 class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
-    private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int) {
+    private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int,
+    private val accompaniment:Boolean=false) {
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -22,6 +23,12 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     var left=0.0;private set
     var right=0.0;private set
     var finished=false;private set
+    fun mixedLeft(drumGain:Float,chordGain:Float):Double =
+        if(children.isNotEmpty())children.sumOf{it.mixedLeft(drumGain,chordGain)}
+        else left*(if(accompaniment)chordGain else drumGain)
+    fun mixedRight(drumGain:Float,chordGain:Float):Double =
+        if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
+        else right*(if(accompaniment)chordGain else drumGain)
     fun reset(){clock.reset();timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;children.forEach{it.reset()}}
     fun next(selection:Int,tempo:Int) {
         if(children.isNotEmpty()){

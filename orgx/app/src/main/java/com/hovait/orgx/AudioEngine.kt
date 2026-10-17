@@ -324,7 +324,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private fun accompanimentSample(channel:Int): Double {
-        if (!rhythmPlaying) return 0.0
+        if (!rhythmPlaying || importedRhythm!=null) return 0.0
         val beatFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240)).toLong().coerceAtLeast(1)
         val bar = (transportFrame / (beatFrames * 4)).toInt()
         val activeChord = if (autoChord) accompanimentProgressions[progression.coerceIn(0, 2)][bar % 4] else chordIndex
@@ -382,8 +382,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         }
                     }
                 }
-                stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft+((importedRhythm ?: referenceRhythm)?.left ?: 0.0))*drumsVolume,
-                    mixedOutputRight + (StereoSample.right(sound)+padRight+((importedRhythm ?: referenceRhythm)?.right ?: 0.0))*drumsVolume,effectType,effectMix)
+                val setPlayer=importedRhythm
+                val styleLeft=setPlayer?.mixedLeft(drumsVolume,chordVolume) ?: ((referenceRhythm?.left ?: 0.0)*drumsVolume)
+                val styleRight=setPlayer?.mixedRight(drumsVolume,chordVolume) ?: ((referenceRhythm?.right ?: 0.0)*drumsVolume)
+                stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume+styleLeft,
+                    mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume+styleRight,effectType,effectMix)
                 outputLimiter.process(stereoEffect.left*masterVolume,stereoEffect.right*masterVolume)
                 fun pcm(value:Double)=(value * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()

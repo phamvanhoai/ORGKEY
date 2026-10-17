@@ -23,6 +23,12 @@ class ImportedStylePlayerTest {
             assertTrue(drum.left>0)
             assertEquals(drum.left*2,full.left,1e-9)
             assertEquals(drum.right*2,full.right,1e-9)
+            assertEquals(drum.left,full.mixedLeft(1f,0f),1e-9)
+            assertEquals(drum.left,full.mixedLeft(0f,1f),1e-9)
+            assertEquals(drum.right*0.75,full.mixedRight(0.25f,0.5f),1e-9)
+            assertEquals(0.0,full.mixedLeft(0f,0f),0.0)
+            full.reset()
+            assertEquals(0.0,full.mixedLeft(1f,1f),0.0)
         } finally {file.delete()}
     }
     @Test fun unsupportedAccompanimentIsExplainedWithoutBlockingDrumMode() {
