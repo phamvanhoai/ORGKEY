@@ -7,7 +7,8 @@ data class ImportedWave(val offset:Long,val bytes:Int)
 data class ImportedSection(val note:Int,val rate:Int,val channels:Int,val frames:Int,val volume:Int,
     val pan:Int,val tune:Int,val start:Int,val loop:Int,val loopStart:Int,val loopEnd:Int,val wave:ImportedWave)
 data class ImportedSound(val name:String,val envelope:List<Int>,val sections:List<ImportedSection>)
-data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>)
+data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix:List<Int>,val mixVolume:List<Int>,val mixPan:List<Int>)
+data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList())
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4)
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
@@ -53,13 +54,17 @@ object ImportedSetInstruments {
             skip(52)
             val legacyAds=if(legacy){skip(12);List(16){List(3){f.readUnsignedByte()}}}else{skip(60);emptyList()}
             val volume=int();val pan=int();val type=f.readUnsignedByte();skip(2)
-            repeat(f.readUnsignedByte()){mode->
-                if(!legacy || mode!=0)text()
-                skip(16);fx();skip(336);if(!legacy)text()
+            val modes=List(f.readUnsignedByte()){mode->
+                val modeName=if(!legacy || mode!=0)text() else "Default mode"
+                val selectedSound=int();val aftertouch=int();val mix=List(8){f.readByte().toInt()}
+                fx();skip(320)
+                val mixVolume=List(8){f.readByte().toInt()};val mixPan=List(8){f.readByte().toInt()}
+                if(!legacy)text()
                 if(version=="1.4.6"){
                     val settings=count(10000);repeat(settings){text()}
                     if(settings>0)repeat(count(10000)){text()}
                 }
+                ImportedMode(modeName,selectedSound,aftertouch,mix,mixVolume,mixPan)
             }
             // Instrument.ReadFromStream resets legacy ADS before 1.3.1; stored bytes are not the effective ADS.
             val effectiveLegacyAds=legacyAds.map{listOf(0,0,100)}
@@ -84,7 +89,7 @@ object ImportedSetInstruments {
                 }
                 ImportedSound(name,envelope,sections)
             }
-            ImportedInstrument(metadata.firstOrNull().orEmpty(),volume,pan,type,sounds)
+            ImportedInstrument(metadata.firstOrNull().orEmpty(),volume,pan,type,sounds,modes)
         }
         if(!includeStyles)return@use ImportedSetIndex(instruments,emptyList())
         common();repeat(count(10000)){common();skip(1+4+28+192L)}

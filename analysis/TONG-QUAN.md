@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã bổ sung default mode và Mix layer vào engine bàn phím/style: đọc 31 mode / 3 Mix slot bật trong SET cục bộ, chọn primary sound theo mode, trộn gain/pan từng layer và dùng envelope độc lập. Bộ chọn Voice có thêm mục MODE, lựa chọn được lưu/khôi phục qua cơ chế sound selection hiện tại. Build/toàn bộ kiểm thử và lượt kiểm tra lại mode/SET đều đạt; đã cài bản mới. Chưa hoàn thành aftertouch, script và DSP/DNC trong mode.
+
 Đã xuất toàn bộ nguồn/tài nguyên bằng JADX vào `analysis/decoded-original/`: 22.173 file Java, đầu vào 27.265 class gồm DEX trong assets. Có 655 lỗi giải mã, nên đây là tài liệu đối chiếu, chưa phải project gốc có thể build. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md) về cách tái tạo, ranh giới Java/native và thứ tự dựng lại vào `orgx/`.
 
 ## Tương thích style SET bổ sung

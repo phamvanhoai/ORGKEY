@@ -28,11 +28,11 @@ object ImportedStylePlayer {
             val source=checkNotNull(ImportedStyleSupport.instrument(index,parts.first()))
             if(follow && source.type==0){
                 require(parts.all{it.chordRoot in 0..127 && checkNotNull(transposer).supports(it.chordType)}){"Unsupported source chord metadata"}
-                source.copy(sounds=source.sounds.take(1))
+                source
             } else ImportedInstrumentLoader.forTrack(source,parts.flatMap{it.events})
         }
         // PCM decoding retains mono plus stereo buffers; cap total source PCM before allocating.
-        require(selected.values.sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){
+        require(selected.values.sumOf{source->ImportedInstrumentLoader.layers(source).sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}}<=64L*1024*1024){
             "Style exceeds 64 MB PCM budget"
         }
         val sounds=selected.mapValues{ImportedInstrumentLoader.load(file,it.value)}
@@ -48,7 +48,7 @@ object ImportedStylePlayer {
                 mapNote={note->
                     val target=if(follow && melodic)targetChord?.invoke() else null
                     if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target)
-                },envelope=sound.envelope)
+                },sampled=sound,channelGain={channel->track.volume/100.0*(if(channel==0)minOf(100,100-track.pan) else minOf(100,100+track.pan))/100.0})
         })}
     }
 }

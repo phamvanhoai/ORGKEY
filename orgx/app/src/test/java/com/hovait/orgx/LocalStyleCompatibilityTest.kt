@@ -10,6 +10,7 @@ class LocalStyleCompatibilityTest {
         val index=ImportedSetInstruments.index(file)
         val report=buildString {
             appendLine("Track channel data: "+index.tracks.groupingBy{"kind=${it.kind}, volume=${it.volume}, pan=${it.pan}, solo=${it.solo}"}.eachCount())
+            appendLine("Instrument modes: ${index.instruments.sumOf{it.modes.size}}; enabled mix slots: ${index.instruments.sumOf{instrument->instrument.modes.sumOf{mode->mode.mix.count{it>=0}}}}")
             for(style in ImportedStyleCatalog.styles(index)){
                 appendLine(style.name)
                 for(part in style.sections){

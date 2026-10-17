@@ -6,6 +6,9 @@ import java.io.RandomAccessFile
 object ImportedInstrumentLoader {
     /** Preserve original nearest-root decisions, while loading only regions used by this track. */
     fun forTrack(instrument:ImportedInstrument,events:List<ReferenceDrumEvent>):ImportedInstrument {
+        if(instrument.sounds.size>1 || instrument.modes.isNotEmpty())return instrument.copy(sounds=instrument.sounds.map{sound->
+            forTrack(instrument.copy(sounds=listOf(sound),modes=emptyList()),events).sounds.single()
+        })
         val sound=instrument.sounds.firstOrNull() ?: return instrument
         val roots=sound.sections.map{it.note}
         if(roots.isEmpty())return instrument
@@ -20,13 +23,17 @@ object ImportedInstrumentLoader {
     /** Each entry contains exactly the selected sound; no DNC mode mixing is implied. */
     fun playableSounds(instruments:List<ImportedInstrument>):List<ImportedInstrument> =
         instruments.flatMap { instrument ->
-            instrument.sounds.mapIndexedNotNull { index,sound ->
+            val sounds=instrument.sounds.mapIndexedNotNull { index,sound ->
                 val selected=instrument.copy(name="${instrument.name} / ${sound.name.ifBlank{"Sound ${index+1}"}}",
-                    sounds=listOf(sound))
+                    sounds=listOf(sound),modes=emptyList())
                 selected.takeIf(::supported)
+            }
+            sounds+instrument.modes.mapNotNull{mode->
+                instrument.copy(name="${instrument.name} / MODE ${mode.name}",modes=listOf(mode)).takeIf(::supported)
             }
         }
     fun supported(instrument:ImportedInstrument):Boolean {
+        if(instrument.modes.isNotEmpty())return layers(instrument).let{it.isNotEmpty() && it.all(::supported)}
         val sound=instrument.sounds.firstOrNull() ?: return false
         val pitchMode=sound.envelope.getOrNull(4)
         val supportedType=instrument.type in 0..2
@@ -37,6 +44,12 @@ object ImportedInstrumentLoader {
             }
     }
     fun load(file:File,instrument:ImportedInstrument):SampledInstrument {
+        if(instrument.modes.isNotEmpty()){
+            val layers=layers(instrument)
+            require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
+            require(layers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
+            return SampledInstrument.combine(layers.map{load(file,it)})
+        }
         require(supported(instrument)){"Unsupported instrument parameters"}
         val sections=instrument.sounds.first().sections
         require(sections.sumOf{it.wave.bytes.toLong()}<=64L*1024*1024){"Instrument exceeds 64 MB PCM budget"}
@@ -54,6 +67,17 @@ object ImportedInstrumentLoader {
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
                 envelope=ImportedEnvelope.from(instrument.sounds.first().envelope),pitchMode=instrument.sounds.first().envelope[4])
+        }
+    }
+    /** Channels.OpenKey: default mode primary plus every enabled Mix slot, including duplicates. */
+    fun layers(instrument:ImportedInstrument):List<ImportedInstrument>{
+        val mode=instrument.modes.firstOrNull() ?: return listOf(instrument)
+        fun layer(sound:Int,volume:Int,pan:Int)=instrument.sounds.getOrNull(sound)?.let{selected->
+            instrument.copy(volume=instrument.volume*volume/100,pan=instrument.pan+pan,sounds=listOf(selected),modes=emptyList())
+        }
+        return buildList {
+            layer(mode.sound,100,0)?.let(::add)
+            mode.mix.forEachIndexed{slot,sound->if(sound>=0)layer(sound,100+mode.mixVolume.getOrElse(slot){0},mode.mixPan.getOrElse(slot){0})?.let(::add)}
         }
     }
 }

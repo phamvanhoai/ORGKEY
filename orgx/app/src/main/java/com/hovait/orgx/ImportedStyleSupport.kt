@@ -30,10 +30,10 @@ object ImportedStyleSupport {
         if(tracks.isEmpty())return "No supported tracks found"
         if(group.limit && (group.start<0 || group.end<=group.start))return "Unsupported loop boundaries"
         if(followChord && tracks.any{track->instrument(index,track)?.let{
-            it.type==0 && it.sounds.firstOrNull()?.envelope?.getOrNull(4)!=0
+            it.type==0 && ImportedInstrumentLoader.layers(it).any{layer->layer.sounds.firstOrNull()?.envelope?.getOrNull(4)!=0}
         }==true})return "Chord following requires pitched sample mapping"
         if(tracks.any{track->instrument(index,track)?.let{
-            ImportedInstrumentLoader.supported(if(followChord && it.type==0)it.copy(sounds=it.sounds.take(1)) else ImportedInstrumentLoader.forTrack(it,track.events))
+            ImportedInstrumentLoader.supported(if(followChord && it.type==0)it else ImportedInstrumentLoader.forTrack(it,track.events))
         }!=true})return "Used track samples contain unsupported parameters"
         if(tracks.any{track->track.events.any{it.type !in 1..2 || it.note !in 0..127}})return "Track contains unsupported events"
         if(tracks.any{track->track.events.any{it.type==2 && it.tune!=0}})return "Track note tuning is not supported yet"

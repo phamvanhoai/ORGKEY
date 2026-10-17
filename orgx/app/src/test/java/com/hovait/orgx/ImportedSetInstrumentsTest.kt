@@ -139,7 +139,8 @@ class ImportedSetInstrumentsTest {
     }
     @Test fun loadsExternalOrganPcmAndSustainsBothChannels() {
         val file=File(requireNotNull(System.getProperty("orgx.referenceAssets")),"Default.Template")
-        val organ=ImportedSetInstruments.read(file).first{it.name=="Organ DNC"}
+        val original=ImportedSetInstruments.read(file).first{it.name=="Organ DNC"}
+        val organ=original.copy(sounds=original.sounds.take(1),modes=emptyList())
         assertTrue(ImportedInstrumentLoader.supported(organ))
         val loaded=ImportedInstrumentLoader.load(file,organ)
         var energy=0.0

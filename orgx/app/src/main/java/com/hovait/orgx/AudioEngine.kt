@@ -105,7 +105,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         var velocity: Float = 1f,
         var ageFrames: Long = 0
     ) {
-        val envelope=imported?.envelope?.voice(48000)
+        val sampledPlayback=imported?.voice(note)
     }
 
     private val track by lazy { AudioTrack.Builder()
@@ -385,13 +385,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 var midiDrumLeft=0.0;var midiDrumRight=0.0;var melodicCount=0
                 voices.forEach { (note, voice) ->
                     val frequency = 440.0 * 2.0.pow((voice.note - 69) / 12.0)
-                    val sample = voice.imported?.sample(voice.note,voice.ageFrames,0) ?: (if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),0) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames)) ?: when (voice.instrument) {
+                    voice.sampledPlayback?.next(voice.releasing)
+                    val sample = voice.sampledPlayback?.left ?: (if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),0) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames)) ?: when (voice.instrument) {
                         1 -> sin(voice.phase) * 0.58 + sin(voice.phase * 2.0) * 0.28 + sin(voice.phase * 4.0) * 0.14
                         2 -> sin(voice.phase) * 0.55 + sin(voice.phase * 2.0) * 0.25 + sin(voice.phase * 3.0) * 0.12 + sin(voice.phase * 5.0) * 0.08
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
                     }
-                    val sampleRight=voice.imported?.sample(voice.note,voice.ageFrames,1) ?: (if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),1) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames,1)) ?: sample
-                    voice.gain=voice.envelope?.next(voice.releasing)?.toFloat() ?: VoiceEnvelope.next(voice.gain,voice.releasing,voice.instrument == -1,sampleRate)
+                    val sampleRight=voice.sampledPlayback?.right ?: (if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),1) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames,1)) ?: sample
+                    voice.gain=if(voice.sampledPlayback!=null)1f else VoiceEnvelope.next(voice.gain,voice.releasing,voice.instrument == -1,sampleRate)
                     val naturalDecay = if (voice.instrument == 0 && voice.imported==null) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
                     val gain=voice.gain.coerceAtLeast(0f)*voice.velocity*naturalDecay
                     if(voice.instrument == -1){
@@ -401,7 +402,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
-                    if (voice.envelope?.finished==true || (voice.gain <= 0f && voice.releasing) || voice.imported?.finished(voice.note,voice.ageFrames)==true || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
+                    if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || voice.imported?.finished(voice.note,voice.ageFrames)==true || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
                 val rhythm = rhythmSample() + padSample()
                 val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
