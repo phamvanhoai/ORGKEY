@@ -181,6 +181,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         rhythmPlaying = enabled
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
+    fun requestStyleSection(id:Int){
+        val session=importedStyleSession ?: return
+        if(!session.available(id))return
+        val startNow=!rhythmPlaying
+        session.request(id,immediate=startNow)
+        if(startNow)setRhythmEnabled(true)
+    }
 
     @Synchronized fun playMidi(song:MidiSong,onComplete:()->Unit){
         stopMidi()

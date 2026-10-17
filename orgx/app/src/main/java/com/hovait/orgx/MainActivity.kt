@@ -108,7 +108,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var setSession by remember{mutableStateOf(engine.importedStyleSession)}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     LaunchedEffect(engine){while(true){
-        if(playing && !engine.rhythmPlaying)playing=false
+        playing=engine.rhythmPlaying
         setSession=engine.importedStyleSession
         setSession?.let{sectionState=it.currentId to it.pendingId}
         kotlinx.coroutines.delay(100)
@@ -181,7 +181,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 setSession?.let{session->
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)){
                         session.style.sections.forEach{part->
-                            FilterChip(selected=sectionState.first==part.id,enabled=session.available(part.id),onClick={session.request(part.id)},
+                            FilterChip(selected=sectionState.first==part.id,enabled=session.available(part.id),onClick={engine.requestStyleSection(part.id)},
                                 label={Text(ImportedStyleCatalog.label(part.section)+if(sectionState.second==part.id)" • QUEUED" else "")},modifier=Modifier.heightIn(min=48.dp))
                         }
                     }

@@ -51,4 +51,22 @@ class ImportedStyleSessionTest {
         session.next(120);assertTrue(session.player.left>0)
         session.reset();assertEquals(0.0,session.player.left,0.0)
     }
+    @Test fun immediateSectionButtonStartsRequestedPartWithoutAnExtraResetOrPlay() {
+        for(id in 1..6){
+            val session=session()
+            session.request(id,immediate=true)
+            session.next(120)
+            assertEquals(id,session.currentId)
+            assertNull(session.pendingId)
+            assertTrue(session.player.left>0)
+        }
+    }
+    @Test fun sectionButtonRestartsAfterEndingHasFinished() {
+        val session=session();session.request(6,immediate=true)
+        repeat(11){session.next(120)}
+        assertTrue(session.finished)
+        session.request(2,immediate=true);session.next(120)
+        assertFalse(session.finished);assertEquals(2,session.currentId)
+        assertTrue(session.player.left>0)
+    }
 }
