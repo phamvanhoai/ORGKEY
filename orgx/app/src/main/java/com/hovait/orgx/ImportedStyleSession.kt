@@ -29,6 +29,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
                 ?: style.sections.firstOrNull{it.section==32 && available(it.id)} ?: main
             queue.clear();jumpId=null;clock.seek(time);select(target.id)
             player.continueGroupFxFrom(previous.player)
+            player.releaseVoicesFrom(previous.player)
         }
     }
     @Synchronized fun request(id:Int,immediate:Boolean=false){
@@ -65,6 +66,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         startedAt=clock.time-offset
         player.startAt(offset,preserveGroupFx=previous===player)
         player.continueGroupFxFrom(previous)
+        player.releaseVoicesFrom(previous)
         if(newScale>0)rhythmScale=newScale
         if(!tempoLock && section.tempo>0)tempoChange=section.tempo.coerceIn(40,240)
         displayName="${style.name} / ${ImportedStyleCatalog.label(section.section)}"

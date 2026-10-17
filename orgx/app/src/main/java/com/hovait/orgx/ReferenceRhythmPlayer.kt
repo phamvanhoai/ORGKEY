@@ -17,6 +17,32 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val voices=LinkedHashMap<Int,Voice>()
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
     private var children:List<ReferenceRhythmPlayer> = emptyList()
+    private val releaseTails=ArrayList<ReferenceRhythmPlayer>()
+    private var tailGain=1.0
+    fun releaseVoicesFrom(previous:ReferenceRhythmPlayer){
+        if(previous===this)return
+        fun collect(source:ReferenceRhythmPlayer){
+            source.children.forEach(::collect)
+            releaseTails.addAll(source.releaseTails);source.releaseTails.clear()
+            if(source.voices.isNotEmpty()){
+                val tail=ReferenceRhythmPlayer(emptyList(),source.drumLength,source.drum,source.sampleRateForEnvelope,
+                    source.accompaniment,source.mapNote,source.envelope,source.sampled,source.channelGain)
+                tail.tailGain=source.tracks.getOrNull(source.current)?.outputGain ?: 1.0
+                source.voices.values.forEach{if(it.release<0)it.release=0}
+                tail.voices.putAll(source.voices);source.voices.clear()
+                releaseTails.add(tail)
+            }
+        }
+        collect(previous)
+        while(releaseTails.size>32)releaseTails.removeAt(0)
+    }
+    private fun nextReleaseTails(){
+        val iterator=releaseTails.iterator()
+        while(iterator.hasNext()){
+            val tail=iterator.next();tail.renderVoices(tail.tailGain)
+            if(tail.voices.isEmpty())iterator.remove()
+        }
+    }
     private var groupFx:ImportedFxChain?=null
     private var groupFxSettings:ImportedChannelSettings?=null
     private var rhythmSettings=ImportedChannelSettings()
@@ -51,12 +77,12 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     var right=0.0;private set
     var finished=false;private set
     fun mixedLeft(drumGain:Float,chordGain:Float):Double =
-        if(children.isNotEmpty())children.sumOf{it.mixedLeft(drumGain,chordGain)}
-        else left*(if(accompaniment)chordGain else drumGain)
+        (if(children.isNotEmpty())children.sumOf{it.mixedLeft(drumGain,chordGain)}
+        else left*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedLeft(drumGain,chordGain)}
     fun mixedRight(drumGain:Float,chordGain:Float):Double =
-        if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
-        else right*(if(accompaniment)chordGain else drumGain)
-    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+        (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
+        else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
+    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false){
         require(referenceTime>=0)
         val live=if(preserveGroupFx)groupFx else null
@@ -65,6 +91,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         initialTime=referenceTime;children.forEach{it.startAt(referenceTime)}
     }
     fun next(selection:Int,tempo:Int) {
+        nextReleaseTails()
         if(children.isNotEmpty()){
             left=0.0;right=0.0
             children.forEach{it.next(selection,tempo);left+=it.left;right+=it.right}
@@ -90,6 +117,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voices[event.id]=Voice(note,event.touch.coerceAtLeast(0)/100.0,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note))
             } else if(event.type==1)voices[event.id]?.release=0
         }
+        renderVoices(track.outputGain)
+        if(!track.bounded && timeline?.exhausted==true && (timeline?.endsWithNoteOff==true || voices.isEmpty()))finished=true
+        clock.advance(1,tempo)
+    }
+    private fun renderVoices(outputGain:Double){
         left=0.0;right=0.0
         val iterator=voices.values.iterator()
         while(iterator.hasNext()){
@@ -107,9 +139,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(voice.release>=0)voice.release++
             if(voice.age>=drumLength(voice.note) || voice.envelope?.finished==true || (voice.envelope==null && voice.release>=releaseFrames))iterator.remove()
         }
-        left*=track.outputGain;right*=track.outputGain
+        left*=outputGain;right*=outputGain
         fx?.let{it.process(left,right);left=it.left;right=it.right}
-        if(!track.bounded && timeline?.exhausted==true && (timeline?.endsWithNoteOff==true || voices.isEmpty()))finished=true
-        clock.advance(1,tempo)
     }
 }

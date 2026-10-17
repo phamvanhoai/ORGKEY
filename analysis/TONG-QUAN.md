@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã bổ sung nhả voice section/style cũ khi chuyển sang player khác, thay vì bỏ ngay tiếng đang vang. Giữ envelope/sample age, routing drum/chord và mang tiếp tail khi chuyển nhanh; Stop/reset xóa. Kiểm thử release/routing/chuyển liên tiếp đạt. Chưa giữ state FX riêng từng track trong tail, chưa xử lý đầy đủ đuôi sau Ending hoặc restart cùng player.
+
 Đã giữ buffer group/rhythm FX khi chuyển section/style có cùng cấu hình; chọn lại section có thể giữ bus, Stop/reset xóa. Kiểm thử impulse và đuôi sau chuyển đạt, chưa đối chiếu bản thu. Đổi tham số/module và voice release của track cũ chưa mô phỏng đầy đủ theo mixer gốc; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã nối global rhythm FX fallback và volume/balance vào output style, giữ ba block Music/Wave/Rhythm từ SET. SET cục bộ có rhythm volume 100/balance 2; module 20 bật riêng nhưng block FX tắt nên không tự bật DSP. Toàn bộ 201 kiểm thử đạt, build/cài APK thành công. DSP Music/Wave, các module còn thiếu và đuôi xuyên section chưa hoàn chỉnh.

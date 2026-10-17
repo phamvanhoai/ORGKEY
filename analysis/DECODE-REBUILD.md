@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Nhả voice của section/style cũ
+
+Đã bổ sung giữ voice đang vang khi chuyển sang player khác, theo ý nghĩa `GroupPlayNext` gọi `CloseAll(false)` cho track cũ: ngừng schedule cũ, đánh dấu note-off, tiếp tục playback/envelope hiện tại. Nhóm release giữ routing drum/chord và gain của nguồn; chuyển nhanh mang tiếp các release đang tồn tại. Stop/reset xóa. Giới hạn 32 nhóm tail để tránh tích lũy vô hạn. Voice dùng sample riêng của nguồn, không phát lại sample từ đầu.
+
+Chưa chuyển state FX từng track sang nhóm release, chưa giữ voice khi restart cùng player, và Ending dừng transport vẫn có thể cắt đuôi. Các giới hạn này cần đối chiếu riêng trước khi kết luận mixer tương đương bản gốc.
+
 ### Giữ bus FX khi chuyển phần
 
 Đã chuyển ownership chain group/rhythm đang chạy sang player đích khi cấu hình FX bằng nhau, sau khi player đích chuẩn bị timeline. Áp dụng khi đổi section và đổi style đang chạy. Chọn lại cùng section có thể giữ bus; reset/Stop vẫn xóa. Không giữ hai player cùng tiến buffer, không reset chain sau khi đã chuyển ownership. Kiểm thử impulse echo trước đổi phần và đuôi tại frame 480 sau đổi phần, cấu hình khác không dùng buffer cũ, reset xóa đuôi.
