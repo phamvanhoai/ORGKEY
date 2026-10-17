@@ -5,6 +5,39 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun allCompatibleLegacyDrumGroupsRenderTheirOwnSamples() {
+        val path=System.getProperty("orgx.legacySet") ?: return
+        val file=File(path);val index=ImportedSetInstruments.index(file)
+        val groups=index.styles.filter{it.section in 16..35 && ImportedStyleSupport.reason(index,it)==null}
+        assertTrue(groups.isNotEmpty())
+        groups.forEach{group->
+            val tracks=ImportedStyleSupport.drumTracks(index,group)
+            val kits=tracks.map{it.instrument}.distinct().associateWith{instrument->
+                val events=tracks.filter{it.instrument==instrument}.flatMap{it.events}
+                ImportedInstrumentLoader.load(file,ImportedInstrumentLoader.forTrack(index.instruments[instrument],events))
+            }
+            val player=ReferenceRhythmPlayer.combine(tracks.map{track->
+                val kit=kits.getValue(track.instrument)
+                val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
+                    group.loop,group.start.toLong(),group.end.toLong(),false,track.events)
+                ReferenceRhythmPlayer(listOf(timeline),kit::durationFrames,{note,age,channel->kit.sample(note,age.toLong(),channel)},48000)
+            })
+            val tempo=group.tempo.coerceIn(40,240)
+            val frames=kotlin.math.ceil((group.end.toLong()-group.start)*120.0/tempo/1000*48000).toInt()
+            assertTrue("Invalid group duration ${group.id}",frames in 1..48000*120)
+            var energy=0.0;var peak=0.0
+            repeat(frames+512){
+                player.next(0,tempo)
+                assertTrue("Invalid PCM in ${group.id}",player.left.isFinite() && player.right.isFinite())
+                energy+=player.left*player.left+player.right*player.right
+                peak=maxOf(peak,kotlin.math.abs(player.left),kotlin.math.abs(player.right))
+            }
+            assertTrue("Silent SET group ${group.id}",energy>0)
+            if(!group.loop)assertTrue("One-shot did not finish ${group.id}",player.finished)
+            println("SET group ${group.id}: tracks=${tracks.size}, frames=$frames, peak=$peak, energy=$energy")
+        }
+        println("Verified complete Drum render for ${groups.size} imported groups")
+    }
     @Test fun unusedUnsupportedRegionDoesNotBlockTrackButUsedRegionStillDoes() {
         val good=ImportedSection(36,48000,1,4,100,0,0,0,0,0,0,ImportedWave(0,8))
         val bad=good.copy(note=80,start=10)
