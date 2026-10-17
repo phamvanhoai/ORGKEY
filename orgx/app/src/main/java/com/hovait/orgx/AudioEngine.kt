@@ -44,6 +44,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
     @Volatile var importedRhythm:ReferenceRhythmPlayer?=null
     @Volatile var importedStyleSession:ImportedStyleSession?=null
+    @Volatile var styleAutoFill=false
     @Volatile var importedRhythmName:String?=null
     @Volatile var chordIndex = 0
     @Volatile private var autoChordMap=AutoChordProgression(emptyList())
@@ -185,7 +186,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val session=importedStyleSession ?: return
         if(!session.available(id))return
         val startNow=!rhythmPlaying
-        session.request(id,immediate=startNow)
+        session.press(id,running=!startNow,autoFill=styleAutoFill)
         if(startNow)setRhythmEnabled(true)
     }
 
@@ -292,7 +293,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private fun rhythmSample(): Double {
         if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();importedStyleSession?.let{it.reset();importedRhythm=it.player;importedRhythmName=it.displayName};importedRhythm?.reset();return 0.0 }
         importedStyleSession?.let{
-            it.next(bpm.coerceIn(40,240));importedRhythm=it.player;importedRhythmName=it.displayName
+            it.next(bpm.coerceIn(40,240));it.takeTempoChange()?.let{tempo->bpm=tempo};importedRhythm=it.player;importedRhythmName=it.displayName
             if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++
             return 0.0
         }

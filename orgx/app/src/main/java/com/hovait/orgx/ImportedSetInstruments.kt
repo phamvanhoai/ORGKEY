@@ -8,7 +8,8 @@ data class ImportedSection(val note:Int,val rate:Int,val channels:Int,val frames
     val pan:Int,val tune:Int,val start:Int,val loop:Int,val loopStart:Int,val loopEnd:Int,val wave:ImportedWave)
 data class ImportedSound(val name:String,val envelope:List<Int>,val sections:List<ImportedSection>)
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>)
-data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int)
+data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
+    val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4)
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0)
 data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList())
 
@@ -109,13 +110,16 @@ object ImportedSetInstruments {
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
-            val section=f.readUnsignedByte();f.readUnsignedByte();val loop=f.readBoolean();f.readBoolean()
-            val start=int();val end=int();skip(8);skip(2)
+            val section=f.readUnsignedByte();val type=f.readUnsignedByte();val loop=f.readBoolean();val limit=f.readBoolean()
+            val start=int();val rawEnd=int();val jump=int();skip(4);skip(2)
+            val end=if(limit && start>=rawEnd)Math.addExact(start,1000) else rawEnd
             val tempo=java.lang.Short.reverseBytes(f.readShort()).toInt()
-            skip(8)
+            skip(6);val storedX=f.readUnsignedByte();val storedY=f.readUnsignedByte()
+            val meterX=if(musicVersion!!<"1.4.8")storedY shr 4 else storedX
+            val meterY=if(musicVersion<"1.4.8")storedY and 15 else storedY
             if(musicVersion!!>="1.4.6")skip(16)
             if(musicVersion>="1.4.2")fx()
-            ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo)
+            ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo,type,limit,jump,meterX,meterY)
         }
         ImportedSetIndex(instruments,styles,tracks)
     }

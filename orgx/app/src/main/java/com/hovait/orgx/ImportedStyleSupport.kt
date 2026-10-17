@@ -11,6 +11,8 @@ object ImportedStyleSupport {
         }
     fun reason(index:ImportedSetIndex?,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,followChord:Boolean=false):String? {
         if(index==null)return "SET index unavailable"
+        if(group.type!=1)return "Unsupported style group type"
+        if(!group.limit)return "Style without explicit playback bounds is not supported yet"
         val tracks=playbackTracks(index,group,includeAccompaniment)
         if(tracks.isEmpty())return "No supported tracks found"
         if(group.start<0 || group.end<=group.start)return "Unsupported loop boundaries"

@@ -14,4 +14,5 @@ class ReferenceStyleClock(private val sampleRate:Int) {
         return time
     }
     fun reset(){time=0;remainder=0}
+    fun seek(referenceTime:Long){require(referenceTime>=0);time=referenceTime;remainder=0}
 }

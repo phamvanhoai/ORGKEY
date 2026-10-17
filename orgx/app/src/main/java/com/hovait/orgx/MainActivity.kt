@@ -106,11 +106,13 @@ private fun ORGXApp(engine: AudioEngine) {
     var bpm by remember { mutableIntStateOf(preferences.getInt("bpm", 120)) }
     var playing by remember { mutableStateOf(false) }
     var setSession by remember{mutableStateOf(engine.importedStyleSession)}
+    var styleAutoFill by remember{mutableStateOf(preferences.getBoolean("styleAutoFill",false))}
+    LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     LaunchedEffect(engine){while(true){
         playing=engine.rhythmPlaying
         setSession=engine.importedStyleSession
-        setSession?.let{sectionState=it.currentId to it.pendingId}
+        setSession?.let{sectionState=it.currentId to it.pendingId;bpm=engine.bpm}
         kotlinx.coroutines.delay(100)
     }}
     var sustain by remember { mutableStateOf(false) }
@@ -179,7 +181,10 @@ private fun ORGXApp(engine: AudioEngine) {
                     StatusPanel(bpm, octave, playing, chordDisplay, (engine.importedRhythmName ?: engine.styleNames[style]), (engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument]), modifier = Modifier.weight(1.3f))
                 }
                 setSession?.let{session->
+                    session.transitionError?.let{Text(it,color=MaterialTheme.colorScheme.error,fontSize=12.sp)}
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)){
+                        FilterChip(selected=styleAutoFill,onClick={styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},
+                            label={Text("AUTO FILL")},modifier=Modifier.heightIn(min=48.dp))
                         session.style.sections.forEach{part->
                             FilterChip(selected=sectionState.first==part.id,enabled=session.available(part.id),onClick={engine.requestStyleSection(part.id)},
                                 label={Text(ImportedStyleCatalog.label(part.section)+if(sectionState.second==part.id)" • QUEUED" else "")},modifier=Modifier.heightIn(min=48.dp))

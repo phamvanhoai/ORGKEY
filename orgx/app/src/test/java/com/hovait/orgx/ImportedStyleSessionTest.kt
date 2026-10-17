@@ -4,12 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
-    private fun part(id:Int,section:Int)=ImportedStyleGroup(id,100,"Part",section,section in 32..35,0,10,120)
+    private fun part(id:Int,section:Int)=ImportedStyleGroup(id,100,"Part",section,section in 32..35,0,1000,120,jumpGroup=if(section in 80..82)0 else -1)
     private val parts=listOf(part(1,32),part(2,33),part(3,16),part(4,48),part(5,64),part(6,80),part(7,81))
     private fun session():ImportedStyleSession {
         val players=parts.dropLast(1).associate{part->
-            val track=ReferenceDrumTrack("Part",part.id,100,part.section,120,part.loop,0,10,false,listOf(ReferenceDrumEvent(2,1,60,100,0,10)))
-            part.id to ReferenceRhythmPlayer(listOf(track),{100},{_,_,_->1.0},1000)
+            val track=ReferenceDrumTrack("Part",part.id,100,part.section,120,part.loop,0,1000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))
+            part.id to ReferenceRhythmPlayer(listOf(track),{10000},{_,_,_->1.0},1000)
         }
         return ImportedStyleSession(ImportedStyleDefinition(100,"Style",parts),players,1000)
     }
@@ -24,30 +24,31 @@ class ImportedStyleSessionTest {
         assertEquals("ENDING 3",ImportedStyleCatalog.label(82))
     }
     @Test fun introReturnsToMainAndEndingStops() {
-        val session=session();session.request(3);session.reset()
-        repeat(10){session.next(120);assertEquals(3,session.currentId)}
+        val session=session();session.request(3,immediate=true)
+        repeat(1000){session.next(120);assertEquals(3,session.currentId)}
         session.next(120);assertEquals(1,session.currentId)
         session.request(6)
-        repeat(10){session.next(120)}
+        session.next(120)
         assertEquals(6,session.currentId)
-        repeat(10){session.next(120)}
+        repeat(1000){session.next(120)}
         assertTrue(session.finished)
         assertEquals(0.0,session.player.left,0.0)
     }
     @Test fun fillAndBreakReturnToLastSelectedMainAtSectionBoundary() {
         for(part in listOf(4,5)){
-            val session=session();session.request(2);session.reset()
+            val session=session();session.request(2,immediate=true)
+            repeat(100){session.next(120)}
             session.request(part)
-            repeat(10){session.next(120);assertEquals(2,session.currentId)}
+            repeat(900){session.next(120);assertEquals(2,session.currentId)}
             session.next(120);assertEquals(part,session.currentId)
-            repeat(10){session.next(120)}
+            repeat(1000){session.next(120)}
             assertEquals(2,session.currentId)
         }
     }
     @Test fun unsupportedPartCannotBeQueuedAndStoppedSelectionStartsImmediately() {
         val session=session();assertFalse(session.available(7))
         session.request(7);assertNull(session.pendingId)
-        session.request(2);session.reset();assertEquals(2,session.currentId)
+        session.request(2,immediate=true);session.reset();assertEquals(2,session.currentId)
         session.next(120);assertTrue(session.player.left>0)
         session.reset();assertEquals(0.0,session.player.left,0.0)
     }
@@ -63,7 +64,7 @@ class ImportedStyleSessionTest {
     }
     @Test fun sectionButtonRestartsAfterEndingHasFinished() {
         val session=session();session.request(6,immediate=true)
-        repeat(11){session.next(120)}
+        repeat(1001){session.next(120)}
         assertTrue(session.finished)
         session.request(2,immediate=true);session.next(120)
         assertFalse(session.finished);assertEquals(2,session.currentId)

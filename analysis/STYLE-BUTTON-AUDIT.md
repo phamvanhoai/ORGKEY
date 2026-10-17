@@ -29,4 +29,15 @@ Chưa lần xong caller UI của từng nút để xác định nút nào phát 
 4. Viết kiểm thử đối chiếu các chuỗi sự kiện đã xác minh, gồm bấm lại Main, Main sang Main, Fill vào Main đích, Break, Intro, Ending và STOP/START.
 5. Chạy cùng chuỗi thao tác trên APK gốc và ORGX; so thời điểm và trạng thái chuyển phần trước khi khẳng định tương đương.
 
-Trong lượt đối chiếu này chưa thay đổi hay cài lại mã phát style của ORGX. Không có thay đổi nội dung SET.
+Lượt audit ban đầu chưa thay đổi mã phát. Bản triển khai tiếp theo đã sửa ứng dụng như dưới đây; không thay đổi nội dung SET.
+
+## Triển khai sau audit
+
+- Parser giữ Type, Limit, JumpGroup và meter (gồm nibble meter trước 1.4.8); sửa LimitEnd không hợp lệ theo ReadFromStream gốc.
+- ReferenceSectionTiming port CalcRhythmScale và phase offset từ GroupPlayStart. Session dùng chế độ 0 mặc định; công thức các mode 1–3 có kiểm thử nhưng chưa đưa thành cài đặt UI.
+- Session có hàng đợi giới hạn và bỏ yêu cầu trùng phần Loop như GroupPlayAdd; ở cửa sổ rhythmScale, phần loop có thể đổi trước khi hết toàn phần. Phần one-shot chờ hết và cửa sổ nhịp chuyển.
+- Khi không còn hàng đợi, Jump ưu tiên hơn JumpGroup; JumpGroup âm trở về LastLoop, dương tìm group trong style, 0 dừng. Đích ngoài style/không hỗ trợ báo lỗi và dừng thay vì tự thay bằng Main. Các group không Limit hoặc Type khác 1 hiện bị chặn rõ ràng.
+- ReferenceRhythmPlayer có startAt để bắt đầu với phase đã căn, không luôn reset nốt đầu. Tempo của phần được áp dụng khi chuyển, theo mặc định tempo lock=false của Music constructor.
+- Đã lần được caller Music.RecordRhythm tới MainActivity.y1/B1. y1 xác nhận khi đang chạy, bật i2 (Auto Fill), z=true và chọn Main: phát Rhythm cho Fill 48 + index Main, rồi RhythmJump cho Main đích. ORGX có AUTO FILL theo đường này, mặc định tắt và lưu lựa chọn.
+
+Chưa port nhấn đôi tempLoop (q1), GroupSection chọn biến thể hợp âm/fallback nhóm 0, chuyển style giữ trạng thái từ B1, mute sentinel, các track/event không hỗ trợ và mọi thiết lập runtime của APK gốc. Phần nhạc đệm có DNC/FX chưa đầy đủ. Vì vậy không tuyên bố các nút đã tương đương 100%.

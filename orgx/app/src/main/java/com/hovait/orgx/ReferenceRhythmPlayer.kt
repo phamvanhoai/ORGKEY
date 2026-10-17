@@ -10,6 +10,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var current=-1
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
+    private var initialTime=0L
     private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1)
     private val voices=LinkedHashMap<Int,Voice>()
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
@@ -29,7 +30,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     fun mixedRight(drumGain:Float,chordGain:Float):Double =
         if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain)
-    fun reset(){clock.reset();timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;children.forEach{it.reset()}}
+    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;children.forEach{it.reset()}}
+    fun startAt(referenceTime:Long){require(referenceTime>=0);reset();initialTime=referenceTime;children.forEach{it.startAt(referenceTime)}}
     fun next(selection:Int,tempo:Int) {
         if(children.isNotEmpty()){
             left=0.0;right=0.0
@@ -39,7 +41,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         }
         if(tracks.isEmpty()){left=0.0;right=0.0;return}
         val selected=selection.coerceIn(tracks.indices)
-        if(current!=selected){reset();current=selected;timeline=tracks[selected].timeline()}
+        if(current!=selected){val offset=initialTime;reset();clock.seek(offset);current=selected;timeline=tracks[selected].timeline()}
         val track=tracks[selected]
         val duration=track.end-track.start
         var local=clock.time-loopOrigin+track.start
