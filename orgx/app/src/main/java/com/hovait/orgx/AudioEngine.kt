@@ -184,6 +184,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         rhythmPlaying = enabled
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
+    private val pendingStyle=java.util.concurrent.atomic.AtomicReference<ImportedStyleSession?>(null)
+    fun selectImportedStyle(session:ImportedStyleSession){pendingStyle.set(session)}
     fun requestStyleSection(id:Int){
         val session=importedStyleSession ?: return
         if(!session.available(id))return
@@ -293,6 +295,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private fun rhythmSample(): Double {
+        pendingStyle.getAndSet(null)?.let{session->
+            if(rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
+            importedStyleSession=session;importedRhythm=session.player;importedRhythmName=session.displayName
+            session.takeTempoChange()?.let{bpm=it}
+        }
         if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();importedStyleSession?.let{it.reset();importedRhythm=it.player;importedRhythmName=it.displayName};importedRhythm?.reset();return 0.0 }
         importedStyleSession?.let{
             it.next(bpm.coerceIn(40,240));it.takeTempoChange()?.let{tempo->bpm=tempo};importedRhythm=it.player;importedRhythmName=it.displayName

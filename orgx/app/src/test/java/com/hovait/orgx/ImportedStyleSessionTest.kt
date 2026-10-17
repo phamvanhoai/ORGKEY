@@ -23,6 +23,22 @@ class ImportedStyleSessionTest {
         assertEquals("MAIN 1",ImportedStyleCatalog.label(32))
         assertEquals("ENDING 3",ImportedStyleCatalog.label(82))
     }
+    @Test fun changingStyleKeepsMainAndMusicalPosition(){
+        val old=session();old.request(2,immediate=true);repeat(250){old.next(120)}
+        val replacement=session();replacement.continueFrom(old)
+        assertEquals(2,replacement.currentId)
+        replacement.request(4)
+        repeat(750){replacement.next(120);assertEquals(2,replacement.currentId)}
+        replacement.next(120);assertEquals(4,replacement.currentId)
+        assertFalse(replacement.finished)
+    }
+    @Test fun changingStyleDuringFillOrBreakReturnsToCorrespondingMain(){
+        for(id in listOf(4,5)){
+            val old=session();old.request(id,immediate=true);old.next(120)
+            val replacement=session();replacement.continueFrom(old)
+            assertEquals(1,replacement.currentId);assertFalse(replacement.finished)
+        }
+    }
     @Test fun introReturnsToMainAndEndingStops() {
         val session=session();session.request(3,immediate=true)
         repeat(1000){session.next(120);assertEquals(3,session.currentId)}

@@ -20,6 +20,16 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     val player get()=players.getValue(currentId)
     val pendingId get()=synchronized(this){queue.firstOrNull()?.id}
     fun available(id:Int)=id in players
+    /** MainActivity.B1 keeps the section, with Fill/Break returning to Main. */
+    fun continueFrom(previous:ImportedStyleSession){
+        val (section,time)=synchronized(previous){previous.groups.getValue(previous.currentId).section to previous.clock.time}
+        synchronized(this){
+            val wanted=if(section in 48..64)32+(section and 15) else section
+            val target=style.sections.firstOrNull{it.section==wanted && available(it.id)}
+                ?: style.sections.firstOrNull{it.section==32 && available(it.id)} ?: main
+            queue.clear();jumpId=null;clock.seek(time);select(target.id)
+        }
+    }
     @Synchronized fun request(id:Int,immediate:Boolean=false){
         if(id !in players)return
         if(immediate){queue.clear();queue.addLast(Request(id,true));return}

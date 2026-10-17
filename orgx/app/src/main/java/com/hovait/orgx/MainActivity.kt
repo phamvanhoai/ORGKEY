@@ -71,6 +71,12 @@ class MainActivity : ComponentActivity() {
 private fun ORGXApp(engine: AudioEngine) {
     val context = LocalContext.current
     val preferences = remember { context.getSharedPreferences("orgx-settings", 0) }
+    // Older builds defaulted to drum-only preview, omitting the SET accompaniment.
+    remember(preferences){
+        if(!preferences.getBoolean("fullStyleDefaultV1",false))preferences.edit()
+            .putInt("bankMode",2).putBoolean("fullStyleDefaultV1",true).apply()
+        true
+    }
     var restoredSetName by remember{mutableStateOf<String?>(null)}
     var restoringSet by remember{mutableStateOf(preferences.getString("activeSetFile",preferences.getString("importedSetFile",null))!=null)}
     var bankIndex by remember{mutableStateOf(engine.activeSetIndex)}
@@ -215,7 +221,7 @@ private fun ORGXApp(engine: AudioEngine) {
                                     try{
                                         val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(checkNotNull(engine.activeSetFile),checkNotNull(bankIndex),bankStyles[chosen],bankMode>0,
                                             engine.referenceChordTransposer,if(bankMode==2)engine::selectedSetChord else null)}
-                                        engine.setRhythmEnabled(false);engine.importedStyleSession=loaded;engine.importedRhythm=loaded.player;engine.importedRhythmName=loaded.displayName
+                                        engine.selectImportedStyle(loaded)
                                         setSession=loaded;sectionState=loaded.currentId to null
                                         preferences.edit().putString("selectedStyleSet",engine.activeSetFile?.name).putInt("selectedSetStyleId",loaded.style.id).apply()
                                         val tempo=loaded.style.sections.first{it.id==loaded.currentId}.tempo
@@ -463,8 +469,8 @@ private fun ORGXApp(engine: AudioEngine) {
     var showSetVoices by remember{mutableStateOf(false)}
     var styleQuery by remember{mutableStateOf("")}
     var showBankFiles by remember{mutableStateOf(engine.activeSetFile==null)}
-    var previewAccompaniment by remember{mutableStateOf(false)}
-    var followSetChord by remember{mutableStateOf(false)}
+    var previewAccompaniment by remember{mutableStateOf(preferences.getInt("bankMode",2)>0)}
+    var followSetChord by remember{mutableStateOf(preferences.getInt("bankMode",2)==2)}
     var showStyleOptions by remember{mutableStateOf(false)}
     fun activate(bank:ImportedSetBank){
         engine.setRhythmEnabled(false);engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm)
@@ -561,7 +567,7 @@ private fun ORGXApp(engine: AudioEngine) {
                             ImportedStylePlayer.loadStyle(checkNotNull(setFile),checkNotNull(index),definition,previewAccompaniment,
                                 engine.referenceChordTransposer,if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
-                        engine.setRhythmEnabled(false);engine.importedStyleSession=session;engine.importedRhythm=session.player;engine.importedRhythmName=session.displayName
+                        engine.selectImportedStyle(session)
                         preferences.edit().putString("selectedStyleSet",setFile?.name).putInt("selectedSetStyleId",definition.id)
                             .putInt("bankMode",if(!previewAccompaniment)0 else if(followSetChord)2 else 1).apply()
                         engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
