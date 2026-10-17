@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã sửa restart cùng section theo `GroupPlayNext`: không gọi đóng nốt như khi đổi group; giữ voice/sample age và FX track khi reset timeline. Khởi tạo lại timeline không xóa channel lần thứ hai. Stop/reset vẫn xóa. Kiểm thử riêng phân biệt nốt còn vang với sự kiện phát lại sau seek. Chưa dựng nhấn đôi tempLoop và đầy đủ control-mode.
+
 Đã giữ state FX từng track trong release tail khi đổi phần, kể cả echo còn ngân sau khi voice kết thúc. Source có chain mới để reset/reuse không làm mất đuôi đã chuyển. Kiểm thử impulse sau chuyển/reset source đạt; Stop destination xóa đuôi. Giới hạn module 4/6/20, ngưỡng im lặng và 32 nhóm tail; chưa hoàn chỉnh Ending hoặc restart cùng player.
 
 Đã bổ sung nhả voice section/style cũ khi chuyển sang player khác, thay vì bỏ ngay tiếng đang vang. Giữ envelope/sample age, routing drum/chord và mang tiếp tail khi chuyển nhanh; Stop/reset xóa. Kiểm thử release/routing/chuyển liên tiếp đạt. Chưa giữ state FX riêng từng track trong tail, chưa xử lý đầy đủ đuôi sau Ending hoặc restart cùng player.

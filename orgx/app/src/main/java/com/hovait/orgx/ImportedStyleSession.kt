@@ -64,7 +64,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         if(newScale in 1..10)rhythmScale=newScale
         val offset=ReferenceSectionTiming.startOffset(clock.time,section,rhythmScale,changeMethod)
         startedAt=clock.time-offset
-        player.startAt(offset,preserveGroupFx=previous===player)
+        player.startAt(offset,preserveGroupFx=previous===player,preserveVoices=previous===player)
         player.continueGroupFxFrom(previous)
         player.releaseVoicesFrom(previous)
         if(newScale>0)rhythmScale=newScale

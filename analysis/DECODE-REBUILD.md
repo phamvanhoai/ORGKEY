@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Restart cùng section / channel continuity
+
+Đối chiếu `GroupPlayNext`: chỉ gọi `CloseAll(false)` khi group cũ khác group mới. Restart cùng group gọi `GroupPlayStart`/`Track.Start`, không đóng toàn bộ channel. `startAt(preserveVoices=true)` hiện reset timeline/clock nhưng giữ voice, sample age, FX track và tail đang chạy; bus group giữ khi yêu cầu. Khởi tạo timeline sau đó không reset channel lần nữa. Stop/reset vẫn xóa toàn bộ. Kiểm thử nốt có interval đã bỏ lỡ sau seek: không phát lại sự kiện, voice cũ tiếp tục hơn thời gian release, reset xóa tiếng.
+
+Chưa dựng nhấn đôi tempLoop hoặc toàn bộ control-mode của bản gốc; đây là sửa cách reset channel khi tái khởi động cùng player.
+
 ### FX track trong release tail
 
 Đã chuyển ownership chain FX từng track cùng voice sang release tail; cả khi voice hết nhưng buffer DSP còn năng lượng cũng được chuyển. Source nhận chain mới cùng cấu hình để có thể reset/reuse độc lập. Tail chạy input 0 sau khi voice hết cho tới trạng thái DSP dưới ngưỡng (echo energy 1e-18, Bass state 1e-9), hoặc Stop/reset xóa. Kiểm thử tạo impulse, voice dài 1 frame, chuyển phần, reset source, xác nhận echo xuất hiện đúng frame ở destination và bị xóa khi Stop.

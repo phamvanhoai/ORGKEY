@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedReleaseTailTest {
+    @Test fun restartingSamePlayerKeepsChannelsInsteadOfClosingThem(){
+        val track=ReferenceDrumTrack("Restart",1,0,32,120,true,0,1000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,1)))
+        val same=ReferenceRhythmPlayer.combine(listOf(ReferenceRhythmPlayer(listOf(track),{10000},{_,_,_->1.0},1000)))
+        same.next(0,120)
+        same.startAt(100,preserveVoices=true)
+        same.next(0,120);assertTrue(same.mixedLeft(1f,1f)>0)
+        repeat(20){same.next(0,120)}
+        assertTrue(same.mixedLeft(1f,1f)>0)
+        same.reset();same.startAt(100);same.next(0,120)
+        assertEquals(0.0,same.mixedLeft(1f,1f),0.0)
+    }
     @Test fun trackEchoSurvivesAfterVoiceHasAlreadyFinishedAndPlayerIsReused(){
         val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(ImportedFxModule(6,true,false,listOf(50,0,0,0,1,0,0,0))))
         val track=ReferenceDrumTrack("Echo",1,0,32,120,true,0,1000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,1)))

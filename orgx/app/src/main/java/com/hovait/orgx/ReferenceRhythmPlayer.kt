@@ -84,8 +84,16 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
-    fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false){
+    fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false,preserveVoices:Boolean=false){
         require(referenceTime>=0)
+        if(preserveVoices){
+            // GroupPlayStart calls Track.Start; same-group restart does not CloseAll.
+            clock.reset();initialTime=referenceTime;timeline=null;current=-1;loopOrigin=0;finished=false
+            left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0
+            if(!preserveGroupFx)groupFx?.reset()
+            children.forEach{it.startAt(referenceTime,preserveVoices=true)}
+            return
+        }
         val live=if(preserveGroupFx)groupFx else null
         if(preserveGroupFx)groupFx=null
         reset();if(live!=null)groupFx=live
@@ -101,7 +109,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         }
         if(tracks.isEmpty()){left=0.0;right=0.0;return}
         val selected=selection.coerceIn(tracks.indices)
-        if(current!=selected){val offset=initialTime;reset();clock.seek(offset);current=selected;timeline=tracks[selected].timeline()}
+        if(current!=selected){
+            val offset=initialTime
+            if(current>=0)reset()
+            clock.seek(offset);current=selected;timeline=tracks[selected].timeline()
+        }
         val track=tracks[selected]
         val duration=track.end-track.start
         var local=clock.time-loopOrigin+track.start
