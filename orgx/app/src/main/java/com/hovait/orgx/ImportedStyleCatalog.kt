@@ -8,7 +8,7 @@ object ImportedStyleCatalog {
         val names=index.styles.associateBy{it.id}
         return index.styles.filter{isSection(it.section)}.groupBy{it.parent}
             .filterValues{sections->sections.any{it.section in 32..35}}.map{(parent,sections)->
-            ImportedStyleDefinition(parent,names[parent]?.name?.takeIf{it.isNotBlank()} ?: "Style $parent",sections.sortedBy{it.section})
+            ImportedSectionFallback.complete(index,ImportedStyleDefinition(parent,names[parent]?.name?.takeIf{it.isNotBlank()} ?: "Style $parent",sections.sortedBy{it.section}))
         }
     }
     fun label(section:Int)=when(section){

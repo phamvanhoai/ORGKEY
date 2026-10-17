@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Section fallback về group 0
+
+Đã dựng bước fallback `MainActivity.y1`: khi style không có section được yêu cầu, lấy section cùng mã từ parent/group 0. Bộ chọn và session cùng dùng danh sách đã bổ sung, player fallback được nạp PCM thật và có thể request/auto-fill. Section riêng của style luôn ưu tiên, kể cả khi không hỗ trợ (không âm thầm thay vì lỗi engine). Không lấy section từ parent style khác. Hàm bổ sung idempotent để gọi từ catalog và loader không nhân bản.
+
+Bộ đọc cũng giữ ChordType/ChordBase của TrackGroup thay vì skip hai byte. Các version SET 1.2.8/1.4.6 hiện hỗ trợ không lưu ChordVars; chưa thêm hỗ trợ định dạng mới hoặc chọn variant theo mask. Không gọi fallback này là đã dựng đầy đủ GroupSection hợp âm.
+
 ### RhythmTempLoop / nhấn lại để lặp tạm
 
 Đối chiếu `MainActivity.y1`, field `q1` (không phải method q1 đặt password), `Track.Play` event 204 và `GroupPlayAdd/Jump`. Option `rhythm_loop_double` mặc định false. Khi đang chạy và target là group cuối queue hoặc current, nhấn lại đặt tempLoop=true nếu group không Loop và có Limit hoặc độ dài >10. Đây không phải toggle double-tap theo timeout. Request/Jump group đó xóa tempLoop; chọn group khác có thể thoát ở cửa sổ chuyển phần.

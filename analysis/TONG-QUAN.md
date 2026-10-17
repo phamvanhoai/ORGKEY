@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã dựng fallback section còn thiếu về group 0 theo caller gốc, áp dụng vào catalog và loader thật; không thay section riêng bằng fallback. Giữ ChordType/ChordBase của TrackGroup. Kiểm thử nạp/request PCM fallback và không nhân bản/không lấy nhầm style đạt. Chưa dựng ChordVars variant ở định dạng SET mới; bản 1.2.8/1.4.6 hiện hỗ trợ không lưu trường này.
+
 Đã dựng option nhấn lại section để đặt `tempLoop` theo `MainActivity.y1` và event 204, mặc định tắt. Settings có “Repeat section button to loop”, LCD hiện TEMP LOOP khi đang lặp tạm. Intro/Ending giữ lặp, chọn Main khác thoát được; option tắt giữ one-shot. Toàn bộ kiểm thử đạt trước cập nhật polling LCD; bản cuối build và kiểm thử session/tempLoop đạt. Chưa hoàn thiện GroupSection/control-mode khác.
 
 Đã sửa restart cùng section theo `GroupPlayNext`: không gọi đóng nốt như khi đổi group; giữ voice/sample age và FX track khi reset timeline. Khởi tạo lại timeline không xóa channel lần thứ hai. Stop/reset vẫn xóa. Kiểm thử riêng phân biệt nốt còn vang với sự kiện phát lại sau seek. Chưa dựng nhấn đôi tempLoop và đầy đủ control-mode.

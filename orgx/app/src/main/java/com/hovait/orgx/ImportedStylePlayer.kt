@@ -6,9 +6,10 @@ import java.io.File
 object ImportedStylePlayer {
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,targetChord:(()->Int?)?=null):ImportedStyleSession {
-        val sections=style.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
+        val complete=ImportedSectionFallback.complete(index,style)
+        val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
-        return ImportedStyleSession(style,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord))
+        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord))
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
