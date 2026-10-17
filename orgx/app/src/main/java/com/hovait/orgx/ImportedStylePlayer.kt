@@ -40,7 +40,8 @@ object ImportedStylePlayer {
             val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
                 group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,track.events,bounded=group.limit)
             ReferenceRhythmPlayer(listOf(timeline),sound::durationFrames,
-                {note,age,channel->sound.sample(note,age.toLong(),channel)},48000,
+                {note,age,channel->sound.sample(note,age.toLong(),channel)*track.volume/100.0*
+                    (if(channel==0)minOf(100,100-track.pan) else minOf(100,100+track.pan))/100.0},48000,
                 accompaniment=index.instruments[track.instrument].type==0,
                 mapNote={note->
                     val target=if(follow && index.instruments[track.instrument].type==0)targetChord?.invoke() else null

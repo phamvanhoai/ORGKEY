@@ -1,14 +1,16 @@
 package com.hovait.orgx
 
 object ImportedStyleSupport {
-    fun drumTracks(index:ImportedSetIndex,group:ImportedStyleGroup)=index.tracks.filter{
-        it.group==group.id && !it.muted && it.events.any{event->event.type==2} &&
+    fun activeTracks(index:ImportedSetIndex,group:ImportedStyleGroup):List<ImportedTrack>{
+        val tracks=index.tracks.filter{it.group==group.id}
+        val solo=tracks.any{it.solo}
+        return tracks.filter{!it.muted && (!solo || it.solo) && it.events.any{event->event.type==2}}
+    }
+    fun drumTracks(index:ImportedSetIndex,group:ImportedStyleGroup)=activeTracks(index,group).filter{
             index.instruments.getOrNull(it.instrument)?.type==1
     }
     fun playbackTracks(index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean)=
-        if(!includeAccompaniment)drumTracks(index,group) else index.tracks.filter{
-            it.group==group.id && !it.muted && it.events.any{event->event.type==2}
-        }
+        if(!includeAccompaniment)drumTracks(index,group) else activeTracks(index,group)
     fun reason(index:ImportedSetIndex?,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,followChord:Boolean=false):String? {
         if(index==null)return "SET index unavailable"
         if(group.type!=1)return "Unsupported style group type"

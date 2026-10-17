@@ -31,6 +31,27 @@ class ImportedStylePlayerTest {
             assertEquals(0.0,full.mixedLeft(1f,1f),0.0)
         } finally {file.delete()}
     }
+    @Test fun storedChannelVolumeAndPanAreAppliedToStereoMix(){
+        val file=File.createTempFile("style-channel",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,32,0,32))
+            val source=index().let{it.copy(tracks=listOf(it.tracks.first()))}
+            val base=ImportedStylePlayer.load(file,source,group,true)
+            val altered=source.copy(tracks=source.tracks.map{it.copy(volume=50,pan=100)})
+            val player=ImportedStylePlayer.load(file,altered,group,true)
+            base.next(0,120);player.next(0,120)
+            assertTrue(base.right>0)
+            assertEquals(0.0,player.left,0.0)
+            assertEquals(base.right*.5,player.right,1e-9)
+        }finally{file.delete()}
+    }
+    @Test fun soloTrackExcludesOtherTracksWithoutChangingStoredMute(){
+        val source=index()
+        val solo=source.copy(tracks=source.tracks.map{it.copy(solo=it.instrument==1)})
+        assertEquals(listOf("Bass"),ImportedStyleSupport.playbackTracks(solo,group,true).map{it.name})
+        assertTrue(ImportedStyleSupport.drumTracks(solo,group).isEmpty())
+        assertFalse(solo.tracks.first().muted)
+    }
     @Test fun unsupportedAccompanimentIsExplainedWithoutBlockingDrumMode() {
         val source=index()
         val bad=source.copy(instruments=listOf(instrument(1),instrument(3)))

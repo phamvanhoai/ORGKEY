@@ -17,3 +17,9 @@ Các nguyên nhân trước khi sửa:
 `LocalStyleCompatibilityTest` kiểm tra từng phần của từng style có thể nạp session đầy đủ ở chế độ follow chord và chạy các frame âm thanh hữu hạn. Báo cáo chi tiết nằm ở `local-set-check/style-compatibility.txt` (không đưa SET riêng vào Git).
 
 Đây là sửa các đường phát sample/style đã xác định; DNC, FX, STS và biến thể GroupSection vẫn chưa tương đương đầy đủ bản gốc.
+
+## Dữ liệu trộn từng track
+
+Đã đọc `fKind`, `fSolo` thay vì bỏ qua trong `Track.ReadFromStream`; đọc hai trường đầu `b` (volume) và `c` (pan) của FX channel thay vì skip toàn bộ header. Theo `channels-process.java`, pan dương giảm trái, pan âm giảm phải, sau đó nhân volume. ORGX áp dụng hệ số này cho từng track trước khi cộng stereo. Trạng thái Solo chỉ chọn các track solo trong group và vẫn tôn trọng Mute. Kiểm thử PCM riêng xác nhận volume 50/pan 100 giữ nửa mức bên phải và im bên trái; kiểm thử Solo xác nhận không sửa dữ liệu Mute đã đọc.
+
+Việc đọc được `fKind` chưa đồng nghĩa đã mô phỏng mọi chuyển loại nhạc cụ theo kind. Module FX/DNC/STS vẫn còn công việc riêng; không đổi tên giới hạn thành “hỗ trợ đầy đủ”.

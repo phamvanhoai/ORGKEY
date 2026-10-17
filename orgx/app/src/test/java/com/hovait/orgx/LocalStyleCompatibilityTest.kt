@@ -9,6 +9,7 @@ class LocalStyleCompatibilityTest {
         val file=System.getProperty("orgx.legacySet")?.let(::File) ?: return
         val index=ImportedSetInstruments.index(file)
         val report=buildString {
+            appendLine("Track channel data: "+index.tracks.groupingBy{"kind=${it.kind}, volume=${it.volume}, pan=${it.pan}, solo=${it.solo}"}.eachCount())
             for(style in ImportedStyleCatalog.styles(index)){
                 appendLine(style.name)
                 for(part in style.sections){

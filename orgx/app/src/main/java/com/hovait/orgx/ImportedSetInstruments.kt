@@ -10,7 +10,8 @@ data class ImportedSound(val name:String,val envelope:List<Int>,val sections:Lis
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>)
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4)
-data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0)
+data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
+    val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0)
 data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList())
 
 /** Bounded, lazy PCM indexing for Music Studio 1.4.6; sample bytes stay on disk. */
@@ -25,12 +26,13 @@ object ImportedSetInstruments {
         fun text():String=bytes(count(1000000)).toString(Charsets.UTF_8)
         var lastGroup=0
         fun common():List<String>{val metadata=text().split('\r');lastGroup=int();return metadata}
-        fun fx(){
-            skip(48);val modules=count(1000)
+        fun fx():Pair<Int,Int>{
+            val volume=int();val pan=int();skip(40);val modules=count(1000)
             val extra=mapOf(1 to 8,2 to 17,4 to 8,6 to 8,8 to 28,9 to 4,10 to 4,15 to 4,16 to 4,17 to 4,20 to 8,21 to 24,23 to 9,29 to 8,31 to 4)
             repeat(modules){val type=int();skip(4)
                 if(type==7)skip(count(128)*4L) else skip((extra[type] ?: error("Unsupported SET FX $type")).toLong())
             }
+            return volume to pan
         }
         require(bytes(32).toString(Charsets.US_ASCII).substringBefore('\u0000').equals("Music Studio Music",true))
         val musicVersion=common().getOrNull(1)
@@ -94,13 +96,13 @@ object ImportedSetInstruments {
         }
         val tracks=List(count(100000)){
             val metadata=common();val trackGroup=lastGroup
-            skip(8);val instrument=int();skip(2);val muted=f.readBoolean()
+            f.readUnsignedByte();val kind=f.readUnsignedByte();skip(6);val instrument=int();skip(1);val solo=f.readBoolean();val muted=f.readBoolean()
             skip(5);val chordRoot=f.readUnsignedByte();val chordType=f.readUnsignedByte();skip(106)
             val stored=count(10000);val number=if(musicVersion!!<"1.2.9")13 else stored
             if(trackGroup==0 || musicVersion<"1.2.8"){
                 val enabled=List(number){f.readBoolean()};enabled.filter{it}.forEach{sts()}
             }
-            skip(23);fx();skip(320)
+            skip(23);val channelFx=fx();skip(320)
             val events=List(count(2000000)){
                 val type=java.lang.Short.reverseBytes(f.readShort()).toInt()
                 val tune=java.lang.Short.reverseBytes(f.readShort()).toInt()
@@ -108,7 +110,7 @@ object ImportedSetInstruments {
                 require(type!=101){"Embedded wave events in SET tracks are not supported yet"}
                 ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune)
             }
-            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType)
+            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.first,channelFx.second)
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
