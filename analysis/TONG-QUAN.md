@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã dựng Stereo Echo type 4 theo `t01`: phase tam giác điều biến output hai kênh, feedback đầy đủ và độc lập. Delay 0 báo lỗi thay vì chia cho 0. Build và toàn bộ kiểm thử đạt; chưa so sánh bản thu/độ lượng tử với APK gốc. Reverb và chuỗi FX mode/global/group vẫn chưa hoàn chỉnh.
+
 Đã bổ sung Echo Delay type 6 vào chain FX track theo `s01`: delay/feedback từ SET, stereo độc lập, reset buffer, giữ thứ tự stage 6/20. Kiểm thử độ trễ và feedback đạt; toàn bộ build/kiểm thử đạt. Chưa dựng stereo modulation type 4, reverb và toàn bộ FX mode/global/group.
 
 Đã dựng DSP Bass Booster type 20 cho track SET theo `p01`, giữ cờ bật/tắt và payload module FX trong index track. Kiểm thử impulse/stereo/bypass/tích hợp player đạt; toàn bộ 191 kiểm thử đạt, đã cài APK. Các module FX khác và chuỗi FX global/mode/group chưa hoàn chỉnh; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).

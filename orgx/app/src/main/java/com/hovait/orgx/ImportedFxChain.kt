@@ -19,25 +19,32 @@ class ImportedFxChain(settings:ImportedChannelSettings,sampleRate:Int=48000) {
             left=l+stateL*volume;right=r+stateR*volume
         }
     }
-    private class Echo(val feedback:Double,val delay:Int):Stage{
+    private class Echo(val feedback:Double,val delay:Int,val stereo:Boolean=false):Stage{
         private val bufferL=DoubleArray(delay.coerceAtLeast(1))
         private val bufferR=DoubleArray(delay.coerceAtLeast(1))
         private var cursor=0
+        private var phase=0
+        private var direction=1
+        init { require(!stereo || delay>0){"Stereo Echo requires a positive delay"} }
         override var left=0.0;override var right=0.0
         override fun reset(){bufferL.fill(0.0);bufferR.fill(0.0);cursor=0;left=0.0;right=0.0}
         override fun process(l:Double,r:Double){
-            left=l+bufferL[cursor]*feedback;right=r+bufferR[cursor]*feedback
-            bufferL[cursor]=left;bufferR[cursor]=right
+            val echoL=bufferL[cursor]*feedback;val echoR=bufferR[cursor]*feedback
+            left=l+echoL*(if(stereo)phase.toDouble()/delay else 1.0)
+            right=r+echoR*(if(stereo)(delay-phase).toDouble()/delay else 1.0)
+            // The feedback buffers receive the full echo, independent of output modulation.
+            bufferL[cursor]=l+echoL;bufferR[cursor]=r+echoR
+            if(stereo){phase+=direction;if(phase==delay || phase==0)direction=-direction}
             cursor=(cursor+1)%bufferL.size
         }
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4)}.map{
         require(it.payload.size==8)
         val volume=int(it.payload,0);val frequency=int(it.payload,4)
-        require(volume in 0..(if(it.type==6)99 else 100) && frequency in 0..100){"Unsupported SET DSP parameters"}
-        if(it.type==6)Echo(volume/100.0,minOf(48000,(frequency.toLong()*sampleRate/100).toInt()))
+        require(volume in 0..(if(it.type in listOf(4,6))99 else 100) && frequency in 0..100){"Unsupported SET DSP parameters"}
+        if(it.type in listOf(4,6))Echo(volume/100.0,minOf(48000,(frequency.toLong()*sampleRate/100).toInt()),it.type==4)
         else Bass(volume/16f,frequency.toFloat())
     }
     var left=0.0;private set

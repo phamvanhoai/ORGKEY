@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun stereoEchoModulatesOutputButKeepsFullFeedback(){
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(module(4,50,10))),100)
+        // Ten-sample delay. Seed all cells so modulation can be measured throughout the sweep.
+        repeat(10){fx.process(1.0,1.0)}
+        fx.process(0.0,0.0);assertEquals(.5,fx.left,1e-9);assertEquals(0.0,fx.right,1e-9)
+        fx.process(0.0,0.0);assertEquals(.45,fx.left,1e-9);assertEquals(.05,fx.right,1e-9)
+        repeat(8){fx.process(0.0,0.0)}
+        fx.process(0.0,0.0);assertEquals(0.0,fx.left,1e-9);assertEquals(.25,fx.right,1e-9)
+        fx.reset();repeat(20){fx.process(0.0,0.0);assertEquals(0.0,fx.left,0.0);assertEquals(0.0,fx.right,0.0)}
+    }
+    @Test fun stereoEchoDoesNotSendLeftInputIntoRightChannel(){
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(module(4,50,10))),100)
+        repeat(50){fx.process(if(it==0)1.0 else 0.0,0.0);assertEquals(0.0,fx.right,0.0)}
+    }
+    @Test(expected=IllegalArgumentException::class) fun stereoZeroDelayIsRejectedInsteadOfDividingByZero(){
+        ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(module(4,50,0))))
+    }
     private fun module(type:Int,a:Int,b:Int)=ImportedFxModule(type,true,false,
         listOf(a and 255,(a ushr 8) and 255,0,0,b and 255,(b ushr 8) and 255,0,0))
     @Test fun echoRepeatsAtStoredDelayWithFeedbackAndIndependentStereo(){
