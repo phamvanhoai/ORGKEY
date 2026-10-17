@@ -1,17 +1,20 @@
 package com.hovait.orgx
 
 /** Ordered SET track DSP stages; state belongs to a track, never the sample bank. */
-class ImportedFxChain(settings:ImportedChannelSettings,sampleRate:Int=48000) {
+class ImportedFxChain(private val settings:ImportedChannelSettings,private val sampleRate:Int=48000) {
+    fun fresh()=ImportedFxChain(settings,sampleRate)
     private interface Stage {
         var left:Double
         var right:Double
         fun process(l:Double,r:Double)
         fun reset()
+        val active:Boolean
     }
     private class Bass(val volume:Float,val frequency:Float):Stage{
         private var stateL=0f;private var stateR=0f
         override var left=0.0;override var right=0.0
         val smoothing=1f/(frequency+1f)
+        override val active get()=kotlin.math.abs(stateL)>1e-9f || kotlin.math.abs(stateR)>1e-9f
         override fun reset(){stateL=0f;stateR=0f;left=0.0;right=0.0}
         override fun process(l:Double,r:Double){
             stateL=(stateL*frequency+l.toFloat())*smoothing
@@ -25,15 +28,19 @@ class ImportedFxChain(settings:ImportedChannelSettings,sampleRate:Int=48000) {
         private var cursor=0
         private var phase=0
         private var direction=1
+        private var energy=0.0
+        override val active get()=energy>1e-18
         init { require(!stereo || delay>0){"Stereo Echo requires a positive delay"} }
         override var left=0.0;override var right=0.0
-        override fun reset(){bufferL.fill(0.0);bufferR.fill(0.0);cursor=0;left=0.0;right=0.0}
+        override fun reset(){bufferL.fill(0.0);bufferR.fill(0.0);cursor=0;energy=0.0;left=0.0;right=0.0}
         override fun process(l:Double,r:Double){
             val echoL=bufferL[cursor]*feedback;val echoR=bufferR[cursor]*feedback
             left=l+echoL*(if(stereo)phase.toDouble()/delay else 1.0)
             right=r+echoR*(if(stereo)(delay-phase).toDouble()/delay else 1.0)
             // The feedback buffers receive the full echo, independent of output modulation.
+            energy-=bufferL[cursor]*bufferL[cursor]+bufferR[cursor]*bufferR[cursor]
             bufferL[cursor]=l+echoL;bufferR[cursor]=r+echoR
+            energy=(energy+bufferL[cursor]*bufferL[cursor]+bufferR[cursor]*bufferR[cursor]).coerceAtLeast(0.0)
             if(stereo){phase+=direction;if(phase==delay || phase==0)direction=-direction}
             cursor=(cursor+1)%bufferL.size
         }
@@ -49,6 +56,7 @@ class ImportedFxChain(settings:ImportedChannelSettings,sampleRate:Int=48000) {
     }
     var left=0.0;private set
     var right=0.0;private set
+    val active get()=stages.any{it.active}
     fun reset(){stages.forEach{it.reset()};left=0.0;right=0.0}
     fun process(inputLeft:Double,inputRight:Double){
         left=inputLeft;right=inputRight

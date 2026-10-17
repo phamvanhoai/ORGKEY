@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã giữ state FX từng track trong release tail khi đổi phần, kể cả echo còn ngân sau khi voice kết thúc. Source có chain mới để reset/reuse không làm mất đuôi đã chuyển. Kiểm thử impulse sau chuyển/reset source đạt; Stop destination xóa đuôi. Giới hạn module 4/6/20, ngưỡng im lặng và 32 nhóm tail; chưa hoàn chỉnh Ending hoặc restart cùng player.
+
 Đã bổ sung nhả voice section/style cũ khi chuyển sang player khác, thay vì bỏ ngay tiếng đang vang. Giữ envelope/sample age, routing drum/chord và mang tiếp tail khi chuyển nhanh; Stop/reset xóa. Kiểm thử release/routing/chuyển liên tiếp đạt. Chưa giữ state FX riêng từng track trong tail, chưa xử lý đầy đủ đuôi sau Ending hoặc restart cùng player.
 
 Đã giữ buffer group/rhythm FX khi chuyển section/style có cùng cấu hình; chọn lại section có thể giữ bus, Stop/reset xóa. Kiểm thử impulse và đuôi sau chuyển đạt, chưa đối chiếu bản thu. Đổi tham số/module và voice release của track cũ chưa mô phỏng đầy đủ theo mixer gốc; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).

@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### FX track trong release tail
+
+Đã chuyển ownership chain FX từng track cùng voice sang release tail; cả khi voice hết nhưng buffer DSP còn năng lượng cũng được chuyển. Source nhận chain mới cùng cấu hình để có thể reset/reuse độc lập. Tail chạy input 0 sau khi voice hết cho tới trạng thái DSP dưới ngưỡng (echo energy 1e-18, Bass state 1e-9), hoặc Stop/reset xóa. Kiểm thử tạo impulse, voice dài 1 frame, chuyển phần, reset source, xác nhận echo xuất hiện đúng frame ở destination và bị xóa khi Stop.
+
+Giới hạn: ngưỡng im lặng là lựa chọn ORGX trên PCM chuẩn hóa, chưa chứng minh giống phép lượng tử long của gốc; chỉ các module 4/6/20 đang dựng được theo dõi. Tail vẫn giới hạn 32 nhóm; Ending/đổi tham số module và restart cùng player chưa hoàn chỉnh.
+
 ### Nhả voice của section/style cũ
 
 Đã bổ sung giữ voice đang vang khi chuyển sang player khác, theo ý nghĩa `GroupPlayNext` gọi `CloseAll(false)` cho track cũ: ngừng schedule cũ, đánh dấu note-off, tiếp tục playback/envelope hiện tại. Nhóm release giữ routing drum/chord và gain của nguồn; chuyển nhanh mang tiếp các release đang tồn tại. Stop/reset xóa. Giới hạn 32 nhóm tail để tránh tích lũy vô hạn. Voice dùng sample riêng của nguồn, không phát lại sample từ đầu.

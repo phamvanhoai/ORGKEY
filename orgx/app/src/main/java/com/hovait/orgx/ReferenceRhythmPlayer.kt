@@ -4,7 +4,7 @@ package com.hovait.orgx
 class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int,
     private val accompaniment:Boolean=false,private val mapNote:(Int)->Int={it},private val envelope:ImportedEnvelope?=null,
-    private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0},private val fx:ImportedFxChain?=null) {
+    private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0},private var fx:ImportedFxChain?=null) {
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -24,9 +24,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         fun collect(source:ReferenceRhythmPlayer){
             source.children.forEach(::collect)
             releaseTails.addAll(source.releaseTails);source.releaseTails.clear()
-            if(source.voices.isNotEmpty()){
+            if(source.voices.isNotEmpty() || source.fx?.active==true){
                 val tail=ReferenceRhythmPlayer(emptyList(),source.drumLength,source.drum,source.sampleRateForEnvelope,
-                    source.accompaniment,source.mapNote,source.envelope,source.sampled,source.channelGain)
+                    source.accompaniment,source.mapNote,source.envelope,source.sampled,source.channelGain,source.fx)
+                source.fx=source.fx?.fresh()
                 tail.tailGain=source.tracks.getOrNull(source.current)?.outputGain ?: 1.0
                 source.voices.values.forEach{if(it.release<0)it.release=0}
                 tail.voices.putAll(source.voices);source.voices.clear()
@@ -40,7 +41,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         val iterator=releaseTails.iterator()
         while(iterator.hasNext()){
             val tail=iterator.next();tail.renderVoices(tail.tailGain)
-            if(tail.voices.isEmpty())iterator.remove()
+            if(tail.voices.isEmpty() && tail.fx?.active!=true)iterator.remove()
         }
     }
     private var groupFx:ImportedFxChain?=null
