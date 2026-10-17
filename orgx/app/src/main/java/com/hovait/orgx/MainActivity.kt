@@ -87,7 +87,8 @@ private fun ORGXApp(engine: AudioEngine) {
             try{
                 val loaded=withContext(Dispatchers.IO){
                     val (file,sound)=ImportedSoundSelection.resolve(File(context.filesDir,"ReferenceSets"),fileName,soundName)
-                    Triple(ImportedInstrumentLoader.load(file,sound),file,ImportedSetInstruments.index(file))
+                    val index=ImportedSetInstruments.index(file)
+                    Triple(ImportedInstrumentLoader.load(file,sound,index.systems.firstOrNull()),file,index)
                 }
                 // A user may have changed voices while the file was loading.
                 if(preferences.getString("importedSetFile",null)==fileName && preferences.getString("importedSetSound",null)==soundName){
@@ -228,7 +229,7 @@ private fun ORGXApp(engine: AudioEngine) {
                                         bankBusy=true;bankStatus="LOADING VOICE..."
                                         try{
                                             val sound=voiceSounds[chosen];val file=checkNotNull(engine.activeSetFile)
-                                            val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(file,sound)}
+                                            val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(file,sound,engine.activeSetIndex?.systems?.firstOrNull())}
                                             engine.importedInstrument=loaded;engine.importedInstrumentName=sound.name;restoredSetName=sound.name
                                             preferences.edit().putString("importedSetFile",file.name).putString("importedSetSound",sound.name).apply()
                                             bankStatus="SELECTED: ${sound.name}"
@@ -539,7 +540,7 @@ private fun ORGXApp(engine: AudioEngine) {
             OutlinedButton(enabled=!importing,onClick={scope.launch{
                 importing=true
                 try{
-                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item)}
+                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item,setIndex?.systems?.firstOrNull())}
                     engine.importedInstrument=loaded;engine.importedInstrumentName=item.name
                     preferences.edit().putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).apply()
                     importStatus="Keyboard: ${item.name}. Select a built-in voice in Mixer to switch back."

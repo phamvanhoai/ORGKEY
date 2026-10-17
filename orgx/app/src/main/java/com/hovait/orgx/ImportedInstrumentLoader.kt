@@ -43,12 +43,12 @@ object ImportedInstrumentLoader {
                     (it.loop==0 || (it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.frames))
             }
     }
-    fun load(file:File,instrument:ImportedInstrument):SampledInstrument {
+    fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null):SampledInstrument {
         if(instrument.modes.isNotEmpty()){
             val layers=layers(instrument)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             require(layers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
-            return SampledInstrument.combine(layers.map{load(file,it)})
+            return SampledInstrument.combine(layers.map{load(file,it,system)})
         }
         require(supported(instrument)){"Unsupported instrument parameters"}
         val sections=instrument.sounds.first().sections
@@ -66,7 +66,8 @@ object ImportedInstrumentLoader {
                     section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,section.tune)
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
-                envelope=ImportedEnvelope.from(instrument.sounds.first().envelope),pitchMode=instrument.sounds.first().envelope[4])
+                envelope=ImportedEnvelope.from(instrument.sounds.first().envelope),pitchMode=instrument.sounds.first().envelope[4],
+                tuning=if(instrument.type==0)system?.table.orEmpty() else emptyList())
         }
     }
     /** Channels.OpenKey: default mode primary plus every enabled Mix slot, including duplicates. */

@@ -27,6 +27,7 @@ object ImportedStyleSupport {
         if(index==null)return "SET index unavailable"
         if(group.type!=1)return "Unsupported style group type"
         val tracks=playbackTracks(index,group,includeAccompaniment)
+        if(index.systems.isNotEmpty() && tracks.any{it.system !in index.systems.indices})return "Track references missing tuning system"
         if(tracks.isEmpty())return "No supported tracks found"
         if(group.limit && (group.start<0 || group.end<=group.start))return "Unsupported loop boundaries"
         if(followChord && tracks.any{track->instrument(index,track)?.let{

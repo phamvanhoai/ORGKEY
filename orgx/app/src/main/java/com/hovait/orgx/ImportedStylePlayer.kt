@@ -23,7 +23,7 @@ object ImportedStylePlayer {
         }}
         val byGroup=groups.associate{it.id to ImportedStyleSupport.playbackTracks(index,it,includeAccompaniment)}
         val tracks=byGroup.values.flatten()
-        fun key(track:ImportedTrack)=track.instrument to checkNotNull(ImportedStyleSupport.instrument(index,track)).type
+        fun key(track:ImportedTrack)=Triple(track.instrument,checkNotNull(ImportedStyleSupport.instrument(index,track)).type,track.system)
         val selected=tracks.groupBy(::key).mapValues{(_,parts)->
             val source=checkNotNull(ImportedStyleSupport.instrument(index,parts.first()))
             if(follow && source.type==0){
@@ -35,7 +35,7 @@ object ImportedStylePlayer {
         require(selected.values.sumOf{source->ImportedInstrumentLoader.layers(source).sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}}<=64L*1024*1024){
             "Style exceeds 64 MB PCM budget"
         }
-        val sounds=selected.mapValues{ImportedInstrumentLoader.load(file,it.value)}
+        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.third))}
         return groups.associate{group->group.id to ReferenceRhythmPlayer.combine(byGroup.getValue(group.id).map{track->
             val sound=sounds.getValue(key(track))
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0
