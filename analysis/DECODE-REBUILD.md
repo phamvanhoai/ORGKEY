@@ -53,4 +53,8 @@ Kiểm thử gồm chỉnh nửa cung tại một slot, lặp lại theo 24 phí
 
 Chỉ type 20 được xử lý trong chain này. Các type khác được giữ payload trong index track nhưng chưa chạy DSP; FX ở mode/global/group vẫn chưa nối toàn bộ. Không suy từ một module sang tuyên bố hỗ trợ đầy đủ reverb/flanger/equalizer.
 
+### Echo Delay type 6
+
+Đã bổ sung type 6 theo `s01.a/e/c`: delay = min(48000, frequency * sampleRate / 100), output = input + delayedOutput * volume / 100, buffer trái/phải riêng. Delay lưu 0 dùng một ô nhớ vì bản gốc luôn reset cursor về 0 trong trường hợp này. Chain giữ thứ tự các stage đã hỗ trợ (6/20) theo dữ liệu. Reset xóa buffer và cursor. Kiểm thử impulse tại đúng frame trễ, giảm feedback, stereo độc lập và delay 0. Tính PCM chuẩn hóa không mô phỏng lượng tử hóa long của gốc; type 4 stereo modulation, reverb và các module còn lại chưa dựng.
+
 Đã giữ volume, pan, tune, transpose, octave và release-percent từ header `z01.j`. Track áp dụng tune theo đơn vị 1/1000 semitone, transpose/octave trước chọn sample (sau ánh xạ hợp âm), và nhân release theo `Channels.OpenKey`, chặn trên 100. Release-percent lưu 0 được đổi thành 100 như bộ đọc gốc. Percussion không nhận tune/transpose/octave melodic. Cache phân biệt các thiết lập kênh để không dùng sai sample/envelope giữa các track. Module DSP bên trong FX block vẫn chưa được dựng; header FX không đại diện cho toàn bộ FX.

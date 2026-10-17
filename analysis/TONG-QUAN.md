@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã bổ sung Echo Delay type 6 vào chain FX track theo `s01`: delay/feedback từ SET, stereo độc lập, reset buffer, giữ thứ tự stage 6/20. Kiểm thử độ trễ và feedback đạt; toàn bộ build/kiểm thử đạt. Chưa dựng stereo modulation type 4, reverb và toàn bộ FX mode/global/group.
+
 Đã dựng DSP Bass Booster type 20 cho track SET theo `p01`, giữ cờ bật/tắt và payload module FX trong index track. Kiểm thử impulse/stereo/bypass/tích hợp player đạt; toàn bộ 191 kiểm thử đạt, đã cài APK. Các module FX khác và chuỗi FX global/mode/group chưa hoàn chỉnh; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã bổ sung đọc và áp dụng tune/transpose/octave/release-percent của channel SET theo `Channels.OpenKey`. Track melodic chọn sample sau transpose/octave; percussion giữ nốt và tune cũ. Thiết lập kênh tham gia khóa cache để các track không dùng chung sai envelope/sample. Header được dựng từng trường có bằng chứng, chưa phải toàn bộ module FX/DSP.
