@@ -1,0 +1,48 @@
+{
+  "version": "1.2.8",
+  "bytes": 294227939,
+  "parsed_end": 294227939,
+  "trailing_bytes": 0,
+  "byte_accounting": {
+    "decoded": 795226,
+    "protected": 8,
+    "skipped": 461865,
+    "pcm": 292970840
+  },
+  "wave_slots": 11444,
+  "wave_count": 348,
+  "bank_pcm_bytes": 26552898,
+  "inline_pcm_bytes": 266417942,
+  "referenced_bank_waves": 348,
+  "unreferenced_bank_waves": [],
+  "fx_blocks": 516,
+  "fx_module_types": {
+    "6": 46,
+    "29": 50,
+    "20": 1,
+    "8": 35,
+    "2": 14,
+    "17": 2,
+    "7": 1
+  },
+  "sha256_before": "bcfb82bcac2aa5547aec4efd16409b0b1b074a4f28e4ae37c2bfa949dc7f928f",
+  "sha256_after": "bcfb82bcac2aa5547aec4efd16409b0b1b074a4f28e4ae37c2bfa949dc7f928f",
+  "input_unchanged": true,
+  "caveats": [
+    "Decoded means structurally inspected, not used by ORGX playback.",
+    "Skipped bytes remain in the unchanged SET; their payload is not decoded here.",
+    "Reserved bytes cannot be assumed active or unused without original reader evidence.",
+    "This audit validates the accepted layouts, not all possible SET formats."
+  ],
+  "counts": {
+    "instruments": 154,
+    "systems": 1,
+    "tracks": 370,
+    "groups": 105,
+    "sounds": 158,
+    "regions": 4102,
+    "modes": 31,
+    "sts": 112,
+    "events": 23204
+  }
+}
