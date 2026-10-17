@@ -7,7 +7,9 @@ data class ImportedWave(val offset:Long,val bytes:Int)
 data class ImportedSection(val note:Int,val rate:Int,val channels:Int,val frames:Int,val volume:Int,
     val pan:Int,val tune:Int,val start:Int,val loop:Int,val loopStart:Int,val loopEnd:Int,val wave:ImportedWave)
 data class ImportedSound(val name:String,val envelope:List<Int>,val sections:List<ImportedSection>)
-data class ImportedChannelSettings(val volume:Int=100,val pan:Int=0,val tune:Int=0,val transpose:Int=0,val octave:Int=0,val releasePercent:Int=100)
+data class ImportedFxModule(val type:Int,val enabled:Boolean,val realtime:Boolean,val payload:List<Int>)
+data class ImportedChannelSettings(val volume:Int=100,val pan:Int=0,val tune:Int=0,val transpose:Int=0,val octave:Int=0,val releasePercent:Int=100,
+    val fxEnabled:Boolean=false,val modules:List<ImportedFxModule> = emptyList())
 data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix:List<Int>,val mixVolume:List<Int>,val mixPan:List<Int>)
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList())
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
@@ -31,12 +33,14 @@ object ImportedSetInstruments {
         fun common():List<String>{val metadata=text().split('\r');lastGroup=int();return metadata}
         fun fx():ImportedChannelSettings{
             val volume=int();val pan=int();val tune=int();int();val transpose=int();val octave=int();val release=int().let{if(it==0)100 else it}
-            skip(20);val modules=count(1000)
+            skip(19);val fxEnabled=f.readBoolean();val modules=count(1000)
             val extra=mapOf(1 to 8,2 to 17,4 to 8,6 to 8,8 to 28,9 to 4,10 to 4,15 to 4,16 to 4,17 to 4,20 to 8,21 to 24,23 to 9,29 to 8,31 to 4)
-            repeat(modules){val type=int();skip(4)
-                if(type==7)skip(count(128)*4L) else skip((extra[type] ?: error("Unsupported SET FX $type")).toLong())
+            val decoded=List(modules){val type=int();val enabled=f.readBoolean();skip(2);val realtime=f.readBoolean()
+                val payload=if(type==7)bytes(count(128)*4).map{it.toInt() and 255}
+                    else bytes(extra[type] ?: error("Unsupported SET FX $type")).map{it.toInt() and 255}
+                ImportedFxModule(type,enabled,realtime,payload)
             }
-            return ImportedChannelSettings(volume,pan,tune,transpose,octave,release)
+            return ImportedChannelSettings(volume,pan,tune,transpose,octave,release,fxEnabled,decoded)
         }
         require(bytes(32).toString(Charsets.US_ASCII).substringBefore('\u0000').equals("Music Studio Music",true))
         val musicVersion=common().getOrNull(1)

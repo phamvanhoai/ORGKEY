@@ -4,7 +4,7 @@ package com.hovait.orgx
 class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int,
     private val accompaniment:Boolean=false,private val mapNote:(Int)->Int={it},private val envelope:ImportedEnvelope?=null,
-    private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0}) {
+    private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0},private val fx:ImportedFxChain?=null) {
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -32,7 +32,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     fun mixedRight(drumGain:Float,chordGain:Float):Double =
         if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain)
-    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;children.forEach{it.reset()}}
+    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();children.forEach{it.reset()}}
     fun startAt(referenceTime:Long){require(referenceTime>=0);reset();initialTime=referenceTime;children.forEach{it.startAt(referenceTime)}}
     fun next(selection:Int,tempo:Int) {
         if(children.isNotEmpty()){
@@ -78,6 +78,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(voice.age>=drumLength(voice.note) || voice.envelope?.finished==true || (voice.envelope==null && voice.release>=releaseFrames))iterator.remove()
         }
         left*=track.outputGain;right*=track.outputGain
+        fx?.let{it.process(left,right);left=it.left;right=it.right}
         if(!track.bounded && timeline?.exhausted==true && (timeline?.endsWithNoteOff==true || voices.isEmpty()))finished=true
         clock.advance(1,tempo)
     }

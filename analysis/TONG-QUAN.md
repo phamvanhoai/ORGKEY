@@ -276,6 +276,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ## Xuất toàn bộ APK để đối chiếu
 
+Đã dựng DSP Bass Booster type 20 cho track SET theo `p01`, giữ cờ bật/tắt và payload module FX trong index track. Kiểm thử impulse/stereo/bypass/tích hợp player đạt; toàn bộ 191 kiểm thử đạt, đã cài APK. Các module FX khác và chuỗi FX global/mode/group chưa hoàn chỉnh; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã bổ sung đọc và áp dụng tune/transpose/octave/release-percent của channel SET theo `Channels.OpenKey`. Track melodic chọn sample sau transpose/octave; percussion giữ nốt và tune cũ. Thiết lập kênh tham gia khóa cache để các track không dùng chung sai envelope/sample. Header được dựng từng trường có bằng chứng, chưa phải toàn bộ module FX/DSP.
 
 Đã bổ sung đọc system và bảng tuning 24 phím theo `System_.ReadFromStream`/`Music.KeyToPitchEx`: style dùng system riêng của từng track, voice SET dùng system 0, percussion không chịu tuning melodic. Giữ StartKey/SelectedKeys nhưng chưa có giao diện chỉnh hai trường này. Build và toàn bộ kiểm thử đạt; kiểm thử riêng xác nhận bảng thay đổi PCM melodic nhưng không đổi percussion và phát hiện tham chiếu system thiếu. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md) để biết phần còn chưa dựng.

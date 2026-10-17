@@ -47,4 +47,10 @@ Kiểm thử gồm chỉnh nửa cung tại một slot, lặp lại theo 24 phí
 
 ## Tham số FX header của kênh
 
+### Module Bass Booster của track
+
+Đã giữ cờ enable block, enable module, realtime và payload module trên channel từng track. `ImportedFxChain` dựng type 20 từ `defpackage.p01`: smoothing = 1/(frequency+1), state = (state*frequency+input)*smoothing, output = input+state*volume/16; trạng thái trái/phải độc lập, reset khi reset player. Tính trên PCM chuẩn hóa float, chưa sao chép lượng tử hóa long nội bộ của APK gốc. Kiểm thử impulse/đuôi, stereo, bypass và tích hợp track.
+
+Chỉ type 20 được xử lý trong chain này. Các type khác được giữ payload trong index track nhưng chưa chạy DSP; FX ở mode/global/group vẫn chưa nối toàn bộ. Không suy từ một module sang tuyên bố hỗ trợ đầy đủ reverb/flanger/equalizer.
+
 Đã giữ volume, pan, tune, transpose, octave và release-percent từ header `z01.j`. Track áp dụng tune theo đơn vị 1/1000 semitone, transpose/octave trước chọn sample (sau ánh xạ hợp âm), và nhân release theo `Channels.OpenKey`, chặn trên 100. Release-percent lưu 0 được đổi thành 100 như bộ đọc gốc. Percussion không nhận tune/transpose/octave melodic. Cache phân biệt các thiết lập kênh để không dùng sai sample/envelope giữa các track. Module DSP bên trong FX block vẫn chưa được dựng; header FX không đại diện cho toàn bộ FX.
