@@ -2,7 +2,7 @@ package com.hovait.orgx
 
 data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true,val tune:Int=0)
 
-class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private val exactNotes:Boolean=false) {
+class SampledInstrument(regions:List<InstrumentRegion>,outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null) {
     init {
         require(regions.isNotEmpty())
         regions.forEach {

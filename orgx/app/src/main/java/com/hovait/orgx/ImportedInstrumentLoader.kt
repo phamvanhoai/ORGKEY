@@ -28,7 +28,7 @@ object ImportedInstrumentLoader {
         val sound=instrument.sounds.firstOrNull() ?: return false
         val pitchMode=sound.envelope.getOrNull(4)
         val supportedType=instrument.type in 0..1
-        return supportedType && pitchMode in listOf(0,2) &&
+        return supportedType && runCatching{ImportedEnvelope.from(sound.envelope)}.isSuccess && pitchMode in listOf(0,2) &&
             sound.sections.isNotEmpty() && sound.sections.all{
                 it.frames>0 && instrument.pan.toLong()+it.pan in -100L..100L && it.start==0 && it.loop in listOf(0,2,3) &&
                     (it.loop==0 || (it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.frames))
@@ -50,7 +50,8 @@ object ImportedInstrumentLoader {
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
                     section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,section.tune)
             }
-            SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2)
+            SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
+                envelope=ImportedEnvelope.from(instrument.sounds.first().envelope))
         }
     }
 }

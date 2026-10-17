@@ -59,10 +59,12 @@ object ImportedSetInstruments {
                     if(settings>0)repeat(count(10000)){text()}
                 }
             }
-            val firstEnvelope=if(legacy)legacyAds[0]+List(3){f.readUnsignedByte()} else emptyList()
+            // Instrument.ReadFromStream resets legacy ADS before 1.3.1; stored bytes are not the effective ADS.
+            val effectiveLegacyAds=legacyAds.map{listOf(0,0,100)}
+            val firstEnvelope=if(legacy)effectiveLegacyAds[0]+List(3){f.readUnsignedByte()} else emptyList()
             val sounds=List(f.readUnsignedByte().coerceAtLeast(1)){soundIndex->
                 val name=if(legacy && soundIndex==0)"Primary" else text()
-                val envelope=if(legacy && soundIndex==0)firstEnvelope else if(legacy)legacyAds[soundIndex]+List(3){f.readUnsignedByte()} else List(6){f.readUnsignedByte()}
+                val envelope=if(legacy && soundIndex==0)firstEnvelope else if(legacy)effectiveLegacyAds[soundIndex]+List(3){f.readUnsignedByte()} else List(6){f.readUnsignedByte()}
                 val sections=List(f.readUnsignedByte()){
                     val note=f.readUnsignedByte();bytes(32)
                     val legacyRate=java.lang.Short.reverseBytes(f.readShort()).toInt() and 65535

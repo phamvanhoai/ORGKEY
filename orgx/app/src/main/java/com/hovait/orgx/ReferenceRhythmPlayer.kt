@@ -3,15 +3,16 @@ package com.hovait.orgx
 /** Sample track playback; accompaniment is kept separate for mixer routing. DNC is not applied. */
 class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int,
-    private val accompaniment:Boolean=false,private val mapNote:(Int)->Int={it}) {
+    private val accompaniment:Boolean=false,private val mapNote:(Int)->Int={it},private val envelope:ImportedEnvelope?=null) {
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
+    private val sampleRateForEnvelope=sampleRate
     private var current=-1
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
-    private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1)
+    private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1,val envelope:ImportedEnvelope.State?=null)
     private val voices=LinkedHashMap<Int,Voice>()
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
     private var children:List<ReferenceRhythmPlayer> = emptyList()
@@ -55,19 +56,19 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             val note=if(event.type==2)mapNote(event.note) else event.note
             if(event.type==2 && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
-                voices[event.id]=Voice(note,event.touch.coerceAtLeast(0)/100.0)
+                voices[event.id]=Voice(note,event.touch.coerceAtLeast(0)/100.0,envelope=envelope?.voice(sampleRateForEnvelope))
             } else if(event.type==1)voices[event.id]?.release=0
         }
         left=0.0;right=0.0
         val iterator=voices.values.iterator()
         while(iterator.hasNext()){
             val voice=iterator.next()
-            val gain=voice.gain*if(voice.release<0)1.0 else (1.0-voice.release.toDouble()/releaseFrames).coerceAtLeast(0.0)
+            val gain=voice.gain*(voice.envelope?.next(voice.release>=0) ?: if(voice.release<0)1.0 else (1.0-voice.release.toDouble()/releaseFrames).coerceAtLeast(0.0))
             left+=drum(voice.note,voice.age,0)*gain
             right+=drum(voice.note,voice.age,1)*gain
             voice.age++
             if(voice.release>=0)voice.release++
-            if(voice.age>=drumLength(voice.note) || voice.release>=releaseFrames)iterator.remove()
+            if(voice.age>=drumLength(voice.note) || voice.envelope?.finished==true || (voice.envelope==null && voice.release>=releaseFrames))iterator.remove()
         }
         left*=track.outputGain;right*=track.outputGain
         clock.advance(1,tempo)

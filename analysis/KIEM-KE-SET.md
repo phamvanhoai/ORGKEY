@@ -33,7 +33,7 @@ Cả 348 wave-bank entry đều có tham chiếu từ vùng nhạc cụ. Điều
 | PitchMode | 116 sound mode 0, 26 mode 2, 16 mode 1; mới hỗ trợ 0/2 | Sound dùng mode 1 chưa tương thích |
 | Instrument type | 108 type 0, 29 type 1, 17 type 2; loader chỉ hỗ trợ 0/1 | Type 2 chưa phát như engine gốc |
 | Loop vùng | 3.411 loop 0, 690 loop 2, 1 loop 3 | Đã dùng ở mức sample; chưa chứng minh mọi hành vi envelope/release gốc |
-| Envelope attack/decay/sustain/release, auto-release | Lưu trong index, phần lớn chưa áp dụng; engine dùng envelope đơn giản | Âm sắc và cách nhả nốt chưa giống gốc |
+| Envelope attack/decay/sustain/release, auto-release | Đã nối vào voice bàn phím và track SET trong bản sửa sau audit; ADS legacy chuẩn hóa theo reader gốc | Nội suy theo sample; chưa tái tạo mọi block tick, pedal mode, ForceLoop và DNC gốc |
 | Mode, mix layer, aftertouch, effect, script DNC | Parser đi qua nhưng không giữ đầy đủ model/ngữ nghĩa; playback style dùng sound đầu | Thiếu articulation, layer và điều kiện chọn sound |
 | 516 FX block, 149 module | Đọc cấu trúc để bỏ qua; không tái tạo chuỗi FX của SET | FX Kotlin của ORGX không thay thế tương đương FX trong SET |
 | System/tuning | 1 object kiểm kê, payload hiện bỏ qua | Track có tham chiếu system nhưng chưa áp dụng tuning/system gốc |
@@ -71,3 +71,5 @@ py -3 analysis/audit_set.py analysis/local-set-check/sample.Set --output analysi
 ## Kết luận triển khai
 
 SET không phải chỉ là danh sách tên style và voice. Muốn tái tạo đúng cần giữ các cấu hình gắn với nó và áp dụng vào engine theo đường đọc gốc. ORGX hiện chưa dùng đủ dữ liệu trong SET. Thứ tự sửa nên là model đầy đủ cho mode/channel/STS/system/FX, sau đó port cách áp dụng và đối chiếu âm thanh/tác vụ; không tiếp tục dùng sample đầu hoặc hiệu ứng mặc định để tuyên bố tương thích toàn SET.
+
+Sửa sau audit: thêm `ImportedEnvelope` cho sound SET và dùng trên keyboard/style; attack/decay và auto-release tính theo đơn vị 100 ms từ Channels.Process, release note-off theo nhánh pedal mode 0 (10 ms mỗi đơn vị, giới hạn 20), release 0 dùng 0,1 theo Channel.Open. Legacy 1.2.8 bỏ ADS lưu và dùng 0/0/100 như Instrument.ReadFromStream gốc. Chưa port các pedal mode khác hoặc ForceLoop; quá trình gain nội suy theo sample thay vì tái tạo tick 10 ms chính xác. Không nới điều kiện Start khác 0 vì chưa chứng minh trường này là sample offset trong đường phát gốc.

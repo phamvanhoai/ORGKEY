@@ -140,10 +140,11 @@ private fun ORGXApp(engine: AudioEngine) {
     var bankPage by remember{mutableIntStateOf(0)}
     var bankBusy by remember{mutableStateOf(false)}
     var bankStatus by remember{mutableStateOf("")}
+    var bankMode by remember{mutableIntStateOf(preferences.getInt("bankMode",0).coerceIn(0,2))}
     val bankScope=rememberCoroutineScope()
     val bankIndex=engine.activeSetIndex
     val bankStyles=remember(bankIndex){bankIndex?.let{ImportedStyleCatalog.styles(it)}.orEmpty()}
-    val bankEnabled=remember(bankIndex){bankStyles.map{definition->definition.sections.any{it.section in 32..35 && ImportedStyleSupport.reason(bankIndex,it)==null}}}
+    val bankEnabled=remember(bankIndex,bankMode){bankStyles.map{definition->definition.sections.any{it.section in 32..35 && ImportedStyleSupport.reason(bankIndex,it,bankMode>0,bankMode==2)==null}}}
     var midiPlaying by remember { mutableStateOf(false) }
     val midiPicker=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
         if(uri!=null) runCatching{context.contentResolver.openInputStream(uri)?.use{MidiFile.read(it)}?:error("Cannot read MIDI")}.onSuccess{song->
@@ -183,6 +184,8 @@ private fun ORGXApp(engine: AudioEngine) {
                         stylePage=browseStyles,styleChoices=if(bankIndex!=null)bankStyles.map{it.name} else engine.styleNames,
                         styleEnabled=if(bankBusy)List(if(bankIndex!=null)bankStyles.size else engine.styleNames.size){false} else if(bankIndex!=null)bankEnabled else emptyList(),
                         page=bankPage,status=bankStatus,onPage={bankPage=(bankPage+it).coerceAtLeast(0)},onExit={if(!bankBusy)browseStyles=false},
+                        modeLabel=if(bankIndex==null)"" else listOf("MODE: DRUM","MODE: FULL / ORIGINAL NOTES","MODE: FULL / FOLLOW CHORD")[bankMode],
+                        onMode={if(!bankBusy){bankMode=(bankMode+1)%3;preferences.edit().putInt("bankMode",bankMode).apply();bankStatus=""}},
                         onChoose={chosen->
                             if(!bankBusy){
                                 if(bankIndex==null){
@@ -191,7 +194,8 @@ private fun ORGXApp(engine: AudioEngine) {
                                 }else bankScope.launch{
                                     bankBusy=true;bankStatus="LOADING..."
                                     try{
-                                        val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(checkNotNull(engine.activeSetFile),bankIndex,bankStyles[chosen])}
+                                        val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(checkNotNull(engine.activeSetFile),bankIndex,bankStyles[chosen],bankMode>0,
+                                            engine.referenceChordTransposer,if(bankMode==2)engine::selectedSetChord else null)}
                                         engine.setRhythmEnabled(false);engine.importedStyleSession=loaded;engine.importedRhythm=loaded.player;engine.importedRhythmName=loaded.displayName
                                         setSession=loaded;sectionState=loaded.currentId to null
                                         val tempo=loaded.style.sections.first{it.id==loaded.currentId}.tempo

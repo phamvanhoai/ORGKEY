@@ -45,7 +45,7 @@ object ImportedStylePlayer {
                 mapNote={note->
                     val target=if(follow && index.instruments[track.instrument].type==0)targetChord?.invoke() else null
                     if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target)
-                })
+                },envelope=sound.envelope)
         })}
     }
 }

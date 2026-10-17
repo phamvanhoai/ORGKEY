@@ -104,7 +104,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         var gain: Float = 0f,
         var velocity: Float = 1f,
         var ageFrames: Long = 0
-    )
+    ) {
+        val envelope=imported?.envelope?.voice(48000)
+    }
 
     private val track by lazy { AudioTrack.Builder()
         .setAudioAttributes(
@@ -382,7 +384,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         else -> sin(voice.phase) * 0.72 + sin(voice.phase * 2.0) * 0.18 + sin(voice.phase * 3.0) * 0.10
                     }
                     val sampleRight=voice.imported?.sample(voice.note,voice.ageFrames,1) ?: (if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),1) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames,1)) ?: sample
-                    voice.gain=VoiceEnvelope.next(voice.gain,voice.releasing,voice.instrument == -1,sampleRate)
+                    voice.gain=voice.envelope?.next(voice.releasing)?.toFloat() ?: VoiceEnvelope.next(voice.gain,voice.releasing,voice.instrument == -1,sampleRate)
                     val naturalDecay = if (voice.instrument == 0 && voice.imported==null) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
                     val gain=voice.gain.coerceAtLeast(0f)*voice.velocity*naturalDecay
                     if(voice.instrument == -1){
@@ -392,7 +394,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
-                    if ((voice.gain <= 0f && voice.releasing) || voice.imported?.finished(voice.note,voice.ageFrames)==true || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
+                    if (voice.envelope?.finished==true || (voice.gain <= 0f && voice.releasing) || voice.imported?.finished(voice.note,voice.ageFrames)==true || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
                 val rhythm = rhythmSample() + padSample()
                 val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
