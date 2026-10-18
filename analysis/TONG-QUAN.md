@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã bổ sung Band Move (FX 2): gain hai nhóm band đối nghịch, delay, speed, loop đổi chiều và ngưỡng tín hiệu theo `sofeh.audio.c`/native bandMove. Giữ history khi đổi gain/reset; phạm vi 48 kHz. Chưa xác nhận bằng binary native hoặc bản thu. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã dựng Equalizer (FX 7) stereo từ assembly native: tám nhánh lọc, gain từng band, input delay và reset giữ history. Phạm vi 48 kHz; chưa đối chiếu binary native/bản thu để xác nhận tương đương âm thanh. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã dựng đường stereo Flanger/Phaser (FX 8) từ assembly ARM64/x86: chuỗi all-pass, feedback, modulation mỗi 20 frame và dry/wet. Đã sửa reset giữ history/phase theo `n01.c` và nhận Ratio tới 256; fresh chain vẫn tạo state sạch. Chưa xác nhận bằng bản thu. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).

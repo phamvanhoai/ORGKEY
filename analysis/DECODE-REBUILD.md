@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Band Move, type 2
+
+Đã nối `sofeh.audio.c` vào Equalizer đã dựng: payload 17 byte = From+100, To+100, Delay, Speed (int32) và Loop boolean. `NEqualizer_bandMove` cắt về int `100-position` cho bốn band đầu và `100+position` cho bốn band sau. Chuyển động giữ Float, step = Speed*1e-6*sampleRate/48000; delay tăng 1000/sampleRate ms trên frame có input vượt ngưỡng. Chỉ tiến khi elapsed > Delay, gần đích trong một step thì dừng hoặc đổi chiều/đặt elapsed 0 nếu Loop bật, không tự snap đến đích. Reset giữ position/delay/EQ history theo n01.c.
+
+Ngưỡng native abs(input)>1000 được quy đổi theo full scale 6553600 trong đường PCM chuẩn hóa hiện tại; chưa xác nhận loudness bằng bản thu. Equalizer cập nhật gain mà giữ history, không tạo filter mới mỗi frame. Phạm vi 48 kHz. Kiểm thử endpoint cố định so với EQ, delay trước chuyển động, thay đổi đáp ứng, stereo và reset giữa loop. Chưa đối chiếu binary native/bản thu, chưa mô phỏng cast long của từng nhánh EQ. Reverb và DNC/aftertouch/script vẫn chưa hoàn chỉnh.
+
+Xác minh: build debug thành công, 257 kiểm thử không lỗi (gồm kiểm tra style SET cục bộ). Đã cài APK và mở trên điện thoại; giữ nguyên file SET đầu vào.
+
 ### Equalizer, type 7
 
 Đã dựng đường stereo từ `NEqualizer_build/processLeft` ARM64: tám nhánh song song, mỗi nhánh bốn tầng low-pass recurrence Float/FMA; nhánh output lấy input trễ ba frame trừ tầng thứ tư, nhân band gain. Cộng tám nhánh rồi chia bốn. Gain lưu trong SET 0..200 được nhân .01; band thiếu giữ mặc định 100 theo facade `sofeh.audio.d`. Payload count được parser tách riêng; chain nhận tối đa tám int32.

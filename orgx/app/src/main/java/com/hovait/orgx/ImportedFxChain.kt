@@ -10,12 +10,37 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    private class BandMove(from:Int,to:Int,private val delay:Int,speed:Int,private val loop:Boolean,sampleRate:Int):Stage {
+        private val eq=Equalizer(List(8){if(it<4)100-from else 100+from},sampleRate)
+        private var start=from.toFloat();private var target=to.toFloat();private var position=start
+        private var elapsed=0f
+        private val milliseconds=1000f/sampleRate
+        private var step=(speed*1e-6f)*sampleRate/48000f*(if(from>to)-1f else 1f)
+        override var left=0.0;override var right=0.0
+        override val active get()=eq.active
+        override fun reset(){ } // c inherits n01.c; retain movement and native EQ state.
+        override fun process(l:Double,r:Double){
+            if(kotlin.math.abs(l)>1000.0/6553600 || kotlin.math.abs(r)>1000.0/6553600){
+                if(kotlin.math.abs(position-target)>kotlin.math.abs(step)){
+                    if(elapsed>delay)position+=step else elapsed+=milliseconds
+                    eq.move(position)
+                }else if(loop){
+                    step=-step;elapsed=0f
+                    val old=start;start=target;target=old
+                }
+            }
+            eq.process(l,r);left=eq.left;right=eq.right
+        }
+    }
     /** NEqualizer: eight parallel four-pole high-pass branches, summed / 4. */
     private class Equalizer(values:List<Int>,sampleRate:Int):Stage {
         private val frequency=floatArrayOf(1250f,2500f,3750f,5000f,6250f,7500f,8750f,10000f)
         private val angles=doubleArrayOf(Math.PI/8,Math.PI/4,Math.PI/2,Math.PI/2,Math.PI,Math.PI,Math.PI,Math.PI)
         private val coefficients=FloatArray(8){i->(2*kotlin.math.sin((frequency[i]*(1f/sampleRate)).toDouble()*angles[i])).toFloat()}
         private val gains=FloatArray(8){values.getOrElse(it){100}*.01f}
+        fun move(position:Float){
+            for(i in gains.indices)gains[i]=(if(i<4)100f-position else 100f+position).toInt()*.01f
+        }
         private val history=Array(2){Array(8){FloatArray(4)}}
         private val delayed=Array(2){FloatArray(3)}
         override var left=0.0;override var right=0.0
@@ -235,7 +260,14 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2)}.map{
+        if(it.type==2){
+            require(it.payload.size==17){"Invalid Band Move payload"}
+            val from=int(it.payload,0)-100;val to=int(it.payload,4)-100
+            val delay=int(it.payload,8);val speed=int(it.payload,12)
+            require(from in -100..100 && to in -100..100 && delay in 1..5000 && speed in 1..2000 && it.payload[16] in 0..1 && sampleRate==48000){"Unsupported Band Move parameters"}
+            return@map BandMove(from,to,delay,speed,it.payload[16]==1,sampleRate)
+        }
         if(it.type==7){
             require(it.payload.size%4==0 && it.payload.size<=32){"Invalid Equalizer band count"}
             val values=List(it.payload.size/4){i->int(it.payload,i*4)}
