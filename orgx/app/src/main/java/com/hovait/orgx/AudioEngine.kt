@@ -312,6 +312,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     fun stopRecording(): File? = synchronized(recordingLock) {
         if (!isRecording) return@synchronized null
+        val endedAt=System.nanoTime()-midiStartNanos
+        MidiRecordingEnd.messages(midiEvents.map{it.status and 15}).forEach{message->
+            midiEvents.add(MidiEvent(endedAt,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
+        }
         isRecording = false
         val pcm = recordingData.toByteArray()
         if (pcm.isEmpty()) return@synchronized null
