@@ -562,11 +562,19 @@ private fun ORGXApp(engine: AudioEngine) {
             val snapshots=setIndex?.tracks.orEmpty().flatMap{track->track.sts.map{track.name to it}}
             if(snapshots.isEmpty())Text("SET này không có STS đang bật",fontSize=12.sp)
             snapshots.forEach{(track,snapshot)->
-                OutlinedButton(enabled=!importing,onClick={
-                    if(engine.applySts(snapshot))importStatus="STS ${snapshot.name.ifBlank{"(unnamed)"}} applied (${track})"
-                    else importStatus="Không thể áp dụng STS ${snapshot.name}"
-                },modifier=Modifier.fillMaxWidth()){
-                    Text("${snapshot.name.ifBlank{"STS"}} • ${track}")
+                OutlinedButton(enabled=!importing,onClick={scope.launch{
+                    importing=true
+                    val label=snapshot.name.ifBlank{"STS ${snapshot.slot+1}"}
+                    importStatus="Đang nạp $label…"
+                    try{
+                        val applied=withContext(Dispatchers.IO){engine.applySts(snapshot)}
+                        importStatus=if(applied)"Đã áp dụng $label ($track)" else "Không thể áp dụng $label: kiểm tra instrument/system của STS"
+                    }catch(error:Exception){
+                        if(error is kotlinx.coroutines.CancellationException)throw error
+                        importStatus="Không thể áp dụng $label: ${error.message}"
+                    }finally{importing=false}
+                }},modifier=Modifier.fillMaxWidth()){
+                    Text("${snapshot.name.ifBlank{"STS ${snapshot.slot+1}"}} • ${track}")
                 }
             }
         }
