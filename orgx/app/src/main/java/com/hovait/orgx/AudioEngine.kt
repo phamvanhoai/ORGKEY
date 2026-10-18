@@ -160,7 +160,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument,channel:Int=0,playback:Boolean=false) {
         val key=MidiVoiceKey.key(note,channel,playback)
-        val velocityGain=VoiceVelocity.gain(velocity,playback)
+        val music=activeSetIndex?.musicSettings ?: ImportedChannelSettings()
+        val setBalance=if(!playback && importedInstrument!=null && !MidiVoiceKey.percussion(channel))ImportedMusicParameters.keyboardGain(music).toFloat() else 1f
+        val velocityGain=VoiceVelocity.gain(velocity,playback)*setBalance
         if (voices.size >= 24 && !voices.containsKey(key)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }

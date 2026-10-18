@@ -8,11 +8,32 @@ class ImportedGroupFxTest {
         val track=ReferenceDrumTrack("Test",1,0,32,120,true,0,1000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,100)))
         fun player(melodic:Boolean,value:Double)=ReferenceRhythmPlayer(listOf(track),{1000},{_,_,_->value},1000,accompaniment=melodic)
         val group=ReferenceRhythmPlayer.combine(listOf(player(false,1.0),player(true,2.0)))
-        group.next(0,120)
-        group.withRhythmSettings(ImportedChannelSettings(volume=50,pan=100));group.mixOutput(1f,1f)
+        group.withRhythmSettings(ImportedChannelSettings(volume=50,pan=100));group.next(0,120);group.mixOutput(1f,1f)
         assertEquals(.5,group.outputLeft,0.0);assertEquals(.5,group.outputRight,0.0)
-        group.withRhythmSettings(ImportedChannelSettings(volume=50,pan=-100));group.mixOutput(1f,1f)
+        group.withRhythmSettings(ImportedChannelSettings(volume=50,pan=-100));group.next(0,120);group.mixOutput(1f,1f)
+        assertEquals(.5,group.outputLeft,0.0) // Already sounding notes keep their OpenKey gain.
+        group.reset();group.next(0,120);group.mixOutput(1f,1f)
         assertEquals(1.0,group.outputLeft,0.0);assertEquals(1.0,group.outputRight,0.0)
+    }
+    @Test fun musicBalanceSeparatesKeyboardAndRhythmWithoutStereoPan(){
+        val music=ImportedChannelSettings(pan=-75)
+        assertEquals(.25,ImportedMusicParameters.keyboardGain(music),0.0)
+        assertEquals(1.0,ImportedMusicParameters.rhythmGain(music,ImportedChannelSettings(),false),0.0)
+        val opposite=music.copy(pan=75)
+        assertEquals(1.0,ImportedMusicParameters.keyboardGain(opposite),0.0)
+        assertEquals(.125,ImportedMusicParameters.rhythmGain(opposite,ImportedChannelSettings(volume=50),true),0.0)
+    }
+    @Test fun rhythmGainIsAppliedBeforeEchoAndChangingBalanceKeepsEchoTail(){
+        val track=ReferenceDrumTrack("Impulse",1,0,32,120,false,0,100000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,100)))
+        val echo=ImportedChannelSettings(fxEnabled=true,modules=listOf(ImportedFxModule(6,true,false,listOf(50,0,0,0,1,0,0,0))))
+        val child=ReferenceRhythmPlayer(listOf(track),{1},{_,_,_->1.0},48000,fx=ImportedFxChain(echo))
+        val group=ReferenceRhythmPlayer.combine(listOf(child)).withRhythmSettings(ImportedChannelSettings(volume=50),ImportedChannelSettings(pan=50))
+        group.next(0,120);group.mixOutput(1f,1f)
+        assertEquals(.25,group.outputLeft,0.0)
+        group.withRhythmSettings(ImportedChannelSettings(volume=0))
+        repeat(479){group.next(0,120);group.mixOutput(1f,1f)}
+        group.next(0,120);group.mixOutput(1f,1f)
+        assertEquals(.125,group.outputLeft,0.0);assertEquals(.125,group.outputRight,0.0)
     }
     private val module=ImportedFxModule(20,true,false,listOf(16,0,0,0,1,0,0,0))
     private val effect=ImportedChannelSettings(fxEnabled=true,modules=listOf(module))

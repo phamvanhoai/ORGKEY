@@ -47,6 +47,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var groupFx:ImportedFxChain?=null
     private var groupFxSettings:ImportedChannelSettings?=null
     private var rhythmSettings=ImportedChannelSettings()
+    private var musicSettings=ImportedChannelSettings()
     var outputLeft=0.0;private set
     var outputRight=0.0;private set
     fun withGroupFx(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{groupFxSettings=settings;groupFx=ImportedFxChain(settings)}
@@ -57,14 +58,14 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         previous.groupFx=null
         groupFx=live
     }
-    fun withRhythmSettings(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{rhythmSettings=settings}
+    fun withRhythmSettings(settings:ImportedChannelSettings,music:ImportedChannelSettings=ImportedChannelSettings()):ReferenceRhythmPlayer=also{
+        rhythmSettings=settings;musicSettings=music
+        children.forEach{it.withRhythmSettings(settings,music)}
+    }
     /** Called once per audio frame after the drum/chord mixer, not once per output channel. */
     fun mixOutput(drumGain:Float,chordGain:Float){
-        // fFXRhythm.c balances chord against drum, rather than stereo left against right.
-        val global=rhythmSettings.volume/100f
-        val drums=drumGain*global*minOf(100,100+rhythmSettings.pan)/100f
-        val chords=chordGain*global*minOf(100,100-rhythmSettings.pan)/100f
-        val l=mixedLeft(drums,chords);val r=mixedRight(drums,chords)
+        // SET balance/volume is latched in Voice.gain before channel FX, at OpenKey.
+        val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain)
         val processor=groupFx
         if(processor==null){outputLeft=l;outputRight=r}else{processor.process(l,r);outputLeft=processor.left;outputRight=processor.right}
     }
@@ -127,7 +128,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             val note=if(event.type==2)mapNote(event.note) else event.note
             if(event.type==2 && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
-                voices[event.id]=Voice(note,event.touch.coerceAtLeast(0)/100.0,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note))
+                val gain=event.touch.coerceAtLeast(0)/100.0*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
+                voices[event.id]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note))
             } else if(event.type==1)voices[event.id]?.release=0
         }
         renderVoices(track.outputGain)
