@@ -70,6 +70,15 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val key=MidiVoiceKey.key(note,0,false)
         voices[key]?.let{if(it.imported!=null)it.velocity=VoiceVelocity.gain(pressure,false)}
     }
+    /** MIDI poly/channel pressure hook; applies only to imported SET voices. */
+    fun midiNotePressure(note:Int,pressure:Float,channel:Int=0){
+        val key=MidiVoiceKey.key(note,channel,false)
+        voices[key]?.let{if(it.imported!=null)it.velocity=VoiceVelocity.gain(pressure,false)}
+    }
+    fun midiChannelPressure(pressure:Float,channel:Int=0){
+        val gain=VoiceVelocity.gain(pressure,false)
+        voices.filterKeys{((it and 2047)/128)==channel}.values.forEach{if(it.imported!=null)it.velocity=gain}
+    }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
         autoChordMap.chord(progression,harmonyClock.time) else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
     @Volatile var autoChord = false
