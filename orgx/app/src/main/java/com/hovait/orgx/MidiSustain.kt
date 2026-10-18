@@ -29,6 +29,9 @@ object MidiSustain {
                         if(entry.value.channel==channel){result+=entry.value.copy(tick=event.tick);iterator.remove()}
                     }
                 }
+            } else if(event.controller!=null){
+                // Expression is neither a note release nor a sustained key.
+                result+=event
             } else if(event.on){
                 pending.remove(key)?.let{result+=it.copy(tick=event.tick)}
                 active[key]=event
