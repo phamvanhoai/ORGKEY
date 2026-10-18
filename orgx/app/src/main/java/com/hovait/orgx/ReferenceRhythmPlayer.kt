@@ -8,7 +8,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val initiallyMuted:Boolean=false,private val initialChannel:ImportedChannelSettings?=null,
     private val expressionEffects:List<ImportedExpressionEffect> = emptyList(),private val initialPedal:Boolean=false) {
     private var volumeShake=expressionEffects.firstOrNull{it.slot==3}
-    private fun resetExpression(){keyBalance=0;pitchMove=1000;volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
+    private fun resetExpression(){keyTouch=100;keyBalance=0;pitchMove=1000;volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -17,13 +17,14 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
-    private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,val eventId:Int=0)
+    private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,val eventId:Int=0,var touchGain:Double=1.0)
     private val voices=LinkedHashMap<Long,Voice>()
     private var voiceSequence=0L
     private var eventMuted=initiallyMuted
     private var pedalDown=initialPedal
     private var pitchMove=1000
     private var keyBalance=0
+    private var keyTouch=100
     private var channelVolume=initialChannel?.volume ?: 100
     private var channelPan=initialChannel?.pan ?: 0
     private fun currentChannelGain(channel:Int)=if(initialChannel==null)channelGain(channel) else
@@ -156,6 +157,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             voices.values.forEach{if(it.release<0)it.release=0}
         }
         timeline?.advance(local){event->
+            if(event.type==51 && event.note>=0){
+                keyTouch=event.note and 65535
+                voices.values.filter{event.id==0 || it.eventId==event.id}.forEach{it.touchGain=keyTouch/100.0}
+                return@advance
+            }
             if(event.type==52 && event.note in -100..100){
                 keyBalance=event.note
                 voices.values.filter{event.id==0 || it.eventId==event.id}.forEach{it.playback?.channelBalance(keyBalance)}
@@ -184,7 +190,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 if(voices.size>=128)voices.remove(voices.keys.first())
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 voices[voiceSequence++]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note,event.tune,ImportedNoteTouch.pan(event.touch))?.also{playback->volumeShake?.let{playback.configureVolumeShake(it)};playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0))},
-                    panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1),eventId=event.id)
+                    panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1),eventId=event.id,touchGain=keyTouch/100.0)
             } else if(event.type==1)voices.values.forEach{if(it.eventId==event.id && it.release<0){if(pedalDown)it.pendingRelease=true else it.release=0}}
         }
         renderVoices(track.outputGain)
@@ -198,11 +204,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             val voice=iterator.next()
             if(voice.playback!=null){
                 voice.playback.next(voice.release>=0,pedalDown)
-                left+=voice.playback.left*voice.gain*currentChannelGain(0);right+=voice.playback.right*voice.gain*currentChannelGain(1)
+                left+=voice.playback.left*voice.gain*voice.touchGain*currentChannelGain(0);right+=voice.playback.right*voice.gain*voice.touchGain*currentChannelGain(1)
                 if(voice.playback.finished)iterator.remove()
                 continue
             }
-            val gain=voice.gain*(voice.envelope?.next(voice.release>=0) ?: if(voice.release<0)1.0 else (1.0-voice.release.toDouble()/releaseFrames).coerceAtLeast(0.0))
+            val gain=voice.gain*voice.touchGain*(voice.envelope?.next(voice.release>=0) ?: if(voice.release<0)1.0 else (1.0-voice.release.toDouble()/releaseFrames).coerceAtLeast(0.0))
             left+=drum(voice.note,voice.age,0)*gain*voice.panLeft*currentChannelGain(0)
             right+=drum(voice.note,voice.age,1)*gain*voice.panRight*currentChannelGain(1)
             voice.age++

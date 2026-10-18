@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StylePitchMoveTest {
+    @Test fun touchAutomationReplacesGainInsteadOfMultiplyingRepeatedCommands(){
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000)
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),
+            ReferenceDrumEvent(51,0,50,0,1,0),ReferenceDrumEvent(51,0,50,0,2,0),
+            ReferenceDrumEvent(51,0,0,0,3,0),ReferenceDrumEvent(51,0,100,0,4,0))
+        val track=ReferenceDrumTrack("Track",1,0,32,120,true,0,1000,false,events)
+        val player=ReferenceRhythmPlayer(listOf(track),sound::durationFrames,{n,a,c->sound.sample(n,a.toLong(),c)},1000,sampled=sound)
+        try{
+            for(value in listOf(.25,.125,.125,0.0,.25)){player.next(0,120);assertEquals(value,player.left,1e-9)}
+            player.reset();player.next(0,120);assertEquals(.25,player.left,1e-9)
+        }finally{player.close()}
+    }
     @Test fun balanceCommandChangesActiveStereoAndResetClearsIt(){
         val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000)
         val track=ReferenceDrumTrack("Track",1,0,32,120,true,0,1000,false,listOf(

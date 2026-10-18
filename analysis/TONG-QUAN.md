@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Event 51 nhánh Key không âm đã nối vào style: lấy low 16-bit làm KeyTouch/100, ID=0 đổi mọi voice, ID khác đổi voice tương ứng; note-on tiếp theo nhận trạng thái mới. Gain lưu riêng để lặp lệnh 50% không bị nhân thành 25%; giá trị 0 rồi 100 khôi phục được tiếng. Reset trả 100%. Test PCM và build đạt; nhánh Key âm/ChangeKey script, smoothing và lượng tử hóa chưa port, còn bị chặn khi kiểm tra tương thích.
+
 Đã nối event 53 (KeyPitchMove) vào sample style: Key là hệ số pitch /1000; ID=0 cập nhật mọi voice, ID khác cập nhật voice cùng event ID. Giá trị cũng dùng cho note-on tiếp theo, reset trả về 1000. Đối chiếu Track.Play và Channel.Open; test PCM xác nhận đổi tốc độ không nhảy con trỏ. Chưa port callback script pitchbend và độ trễ/smoothing ChangeKey gốc; chưa kiểm chứng SET thực có event 53.
 
 Style dùng chung PCM giữa các Track cùng instrument/type/system/channel settings dù khác Effect. Effect và automation được giữ ở Track/Playback, không gắn lên sound chung. Giảm giải mã trùng và tránh tính ngân sách PCM hai lần chỉ vì Effect khác nhau. Test style hai Track chung sample, một Track có Volume Shake/pedal rồi tắt qua event 65, reset và phát lại đều đạt; APK build thành công. Chưa đo mức giảm bộ nhớ trên thiết bị.
