@@ -484,7 +484,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
-                    if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || voice.imported?.finished(voice.renderedNote,voice.ageFrames)==true || (voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
+                    // Stateful playback owns completion, including switched Aftertouch
+                    // samples and pitch bend. The primary sample's age is no longer authoritative.
+                    if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || (voice.sampledPlayback==null && voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
                 importedKeyboardMixer.finishFrame()
                 val rhythm = rhythmSample() + padSample()

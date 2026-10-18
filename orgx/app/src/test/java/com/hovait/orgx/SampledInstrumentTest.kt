@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun aftertouchCanOutlivePrimaryAndRepeatedPressureDoesNotRestartIt(){
+        fun sound(samples:ShortArray)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(48000,1,samples),0,0,looping=false)),48000)
+        val primary=sound(shortArrayOf(1000,1000))
+        val playback=primary.withAftertouch(sound(shortArrayOf(2000,4000,6000,8000))).voice(60)
+        playback.next(false)
+        playback.aftertouch(1f);playback.next(false)
+        assertEquals(2000.0/32768,playback.left,1e-9)
+        assertTrue(primary.finished(60,2))
+        playback.aftertouch(1f);playback.next(false)
+        assertEquals(4000.0/32768,playback.left,1e-9)
+        assertFalse(playback.finished)
+        playback.next(false);playback.next(false)
+        assertTrue(playback.finished)
+    }
     @Test fun aftertouchSwitchesAnActiveVoiceToAlternateLayer() {
         val primary=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(48000,1,shortArrayOf(8192,8192)),0,2,looping=false)),48000)
         val alternate=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(48000,1,shortArrayOf(16384,16384)),0,2,looping=false)),48000)
