@@ -7,6 +7,7 @@
     "65": "Volume Shake slot 3 only; parameters 0 through 6"
   },
   "expression_effects": {
+    "2": "Pitch Shake: mode, STS and style; fixed-point conversion and 10 ms timing need original-app validation",
     "3": "Volume Shake: keyboard mode, STS and style; 10 ms timing needs original-app validation"
   },
   "set_layouts": [

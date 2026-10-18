@@ -60,6 +60,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private val state=envelope?.voice(outputRate)
         private var position=0.0
+        private var pitchShake=expressionEffects.firstOrNull{it.slot==2 && it.enabled}?.let{ImportedPitchShake(it,outputRate)}
+        fun configurePitchShake(effect:ImportedExpressionEffect){pitchShake=ImportedPitchShake(effect,outputRate)}
         private var volumeShake=expressionEffects.firstOrNull{it.slot==3}?.let{ImportedVolumeShake(it,outputRate)}
         fun configureVolumeShake(effect:ImportedExpressionEffect){
             val current=volumeShake
@@ -68,15 +70,17 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         var left=0.0;private set
         var right=0.0;private set
         var finished=false;private set
-        fun next(noteOff:Boolean,pedal:Boolean=false){
-            if(aftertouch){alternate?.next(noteOff,pedal);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
+        fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
+            pitchShake?.next(noteOff,pedal)
+            val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)
+            if(aftertouch){alternate?.next(noteOff,pedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
             }else if(children.isNotEmpty()){
-                children.forEach{it.next(noteOff,pedal)}
+                children.forEach{it.next(noteOff,pedal,pitchOffset)}
                 left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
             }else{
                 val gain=state?.next(noteOff) ?: if(noteOff)0.0 else 1.0
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
-                position+=bentStep
+                position+=(bentStep+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
                     (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && noteOff)
             }

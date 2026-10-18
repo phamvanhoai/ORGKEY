@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã nối Pitch Shake slot 2 cho mode/STS và note-on Track style: công thức sin(count/1000)*Depth + count*Gain/10000 từ Channels.Process, StartDelay/ByPedal/StopByRelease, state riêng từng voice. Pitch offset truyền xuống Mix/Aftertouch trước tăng con trỏ sample, không nhân lặp theo số layer. Tick hiện dùng 10 ms và chuyển offset fixed-point theo 8192=unity; cần đối chiếu bản thu APK gốc trước tuyên bố tương đương. Automation event 65 slot 2 vẫn bị chặn; chưa port EffectAllow, pitch smoothing và lượng tử hóa gốc. Test công thức/pedal/release/phase và đầu ra sample đạt; APK build thành công.
+
 Kiểm chứng tổng thể sau nhóm thay đổi mode/style/control: assembleDebug và toàn bộ 321 unit test đạt, không fail/skip (gồm các ca render SET legacy cục bộ). Sau đó test bổ sung dùng chung PCM xác nhận Effect không lan sang sound khác và Volume Shake chỉ áp một lần khi chuyển Aftertouch cũng đạt. Đây là kiểm chứng mã/PCM, không phải xác nhận tương đương APK gốc hay thử nghe trên thiết bị.
 
 Event 51 nhánh Key không âm đã nối vào style: lấy low 16-bit làm KeyTouch/100, ID=0 đổi mọi voice, ID khác đổi voice tương ứng; note-on tiếp theo nhận trạng thái mới. Gain lưu riêng để lặp lệnh 50% không bị nhân thành 25%; giá trị 0 rồi 100 khôi phục được tiếng. Reset trả 100%. Test PCM và build đạt; nhánh Key âm/ChangeKey script, smoothing và lượng tử hóa chưa port, còn bị chặn khi kiểm tra tương thích.

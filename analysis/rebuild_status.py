@@ -25,7 +25,9 @@ def inventory():
             '52': 'KeyBalance -100 through 100; sampled voices',
             '53': 'Positive KeyPitchMove /1000; no script/smoothing',
             '65': 'Volume Shake slot 3 only; parameters 0 through 6'},
-        'expression_effects': {'3': 'Volume Shake: keyboard mode, STS and style; 10 ms timing needs original-app validation'},
+        'expression_effects': {
+            '2': 'Pitch Shake: mode, STS and style; fixed-point conversion and 10 ms timing need original-app validation',
+            '3': 'Volume Shake: keyboard mode, STS and style; 10 ms timing needs original-app validation'},
         'native_reuse': {'29': 'libngverb.so; original binary, algorithm source not reconstructed'},
         'missing_fx_types': [15, 31],
         'known_missing_clusters': ['STS ChordSingles, change masks and complete snapshot routing',
