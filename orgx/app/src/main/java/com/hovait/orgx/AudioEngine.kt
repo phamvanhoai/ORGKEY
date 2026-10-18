@@ -104,6 +104,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         importedInstrument=loaded
         importedInstrumentName=snapshot.name.ifBlank{source.name}
         sustain=snapshot.pedal!=0
+        if(referenceChords.isNotEmpty() && snapshot.chordType in referenceChords.indices){
+            chordIndex=snapshot.chordType
+            autoChord=false
+        }
         return true
     }
 
