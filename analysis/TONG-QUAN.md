@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã dựng handler đổi instrument/mode trong `prepareMasked`: phân biệt gán chỉ số và ModeSet chép FX/Effect mode, rồi mới trộn STS theo mặt nạ. Gỡ chặn chung đổi instrument/mode; tham chiếu sai vẫn báo lỗi. Test thứ tự reset/mask/Tune/mode mặc định đạt, build đạt. Script callback, Master và UI chưa nối; chưa cài bản nội bộ. Xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
+
 Đã dựng trộn thông số STS theo mặt nạ track và `prepareMasked`: giữ tham số không chọn trước khi nạp PCM, gồm Record/pedal/system/FX/biểu cảm. Tune giữ nguyên theo z01.e gốc. Test từng cờ và batch giữ volume/Record hiện hành đạt, build đạt. Đổi instrument/mode có reset riêng còn bị chặn; Master và UI chưa nối, chưa cài bản nội bộ. Chi tiết [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
 
 Đường STS đa part đã dùng vùng phím Track và cờ STS.Record để lọc note-on theo Tracks.RecordMusic; kiểm tra phím trước transpose, gồm hai đầu vùng. Note-off không bị lọc nên đổi vùng/tắt part vẫn nhả được tiếng cũ. Test vùng phím/Record/batch/queue và build đạt. CHƯA bật UI hoặc xử lý mặt nạ Record giữ nguyên; chi tiết [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).

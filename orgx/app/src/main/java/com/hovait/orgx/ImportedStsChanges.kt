@@ -2,6 +2,29 @@ package com.hovait.orgx
 
 /** Track event 64 -> z01.e: merge raw settings before global pitch is added. */
 object ImportedStsChanges {
+    fun transition(index:ImportedSetIndex,position:Int,current:ImportedSts,incoming:ImportedSts,
+        actions:List<ImportedStsPlan.Action>,mask:List<Boolean>):ImportedSts {
+        var base=current
+        fun modeSet(value:Int){
+            val instrument=index.instruments.getOrNull(base.instrument) ?: error("STS instrument unavailable")
+            val mode=instrument.modes.getOrNull(value)
+            base=base.copy(mode=if(mode==null)-1 else value,
+                settings=mode?.settings ?: ImportedChannelSettings(),effects=mode?.effects ?: emptyList())
+        }
+        actions.filterIsInstance<ImportedStsPlan.Action.Event>().filter{it.track==position}.forEach{event->
+            when(event.type){
+                62->{
+                    require(event.key>0 && event.key in index.instruments.indices){"STS instrument transition unavailable"}
+                    base=base.copy(instrument=event.key)
+                    if(event.id!=0)modeSet(0)
+                }
+                61->if(event.id==0)base=base.copy(mode=event.key) else modeSet(event.key)
+            }
+        }
+        // Selection was already resolved by handlers, including ModeSet fallback.
+        val keepSelection=mask.mapIndexed{i,value->value && i!=9 && i!=11}
+        return track(base,incoming,keepSelection)
+    }
     fun channel(current:ImportedChannelSettings,incoming:ImportedChannelSettings,mask:List<Boolean>):ImportedChannelSettings {
         require(mask.size==21)
         return current.copy(

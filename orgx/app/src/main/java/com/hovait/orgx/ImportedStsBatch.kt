@@ -35,11 +35,7 @@ object ImportedStsBatch {
         val effective=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
             .associate{member->
                 val prior=current[member.position] ?: error("Current STS part ${member.position} unavailable")
-                // Instrument/Mode handlers have additional reset semantics. Require
-                // stable selections until those transitions are reconstructed.
-                require(!changes[9] || prior.instrument==member.snapshot.instrument){"Masked STS instrument transition not implemented"}
-                require(!changes[11] || prior.mode==member.snapshot.mode){"Masked STS mode transition not implemented"}
-                member.position to ImportedStsChanges.track(prior,member.snapshot,changes)
+                member.position to ImportedStsChanges.transition(index,member.position,prior,member.snapshot,selection.actions,changes)
             }
         val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,index,snapshot)}
         return Prepared(file,index,selection,voices)

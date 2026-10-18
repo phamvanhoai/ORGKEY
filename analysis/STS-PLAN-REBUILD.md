@@ -47,3 +47,9 @@ ImportedStsChanges.channel đối chiếu Track.Play(64) → z01.e: cờ 13 volu
 prepareMasked nhận snapshot hiện hành theo vị trí part, merge trước global pitch/PCM load; thiếu current part báo lỗi, Record tắt trong mask được giữ đúng. Hiện chỉ nhận instrument/mode không đổi hoặc bị mask giữ lại, vì handler 61/62 còn reset/reload riêng chưa dựng. Chưa xử lý cờ Master 0..7/20 tại commit engine. Full snapshot API vẫn riêng, không giả làm mask đầy đủ.
 
 Test từng cờ channel, Tune giữ nguyên, track/chord/MIDI giữ đúng và batch PCM giữ hai volume/Record hiện hành đều đạt; test changes/batch/plan và assembleDebug đạt. Chưa bật UI, chưa cài bản nội bộ.
+
+## Handler instrument/mode trong prepareMasked
+
+ImportedStsChanges.transition thực hiện các action 62/61 theo thứ tự trước track merge. Event 62 đổi instrument hợp lệ (>0 theo Track.Play), ID khác 0 gọi ModeSet(0). Event 61 ID=0 chỉ gán mode, ID khác 0 nạp FX/Effect từ mode. ModeSet không tìm thấy mode trả -1 với channel mặc định và Effect tắt (ORGX biểu diễn bằng list rỗng). Sau đó mới áp các cờ channel/Effect của STS. prepareMasked đã bỏ chặn chung đổi instrument/mode và dùng resolver này.
+
+Test xác nhận ModeSet lấy volume/Tune mode, gán chỉ số trực tiếp giữ channel cũ, mask volume chép STS sau ModeSet nhưng không chép Tune, đổi instrument dùng mode mặc định mới và mode thiếu reset về channel mặc định. Test changes/batch/plan và assembleDebug đạt. Chưa port callback ScriptEvent, toàn bộ z01 header/reserved, hoặc những Effect mặc định tắt dạng record đầy đủ. Direct selection tới mode không tồn tại vẫn được loader từ chối thay vì âm thầm nạp tiếng khác. Chưa bật UI hay commit Master đa part, chưa cài bản nội bộ.
