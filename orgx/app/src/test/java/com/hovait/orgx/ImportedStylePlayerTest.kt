@@ -5,6 +5,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStylePlayerTest {
+    @Test fun noteOffKeyIsMetadataWhileNoteOnKeyMustBePlayable(){
+        val source=index()
+        val off=ReferenceDrumEvent(1,1,-1,0,10,0)
+        val track=source.tracks.first().copy(events=listOf(event,off))
+        assertNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(track)),group))
+        assertNotNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(track.copy(events=listOf(event.copy(note=-1))))),group))
+    }
     @org.junit.Before fun installJvmNativeAdapter(){ImportedNativeReverb.testBackend.set(JvmReverbBackend())}
     @org.junit.After fun removeJvmNativeAdapter(){ImportedNativeReverb.testBackend.remove()}
     private val section=ImportedSection(60,48000,1,4,100,0,0,0,0,0,0,ImportedWave(0,8))

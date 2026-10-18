@@ -44,7 +44,7 @@ object ImportedStyleSupport {
         if(tracks.any{track->instrument(index,track)?.let{
             ImportedInstrumentLoader.supported(if(followChord && it.type==0)it else ImportedInstrumentLoader.forTrack(it,sampleEvents(track.copy(settings=channelSettings(index,track)),it.type==0)))
         }!=true})return "Used track samples contain unsupported parameters"
-        if(tracks.any{track->track.events.any{it.type !in 1..2 || it.note !in 0..127}})return "Track contains unsupported events"
+        if(tracks.any{track->track.events.any{it.type !in 1..2 || (it.type==2 && it.note !in 0..127)}})return "Track contains unsupported events"
         return null
     }
 }

@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã sửa điều kiện kiểm tra style để note-off đóng theo ID không bị từ chối vì key metadata ngoài 0..127; note-on vẫn kiểm tra miền phím. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã sửa reset session để dọn voice/timeline/đuôi FX của mọi section, gồm phần không active, thay vì chỉ phần đang chọn. Vẫn giữ reset riêng từng module theo mã gốc. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã sửa Play sau Ending bị dừng ngay do session còn finished: audio thread khởi tạo lại session, giữ phần Main/Intro immediate vừa chọn. Chi tiết/giới hạn đối chiếu: [DECODE-REBUILD.md](DECODE-REBUILD.md).

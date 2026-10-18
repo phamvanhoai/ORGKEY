@@ -26,6 +26,10 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Kiểm tra phím note-off
+
+Điều kiện hỗ trợ style chỉ yêu cầu note-on có key 0..127. Note-off dùng ID để Channels.Close/ReferenceRhythmPlayer đóng voice nên trường key metadata ngoài miền không còn làm từ chối toàn bộ style. Event type ngoài 1/2 vẫn bị chặn, note-on key sai vẫn báo lỗi. Kiểm thử phân biệt hai trường hợp này; chưa mở rộng event điều khiển/aftertouch.
+
 ### Stop/reset toàn bộ player của session
 
 ImportedStyleSession.reset trước đây chỉ reset player hiện tại, để player của section từng phát giữ voice/track FX/tail. Nay reset mọi player trong map sau khi xử lý lựa chọn immediate. Voice/envelope/timeline được xóa và Reverb flush theo reset từng chain; module có reset no-op như Flanger/EQ vẫn giữ lịch sử theo facade gốc. Không thay đổi reset của riêng module đó thành xóa cưỡng bức.
