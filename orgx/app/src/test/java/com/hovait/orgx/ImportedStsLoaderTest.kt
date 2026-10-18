@@ -5,6 +5,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsLoaderTest {
+    @Test fun selectedModeUsesItsSoundAndInvalidModeDoesNotFallBack(){
+        val file=File.createTempFile("sts-mode",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,64))
+            fun sound(offset:Long)=ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,1,100,0,0,0,0,0,0,ImportedWave(offset,2))))
+            fun mode(sound:Int)=ImportedMode("Mode",sound,-1,List(8){-1},List(8){0},List(8){0})
+            val source=ImportedInstrument("Voice",100,0,0,listOf(sound(0),sound(2)),listOf(mode(0),mode(1)))
+            val index=ImportedSetIndex(listOf(source),emptyList())
+            val snapshot=ImportedSts("STS",false,0,0,0,0,1,0,0,0,emptyList(),ImportedChannelSettings())
+            assertEquals(.5,ImportedStsLoader.load(file,index,snapshot).sample(60,0),1e-9)
+            assertEquals(.25,ImportedStsLoader.load(file,index,snapshot.copy(mode=-1)).sample(60,0),1e-9)
+            try{ImportedStsLoader.load(file,index,snapshot.copy(mode=99));fail("Invalid mode fell back")}
+            catch(expected:IllegalArgumentException){assertTrue(expected.message.orEmpty().contains("STS mode unavailable"))}
+        }finally{file.delete()}
+    }
     @Test fun snapshotCombinesGlobalPitchOnceAndRetainsMixerSettings(){
         val file=File.createTempFile("sts-pitch",".pcm")
         try{
