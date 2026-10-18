@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Tune riêng sự kiện note-on
+
+Đã bỏ chặn style có event.tune khác 0 và truyền tune qua ReferenceRhythmPlayer vào SampledInstrument.voice. Mỗi Playback tính bước đọc riêng lúc tạo, cộng event tune với region/channel/Music tune đã load trước đó; đơn vị 1/1000 semitone theo KeyToPitchEx/OpenKey. Tune không đổi root mapping hoặc tuning table slot. MODE truyền cùng event tune xuống từng layer; percussion nhận event tune dù bỏ qua channel/Music melodic tune như OpenKey.
+
+Playback dùng bước đọc riêng để tính sample và kết thúc PCM, không dùng duration theo nốt chưa tune để cắt voice. Đường sample trực tiếp/tune 0 giữ API cũ. Kiểm thử hai voice đồng thời khác tune, vòng đời sample, timeline truyền tune và nhiều layer. Chưa dựng sự kiện pitch bend/aftertouch hoặc biến đổi tune liên tục của nốt đang ngân.
+
+Xác minh: build debug thành công, 267 kiểm thử JVM không lỗi, gồm SET cục bộ. Đã cài APK mới và mở thành công trên điện thoại. File SET không thay đổi; chưa đối chiếu bản thu sự kiện tune với APK gốc.
+
 ### Chọn/xóa session trên luồng audio
 
 Các đường trở về factory style/đổi bank trước đây xóa importedStyleSession/importedRhythm từ MainActivity, bỏ qua close của session native và có thể đua với render. Nay clearImportedStyle gửi một command có session=null vào cùng AtomicReference chọn style; audio thread tiêu thụ command, đóng owner cũ rồi cập nhật ba trường session/player/name. Command chưa được render bị thay thế được đóng ngay (native cấp phát lazy nên chưa sở hữu handle). Khôi phục style đã lưu cũng đi qua selectImportedStyle thay vì ghi session trực tiếp.

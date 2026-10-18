@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã hỗ trợ tune riêng của note-on trong track SET: bước đọc PCM riêng cho từng voice, áp dụng các layer MODE và kết thúc sample theo cao độ thực tế. Không còn loại style chỉ vì event.tune khác 0. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã chuyển thao tác xóa/chọn session style từ UI sang hàng đợi audio, gồm trở về factory, đổi bank và khôi phục style đã lưu. Session cũ được đóng ở luồng render để tránh bỏ sót native Reverb handle. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã bỏ reset/flush FX lặp mỗi frame khi style dừng: reset một lần khi vừa dừng hoặc thay session đang dừng, không reset cùng player hai lần. Giảm lời gọi native thừa; chưa đo CPU/latency. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).

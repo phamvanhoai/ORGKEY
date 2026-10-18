@@ -131,7 +131,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==2 && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
                 val gain=event.touch.coerceAtLeast(0)/100.0*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
-                voices[event.id]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note))
+                voices[event.id]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note,event.tune))
             } else if(event.type==1)voices[event.id]?.release=0
         }
         renderVoices(track.outputGain)

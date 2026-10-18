@@ -25,9 +25,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{it.layers=sounds}
         }
     }
-    fun voice(note:Int)=Playback(note)
-    inner class Playback(private val note:Int){
-        private val children=layers.map{it.voice(note)}
+    fun voice(note:Int,tune:Int=0)=Playback(note,tune)
+    inner class Playback(private val note:Int,tune:Int){
+        private val children=layers.map{it.voice(note,tune)}
+        private val step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private val state=envelope?.voice(outputRate)
         private var age=0L
         var left=0.0;private set
@@ -39,8 +40,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
             }else{
                 val gain=state?.next(noteOff) ?: if(noteOff)0.0 else 1.0
-                left=sample(note,age,0)*gain;right=sample(note,age,1)*gain
-                age++;finished=state?.finished==true || finished(note,age) || (state==null && noteOff)
+                left=sampleAt(note,age,0,step)*gain;right=sampleAt(note,age,1,step)*gain
+                age++;finished=state?.finished==true || note !in 0..127 || missing(note) ||
+                    (!selected[note].looping && age*step>=selected[note].sample.frames.size) || (state==null && noteOff)
             }
         }
     }
@@ -50,12 +52,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         else->SampleRegionMap.nearestRoot(note,roots)
     }}
     private val selected=Array(128){note->regions.firstOrNull{it.root==mapped[note]} ?: regions.first()}
-    private val steps=DoubleArray(128){note->
+    private fun pitchStep(note:Int,tune:Int=0):Double {
         val key=if(pitchMode==1)mapped[note] ?: note else note
         val region=selected[note]
-        if(tuning.isEmpty())SamplePitch.step(key,region.root,region.sample.sampleRate,outputRate,region.tune)
-        else SamplePitch.referenceStep(key,region.root,region.sample.sampleRate,outputRate,region.tune,tuning,tuningTranspose)
+        return if(tuning.isEmpty())SamplePitch.step(key,region.root,region.sample.sampleRate,outputRate,region.tune+tune)
+        else SamplePitch.referenceStep(key,region.root,region.sample.sampleRate,outputRate,region.tune+tune,tuning,tuningTranspose)
     }
+    private val steps=DoubleArray(128){pitchStep(it)}
     private fun missing(note:Int)=mapped[note]==null
     fun durationFrames(note:Int):Int {
         if(layers.isNotEmpty())return layers.maxOf{it.durationFrames(note)}
@@ -72,11 +75,14 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     }
     fun sample(note:Int,age:Long,channel:Int=0):Double {
         if(layers.isNotEmpty())return layers.sumOf{it.sample(note,age,channel)}
+        return sampleAt(note,age,channel,if(note in 0..127)steps[note] else 1.0)
+    }
+    private fun sampleAt(note:Int,age:Long,channel:Int,step:Double):Double {
         if(note !in 0..127 || age<0)return 0.0
         if(missing(note))return 0.0
         val region=selected[note]
         val panGain=if(channel==0)minOf(100,100-region.pan) else minOf(100,100+region.pan)
-        val position=age*steps[note]
+        val position=age*step
         val value=if(region.looping)SampleResampler.looped(region.sample,position,channel,region.loopStart,region.loopEnd)
             else SampleResampler.channel(region.sample,position,channel)
         return value*region.gain*panGain/100

@@ -74,10 +74,10 @@ class ImportedStylePlayerTest {
         val muted=bad.copy(tracks=bad.tracks.map{if(it.instrument==1)it.copy(muted=true) else it})
         assertNull(ImportedStyleSupport.reason(muted,group,true))
     }
-    @Test fun tuningAndInvalidInstrumentAreNotSilentlyIgnored() {
+    @Test fun eventTuningIsSupportedWhileInvalidInstrumentIsRejected() {
         val source=index()
         assertNotNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(source.tracks.first().copy(instrument=99))),group,true))
-        assertNotNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(source.tracks.first().copy(events=listOf(event.copy(tune=1))))),group))
+        assertNull(ImportedStyleSupport.reason(source.copy(tracks=listOf(source.tracks.first().copy(events=listOf(event.copy(tune=1))))),group))
     }
     @Test fun stylePickerDistinguishesMissingIndexFromSupportedStyle() {
         assertEquals("SET index unavailable",ImportedStyleSupport.reason(null,group))
