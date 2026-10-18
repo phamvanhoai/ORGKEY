@@ -155,7 +155,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         else AudioTrackBackend(track,sampleRate)
         outputLoop = AudioOutputLoop(start={backend.start();if(!preferNativeOutput)outputStatus="AudioTrack"},
             render=::renderBlock,write={samples,offset,count->backend.write(samples,offset,count)},release={
-                try{backend.close()}finally{importedKeyboardMixer.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.close()}
+                try{backend.close()}finally{importedKeyboardMixer.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close()}
             },
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
@@ -189,8 +189,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         rhythmPlaying = enabled
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
-    private val pendingStyle=java.util.concurrent.atomic.AtomicReference<ImportedStyleSession?>(null)
-    fun selectImportedStyle(session:ImportedStyleSession){pendingStyle.getAndSet(session)?.close()}
+    private data class StyleSelection(val session:ImportedStyleSession?)
+    private val pendingStyle=java.util.concurrent.atomic.AtomicReference<StyleSelection?>(null)
+    fun selectImportedStyle(session:ImportedStyleSession){pendingStyle.getAndSet(StyleSelection(session))?.session?.close()}
+    fun clearImportedStyle(){pendingStyle.getAndSet(StyleSelection(null))?.session?.close()}
     fun requestStyleSection(id:Int){
         val session=importedStyleSession ?: return
         if(!session.available(id))return
@@ -303,11 +305,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val stoppedStyleReset=StoppedStyleReset()
     private fun rhythmSample(): Double {
         val selected=pendingStyle.getAndSet(null)
-        selected?.let{session->
-            if(rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
+        selected?.let{selection->
+            val session=selection.session
+            if(session!=null && rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
             importedStyleSession?.close()
-            importedStyleSession=session;importedRhythm=session.player;importedRhythmName=session.displayName
-            session.takeTempoChange()?.let{bpm=it}
+            importedStyleSession=session;importedRhythm=session?.player;importedRhythmName=session?.displayName
+            session?.takeTempoChange()?.let{bpm=it}
         }
         val resetStopped=stoppedStyleReset.shouldReset(rhythmPlaying,selected!=null)
         if (!rhythmPlaying) {

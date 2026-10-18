@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã chuyển thao tác xóa/chọn session style từ UI sang hàng đợi audio, gồm trở về factory, đổi bank và khôi phục style đã lưu. Session cũ được đóng ở luồng render để tránh bỏ sót native Reverb handle. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã bỏ reset/flush FX lặp mỗi frame khi style dừng: reset một lần khi vừa dừng hoặc thay session đang dừng, không reset cùng player hai lần. Giảm lời gọi native thừa; chưa đo CPU/latency. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã sửa lỗi quay lại section mất group FX sau khi bus sống được chuyển sang section khác: nguồn giữ một chain sạch, đích giữ live chain và đuôi vang. Không dùng chung native handle giữa hai owner. Chi tiết/kiểm chứng: [DECODE-REBUILD.md](DECODE-REBUILD.md).

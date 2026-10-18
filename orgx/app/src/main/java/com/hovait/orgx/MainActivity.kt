@@ -116,7 +116,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     val mode=preferences.getInt("bankMode",0).coerceIn(0,2)
                     val session=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
                         engine.referenceChordTransposer,if(mode==2)engine::selectedSetChord else null)}
-                    engine.importedStyleSession=session;engine.importedRhythm=session.player;engine.importedRhythmName=session.displayName
+                    engine.selectImportedStyle(session)
                     engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240)
                 }
             }catch(error:Exception){Toast.makeText(context,"SET style restore: ${error.message}",Toast.LENGTH_LONG).show()}
@@ -244,7 +244,7 @@ private fun ORGXApp(engine: AudioEngine) {
                                         preferences.edit().remove("importedSetFile").remove("importedSetSound").apply();bankStatus="SELECTED: ${InstrumentCatalog.names[chosen]}"
                                     }
                                 }else if(bankIndex==null){
-                                    engine.setRhythmEnabled(false);engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null
+                                    engine.setRhythmEnabled(false);engine.clearImportedStyle()
                                     preferences.edit().remove("selectedStyleSet").remove("selectedSetStyleId").apply();style=chosen;engine.rhythmStyle=chosen;bpm=engine.styleTempos[chosen];engine.bpm=bpm;browseStyles=false
                                 }else bankScope.launch{
                                     bankBusy=true;bankStatus="LOADING..."
@@ -281,7 +281,7 @@ private fun ORGXApp(engine: AudioEngine) {
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
                     preferences.edit().remove("importedSetFile").remove("importedSetSound").apply() },
-                onStyle = { engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null;style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
+                onStyle = { engine.clearImportedStyle();style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
                 onEffect = { effect = it; engine.effectType = it },
                 onSetStyles={showMixer=false;browseStyles=true;bankPage=0;bankStatus=""},
                 onDismiss = { showMixer = false })
@@ -489,7 +489,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var followSetChord by remember{mutableStateOf(preferences.getInt("bankMode",2)==2)}
     var showStyleOptions by remember{mutableStateOf(false)}
     fun activate(bank:ImportedSetBank){
-        engine.setRhythmEnabled(false);engine.importedStyleSession=null;engine.importedRhythm=null;engine.importedRhythmName=null;onRhythmSelected(engine.bpm)
+        engine.setRhythmEnabled(false);engine.clearImportedStyle();onRhythmSelected(engine.bpm)
         setFile=bank.file;setIndex=bank.index;setGroups=bank.index.styles;setInstruments=bank.sounds
         engine.activeSetFile=bank.file;engine.activeSetIndex=bank.index;engine.activeSetSounds=bank.sounds
         preferences.edit().putString("activeSetFile",bank.file.name).apply()

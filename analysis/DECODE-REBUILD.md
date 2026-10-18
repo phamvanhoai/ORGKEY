@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Chọn/xóa session trên luồng audio
+
+Các đường trở về factory style/đổi bank trước đây xóa importedStyleSession/importedRhythm từ MainActivity, bỏ qua close của session native và có thể đua với render. Nay clearImportedStyle gửi một command có session=null vào cùng AtomicReference chọn style; audio thread tiêu thụ command, đóng owner cũ rồi cập nhật ba trường session/player/name. Command chưa được render bị thay thế được đóng ngay (native cấp phát lazy nên chưa sở hữu handle). Khôi phục style đã lưu cũng đi qua selectImportedStyle thay vì ghi session trực tiếp.
+
+Đổi về factory khi đang phát giữ transport; chuyển bank yêu cầu dừng vẫn gọi setRhythmEnabled(false) như trước. Gate reset nhận cả command clear để reset factory player nếu đang dừng. Chưa kiểm tra toàn bộ chuỗi thao tác bank trên thiết bị hoặc đo native memory dài hạn.
+
+Xác minh: build debug thành công, 264 kiểm thử JVM không lỗi. Đã cài cập nhật và mở ứng dụng trên điện thoại. Kiểm tra mã xác nhận MainActivity không còn ghi trực tiếp importedStyleSession/importedRhythm; SET giữ nguyên.
+
 ### Reset khi transport dừng
 
 Sửa AudioEngine.rhythmSample trước đây reset player ở mỗi frame khi !rhythmPlaying; với Reverb native đã nối, đường này flush lặp 48000 lần/giây và reset session rồi reset lại cùng player. Nay StoppedStyleReset chỉ cho reset lần đầu của khoảng dừng, sau playing→stopped, hoặc khi thay session trong trạng thái dừng. Session reset đã bao gồm player nên không reset player lần hai. Chọn phần immediate trong session vẫn được xử lý khi session.next chạy lúc Play.
