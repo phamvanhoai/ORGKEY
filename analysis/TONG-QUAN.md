@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã nối automation event 65 cho riêng Volume Shake slot 3, parameter 0–6 (Enable/Delay/ByPedal/StopByRelease/Speed/Depth/Gain). Timeline cập nhật voice đang ngân và cấu hình cho note-on tiếp theo; reset trả về cấu hình ban đầu, các slot/parameter khác vẫn bị bộ kiểm tra từ chối. Test render timeline thay đổi Effect giữa nốt đạt. Chưa port setter/clamp gốc hoặc fSTSChanges và các nhánh effect khác; cần đối chiếu file thực có event 65.
+
 Volume Shake đã nối cả Track style: sound cache phân biệt Effect giữa các Track cùng instrument/PCM; pedal event của Track truyền vào từng voice. Test nạp style từ PCM thật xác nhận một Track giữ nguyên, một Track điều biến stereo theo pedal và reset khởi tạo lại phase. Chu kỳ 10 ms và điều kiện EffectAllow của gốc vẫn cần đối chiếu thực tế; chưa tuyên bố tương đương đầy đủ.
 
 Đã nối Effect slot 3 (Volume Shake) cho voice bàn phím mode/STS: công thức stereo theo Channels.Process, state riêng mỗi voice, StartDelay, ByPedal, StopByRelease; điều biến sau tổng sound/Mix và trước bus FX. Tick điều khiển hiện dùng 10 ms, chưa đo đối chiếu tốc độ/pha trên APK gốc. Chưa nối Effect Track style và các slot khác. Kiểm thử công thức trái/phải, delay, pedal, release, phase độc lập và đầu ra sample đạt; APK đã build.
