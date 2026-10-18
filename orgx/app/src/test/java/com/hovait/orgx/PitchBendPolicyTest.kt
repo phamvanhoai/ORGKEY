@@ -4,6 +4,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PitchBendPolicyTest {
+    @Test fun invalidBendCannotPoisonTheSampleCursor(){
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(48000,1,shortArrayOf(0,8192,16384)),0,3)),48000)
+        val voice=sound.voice(60)
+        for(bend in listOf(Double.NaN,Double.POSITIVE_INFINITY,1e100,-1e100)){
+            try{voice.pitchBend(bend);fail("Invalid bend accepted")}
+            catch(expected:IllegalArgumentException){}
+        }
+        voice.next(false);voice.next(false)
+        assertEquals(.25,voice.left,1e-9)
+    }
     @Test fun bendRangeHasStableCenterAndTwoSemitoneEdges(){
         assertEquals(0.0,MidiPitchBend.semitones(8192),0.0)
         assertEquals(2.0,MidiPitchBend.semitones(16383),1e-12)

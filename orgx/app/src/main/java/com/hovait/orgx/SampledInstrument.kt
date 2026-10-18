@@ -43,9 +43,16 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val children=layers.map{it.voice(note,tune,pan)}
         private val step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var bendSemitones=0.0
+        private var bentStep=step
         private var aftertouch=false
         private var alternate:Playback?=null
-        fun pitchBend(semitones:Double){bendSemitones=semitones;children.forEach{it.pitchBend(semitones)};alternate?.pitchBend(semitones)}
+        fun pitchBend(semitones:Double){
+            require(semitones.isFinite()){"Pitch bend must be finite"}
+            val nextStep=step*2.0.pow(semitones/12.0)
+            require(nextStep.isFinite() && nextStep>0){"Pitch bend exceeds supported playback range"}
+            bendSemitones=semitones;bentStep=nextStep
+            children.forEach{it.pitchBend(semitones)};alternate?.pitchBend(semitones)
+        }
         fun aftertouch(pressure:Float){
             if(!aftertouch && pressure>=.5f && aftertouchInstrument!=null){
                 aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
@@ -68,9 +75,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
             }else{
                 val gain=state?.next(noteOff) ?: if(noteOff)0.0 else 1.0
-                val currentStep=step*2.0.pow(bendSemitones/12.0)
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
-                position+=currentStep
+                position+=bentStep
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
                     (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && noteOff)
             }
