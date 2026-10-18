@@ -153,14 +153,18 @@ private fun ORGXApp(engine: AudioEngine) {
     LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     var linkSts by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
+    var linkedStsTrack by remember{mutableIntStateOf(preferences.getInt("selectedStsTrack",-1))}
+    var linkedStsSet by remember{mutableStateOf(preferences.getString("selectedStsSet",null))}
     DisposableEffect(preferences){
         val listener=SharedPreferences.OnSharedPreferenceChangeListener{prefs,key->
             if(key=="linkMainSts")linkSts=prefs.getBoolean(key,false)
+            if(key=="selectedStsTrack")linkedStsTrack=prefs.getInt(key,-1)
+            if(key=="selectedStsSet")linkedStsSet=prefs.getString(key,null)
         }
         preferences.registerOnSharedPreferenceChangeListener(listener)
         onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
     }
-    LaunchedEffect(setSession,sectionState.first,linkSts,restoringSet){
+    LaunchedEffect(setSession,sectionState.first,linkSts,restoringSet,linkedStsTrack,linkedStsSet){
         val session=setSession
         val file=engine.activeSetFile
         val index=engine.activeSetIndex
@@ -170,11 +174,13 @@ private fun ORGXApp(engine: AudioEngine) {
             if(part!=null && part.section in 32..35)try{
                 val group=index.styles.firstOrNull{it.id==session.style.id} ?: part
                 val slot=ImportedStsSelection.slotForMain(group,part.section)
-                val snapshot=ImportedStsSelection.resolve(index,preferences.getInt("selectedStsTrack",-1),slot)
+                val trackIndex=linkedStsTrack
+                val snapshot=ImportedStsSelection.resolve(index,trackIndex,slot)
                 val expectedSound=engine.importedInstrument
                 val prepared=withContext(Dispatchers.IO){ImportedStsLoader.prepare(file,index,snapshot)}
                 if(engine.importedStyleSession===session && session.currentId==part.id &&
                     preferences.getString("selectedStsSet",null)==file.name &&
+                    preferences.getInt("selectedStsTrack",-1)==trackIndex &&
                     preferences.getBoolean("linkMainSts",false) && engine.applyPreparedSts(prepared,expectedSound)){
                     preferences.edit().putInt("selectedStsSlot",slot).apply()
                     restoredSetName=engine.importedInstrumentName
