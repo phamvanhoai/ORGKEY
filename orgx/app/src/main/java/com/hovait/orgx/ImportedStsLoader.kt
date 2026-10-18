@@ -7,6 +7,9 @@ object ImportedStsLoader {
     data class Prepared(val file:File,val index:ImportedSetIndex,val snapshot:ImportedSts,val sound:SampledInstrument)
     fun prepare(file:File,index:ImportedSetIndex,snapshot:ImportedSts)=Prepared(file,index,snapshot,load(file,index,snapshot))
     fun load(file:File,index:ImportedSetIndex,snapshot:ImportedSts):SampledInstrument {
+        require(snapshot.chordType!=1 || (snapshot.chordSingle.size==12 && snapshot.chordSingle.all{it in 0..4095})){
+            "STS single-finger chord table unavailable"
+        }
         val raw=index.instruments.getOrNull(snapshot.instrument) ?: error("STS instrument unavailable")
         require(snapshot.mode<0 || snapshot.mode in raw.modes.indices || (raw.modes.isEmpty() && snapshot.mode==0)){
             "STS mode unavailable: ${snapshot.mode}"

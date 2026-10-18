@@ -4,6 +4,44 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class KeyboardChordInputTest {
+    @Test fun stsSingleFingerUsesCustomTableAndLowestHeldMidiNote(){
+        val input=KeyboardChordInput()
+        val masks=MutableList(12){145} // C major
+        masks[2]=(1 shl 2) or (1 shl 5) or (1 shl 9) // D minor
+        input.configureSingleFinger(true,masks,library)
+        masks[2]=0 // Configuration must retain its own snapshot.
+        input.press(62,library)
+        assertEquals("D m",library[input.chord!!].name)
+        input.press(48,library)
+        assertEquals("C M",library[input.chord!!].name)
+        input.release(48)
+        assertEquals("D m",library[input.chord!!].name)
+        input.release(62)
+        assertEquals("D m",library[input.chord!!].name)
+        input.press(74,library)
+        assertEquals("D m",library[input.chord!!].name)
+    }
+    @Test fun switchingStsReevaluatesHeldKeyAndCanReturnToFingeredInput(){
+        val input=KeyboardChordInput()
+        input.press(60,library);assertNull(input.chord)
+        input.configureSingleFinger(true,List(12){137},library) // C minor
+        assertEquals("C m",library[input.chord!!].name)
+        input.configureSingleFinger(false,emptyList(),library)
+        input.reset();input.press(60,library)
+        assertNull(input.chord)
+        input.press(64,library);input.press(67,library)
+        assertEquals("C M",library[input.chord!!].name)
+    }
+    @Test fun malformedSingleFingerSnapshotDoesNotReplaceActiveConfiguration(){
+        val input=KeyboardChordInput()
+        input.configureSingleFinger(true,List(12){145},library)
+        for(masks in listOf(emptyList(),List(12){4096},List(12){-1})){
+            try{input.configureSingleFinger(true,masks,library);fail("Invalid table accepted")}
+            catch(expected:IllegalArgumentException){}
+        }
+        input.press(60,library)
+        assertEquals("C M",library[input.chord!!].name)
+    }
     private val library=PlayableChordLibrary.fromTable("M 0 4 7\nm 0 3 7\n7 0 4 7 10\ndim 0 3 6\n6 0 4 7 9\nm7 0 3 7 10")
     private fun play(vararg notes:Int)=KeyboardChordInput().also{input->notes.forEach{input.press(it,library)}}
     @Test fun recognizesMajorMinorAndSeventhUsingLibraryIndices() {

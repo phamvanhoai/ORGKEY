@@ -43,6 +43,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var importedInstrumentName:String?=null
     @Volatile var activeSetFile:File?=null
     @Volatile var activeSetIndex:ImportedSetIndex?=null
+        set(value){
+            if(field!==value){keyboardChordInput.configureSingleFinger(false,emptyList(),referenceChords);keyboardChordInput.reset()}
+            field=value
+        }
     @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
     @Volatile var importedRhythm:ReferenceRhythmPlayer?=null
     @Volatile var importedStyleSession:ImportedStyleSession?=null
@@ -109,8 +113,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         importedInstrument=prepared.sound
         importedInstrumentName=snapshot.name.ifBlank{prepared.index.instruments[snapshot.instrument].name}
         setSustainEnabled(snapshot.pedal!=0)
-        // STS.ChordType controls Music.ChordSingles in the original engine;
-        // it is not an index into our root/quality chord picker.
+        keyboardChordInput.configureSingleFinger(snapshot.chordType==1,snapshot.chordSingle,referenceChords)
         return true
     }
 

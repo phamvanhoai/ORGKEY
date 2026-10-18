@@ -47,8 +47,9 @@
     "15": "libnpitchshift.so; original binary, device sine frequency checks passed"
   },
   "missing_fx_types": [],
+  "sts_chord_input": "ChordType 1 uses snapshot ChordSingles on left keyboard; ChordDuals and original ChordFind fallback missing",
   "known_missing_clusters": [
-    "STS ChordSingles, change masks and complete snapshot routing",
+    "STS ChordDuals, change masks and complete snapshot routing",
     "original Aftertouch switching conditions and timing verification",
     "DNC articulation/connection",
     "instrument/mode script runtime",

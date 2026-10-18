@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã nối STS ChordType=1/ChordSingles vào nhận hợp âm bàn phím trái: dùng bảng 12 mask riêng của STS, chọn theo phím thấp nhất đang giữ, cập nhật khi đổi STS hoặc nhả phím thấp nhất và giữ hợp âm cuối khi nhả hết. Đổi SET xóa cấu hình cũ; file SET giữ nguyên. Kiểm thử bàn phím/loader/STS đạt, build và cài bản mới thành công. ChordDuals, ChordFind fallback và fSTSChanges chưa hoàn chỉnh; xem [STS-SINGLE-FINGER-REBUILD.md](STS-SINGLE-FINGER-REBUILD.md).
+
 Đã sửa phân tuyến Effect style theo `Tracks.ReadFromStream` và `Channels.Process`: group Type 1 dùng channel type 1, không chạy Pitch Shake/Volume Shake dù instrument melodic. ORGX trước đây áp dụng sai và các test tích hợp cũng kỳ vọng sai; đã chỉnh cả note-on và automation. Voice mode/STS bàn phím giữ đường Shake riêng. Các ghi chú cũ về Shake trên style Type 1 phía dưới đã bị thay thế bởi quy tắc này; xem [EXPRESSION-ROUTING-REBUILD.md](EXPRESSION-ROUTING-REBUILD.md).
 
 Effect Mode đã được nối vào Pitch Shake/Volume Shake: Mode 1 hoặc 2 trả tốc độ thực thi 0 theo `Effect.getSpeed()` gốc, giữ Speed lưu trong SET và phase từng voice. Pitch Shake sửa thêm counter int32, drift chia nguyên và sin float. Build và các kiểm thử mode/biểu cảm/tích hợp style đạt, đã cài APK mới. Chưa hoàn thiện Key Connection/Legato hoặc automation Mode; xem [EXPRESSION-MODE-REBUILD.md](EXPRESSION-MODE-REBUILD.md).
