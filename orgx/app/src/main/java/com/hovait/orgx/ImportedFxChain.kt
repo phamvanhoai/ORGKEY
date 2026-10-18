@@ -10,6 +10,41 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    /** NFlanger ARM64: shared modulation coefficient, independent all-pass states. */
+    private class Flanger(values:List<Int>,sampleRate:Int):Stage {
+        private val states=Array(2){FloatArray(values[4])}
+        private val feedback=values[1].toFloat()
+        private val start=values[2].toFloat()
+        private val depth=values[3].toFloat()*-0.003921568859368563f
+        private val wet=values[5].toFloat()
+        private val increment=values[0].toFloat()*0.15707963705062866f/sampleRate
+        private var frame=0;private var coefficient=0f
+        private val previous=FloatArray(2)
+        override var left=0.0;override var right=0.0
+        override val active get()=previous.any{kotlin.math.abs(it)>1e-9f} || states.any{it.any{v->kotlin.math.abs(v)>1e-9f}}
+        override fun reset(){states.forEach{it.fill(0f)};previous.fill(0f);frame=0;coefficient=0f;left=0.0;right=0.0}
+        private fun channel(input:Double,c:Int):Double {
+            var value=Math.fma(previous[c]*.01f,feedback,input.toFloat())
+            for(i in states[c].indices){
+                val old=states[c][i]
+                val next=Math.fma(old,coefficient,value)
+                states[c][i]=next
+                value=Math.fma(-coefficient,next,old)
+            }
+            previous[c]=value
+            return ((value*wet+input.toFloat()*(255f-wet))*0.003921568859368563f).toDouble()
+        }
+        override fun process(l:Double,r:Double){
+            if(frame%20==0){
+                val angle=Math.fma(increment,frame.toFloat(),start)
+                val cosine=kotlin.math.cos(angle.toDouble()).toFloat()
+                val exponential=kotlin.math.exp((cosine+cosine+2f).toDouble()).toFloat()
+                coefficient=1f+(exponential-1f)*depth/53.598148345947266f
+            }
+            frame++
+            left=channel(l,0);right=channel(r,1)
+        }
+    }
     /** r01.e: clip first, then smooth using the previous final output. */
     private class Distortion(private val gain:Int,private val soft:Boolean,cutoff:Int):Stage {
         private val level=(1.0/maxOf(1.0,kotlin.math.sqrt(gain.toDouble()/cutoff))).toFloat()
@@ -170,7 +205,13 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8)}.map{
+        if(it.type==8){
+            require(it.payload.size==28){"Invalid Flanger payload"}
+            val values=listOf(int(it.payload,0),int(it.payload,8),int(it.payload,12),int(it.payload,16),int(it.payload,20),int(it.payload,24))
+            require(values[0] in 1..300 && values[1] in 1..90 && values[2] in 1..100 && values[3] in 1..255 && values[4] in 1..16 && values[5] in 1..255 && sampleRate>0){"Unsupported Flanger parameters"}
+            return@map Flanger(values,sampleRate)
+        }
         if(it.type==23){
             require(it.payload.size==9){"Invalid Distortion payload"}
             val gain=int(it.payload,0);val cutoff=int(it.payload,5)

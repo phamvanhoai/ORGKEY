@@ -26,6 +26,16 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Flanger / Phaser, type 8
+
+Đã dựng đường stereo từ assembly `Java_sofeh_audio_NFlanger_processLeft/Right/build` ARM64 và đối chiếu x86. Relocation PLT của ELF xác nhận hai lời gọi toán học là cos và exp. Mỗi 20 frame, coefficient = `1+(exp(2*cos(StartPhase+frame*increment)+2)-1)*(-Depth/255)/53.598148345947266`, increment = `Frequency*0.15707963705062866/sampleRate`. StartPhase giữ giá trị native, không tự đổi sang radians.
+
+Input mỗi kênh cộng previousWet*Feedback/100, rồi đi qua Stages all-pass: nextState = oldState*coefficient+input; output = oldState-coefficient*nextState. Trái/phải giữ state và feedback riêng, cùng coefficient. Trộn `(wet*Ratio+dry*(255-Ratio))/255`. Payload 28 byte giữ trường reserved sau Frequency. Java facade giới hạn Stages 1..16; bản dựng hiện nhận Ratio 1..255 (gốc cho tới 256, cần bổ sung). Dùng FMA Float cho recurrence ARM64; chưa mô phỏng cast long ở output. Reset ORGX xóa state/modulation; facade gốc không override reset native nên vòng đời reset vẫn cần đối chiếu runtime.
+
+Kiểm thử impulse theo coefficient native, stereo độc lập/cùng pha, reset, bypass và output hữu hạn. Chưa có đối chiếu bản thu hoặc chạy song song native để kết luận tương đương. Reverb/Band Move/Equalizer native và DNC/aftertouch/script vẫn chưa hoàn chỉnh.
+
+Xác minh: build debug thành công, 249 kiểm thử không lỗi (gồm style SET cục bộ có module 8). Đã cài cập nhật và mở trên điện thoại; không sửa SET đầu vào.
+
 ### Distortion, type 23
 
 Đã dựng theo đường stereo `r01.e`: nhân Gain, soft clip bằng tanh hoặc hard clip tại full scale, rồi `output=(previousOutput*(1-k)+clipped*k)*level`, với `k=1f/CutOff`, `level=float(1/max(1,sqrt(Gain/CutOff)))`. History lưu final output riêng hai kênh. Payload 9 byte: Gain int32, Soft boolean, CutOff int32; Gain/CutOff 1..100. Reset/fresh xóa state; active giữ bus khi còn đuôi lọc.

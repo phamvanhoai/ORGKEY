@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã dựng đường stereo Flanger/Phaser (FX 8) từ assembly ARM64/x86: chuỗi all-pass, feedback, modulation mỗi 20 frame và dry/wet. Chưa xác nhận bằng bản thu; vòng đời reset native còn cần đối chiếu. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã bổ sung Distortion (FX 23) theo đường stereo `r01.e`: gain, soft/hard clip, CutOff và history final output riêng hai kênh. Giữ payload boolean Soft và thứ tự module; file SET không thay đổi. Giới hạn đối chiếu PCM/bản thu: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã bổ sung Chorus (FX 21) theo `q01`: delay nội suy, feedback và độ lệch pha stereo; reset giữ pha, xóa buffer. Chưa xác nhận tương đương bản thu/lượng tử PCM gốc. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
