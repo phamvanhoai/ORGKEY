@@ -4,6 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartQueueTest {
+    @Test fun secondInitialGroupCannotOverwriteAGroupCommittedWhileItWasLoading(){
+        val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
+        try{
+            var current:Any?=null
+            val first=Any()
+            val second=Any()
+            val expected:Any?=null
+            queue.commit(listOf(part(100))){
+                if(current!==expected)false else {current=first;true}
+            }
+            queue.commit(listOf(part(50))){
+                if(current!==expected)false else {current=second;true}
+            }
+            queue.noteOn(60,1.0)
+            assertEquals(.25,frame(queue,mixer),0.0)
+            assertSame(first,current)
+        }finally{mixer.close()}
+    }
     @Test fun groupAndMasterAreCommittedAtTheSameFrameAndStaleCommitIsIgnored(){
         val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
         try{

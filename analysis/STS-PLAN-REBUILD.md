@@ -89,3 +89,13 @@ ImportedStsGroupSmoke chạy offline trong instrumentation trên thiết bị ar
 Kết quả PASS 4 nhóm: bank bcfb82bc slot 0/1/2 đều 4 part, Record bật 1/1/2, peak lần lượt 0.9856957575 / 1.8387102908 / 1.4209156253; bank 9d613732 slot 0 có 4 part, bật 1, peak 0.8776496053. Đây là tín hiệu trước gain/limiter đầu ra engine; peak trên 1 không tự chứng minh âm thanh loa bị clipping. Tất cả frame được kiểm tra finite. Chưa thử nghe, chưa đo latency, chưa đối chiếu audio APK hoặc thao tác UI/restore trên thiết bị.
 
 AudioEngine.currentStsGroup nay chỉ cập nhật bên trong commit audio đã vượt kiểm tra generation/file/index, cùng tên nhóm hiển thị; clear/đổi voice xóa trạng thái. Trước đây tên đổi ngay lúc enqueue, có thể hiển thị nhóm bị từ chối về sau. Trạng thái giữ Prepared gồm raw snapshot hiệu lực để bước áp mask sau có thể đọc; chưa tự dùng trạng thái này làm current của luồng UI.
+
+## Đổi nhóm tiếp theo theo mặt nạ mặc định
+
+ImportedStsRequest nay nhận currentStsGroup đã commit. Cùng file/index thì chuẩn bị nhóm tiếp theo bằng prepareMasked và defaultChanges của APK; dùng Music/system hiệu lực từ nhóm trước, snapshot từng part từ voices đã nạp. Lần nạp đầu/restore chưa có nhóm hiện hành vẫn dùng full voice snapshot. Đây không phải tái tạo trạng thái runtime toàn bộ track trước lần STS đầu.
+
+prepareMasked lập lại action dựa instrument/system hiện hành thay vì trường ban đầu trong SET, tránh reset sai khi lựa chọn đã đổi. Group request giữ reference previous; apply kiểm tra reference cả lúc gửi lệnh và khi commit audio, từ chối nếu nhóm nguồn đã đổi. Giao diện chọn, restore và Main-link lấy current trước khi nạp nền.
+
+Test request nối tiếp, index identity và instrument hiện hành không phát lệnh 62 thừa đạt; test batch/changes, assembleDebug/AndroidTest đạt. ImportedStsGroupSmoke đã đổi sang request nối tiếp: PASS 4 nhóm trên hai SET thật, peak/số part bật giữ như lượt trước. Đã cài bản và mở app. Đây là render offline; chưa thử nghe/chuyển STS trực tiếp qua UI. Chưa có UI sửa 21 cờ, callback script, runtime state đầy đủ hoặc export MIDI từng part; không tuyên bố STSPut tương đương hoàn toàn.
+
+Bổ sung kiểm tra previous=null: cả enqueue và audio commit nay so identity nhóm nguồn kể cả khi ban đầu chưa có nhóm. Hai kết quả chuẩn bị từ trạng thái rỗng không còn cùng được chấp nhận rồi ghi đè nhau. Yêu cầu stale bị từ chối, không tự rebase sang nhóm mới. Test queue tái hiện hai initial commit, cùng batch/changes và assembleDebug đạt. Đã cài/mở bản cuối trên thiết bị. Chưa có cơ chế báo kết quả commit bất đồng bộ về UI; thông báo hiện tại vẫn phản ánh việc gửi yêu cầu, không đảm bảo commit đã hoàn thành.

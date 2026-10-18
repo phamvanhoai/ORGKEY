@@ -31,7 +31,14 @@ object ImportedStsBatch {
     }
     /** Full voice snapshots only. Masked PCM preparation requires current Track state. */
     fun prepareMasked(file:File,index:ImportedSetIndex,slot:Int,current:Map<Int,ImportedSts>,changes:List<Boolean>):Prepared {
-        val selection=resolve(index,slot,changes)
+        val resolved=resolve(index,slot,changes)
+        val actions=ImportedStsPlan.create(slot,resolved.master,resolved.members.map{member->
+            val track=index.tracks[member.trackIndex]
+            val prior=current[member.position]
+            ImportedStsPlan.Track(member.position,track.kind,prior?.instrument ?: track.instrument,
+                prior?.system ?: track.system,member.snapshot)
+        },changes)
+        val selection=resolved.copy(actions=actions)
         val master=ImportedStsMaster.prepare(index,selection.master,changes)
         val loadIndex=index.copy(musicSettings=master.music,systems=master.systems)
         val effective=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}

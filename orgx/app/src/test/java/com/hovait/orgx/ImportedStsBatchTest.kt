@@ -29,6 +29,10 @@ class ImportedStsBatchTest {
             assertTrue(groupRequest is ImportedStsRequest.Prepared.Group)
             assertEquals(2,(groupRequest as ImportedStsRequest.Prepared.Group).value.voices.size)
             assertTrue(ImportedStsRequest.prepare(file,index,1,1) is ImportedStsRequest.Prepared.Single)
+            val nextRequest=ImportedStsRequest.prepare(file,index,0,1,prepared) as ImportedStsRequest.Prepared.Group
+            assertSame(prepared,nextRequest.previous)
+            assertSame(index,nextRequest.value.index)
+            assertNotNull(nextRequest.value.master)
             assertEquals(setOf(1,2),prepared.voices.keys)
             assertEquals(listOf(1,2),prepared.keyboardParts().map{it.id})
             assertTrue(prepared.keyboardParts().none{it.enabled}) // snapshot Record=false
@@ -40,6 +44,10 @@ class ImportedStsBatchTest {
             val masked=ImportedStsBatch.prepareMasked(file,index,1,current,List(21){false})
             assertEquals(listOf(40,60),masked.keyboardParts().map{it.sound.keyboardSettings.volume})
             assertTrue(masked.keyboardParts().all{it.enabled})
+            val instrumentIndex=index.copy(instruments=listOf(sound,sound),tracks=index.tracks.map{t->t.copy(sts=t.sts.map{it.copy(instrument=1)})})
+            val latest=current.mapValues{it.value.copy(instrument=1)}
+            val sameInstrument=ImportedStsBatch.prepareMasked(file,instrumentIndex,1,latest,ImportedStsPlan.defaultChanges)
+            assertTrue(sameInstrument.selection.actions.filterIsInstance<ImportedStsPlan.Action.Event>().none{it.type==62})
             prepared.voices.values.forEach{assertEquals(.25,it.sound.sample(60,0),1e-9)}
             try{ImportedStsBatch.prepareFull(file,index.copy(tracks=index.tracks+master.copy(sts=emptyList())),1);fail("Partial batch accepted")}
             catch(expected:IllegalStateException){}

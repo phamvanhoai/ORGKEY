@@ -385,6 +385,10 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã hoàn tất nối đổi STS nhóm theo mặt nạ mặc định và sửa race khi hai yêu cầu cùng xuất phát từ chưa có nhóm: kiểm tra previous identity kể cả null trước gửi và tại audio commit. Test queue tái hiện race, batch/changes và build đạt; đã cài/mở bản mới. Render nối tiếp 4 nhóm từ hai SET thật đã đạt; chưa thử nghe/UI chuyển nhóm hoặc thông báo kết quả commit bất đồng bộ đầy đủ. Xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
+
+Đã nối các lần đổi nhóm STS tiếp theo với currentStsGroup và mặt nạ mặc định APK. Action so instrument/system hiện hành, kiểm tra reference nhóm nguồn trước enqueue và tại commit để bỏ kết quả nạp cũ. Lần nạp đầu vẫn full voice snapshot. Test request/batch/changes đạt; render nối tiếp 4 nhóm từ hai SET thật trên điện thoại đạt, đã cài bản mới. Chưa thử nghe/UI chuyển nhóm hoặc đầy đủ runtime/script; xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
+
 Đã kiểm chứng render STS nhóm trên điện thoại với hai SET thật: 4 nhóm, mỗi nhóm 4 part, số Record bật 1/1/2/1, tất cả frame hữu hạn và có tín hiệu. Không sửa file SET; chưa thử nghe/đối chiếu APK. Thêm currentStsGroup và chuyển cập nhật tên nhóm sang sau khi commit audio được chấp nhận, tránh hiển thị nhóm bị từ chối. Chi tiết [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
 
 Đã bật nạp nhóm tiếng STS từ giao diện: mục Master hiện MASTER / ALL VOICES, nạp tối đa bốn snapshot tiếng Group 0 với Record/vùng phím/pedal riêng; restore và link Main đi cùng resolver. STS track riêng vẫn nạp một voice. Đây là full voice snapshot, CHƯA áp Master hoặc default fSTSChanges/STSPut đầy đủ. Test resolver/batch/queue/memory/loader đạt, build và cài/mở bản mới trên điện thoại thành công; chưa thử nghe nhóm SET thật. Xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).

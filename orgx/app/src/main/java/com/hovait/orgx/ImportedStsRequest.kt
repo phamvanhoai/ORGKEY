@@ -6,9 +6,14 @@ import java.io.File
 object ImportedStsRequest {
     sealed class Prepared {
         data class Single(val value:ImportedStsLoader.Prepared):Prepared()
-        data class Group(val value:ImportedStsBatch.Prepared):Prepared()
+        data class Group(val value:ImportedStsBatch.Prepared,val previous:ImportedStsBatch.Prepared?=null):Prepared()
     }
-    fun prepare(file:File,index:ImportedSetIndex,track:Int,slot:Int):Prepared =
-        if(track==0)Prepared.Group(ImportedStsBatch.prepareFull(file,index,slot))
-        else Prepared.Single(ImportedStsLoader.prepare(file,index,ImportedStsSelection.resolve(index,track,slot)))
+    fun prepare(file:File,index:ImportedSetIndex,track:Int,slot:Int,current:ImportedStsBatch.Prepared?=null):Prepared {
+        if(track!=0)return Prepared.Single(ImportedStsLoader.prepare(file,index,ImportedStsSelection.resolve(index,track,slot)))
+        if(current==null || current.file!=file || current.index!==index)return Prepared.Group(ImportedStsBatch.prepareFull(file,index,slot))
+        val basis=index.copy(musicSettings=current.master?.music ?: index.musicSettings,
+            systems=current.master?.systems ?: index.systems)
+        val loaded=ImportedStsBatch.prepareMasked(file,basis,slot,current.voices.mapValues{it.value.snapshot},ImportedStsPlan.defaultChanges)
+        return Prepared.Group(loaded.copy(index=index),current)
+    }
 }

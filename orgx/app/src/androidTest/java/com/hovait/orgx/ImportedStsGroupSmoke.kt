@@ -18,8 +18,11 @@ class ImportedStsGroupSmoke:Instrumentation(){
             for(file in banks){
                 val index=ImportedSetInstruments.index(file)
                 val slots=index.tracks.firstOrNull()?.sts.orEmpty()
+                var current:ImportedStsBatch.Prepared?=null
                 for(snapshot in slots.take(3)){
-                    val prepared=ImportedStsBatch.prepareFull(file,index,snapshot.slot)
+                    val request=ImportedStsRequest.prepare(file,index,0,snapshot.slot,current) as ImportedStsRequest.Prepared.Group
+                    val prepared=request.value
+                    current=prepared
                     val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
                     try{
                         queue.replace(prepared.keyboardParts())
