@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StylePitchMoveTest {
+    @Test fun combinedCommandsTargetOneIdAndNewNotesInheritChannelState(){
+        val pcm=SamplePcm(1000,1,ShortArray(16){(it*1000).toShort()})
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,pcm,0,16)),1000)
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(2,2,60,100,0,1000),
+            ReferenceDrumEvent(51,1,50,0,1,0),ReferenceDrumEvent(52,1,100,0,1,0),
+            ReferenceDrumEvent(53,1,2000,0,1,0),ReferenceDrumEvent(2,3,60,100,2,1000))
+        val track=ReferenceDrumTrack("Track",1,0,32,120,true,0,1000,false,events)
+        val player=ReferenceRhythmPlayer(listOf(track),sound::durationFrames,{n,a,c->sound.sample(n,a.toLong(),c)},1000,sampled=sound)
+        try{
+            val expected=listOf(0 to 0,1000 to 1500,2000 to 3500,3000 to 6500)
+            expected.forEach{(left,right)->player.next(0,120);assertEquals(left/32768.0,player.left,1e-9);assertEquals(right/32768.0,player.right,1e-9)}
+            player.reset();player.next(0,120);player.next(0,120)
+            assertEquals(1000.0/32768,player.left,1e-9)
+            assertEquals(1500.0/32768,player.right,1e-9)
+        }finally{player.close()}
+    }
     @Test fun touchAutomationReplacesGainInsteadOfMultiplyingRepeatedCommands(){
         val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000)
         val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),

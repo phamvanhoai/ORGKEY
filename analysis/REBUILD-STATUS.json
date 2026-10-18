@@ -1,6 +1,9 @@
 {
   "meaning": "Declared implementation coverage, not verified APK equivalence",
   "conditionally_supported_track_events": {
+    "51": "Nonnegative KeyTouch, low 16 bits; no script/smoothing",
+    "52": "KeyBalance -100 through 100; sampled voices",
+    "53": "Positive KeyPitchMove /1000; no script/smoothing",
     "65": "Volume Shake slot 3 only; parameters 0 through 6"
   },
   "expression_effects": {
