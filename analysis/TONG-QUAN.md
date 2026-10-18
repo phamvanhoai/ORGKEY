@@ -391,3 +391,5 @@ Nút Intro khi đang chạy hiện hủy các Intro/Fill đang chờ trước đ
 
 Parser SET hiện giữ lại STS bật trên từng Track: tên, MIDI channel, instrument/system, pedal/mode, chord data và FX block. Dữ liệu STS được lưu trong `ImportedTrack.sts` để bước áp dụng snapshot tiếp theo không phải đọc lại file.
 
+Engine đã có đường áp dụng snapshot `applySts`: nạp instrument/system tương ứng từ SET đang mở, áp dụng channel settings của STS và cập nhật pedal/sustain theo snapshot. Nếu STS hoặc instrument không hợp lệ, hàm từ chối mà không làm thay đổi voice hiện tại.
+

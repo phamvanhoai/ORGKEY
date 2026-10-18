@@ -92,6 +92,19 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var effectMix = 0.28f
     @Volatile var isRecording = false
 
+    /** Apply a decoded SET snapshot without editing the source file. */
+    fun applySts(snapshot:ImportedSts):Boolean {
+        val file=activeSetFile ?: return false
+        val index=activeSetIndex ?: return false
+        val source=index.instruments.getOrNull(snapshot.instrument) ?: return false
+        val system=index.systems.getOrNull(snapshot.system)
+        val loaded=runCatching{ImportedInstrumentLoader.load(file,source,system,snapshot.settings,index.musicSettings)}.getOrNull() ?: return false
+        importedInstrument=loaded
+        importedInstrumentName=snapshot.name.ifBlank{source.name}
+        sustain=snapshot.pedal!=0
+        return true
+    }
+
     private val recordingLock = Any()
     private var recordingData = ByteArrayOutputStream()
     private data class MidiEvent(val timeNanos: Long, val status: Int, val note: Int, val velocity: Int)
