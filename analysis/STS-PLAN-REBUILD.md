@@ -15,3 +15,9 @@ ImportedStsBatch.resolve đối chiếu Tracks.GroupAdd: fTracksMain là danh s�
 prepareFull chuẩn bị tiếng cho tối đa bốn track đầu kind 0/1 qua ImportedStsLoader, trả một kết quả nhóm duy nhất sau khi nạp xong. Chưa thay bất cứ engine state nào trong quá trình chuẩn bị. Các track khác vẫn có trong selection/actions. Đây là chuẩn bị snapshot đầy đủ, chưa phải áp change-mask dựa trên state hiện tại.
 
 ImportedStsBatchTest xác nhận rhythm track xen giữa không làm lệch vị trí main, hai voice nạp PCM đúng, và thiếu slot ở track cuối khiến toàn bộ preparation thất bại. Test batch/plan và assembleDebug đạt. CHƯA có commit nhóm vào mixer; không cài bản này vì chưa thay hành vi ứng dụng. Cần thêm ngân sách bộ nhớ chung, mixer multi-part, xử lý mặt nạ với state hiện hành và commit nhóm trước khi tích hợp UI.
+
+## Mixer nhiều part
+
+ImportedKeyboardParts quản lý tối đa bốn part riêng: mỗi note giữ Playback, sound, gain velocity và pedal của part. renderInto đưa từng voice vào ImportedKeyboardMixer chung để gain/pan/FX theo sound và Music FX chỉ được xử lý một lần bởi caller. Thay part chỉ ảnh hưởng note-on tiếp theo, giữ nguyên Playback/FX bus của voice đang ngân. Note-off giữ riêng theo pedal, pedal-off nhả nốt đang đợi. Giới hạn 512 voice và kiểm tra part ID trùng/ngoài 1..4 trước thay cấu hình. reset xóa nốt, caller vẫn quản lý reset FX mixer.
+
+Prepared.keyboardParts chuyển kết quả batch sang part đúng vị trí với pedal từ snapshot. Test xác nhận tổng gain hai part, sustain độc lập, thay tiếng giữ nốt cũ, batch lỗi không thay cấu hình và reset. Test parts/mixer/batch và assembleDebug đạt. Đây là module đã nối được với kết quả prepare, CHƯA nối AudioEngine note routing/audio-loop/UI. Chưa cài bản vì chưa thay hành vi sản phẩm. Pressure/bend đa part, vùng phím, commit qua audio-thread, mặt nạ và ngân sách bộ nhớ chung vẫn cần tích hợp.

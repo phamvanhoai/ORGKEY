@@ -7,7 +7,11 @@ object ImportedStsBatch {
     data class Member(val position:Int,val trackIndex:Int,val snapshot:ImportedSts)
     data class Selection(val slot:Int,val master:ImportedSts,val members:List<Member>,val actions:List<ImportedStsPlan.Action>)
     data class Prepared(val file:File,val index:ImportedSetIndex,val selection:Selection,
-        val voices:Map<Int,ImportedStsLoader.Prepared>)
+        val voices:Map<Int,ImportedStsLoader.Prepared>){
+        fun keyboardParts():List<ImportedKeyboardParts.Part> = voices.map{(position,voice)->
+            ImportedKeyboardParts.Part(position,voice.sound,voice.snapshot.pedal!=0)
+        }
+    }
     fun resolve(index:ImportedSetIndex,slot:Int,changes:List<Boolean> = ImportedStsPlan.defaultChanges):Selection {
         require(slot>=0 && changes.size==21)
         val main=index.tracks.withIndex().filter{it.value.group==0}
