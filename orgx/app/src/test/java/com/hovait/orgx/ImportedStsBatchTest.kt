@@ -31,6 +31,11 @@ class ImportedStsBatchTest {
             val ranged=index.copy(tracks=index.tracks.map{it.copy(keyAreaFrom=48,keyAreaTo=60,sts=it.sts.map{sts->sts.copy(record=true)})})
             val routed=ImportedStsBatch.prepareFull(file,ranged,1).keyboardParts()
             assertTrue(routed.all{it.enabled && it.fromKey==48 && it.toKey==60})
+            val current=mapOf(1 to snapshot("Current").copy(record=true,settings=ImportedChannelSettings(volume=40)),
+                2 to snapshot("Current").copy(record=true,settings=ImportedChannelSettings(volume=60)))
+            val masked=ImportedStsBatch.prepareMasked(file,index,1,current,List(21){false})
+            assertEquals(listOf(40,60),masked.keyboardParts().map{it.sound.keyboardSettings.volume})
+            assertTrue(masked.keyboardParts().all{it.enabled})
             prepared.voices.values.forEach{assertEquals(.25,it.sound.sample(60,0),1e-9)}
             try{ImportedStsBatch.prepareFull(file,index.copy(tracks=index.tracks+master.copy(sts=emptyList())),1);fail("Partial batch accepted")}
             catch(expected:IllegalStateException){}

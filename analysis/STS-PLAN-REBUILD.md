@@ -39,3 +39,11 @@ Chưa kiểm thử aftertouch đa part bằng PCM alternate, chưa nối poly/ch
 Đối chiếu Tracks.RecordMusic: note-on (2/4) chỉ vào track có fRecord và phím gốc nằm trong [fKeyAreaFromKey, fKeyAreaToKey], bao gồm hai đầu. Note-off (1) bỏ qua điều kiện Record/vùng phím. ImportedKeyboardParts.Part nay giữ enabled/fromKey/toKey và lọc trước keyboardNote transpose, không lọc note-off. Đổi part tắt/vùng mới không làm nốt cũ kẹt.
 
 Prepared.keyboardParts lấy enabled từ STS.Record (đường full snapshot) và vùng phím từ Track trong SET, không suy từ instrument range hoặc ChordSingles. Kiểm thử biên chung hai vùng, part tắt, ngoài vùng, đổi vùng rồi nhả nốt và truyền dữ liệu batch đều đạt; test queue/parts/batch và assembleDebug đạt. Các lượt STS change-mask bỏ qua Record vẫn chưa được hỗ trợ bởi prepareFull; không tuyên bố executor hoàn chỉnh. Vẫn chưa bật đường này qua UI và chưa cài bản nội bộ.
+
+## Trộn thông số theo change mask
+
+ImportedStsChanges.channel đối chiếu Track.Play(64) → z01.e: cờ 13 volume, 14 pan, 15 transpose, 16 octave, 17 release, 18 FX enable/modules. Tune z01.d không được e() chép nên giữ giá trị hiện hành. Trường z01.e được chép cùng volume nhưng parser hiện chưa giữ trường đó; chưa tuyên bố toàn bộ header tương đương. Track merge áp cờ 8 Record, 9 instrument, 10 pedal, 11 mode, 12 system, 19 expression; không đổi ChordType/MIDI vì các trường này có đường xử lý khác.
+
+prepareMasked nhận snapshot hiện hành theo vị trí part, merge trước global pitch/PCM load; thiếu current part báo lỗi, Record tắt trong mask được giữ đúng. Hiện chỉ nhận instrument/mode không đổi hoặc bị mask giữ lại, vì handler 61/62 còn reset/reload riêng chưa dựng. Chưa xử lý cờ Master 0..7/20 tại commit engine. Full snapshot API vẫn riêng, không giả làm mask đầy đủ.
+
+Test từng cờ channel, Tune giữ nguyên, track/chord/MIDI giữ đúng và batch PCM giữ hai volume/Record hiện hành đều đạt; test changes/batch/plan và assembleDebug đạt. Chưa bật UI, chưa cài bản nội bộ.

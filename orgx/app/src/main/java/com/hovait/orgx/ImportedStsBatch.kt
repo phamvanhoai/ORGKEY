@@ -30,6 +30,20 @@ object ImportedStsBatch {
         return Selection(slot,master,members,actions)
     }
     /** Full voice snapshots only. Masked PCM preparation requires current Track state. */
+    fun prepareMasked(file:File,index:ImportedSetIndex,slot:Int,current:Map<Int,ImportedSts>,changes:List<Boolean>):Prepared {
+        val selection=resolve(index,slot,changes)
+        val effective=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
+            .associate{member->
+                val prior=current[member.position] ?: error("Current STS part ${member.position} unavailable")
+                // Instrument/Mode handlers have additional reset semantics. Require
+                // stable selections until those transitions are reconstructed.
+                require(!changes[9] || prior.instrument==member.snapshot.instrument){"Masked STS instrument transition not implemented"}
+                require(!changes[11] || prior.mode==member.snapshot.mode){"Masked STS mode transition not implemented"}
+                member.position to ImportedStsChanges.track(prior,member.snapshot,changes)
+            }
+        val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,index,snapshot)}
+        return Prepared(file,index,selection,voices)
+    }
     fun prepareFull(file:File,index:ImportedSetIndex,slot:Int):Prepared {
         val selection=resolve(index,slot)
         // Resolve all slots first, so a missing later Track cannot cause partial apply.
