@@ -7,3 +7,11 @@ Giữ mặc định 21 cờ fSTSChanges theo Music constructor. Các cờ instru
 Kiểm thử ImportedStsPlanTest xác nhận thứ tự mặc định, event ID đối chiếu TrackEvent.java, cờ toàn cục, nhánh giữ cấu hình, track không phải keyboard và thiếu Master. Test này cùng ImportedStsIntegrationTest đạt, assembleDebug đạt.
 
 Đây là bộ lập lệnh đã có mã và kiểm thử, CHƯA nối vào audio engine. Chưa có executor đa Track, chưa đổi cơ chế chọn STS đang áp một voice, chưa có UI mặt nạ. Vì vậy chưa tuyên bố STSPut đa Track hoạt động trong ứng dụng. Bước tích hợp phải chuẩn bị tất cả PCM trước rồi commit cả nhóm, không áp tuần tự để tránh trạng thái nửa cũ nửa mới.
+
+## Chuẩn bị nhóm STS
+
+ImportedStsBatch.resolve đối chiếu Tracks.GroupAdd: fTracksMain là danh sách Group 0. Giữ cả vị trí trong main list và index gốc trong SET, loại track rhythm thuộc group khác; yêu cầu Master là track index 0 và slot bật/không mơ hồ trên từng track. Bộ lập lệnh nhận đúng vị trí main thay vì index toàn SET.
+
+prepareFull chuẩn bị tiếng cho tối đa bốn track đầu kind 0/1 qua ImportedStsLoader, trả một kết quả nhóm duy nhất sau khi nạp xong. Chưa thay bất cứ engine state nào trong quá trình chuẩn bị. Các track khác vẫn có trong selection/actions. Đây là chuẩn bị snapshot đầy đủ, chưa phải áp change-mask dựa trên state hiện tại.
+
+ImportedStsBatchTest xác nhận rhythm track xen giữa không làm lệch vị trí main, hai voice nạp PCM đúng, và thiếu slot ở track cuối khiến toàn bộ preparation thất bại. Test batch/plan và assembleDebug đạt. CHƯA có commit nhóm vào mixer; không cài bản này vì chưa thay hành vi ứng dụng. Cần thêm ngân sách bộ nhớ chung, mixer multi-part, xử lý mặt nạ với state hiện hành và commit nhóm trước khi tích hợp UI.
