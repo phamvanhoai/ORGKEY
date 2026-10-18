@@ -5,6 +5,8 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStylePlayerTest {
+    @org.junit.Before fun installJvmNativeAdapter(){ImportedNativeReverb.testBackend.set(JvmReverbBackend())}
+    @org.junit.After fun removeJvmNativeAdapter(){ImportedNativeReverb.testBackend.remove()}
     private val section=ImportedSection(60,48000,1,4,100,0,0,0,0,0,0,ImportedWave(0,8))
     private fun instrument(type:Int)=ImportedInstrument("Sound",100,0,type,
         listOf(ImportedSound("Main",listOf(0,0,100,10,0,0),listOf(section))))

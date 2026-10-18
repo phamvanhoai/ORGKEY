@@ -3,12 +3,17 @@ package com.hovait.orgx
 import java.io.File
 import org.junit.Test
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.After
 
 class LocalStyleCompatibilityTest {
+    @Before fun useExplicitJvmNativeAdapter(){ImportedNativeReverb.testBackend.set(JvmReverbBackend())}
+    @After fun clearNativeAdapter(){ImportedNativeReverb.testBackend.remove()}
     @Test fun reportLocalSetCompatibility(){
         val file=System.getProperty("orgx.legacySet")?.let(::File) ?: return
         val index=ImportedSetInstruments.index(file)
         val report=buildString {
+            appendLine("JVM Reverb backend bypassed: native DSP requires on-device validation.")
             appendLine("Track channel data: "+index.tracks.groupingBy{"kind=${it.kind}, volume=${it.volume}, pan=${it.pan}, solo=${it.solo}"}.eachCount())
             appendLine("Instrument modes: ${index.instruments.sumOf{it.modes.size}}; enabled mix slots: ${index.instruments.sumOf{instrument->instrument.modes.sumOf{mode->mode.mix.count{it>=0}}}}")
             appendLine("Global rhythm: volume=${index.rhythmSettings.volume}, balance=${index.rhythmSettings.pan}, fx=${index.rhythmSettings.fxEnabled}, modules=${index.rhythmSettings.modules.map{it.type to it.enabled}}")

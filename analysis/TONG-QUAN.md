@@ -1,6 +1,6 @@
 # Tổng quan APK ORG 24
 
-Đã thêm wrapper JNI cho Reverb native có sẵn trong project, gồm ownership handle, flush/close và khóa cặp lệnh stereo. Chưa nối wrapper này vào chuỗi FX phát SET; không tính là Reverb đã hoàn chỉnh. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+Đã nối Reverb native (FX 29) vào chuỗi FX SET, gồm cấp phát khi có tín hiệu, ownership handle, flush/close và khóa cặp lệnh stereo. Dùng binary gốc có sẵn trong project; chưa khôi phục mã nguồn thuật toán và chưa xác nhận tương đương toàn bộ SET. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã bổ sung Band Move (FX 2): gain hai nhóm band đối nghịch, delay, speed, loop đổi chiều và ngưỡng tín hiệu theo `sofeh.audio.c`/native bandMove. Giữ history khi đổi gain/reset; phạm vi 48 kHz. Chưa xác nhận bằng binary native hoặc bản thu. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 

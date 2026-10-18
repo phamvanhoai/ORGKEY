@@ -22,6 +22,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     val player get()=players.getValue(currentId)
     val pendingId get()=synchronized(this){queue.firstOrNull()?.id}
     fun available(id:Int)=id in players
+    fun close(){players.values.forEach{it.close()}}
     /** MainActivity.B1 keeps the section, with Fill/Break returning to Main. */
     fun continueFrom(previous:ImportedStyleSession){
         val (section,time)=synchronized(previous){previous.groups.getValue(previous.currentId).section to previous.clock.time}

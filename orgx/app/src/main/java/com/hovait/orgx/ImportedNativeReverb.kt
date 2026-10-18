@@ -3,7 +3,11 @@ package com.hovait.orgx
 import sofeh.audio.NGVerb
 
 /** Explicitly owned reference-native reverb. Call close when the audio owner releases it. */
-class ImportedNativeReverb(payload:List<Int>,sampleRate:Int,private val backend:Backend=NativeBackend):AutoCloseable {
+class ImportedNativeReverb(payload:List<Int>,sampleRate:Int,private val backend:Backend=testBackend.get() ?: NativeBackend):AutoCloseable {
+    companion object {
+        // JVM tests cannot execute Android ELF. A scoped backend makes that limitation explicit.
+        internal val testBackend=ThreadLocal<Backend>()
+    }
     interface Backend {
         fun open(rate:Int,values:List<Int>):Long
         fun process(handle:Long,left:Long,right:Long,mix:Int):Pair<Long,Long>

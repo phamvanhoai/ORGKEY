@@ -35,13 +35,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             }
         }
         collect(previous)
-        while(releaseTails.size>32)releaseTails.removeAt(0)
+        while(releaseTails.size>32)releaseTails.removeAt(0).close()
     }
     private fun nextReleaseTails(){
         val iterator=releaseTails.iterator()
         while(iterator.hasNext()){
             val tail=iterator.next();tail.renderVoices(tail.tailGain)
-            if(tail.voices.isEmpty() && tail.fx?.active!=true)iterator.remove()
+            if(tail.voices.isEmpty() && tail.fx?.active!=true){tail.close();iterator.remove()}
         }
     }
     private var groupFx:ImportedFxChain?=null
@@ -56,7 +56,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         if(previous===this || groupFxSettings!=previous.groupFxSettings)return
         val live=previous.groupFx ?: return
         previous.groupFx=null
-        groupFx=live
+        groupFx?.close();groupFx=live
     }
     fun withRhythmSettings(settings:ImportedChannelSettings,music:ImportedChannelSettings=ImportedChannelSettings()):ReferenceRhythmPlayer=also{
         rhythmSettings=settings;musicSettings=music
@@ -84,7 +84,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     fun mixedRight(drumGain:Float,chordGain:Float):Double =
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
-    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    fun close(){fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
+    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false,preserveVoices:Boolean=false){
         require(referenceTime>=0)
         if(preserveVoices){

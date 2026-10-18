@@ -17,8 +17,10 @@ class ImportedKeyboardMixer {
     fun configureMusic(settings:ImportedChannelSettings){
         if(settings==musicSettings)return
         // Gain changes must not discard an echo already in flight.
-        if(settings.fxEnabled!=musicSettings.fxEnabled || settings.modules!=musicSettings.modules)
+        if(settings.fxEnabled!=musicSettings.fxEnabled || settings.modules!=musicSettings.modules){
+            musicFx.close()
             musicFx=ImportedFxChain(settings)
+        }
         musicSettings=settings
     }
     var left=0.0;private set
@@ -36,10 +38,11 @@ class ImportedKeyboardMixer {
             bus.fx.process(bus.left*settings.volume/100.0*minOf(100,100-settings.pan)/100.0,
                 bus.right*settings.volume/100.0*minOf(100,100+settings.pan)/100.0)
             left+=bus.fx.left;right+=bus.fx.right
-            if(!bus.notes && !bus.fx.active)iterator.remove()
+            if(!bus.notes && !bus.fx.active){bus.fx.close();iterator.remove()}
         }
         musicFx.process(left,right)
         left=musicFx.left;right=musicFx.right
     }
-    fun reset(){buses.clear();musicFx=musicFx.fresh();left=0.0;right=0.0}
+    fun close(){buses.values.forEach{it.fx.close()};buses.clear();musicFx.close();left=0.0;right=0.0}
+    fun reset(){close();musicFx=musicFx.fresh()}
 }

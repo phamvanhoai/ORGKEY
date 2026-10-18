@@ -154,7 +154,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             })
         else AudioTrackBackend(track,sampleRate)
         outputLoop = AudioOutputLoop(start={backend.start();if(!preferNativeOutput)outputStatus="AudioTrack"},
-            render=::renderBlock,write={samples,offset,count->backend.write(samples,offset,count)},release={backend.close()},
+            render=::renderBlock,write={samples,offset,count->backend.write(samples,offset,count)},release={
+                try{backend.close()}finally{importedKeyboardMixer.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.close()}
+            },
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
 
@@ -188,7 +190,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
     private val pendingStyle=java.util.concurrent.atomic.AtomicReference<ImportedStyleSession?>(null)
-    fun selectImportedStyle(session:ImportedStyleSession){pendingStyle.set(session)}
+    fun selectImportedStyle(session:ImportedStyleSession){pendingStyle.getAndSet(session)?.close()}
     fun requestStyleSection(id:Int){
         val session=importedStyleSession ?: return
         if(!session.available(id))return
@@ -301,6 +303,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private fun rhythmSample(): Double {
         pendingStyle.getAndSet(null)?.let{session->
             if(rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
+            importedStyleSession?.close()
             importedStyleSession=session;importedRhythm=session.player;importedRhythmName=session.displayName
             session.takeTempoChange()?.let{bpm=it}
         }

@@ -1,7 +1,7 @@
 package com.hovait.orgx
 
 /** Ordered SET track DSP stages; state belongs to a track, never the sample bank. */
-class ImportedFxChain(private val settings:ImportedChannelSettings,private val sampleRate:Int=48000) {
+class ImportedFxChain(private val settings:ImportedChannelSettings,private val sampleRate:Int=48000):AutoCloseable {
     fun fresh()=ImportedFxChain(settings,sampleRate)
     private interface Stage {
         var left:Double
@@ -9,6 +9,24 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun process(l:Double,r:Double)
         fun reset()
         val active:Boolean
+        fun close(){ }
+    }
+    private class Reverb(private val payload:List<Int>,private val sampleRate:Int):Stage {
+        private var native:ImportedNativeReverb?=null
+        private var remaining=0L
+        private var closed=false
+        override var left=0.0;override var right=0.0
+        override val active get()=remaining>0
+        override fun process(l:Double,r:Double){
+            check(!closed){"SET Reverb stage is closed"}
+            if(l!=0.0 || r!=0.0)remaining=sampleRate.toLong()*(payload[1]*2L+1) else if(remaining>0)remaining--
+            // Allocate only on the audio thread, when this stage first receives signal.
+            val processor=native ?: if(remaining>0)ImportedNativeReverb(payload,sampleRate).also{native=it} else null
+            if(processor==null){left=l;right=r;return}
+            processor.process(l,r);left=processor.left;right=processor.right
+        }
+        override fun reset(){native?.reset();remaining=0;left=0.0;right=0.0}
+        override fun close(){if(!closed){closed=true;native?.close();native=null;remaining=0}}
     }
     private class BandMove(from:Int,to:Int,private val delay:Int,speed:Int,private val loop:Boolean,sampleRate:Int):Stage {
         private val eq=Equalizer(List(8){if(it<4)100-from else 100+from},sampleRate)
@@ -260,7 +278,11 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2,29)}.map{
+        if(it.type==29){
+            require(it.payload.size==8 && it.payload.take(7).all{v->v in 1..100}){"Invalid SET Reverb parameters"}
+            return@map Reverb(it.payload,sampleRate)
+        }
         if(it.type==2){
             require(it.payload.size==17){"Invalid Band Move payload"}
             val from=int(it.payload,0)-100;val to=int(it.payload,4)-100
@@ -327,6 +349,7 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     var right=0.0;private set
     val active get()=stages.any{it.active}
     fun reset(){stages.forEach{it.reset()};left=0.0;right=0.0}
+    override fun close(){stages.forEach{it.close()};left=0.0;right=0.0}
     fun process(inputLeft:Double,inputRight:Double){
         left=inputLeft;right=inputRight
         for(stage in stages){

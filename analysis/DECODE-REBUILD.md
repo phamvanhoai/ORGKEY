@@ -26,13 +26,15 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
-### Wrapper Reverb native, chưa nối vào chain SET
+### Reverb native đã nối vào chain SET
 
 Đã thêm khai báo JNI `sofeh.audio.NGVerb` cho libngverb đã có trong jniLibs và `ImportedNativeReverb` sở hữu handle tường minh. Tham số open theo `w01.e`: maxRoom 100, room/time từ payload, damping/bandwidth/early/tail chia 100, spread .5; mix lấy byte 6. JNI stereo quy đổi input/output theo 32768 như assembly, không dùng 6553600 của các module Java khác.
 
-Cặp processStereoLeft/processStereoRight được khóa toàn cục vì output phải nằm trong biến global của thư viện. process/reset/close khóa instance để không dùng handle đã giải phóng; close idempotent, reset flush native. Kiểm thử adapter bằng backend giả cho scale stereo, mix, payload, flush/close và cấm dùng sau close. Đây chưa phải kiểm thử thuật toán native. Wrapper chưa nối vào ImportedFxChain do cần hoàn thiện quyền sở hữu/giải phóng chain khi chuyển style/voice; Reverb trong SET vẫn chưa được phát qua đường mới. Không coi wrapper là đã dựng xong Reverb hay khôi phục mã nguồn C/C++.
+Cặp processStereoLeft/processStereoRight được khóa toàn cục vì output phải nằm trong biến global của thư viện. process/reset/close khóa instance để không dùng handle đã giải phóng; close idempotent, reset flush native. Module 29 đã nối vào ImportedFxChain ở đúng thứ tự; chỉ cấp phát handle khi có input. Thay style đóng session cũ sau khi chuyển các tail/chain cần giữ; bỏ tail/bus, thay Music FX và audio owner kết thúc đều đóng chain. Module chưa phát không cấp phát native.
 
-Xác minh: build debug thành công, 259 kiểm thử JVM không lỗi. Chưa chạy wrapper native trên thiết bị; chưa cài bản này vì chưa thay đổi đường phát âm thanh.
+Kiểm thử JVM dùng backend giả tường minh để kiểm tra đường nối/ownership, không xác nhận DSP. Kiểm tra Android riêng gọi ELF thật cho impulse/tail/flush/close. Thư viện native là binary gốc đã có trong project, chưa phải mã C/C++ được dựng lại. Giới hạn: thời gian giữ bus Reverb không còn note hiện dùng 2*revtime+1 giây, chưa đối chiếu chính xác ngưỡng cắt tail gốc; chưa đo thời gian xử lý nhiều track hoặc so bản thu toàn bộ SET. Reset/close có thể cắt tail theo lifecycle hiện tại của session.
+
+Xác minh: build debug và Android test APK thành công; 261 kiểm thử JVM không lỗi. Instrumentation `com.hovait.orgx.NativeReverbSmoke` trên thiết bị 88d75c04 chạy JNI thật: PASS impulse/tail/flush/close, peak wet tail 0.0714111328125, đóng/mở thêm tám lần thành công. APK mới đã cài; file SET đầu vào giữ nguyên. Chưa phải so sánh end-to-end với bản thu APK gốc.
 
 ### Band Move, type 2
 
