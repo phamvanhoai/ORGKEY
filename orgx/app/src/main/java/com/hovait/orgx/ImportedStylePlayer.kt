@@ -51,7 +51,7 @@ object ImportedStylePlayer {
                     val target=if(follow && melodic)targetChord?.invoke() else null
                     val mapped=if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target)
                     ImportedStyleSupport.shiftedNote(mapped,track.copy(settings=settings),melodic)
-                },sampled=sound,fx=ImportedFxChain(settings),initiallyMuted=track.muted,initialChannel=settings,expressionEffects=track.effects)
+                },sampled=sound,fx=ImportedFxChain(settings),initiallyMuted=track.muted,initialChannel=settings,expressionEffects=track.effects,initialPedal=track.pedal!=0)
         }).withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings,index.musicSettings)}
     }
 }

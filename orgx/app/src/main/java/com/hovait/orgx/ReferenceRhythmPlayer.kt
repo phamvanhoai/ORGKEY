@@ -6,9 +6,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val accompaniment:Boolean=false,private val mapNote:(Int)->Int={it},private val envelope:ImportedEnvelope?=null,
     private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0},private var fx:ImportedFxChain?=null,
     private val initiallyMuted:Boolean=false,private val initialChannel:ImportedChannelSettings?=null,
-    private val expressionEffects:List<ImportedExpressionEffect> = emptyList()) {
+    private val expressionEffects:List<ImportedExpressionEffect> = emptyList(),private val initialPedal:Boolean=false) {
     private var volumeShake=expressionEffects.firstOrNull{it.slot==3}
-    private fun resetExpression(){volumeShake=expressionEffects.firstOrNull{it.slot==3}}
+    private fun resetExpression(){volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -21,7 +21,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val voices=LinkedHashMap<Long,Voice>()
     private var voiceSequence=0L
     private var eventMuted=initiallyMuted
-    private var pedalDown=false
+    private var pedalDown=initialPedal
     private var channelVolume=initialChannel?.volume ?: 100
     private var channelPan=initialChannel?.pan ?: 0
     private fun currentChannelGain(channel:Int)=if(initialChannel==null)channelGain(channel) else
@@ -111,7 +111,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     fun close(){fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
-    fun reset(){resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=initiallyMuted;pedalDown=false;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    fun reset(){resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false,preserveVoices:Boolean=false){
         require(referenceTime>=0)
         if(preserveVoices){

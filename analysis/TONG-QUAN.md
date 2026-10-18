@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Track parser giữ thêm pedalMode, pedal và keyAreaFrom/keyAreaTo theo Track.ReadFromStream (7 byte reserved + 4 int32-le), thay skip 23 byte. Style khởi tạo/reset pedal từ giá trị lưu trong Track; test Volume Shake ByPedal không có event pedal-on vẫn hoạt động và tái hoạt động sau reset. Test index 112 STS trên SET legacy và build đạt. Vùng phím chỉ được giữ, chưa áp bộ lọc vì chưa xác định phạm vi tác động trong playback gốc; các pedal mode chuyên biệt vẫn chưa được port.
+
 Nạp STS nền nay chỉ chuẩn bị PCM, không đổi engine trên Dispatchers.IO. Sau khi coroutine trở lại giao diện và chưa bị hủy, engine kiểm tra bank/index/voice vẫn đúng trước khi áp dụng; đóng màn hình hoặc đổi voice trong lúc nạp không còn để kết quả cũ tự ghi đè. Khôi phục lúc mở app cũng đi qua cùng bước prepare/apply. Build và test loader/selection đạt; chưa kiểm chứng vòng đời màn hình trên thiết bị.
 
 Đã nối automation event 65 cho riêng Volume Shake slot 3, parameter 0–6 (Enable/Delay/ByPedal/StopByRelease/Speed/Depth/Gain). Timeline cập nhật voice đang ngân và cấu hình cho note-on tiếp theo; reset trả về cấu hình ban đầu, các slot/parameter khác vẫn bị bộ kiểm tra từ chối. Test render timeline thay đổi Effect giữa nốt đạt. Chưa port setter/clamp gốc hoặc fSTSChanges và các nhánh effect khác; cần đối chiếu file thực có event 65.

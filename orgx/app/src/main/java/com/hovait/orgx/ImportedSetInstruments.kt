@@ -16,7 +16,8 @@ data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val sect
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4,val settings:ImportedChannelSettings=ImportedChannelSettings(),
     val chordType:Int=0,val chordBase:Int=0)
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
-    val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList(),val effects:List<ImportedExpressionEffect> = emptyList())
+    val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList(),val effects:List<ImportedExpressionEffect> = emptyList(),
+    val pedalMode:Int=0,val pedal:Int=0,val keyAreaFrom:Int=0,val keyAreaTo:Int=127)
 data class ImportedSystem(val name:String,val startKey:Int,val selectedKeys:Int,val table:List<Double>)
 data class ImportedSts(val name:String,val record:Boolean,val midiChannel:Int,val instrument:Int,val system:Int,
     val pedal:Int,val mode:Int,val data1:Int,val data2:Int,val chordType:Int,val chordSingle:List<Int>,
@@ -144,7 +145,8 @@ object ImportedSetInstruments {
                     val enabled=List(number){f.readBoolean()};enabled.forEachIndexed{slot,on->if(on)add(parseSts().copy(slot=slot))}
                 }
             }
-            skip(23);val channelFx=fx();val channelEffects=effects()
+            skip(7);val pedalMode=int();val pedal=int();val keyAreaFrom=int();val keyAreaTo=int()
+            val channelFx=fx();val channelEffects=effects()
             val events=List(count(2000000)){
                 val type=java.lang.Short.reverseBytes(f.readShort()).toInt()
                 val tune=java.lang.Short.reverseBytes(f.readShort()).toInt()
@@ -152,7 +154,8 @@ object ImportedSetInstruments {
                 require(type!=101){"Embedded wave events in SET tracks are not supported yet"}
                 ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune)
             }
-            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts,effects=channelEffects)
+            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts,effects=channelEffects,
+                pedalMode=pedalMode,pedal=pedal,keyAreaFrom=keyAreaFrom,keyAreaTo=keyAreaTo)
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
