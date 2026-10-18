@@ -131,7 +131,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==2 && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
-                voices[event.id]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note,event.tune),
+                voices[event.id]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note,event.tune,ImportedNoteTouch.pan(event.touch)),
                     panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1))
             } else if(event.type==1)voices[event.id]?.release=0
         }
@@ -146,7 +146,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             val voice=iterator.next()
             if(voice.playback!=null){
                 voice.playback.next(voice.release>=0)
-                left+=voice.playback.left*voice.gain*voice.panLeft*channelGain(0);right+=voice.playback.right*voice.gain*voice.panRight*channelGain(1)
+                left+=voice.playback.left*voice.gain*channelGain(0);right+=voice.playback.right*voice.gain*channelGain(1)
                 if(voice.playback.finished)iterator.remove()
                 continue
             }

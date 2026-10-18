@@ -30,7 +30,9 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 Đã tách event.touch theo Channels.OpenKey: low 16 bit unsigned là velocity/100, high 16 bit signed là pan. Trước đây dùng cả Int làm gain và chặn giá trị âm về 0, nên nốt có pan âm có thể im, pan dương tạo gain quá lớn. Mỗi voice giữ gain pan trái/phải riêng, áp trước channel FX; cả nhánh sampled và fallback đều nhận. Kiểm thử hai nốt đồng thời pan đối nghịch, velocity khác nhau và Touch âm.
 
-Giới hạn hiện tại: pan note áp thành hệ số trên output sample đã có pan instrument/region, trong khi gốc cộng note+instrument+region pan trước clamp. Trường hợp các pan đối nghịch chưa hoàn toàn tương đương; chưa có đối chiếu bản thu hoặc hỗ trợ aftertouch thay pan lúc nốt ngân. Các sự kiện ngoài note-on/off vẫn bị chặn rõ ràng.
+Đã hoàn thiện pan note tại SampledInstrument.Playback: cộng notePan với region.pan (đã gồm instrument/Mix pan) trước min(100,100±pan). Không nhân thêm note pan ở output sampled voice; fallback giữ hệ số pan riêng vì không có region. MODE truyền pan xuống từng layer. Giữ công thức không chặn dưới như Channels.OpenKey, kể cả tổng pan vượt ±100; không tự clamp sang công thức khác. Kiểm thử pan đối nghịch triệt tiêu, hai chiều, timeline không áp hai lần và các layer pan khác nhau.
+
+Chưa có đối chiếu bản thu hoặc hỗ trợ aftertouch thay pan lúc nốt ngân. Pan channel vẫn xử lý ở bus channel như trước; các sự kiện ngoài note-on/off vẫn bị chặn rõ ràng.
 
 Xác minh: build debug thành công, 269 kiểm thử không lỗi. Đã cài cập nhật và mở trên điện thoại; SET giữ nguyên.
 
