@@ -40,6 +40,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var bpm = 120
     @Volatile var instrument = 0
     @Volatile var importedInstrument:SampledInstrument?=null
+        set(value){if(field!==value)clearStsParts();field=value}
     @Volatile var importedInstrumentName:String?=null
     @Volatile var activeSetFile:File?=null
     @Volatile var activeSetIndex:ImportedSetIndex?=null
@@ -99,6 +100,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
     /** Per-key aftertouch from the hardware piano surface; sound switching remains mode-dependent. */
     fun keyboardNotePressure(note:Int,pressure:Float){
+        if(stsPartsEnabled)stsParts.pressure(note,pressure.coerceIn(0f,1f))
         val key=MidiVoiceKey.key(note,0,false)
         captureMidi(0xa0,note,(pressure.coerceIn(0f,1f)*127).toInt())
         voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
@@ -121,6 +123,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         pitchState.set(value,channel,playback)
         if(!playback){val bend=value.coerceIn(0,16383);captureMidi(0xe0 or channel,bend and 127,bend shr 7)}
         val semitones=MidiPitchBend.semitones(value)
+        if(stsPartsEnabled && !playback && channel==0)stsParts.pitchBend(semitones)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
     }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
@@ -259,6 +262,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         captureMidi(0x80 or channel,note,0)
     }
     fun setSustainEnabled(enabled:Boolean) {
+        if(stsPartsEnabled)stsParts.pedal(enabled)
         if(sustain!=enabled)MidiRecordingPedal.messages(enabled).forEach{message->
             captureMidi(message[0].toInt() and 255,64,message[2].toInt() and 127)
         }

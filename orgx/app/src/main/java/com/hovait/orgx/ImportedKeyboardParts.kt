@@ -8,6 +8,7 @@ class ImportedKeyboardParts {
         var released:Boolean=false,var waiting:Boolean=false)
     private var parts:Map<Int,Part> = emptyMap()
     private val notes=ArrayList<Note>()
+    private var bend=0.0
     val activeNotes:Int get()=notes.size
     fun replace(values:List<Part>){
         require(values.size<=4 && values.all{it.id in 1..4} && values.map{it.id}.distinct().size==values.size)
@@ -18,7 +19,9 @@ class ImportedKeyboardParts {
         if(velocity==0.0){noteOff(key);return}
         parts.values.forEach{part->
             if(notes.size>=512)notes.removeAt(0)
-            notes.add(Note(part.id,key,part.sound,part.sound.voice(part.sound.keyboardNote(key)),velocity,part.pedal))
+            val playback=part.sound.voice(part.sound.keyboardNote(key))
+            playback.pitchBend(bend)
+            notes.add(Note(part.id,key,part.sound,playback,velocity,part.pedal))
         }
     }
     fun noteOff(key:Int){
@@ -33,6 +36,17 @@ class ImportedKeyboardParts {
             if(!down && it.waiting){it.waiting=false;it.released=true}
         }
     }
+    fun pedalAll(down:Boolean){
+        (parts.keys+notes.map{it.part}).toSet().forEach{pedal(it,down)}
+    }
+    fun pitchBend(semitones:Double){
+        require(semitones.isFinite() && kotlin.math.abs(semitones)<=48)
+        bend=semitones;notes.forEach{it.playback.pitchBend(semitones)}
+    }
+    fun pressure(key:Int,value:Float){
+        require(value.isFinite() && value in 0f..1f)
+        notes.filter{it.key==key && !it.released}.forEach{it.playback.aftertouch(value)}
+    }
     /** Caller begins/finishes the shared mixer once, including all other voices. */
     fun renderInto(mixer:ImportedKeyboardMixer){
         val iterator=notes.iterator()
@@ -43,5 +57,5 @@ class ImportedKeyboardParts {
             if(note.playback.finished)iterator.remove()
         }
     }
-    fun reset(){notes.clear()}
+    fun reset(){notes.clear();bend=0.0}
 }

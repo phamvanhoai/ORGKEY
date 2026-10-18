@@ -27,3 +27,9 @@ Prepared.keyboardParts chuyển kết quả batch sang part đúng vị trí v�
 ImportedKeyboardPartQueue nối vào AudioEngine.renderBlock trước finishFrame của mixer chung. applyPreparedStsBatch kiểm tra file/index hiện hành, đưa toàn bộ part đã nạp vào một lệnh replace; khi đường đa part được bật, keyboardNoteOn/Off gửi lệnh vào hàng đợi. Chỉ audio thread thay Playback và danh sách part. Chọn STS một voice hoặc đổi SET xóa đường đa part. Lệnh replace giữ live voice cũ theo chính sách của ImportedKeyboardParts, clear xóa nốt và part. Đây là đường full snapshot, chưa thực thi Action plan hay change masks.
 
 Test queue xác nhận thứ tự replace → note-on → replace → note-on, nhả nốt, clear, sao chép list và từ chối part lỗi trước enqueue. Test queue/parts/mixer/batch và assembleDebug đạt. CHƯA bật qua giao diện nên ứng dụng vẫn chọn STS một voice; chưa cài bản này. Vẫn thiếu pedal live, pressure/bend/MIDI recording đa part, vùng phím, tránh state cũ khi chọn voice thường, ngân sách PCM chung và commit đồng bộ Master/FX/chord trước khi có thể công bố STS đa Track dùng được.
+
+## Pedal và biểu cảm live
+
+Đã nối setSustainEnabled vào pedalAll qua queue, áp cho cả part hiện hành lẫn voice thuộc part cũ còn ngân. Pitch bend live kênh 0 đi qua queue, cập nhật nốt hiện hành và lưu cho note-on sau; clear trả bend về unity. Pressure từ keyboard surface gọi aftertouch từng Playback đa part (chưa thay gain velocity theo pressure). Setter importedInstrument xóa đường đa part khi chọn tiếng thường. Test pedal-off sau thay nhóm và ramp PCM pitch bend/clear đạt; test queue/parts/mixer/batch và assembleDebug đạt.
+
+Chưa kiểm thử aftertouch đa part bằng PCM alternate, chưa nối poly/channel pressure MIDI hoặc ghi MIDI note của đường đa part. Vẫn chưa bật giao diện, chưa cài bản nội bộ này; vùng phím, change masks, Master và ngân sách PCM chung còn thiếu.

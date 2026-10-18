@@ -16,6 +16,15 @@ class ImportedKeyboardPartQueue {
         commands.add{parts.noteOn(note,velocity)}
     }
     fun noteOff(note:Int){commands.add{parts.noteOff(note)}}
+    fun pedal(down:Boolean){commands.add{parts.pedalAll(down)}}
+    fun pitchBend(semitones:Double){
+        require(semitones.isFinite() && kotlin.math.abs(semitones)<=48)
+        commands.add{parts.pitchBend(semitones)}
+    }
+    fun pressure(note:Int,value:Float){
+        require(value.isFinite() && value in 0f..1f)
+        commands.add{parts.pressure(note,value)}
+    }
     fun clear(){commands.add{parts.reset();parts.replace(emptyList())}}
     fun renderInto(mixer:ImportedKeyboardMixer){
         while(true){val command=commands.poll() ?: break;command()}
