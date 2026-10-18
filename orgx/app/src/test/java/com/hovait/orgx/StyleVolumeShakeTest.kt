@@ -16,13 +16,16 @@ class StyleVolumeShakeTest {
             val event=ReferenceDrumEvent(2,1,60,100,0,1000)
             val shake=ImportedExpressionEffect(3,true,0,true,false,0,100,20,10,emptyList())
             val plain=ImportedTrack("Plain",1,0,false,listOf(event))
-            val modulated=plain.copy(name="Shake",events=listOf(event),effects=listOf(shake),pedal=1)
+            val modulated=plain.copy(name="Shake",events=listOf(event,ReferenceDrumEvent(65,3,0,0,20,0)),effects=listOf(shake),pedal=1)
             val index=ImportedSetIndex(listOf(instrument),listOf(group),listOf(plain,modulated))
             val player=ImportedStylePlayer.load(file,index,group,true)
             try{
                 repeat(480){player.next(0,120)}
                 assertEquals(.25*(2+sin(1.0)*.1),player.left,1e-9)
                 assertEquals(.25*(2+sin(1.0)*.3),player.right,1e-9)
+                repeat(481){player.next(0,120)}
+                assertEquals(.5,player.left,1e-9)
+                assertEquals(.5,player.right,1e-9)
                 player.reset();player.next(0,120)
                 assertEquals(.5,player.left,1e-9)
                 repeat(479){player.next(0,120)}

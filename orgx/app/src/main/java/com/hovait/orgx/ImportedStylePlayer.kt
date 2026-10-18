@@ -24,8 +24,10 @@ object ImportedStylePlayer {
         }}
         val byGroup=groups.associate{it.id to ImportedStyleSupport.playbackTracks(index,it,includeAccompaniment)}
         val tracks=byGroup.values.flatten()
-        data class SoundKey(val instrument:Int,val type:Int,val system:Int,val settings:ImportedChannelSettings,val effects:List<ImportedExpressionEffect>)
-        fun key(track:ImportedTrack)=SoundKey(track.instrument,checkNotNull(ImportedStyleSupport.instrument(index,track)).type,track.system,ImportedStyleSupport.channelSettings(index,track),track.effects)
+        // Expression belongs to Track/Playback, not immutable decoded PCM.
+        // Sharing samples must not share per-note phase or channel automation.
+        data class SoundKey(val instrument:Int,val type:Int,val system:Int,val settings:ImportedChannelSettings)
+        fun key(track:ImportedTrack)=SoundKey(track.instrument,checkNotNull(ImportedStyleSupport.instrument(index,track)).type,track.system,ImportedStyleSupport.channelSettings(index,track))
         val selected=tracks.groupBy(::key).mapValues{(_,parts)->
             val source=checkNotNull(ImportedStyleSupport.instrument(index,parts.first()))
             if(follow && source.type==0){
@@ -37,7 +39,7 @@ object ImportedStylePlayer {
         require(selected.values.sumOf{source->ImportedInstrumentLoader.layers(source).sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}}<=64L*1024*1024){
             "Style exceeds 64 MB PCM budget"
         }
-        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings,index.musicSettings).withExpressionEffects(key.effects)}
+        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings,index.musicSettings)}
         return groups.associate{group->group.id to ReferenceRhythmPlayer.combine(byGroup.getValue(group.id).map{track->
             val sound=sounds.getValue(key(track))
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0

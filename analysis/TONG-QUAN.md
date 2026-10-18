@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Style dùng chung PCM giữa các Track cùng instrument/type/system/channel settings dù khác Effect. Effect và automation được giữ ở Track/Playback, không gắn lên sound chung. Giảm giải mã trùng và tránh tính ngân sách PCM hai lần chỉ vì Effect khác nhau. Test style hai Track chung sample, một Track có Volume Shake/pedal rồi tắt qua event 65, reset và phát lại đều đạt; APK build thành công. Chưa đo mức giảm bộ nhớ trên thiết bị.
+
 Track parser giữ thêm pedalMode, pedal và keyAreaFrom/keyAreaTo theo Track.ReadFromStream (7 byte reserved + 4 int32-le), thay skip 23 byte. Style khởi tạo/reset pedal từ giá trị lưu trong Track; test Volume Shake ByPedal không có event pedal-on vẫn hoạt động và tái hoạt động sau reset. Test index 112 STS trên SET legacy và build đạt. Vùng phím chỉ được giữ, chưa áp bộ lọc vì chưa xác định phạm vi tác động trong playback gốc; các pedal mode chuyên biệt vẫn chưa được port.
 
 Nạp STS nền nay chỉ chuẩn bị PCM, không đổi engine trên Dispatchers.IO. Sau khi coroutine trở lại giao diện và chưa bị hủy, engine kiểm tra bank/index/voice vẫn đúng trước khi áp dụng; đóng màn hình hoặc đổi voice trong lúc nạp không còn để kết quả cũ tự ghi đè. Khôi phục lúc mở app cũng đi qua cùng bước prepare/apply. Build và test loader/selection đạt; chưa kiểm chứng vòng đời màn hình trên thiết bị.
