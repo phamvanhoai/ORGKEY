@@ -5,7 +5,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int,
     private val accompaniment:Boolean=false,private val mapNote:(Int)->Int={it},private val envelope:ImportedEnvelope?=null,
     private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0},private var fx:ImportedFxChain?=null,
-    private val initiallyMuted:Boolean=false) {
+    private val initiallyMuted:Boolean=false,private val initialChannel:ImportedChannelSettings?=null) {
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -18,6 +18,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val voices=LinkedHashMap<Long,Voice>()
     private var voiceSequence=0L
     private var eventMuted=initiallyMuted
+    private var channelVolume=initialChannel?.volume ?: 100
+    private var channelPan=initialChannel?.pan ?: 0
+    private fun currentChannelGain(channel:Int)=if(initialChannel==null)channelGain(channel) else
+        channelVolume/100.0*minOf(100,if(channel==0)100-channelPan else 100+channelPan)/100.0
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
     private var children:List<ReferenceRhythmPlayer> = emptyList()
     private val releaseTails=ArrayList<ReferenceRhythmPlayer>()
@@ -28,8 +32,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             source.children.forEach(::collect)
             releaseTails.addAll(source.releaseTails);source.releaseTails.clear()
             if(source.voices.isNotEmpty() || source.fx?.active==true){
+                val gainL=source.currentChannelGain(0);val gainR=source.currentChannelGain(1)
                 val tail=ReferenceRhythmPlayer(emptyList(),source.drumLength,source.drum,source.sampleRateForEnvelope,
-                    source.accompaniment,source.mapNote,source.envelope,source.sampled,source.channelGain,source.fx)
+                    source.accompaniment,source.mapNote,source.envelope,source.sampled,{if(it==0)gainL else gainR},source.fx)
                 source.fx=source.fx?.fresh()
                 tail.tailGain=source.tracks.getOrNull(source.current)?.outputGain ?: 1.0
                 source.voices.values.forEach{if(it.release<0)it.release=0}
@@ -98,7 +103,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     fun close(){fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
-    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=initiallyMuted;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=initiallyMuted;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false,preserveVoices:Boolean=false){
         require(referenceTime>=0)
         if(preserveVoices){
@@ -143,6 +148,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         timeline?.advance(local){event->
             if(event.type==13){eventMuted=true;releaseAll();return@advance}
             if(event.type==14){eventMuted=false;return@advance}
+            if(event.type==44){channelVolume=event.note;return@advance}
+            if(event.type==45){channelPan=event.note;return@advance}
             val note=if(event.type==2)mapNote(event.note) else event.note
             if(event.type==2 && !eventMuted && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
@@ -162,13 +169,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             val voice=iterator.next()
             if(voice.playback!=null){
                 voice.playback.next(voice.release>=0)
-                left+=voice.playback.left*voice.gain*channelGain(0);right+=voice.playback.right*voice.gain*channelGain(1)
+                left+=voice.playback.left*voice.gain*currentChannelGain(0);right+=voice.playback.right*voice.gain*currentChannelGain(1)
                 if(voice.playback.finished)iterator.remove()
                 continue
             }
             val gain=voice.gain*(voice.envelope?.next(voice.release>=0) ?: if(voice.release<0)1.0 else (1.0-voice.release.toDouble()/releaseFrames).coerceAtLeast(0.0))
-            left+=drum(voice.note,voice.age,0)*gain*voice.panLeft
-            right+=drum(voice.note,voice.age,1)*gain*voice.panRight
+            left+=drum(voice.note,voice.age,0)*gain*voice.panLeft*currentChannelGain(0)
+            right+=drum(voice.note,voice.age,1)*gain*voice.panRight*currentChannelGain(1)
             voice.age++
             if(voice.release>=0)voice.release++
             if(voice.age>=drumLength(voice.note) || voice.envelope?.finished==true || (voice.envelope==null && voice.release>=releaseFrames))iterator.remove()

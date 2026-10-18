@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Channel automation volume/pan, event 44/45
+
+Theo Track event44 ghi FXs.b, event45 ghi FXs.c từ trường Key. Loader truyền header channel vào player; sự kiện cập nhật volume/pan và render áp gain trước channel FX cho cả nốt đang ngân. Reset khôi phục header. Tail chuyển section chốt gain hiện tại vào owner mới để thay đổi ở nguồn không làm đổi tail đã chuyển. Không thay đổi mode FX toàn bank như tác dụng phụ trong APK gốc; chưa dựng chia sẻ automation mode hoặc script.
+
+Kiểm thử volume 100→50 và pan 0→100 trên nốt held, reset trở về header. Gate hỗ trợ nhận event44/45; note của control là giá trị, không áp miền phím 0..127. Chưa đối chiếu bản thu automation với APK gốc.
+
 ### Header mute và unmute trong timeline
 
 activeTracks không loại track header mute nếu có event unmute 14. Loader truyền initiallyMuted=track.muted tới player; reset trả eventMuted về giá trị header. Note-on trước unmute bị bỏ qua, không phát bù khi unmute; note sau đó phát bình thường. Track header mute không có event14 vẫn được loại như trước. Solo filter giữ nguyên. Không đột biến ImportedTrack/index.

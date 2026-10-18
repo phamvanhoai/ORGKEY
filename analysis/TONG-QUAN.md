@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã bổ sung automation volume/pan channel bằng event44/45 của SET, áp trước FX và tác động nốt đang ngân; reset khôi phục header. Tail chuyển phần giữ gain đã chốt. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã hỗ trợ track mute trong header nhưng unmute ở timeline: nạp track, giữ im đến event14, reset về mute ban đầu. Không sửa header SET. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã bổ sung event mute/unmute 13/14 trong track SET: mute release nốt đang ngân, chặn nốt mới; unmute cho phát tiếp, FX giữ đuôi. Track mute từ header vẫn cần xử lý riêng nếu có unmute trong timeline. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
