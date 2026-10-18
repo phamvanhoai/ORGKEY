@@ -1,5 +1,11 @@
 {
   "meaning": "Declared implementation coverage, not verified APK equivalence",
+  "conditionally_supported_track_events": {
+    "65": "Volume Shake slot 3 only; parameters 0 through 6"
+  },
+  "expression_effects": {
+    "3": "Volume Shake: keyboard mode, STS and style; 10 ms timing needs original-app validation"
+  },
   "set_layouts": [
     "1.2.8",
     "1.4.6"

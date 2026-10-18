@@ -5,6 +5,16 @@ import org.junit.Test
 import kotlin.math.sin
 
 class ImportedVolumeShakeTest {
+    @Test fun disablingBetweenControlTicksImmediatelyRestoresUnityGain(){
+        val enabled=effect()
+        val state=ImportedVolumeShake(enabled,1000)
+        repeat(10){state.next(false,false)}
+        assertNotEquals(1.0,state.left,1e-9)
+        state.configure(enabled.copy(enabled=false))
+        state.next(false,false)
+        assertEquals(1.0,state.left,0.0)
+        assertEquals(1.0,state.right,0.0)
+    }
     @Test fun sectionReleaseTailKeepsPedalForDelayedExpression(){
         val sample=SamplePcm(48000,1,shortArrayOf(8192,8192))
         val sound=SampledInstrument(listOf(InstrumentRegion(60,sample,0,2)),48000,

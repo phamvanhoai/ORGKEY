@@ -4,7 +4,11 @@ import kotlin.math.sin
 
 /** Channels.Process slot 3 formula, advanced on a 10 ms control clock. */
 class ImportedVolumeShake(private var effect:ImportedExpressionEffect,private val sampleRate:Int) {
-    fun configure(value:ImportedExpressionEffect){require(value.slot==3);effect=value}
+    fun configure(value:ImportedExpressionEffect){
+        require(value.slot==3);effect=value
+        // Timeline disable takes effect on this frame, not at the next control tick.
+        if(!value.enabled){left=1.0;right=1.0}
+    }
     private var frames=0L
     private var start=0L
     private var phase=0.0
