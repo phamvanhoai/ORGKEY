@@ -14,7 +14,7 @@ data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList())
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4,val settings:ImportedChannelSettings=ImportedChannelSettings(),
-    val chordType:Int=0,val chordBase:Int=0)
+    val chordType:Int=0,val chordBase:Int=0,val stsIndices:List<Int> = emptyList())
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
     val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList(),val effects:List<ImportedExpressionEffect> = emptyList(),
     val pedalMode:Int=0,val pedal:Int=0,val keyAreaFrom:Int=0,val keyAreaTo:Int=127)
@@ -166,9 +166,9 @@ object ImportedSetInstruments {
             skip(6);val storedX=f.readUnsignedByte();val storedY=f.readUnsignedByte()
             val meterX=if(musicVersion!!<"1.4.8")storedY shr 4 else storedX
             val meterY=if(musicVersion<"1.4.8")storedY and 15 else storedY
-            if(musicVersion!!>="1.4.6")skip(16)
+            val stsIndices=if(musicVersion!!>="1.4.6")List(4){int()} else emptyList()
             val settings=if(musicVersion>="1.4.2")fx() else ImportedChannelSettings()
-            ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo,type,limit,jump,meterX,meterY,settings,chordType,chordBase)
+            ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo,type,limit,jump,meterX,meterY,settings,chordType,chordBase,stsIndices)
         }
         ImportedSetIndex(instruments,styles,tracks,systems,musicSettings,waveSettings,rhythmSettings)
     }

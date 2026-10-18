@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsSelectionTest {
+    @Test fun mainVariationUsesPositiveGroupStsOverrideOrItsDefaultSlot(){
+        val group=ImportedStyleGroup(100,0,"Style",0,false,0,0,120,stsIndices=listOf(8,0,-1,12))
+        assertEquals(listOf(8,2,3,12),(32..35).map{ImportedStsSelection.slotForMain(group,it)})
+        assertEquals(listOf(1,2,3,4),(32..35).map{ImportedStsSelection.slotForMain(group.copy(id=0),it)})
+        assertEquals(4,ImportedStsSelection.slotForMain(group.copy(stsIndices=emptyList()),35))
+    }
     private fun snapshot(slot:Int,instrument:Int)=ImportedSts("Same name",false,0,instrument,0,0,0,0,0,0,emptyList(),ImportedChannelSettings(),slot)
     private fun index()=ImportedSetIndex(emptyList(),emptyList(),tracks=listOf(
         ImportedTrack("Duplicate",0,0,false,emptyList(),sts=listOf(snapshot(1,10),snapshot(8,20))),
