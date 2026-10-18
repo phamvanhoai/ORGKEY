@@ -32,7 +32,7 @@ def inventory():
                          '15': 'libnpitchshift.so; original binary, device sine frequency checks passed'},
         'missing_fx_types': [],
         'sts_chord_input': 'ChordSingles, ChordGet octave shortcuts, ChordFind subset/order and dual lookup implemented; dual preferences/UI and original-app comparison missing',
-        'known_missing_clusters': ['STS ChordDuals preferences/UI, change masks and complete snapshot routing',
+        'known_missing_clusters': ['STS change masks and complete snapshot routing; ChordDuals original preference import',
                                    'original Aftertouch switching conditions and timing verification',
                                    'DNC articulation/connection',
                                    'instrument/mode script runtime',

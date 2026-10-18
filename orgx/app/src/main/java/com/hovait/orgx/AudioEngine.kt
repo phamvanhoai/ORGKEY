@@ -44,7 +44,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var activeSetFile:File?=null
     @Volatile var activeSetIndex:ImportedSetIndex?=null
         set(value){
-            if(field!==value){keyboardChordInput.configureSingleFinger(false,emptyList(),referenceChords);keyboardChordInput.reset()}
+            if(field!==value){setChordInputMode(0);keyboardChordInput.reset()}
             field=value
         }
     @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
@@ -58,6 +58,20 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         set(value){autoChordMap=AutoChordProgression(value);field=value}
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
+    @Volatile var chordInputMode=0;private set
+    @Volatile var chordDualMappings:Map<Int,Int> = emptyMap();private set
+    private var chordSingles=listOf(145,290,548,1096,2192,545,1090,2180,265,532,1060,2084)
+    @Synchronized fun setChordInputMode(mode:Int){
+        require(mode in 0..2)
+        keyboardChordInput.configureChordMode(mode,chordSingles,referenceChords,chordDualMappings)
+        chordInputMode=mode
+    }
+    @Synchronized fun setChordDualMappings(values:Map<Int,Int>){
+        require(values.all{(key,value)->ChordDualSettings.valid(key,value)})
+        val snapshot=values.toMap()
+        keyboardChordInput.configureChordMode(chordInputMode,chordSingles,referenceChords,snapshot)
+        chordDualMappings=snapshot
+    }
     @Volatile var leftChordEnabled=false;private set
     val detectedKeyboardChord:Int? get()=if(leftChordEnabled)keyboardChordInput.chord else null
     fun setLeftChordEnabled(enabled:Boolean){keyboardChordInput.reset();leftChordEnabled=enabled}
@@ -113,7 +127,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         importedInstrument=prepared.sound
         importedInstrumentName=snapshot.name.ifBlank{prepared.index.instruments[snapshot.instrument].name}
         setSustainEnabled(snapshot.pedal!=0)
-        keyboardChordInput.configureChordMode(snapshot.chordType,snapshot.chordSingle,referenceChords)
+        if(snapshot.chordType!=0 && snapshot.chordSingle.size==12)chordSingles=snapshot.chordSingle.toList()
+        keyboardChordInput.configureChordMode(snapshot.chordType,chordSingles,referenceChords,chordDualMappings)
+        chordInputMode=snapshot.chordType
         return true
     }
 

@@ -81,6 +81,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var restoringSet by remember{mutableStateOf(preferences.getString("activeSetFile",preferences.getString("importedSetFile",null))!=null)}
     var bankIndex by remember{mutableStateOf(engine.activeSetIndex)}
     LaunchedEffect(Unit){
+        engine.setChordDualMappings(ChordDualSettings.decode(preferences.getString("chordDualMappings","").orEmpty()))
         val fileName=preferences.getString("importedSetFile",null)
         val soundName=preferences.getString("importedSetSound",null)
         if(fileName!=null && soundName!=null){
@@ -107,6 +108,7 @@ private fun ORGXApp(engine: AudioEngine) {
         }
         bankIndex=engine.activeSetIndex
         val savedStsSet=preferences.getString("selectedStsSet",null)
+        var restoredSts=false
         if(savedStsSet!=null && savedStsSet==engine.activeSetFile?.name){
             try{
                 val snapshot=ImportedStsSelection.resolve(checkNotNull(engine.activeSetIndex),
@@ -115,8 +117,10 @@ private fun ORGXApp(engine: AudioEngine) {
                 val index=checkNotNull(engine.activeSetIndex)
                 val expectedSound=engine.importedInstrument
                 val prepared=withContext(Dispatchers.IO){ImportedStsLoader.prepare(file,index,snapshot)}
-                if(preferences.getString("selectedStsSet",null)==savedStsSet)
+                if(preferences.getString("selectedStsSet",null)==savedStsSet){
                     check(engine.applyPreparedSts(prepared,expectedSound)){"Saved STS selection changed while loading"}
+                    restoredSts=true
+                }
                 restoredSetName=engine.importedInstrumentName
             }catch(error:Exception){
                 if(error is kotlinx.coroutines.CancellationException)throw error
@@ -138,6 +142,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 }
             }catch(error:Exception){Toast.makeText(context,"SET style restore: ${error.message}",Toast.LENGTH_LONG).show()}
         }
+        if(!restoredSts)engine.setChordInputMode(preferences.getInt("chordInputMode",0).coerceIn(0,2))
         restoringSet=false
     }
     val builtInChordNames = listOf("C","Dm","Em","F","G","Am","Bdim","C7","D7","E7","Fmaj7","G7")
@@ -350,7 +355,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     engine.instrument = instrument; engine.chordIndex = chord
                     engine.rhythmStyle = style;engine.effectType=effect; engine.masterVolume = loadedVolume
                 }, onRhythmSelected={tempo->bpm=tempo;playing=engine.rhythmPlaying}, onDismiss = { showSets = false })
-            if(showChords) ChordDialog(chordNames,chord,autoChord,progression,leftChord,
+            if(showChords) ChordDialog(chordNames,chord,autoChord,progression,leftChord,engine,preferences,
                 onLeftChord={enabled->leftChord=enabled;engine.setLeftChordEnabled(enabled);preferences.edit().putBoolean("leftChord",enabled).apply();if(enabled){autoChord=false;engine.autoChord=false}},
                 onSelect={leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();chord=it;autoChord=false;engine.autoChord=false;engine.chordIndex=it;showChords=false},
                 onAuto={enabled,preset->leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();autoChord=enabled;progression=preset;engine.autoChord=enabled;engine.progression=preset;showChords=false},
@@ -706,13 +711,40 @@ private fun ORGXApp(engine: AudioEngine) {
         }
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
-@Composable private fun ChordDialog(names:List<String>,selected:Int,autoChord:Boolean,progression:Int,leftChord:Boolean,onLeftChord:(Boolean)->Unit,onSelect:(Int)->Unit,onAuto:(Boolean,Int)->Unit,onDismiss:()->Unit){
+@Composable private fun ChordDialog(names:List<String>,selected:Int,autoChord:Boolean,progression:Int,leftChord:Boolean,engine:AudioEngine,preferences:SharedPreferences,onLeftChord:(Boolean)->Unit,onSelect:(Int)->Unit,onAuto:(Boolean,Int)->Unit,onDismiss:()->Unit){
     val roots=remember(names){names.map{it.substringBefore(' ')}.distinct()}
     var root by remember { mutableStateOf(names.getOrNull(selected)?.substringBefore(' ') ?: roots.firstOrNull().orEmpty()) }
     val choices=names.withIndex().filter{it.value.substringBefore(' ')==root}
+    var inputMode by remember{mutableIntStateOf(engine.chordInputMode)}
+    var editingDual by remember{mutableStateOf(false)}
+    var firstKey by remember{mutableIntStateOf(0)}
+    var secondKey by remember{mutableIntStateOf(4)}
+    var duals by remember{mutableStateOf(engine.chordDualMappings)}
+    val keyNames=listOf("C","C#","D","D#","E","F","F#","G","G#","A","A#","B")
+    val pair=(1 shl firstKey) or (1 shl secondKey)
+    val assigned=ReferenceChordMatcher.find(duals[pair] ?: 0,engine.referenceChords)?.let{engine.referenceChords[it].name}
     InstrumentPage(onDismissRequest=onDismiss,title={Text("Chord library")},text={Column(modifier=Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(6.dp)){
         Row(verticalAlignment=Alignment.CenterVertically){Checkbox(checked=leftChord,onCheckedChange=onLeftChord);Text("Left keyboard chords")}
-        Text("Left octave: hold 3 or more chord tones. Last match stays after release. Right octave: melody. SET requires Follow selected chord.",fontSize=12.sp)
+        Text("Left octave follows the selected input mode. Last chord stays after release. SET styles require Follow selected chord.",fontSize=12.sp)
+        Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
+            listOf("FINGERED","ONE KEY","TWO KEYS").forEachIndexed{index,label->
+                FilterChip(selected=inputMode==index,onClick={engine.setChordInputMode(index);inputMode=index;preferences.edit().putInt("chordInputMode",index).apply()},label={Text(label)},modifier=Modifier.weight(1f).heightIn(min=48.dp))
+            }
+        }
+        FilterChip(selected=editingDual,onClick={editingDual=!editingDual},label={Text(if(editingDual)"DONE EDITING TWO-KEY CHORDS" else "EDIT TWO-KEY CHORDS")},modifier=Modifier.heightIn(min=48.dp))
+        if(editingDual){
+            Text("Choose two different keys, then assign a chord below. Changes are saved automatically.",fontSize=12.sp)
+            for(which in 0..1){
+                Text(if(which==0)"FIRST KEY" else "SECOND KEY",fontWeight=FontWeight.Bold)
+                keyNames.chunked(6).forEachIndexed{row,items->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                    items.forEachIndexed{column,label->val key=row*6+column
+                        FilterChip(selected=(if(which==0)firstKey else secondKey)==key,onClick={if(which==0)firstKey=key else secondKey=key},label={Text(label)},modifier=Modifier.weight(1f).heightIn(min=48.dp))
+                    }
+                }}
+            }
+            Text(if(firstKey==secondKey)"Choose two different keys" else "${keyNames[firstKey]} + ${keyNames[secondKey]} → ${assigned ?: "UNASSIGNED"}",fontWeight=FontWeight.Bold)
+            TextButton(enabled=duals.containsKey(pair),onClick={val updated=duals-pair;engine.setChordDualMappings(updated);duals=updated;preferences.edit().putString("chordDualMappings",ChordDualSettings.encode(updated)).apply()},modifier=Modifier.heightIn(min=48.dp)){Text("CLEAR THIS PAIR")}
+        }
         Text("AUTO CHORD",fontWeight=FontWeight.Bold)
         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){listOf("Pop","Ballad","Dance").forEachIndexed{index,name->FilterChip(selected=autoChord&&progression==index,onClick={onAuto(true,index)},label={Text(name)},modifier=Modifier.weight(1f))}}
         Text("ROOT",fontWeight=FontWeight.Bold)
@@ -725,7 +757,13 @@ private fun ORGXApp(engine: AudioEngine) {
         Text("CHORD TYPE — $root",fontWeight=FontWeight.Bold)
         choices.chunked(2).forEach{items->
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){
-                items.forEach{item->FilterChip(selected=!autoChord&&selected==item.index,onClick={onSelect(item.index)},label={Text(item.value,fontSize=12.sp)},modifier=Modifier.weight(1f).heightIn(min=48.dp))}
+                items.forEach{item->FilterChip(selected=if(editingDual)assigned==item.value else !autoChord&&selected==item.index,
+                    enabled=!editingDual || (firstKey!=secondKey && item.index in engine.referenceChords.indices),
+                    onClick={if(editingDual){
+                        val mask=engine.referenceChords[item.index].notes.fold(0){bits,note->bits or (1 shl (note%12))}
+                        val updated=duals+(pair to mask);engine.setChordDualMappings(updated);duals=updated
+                        preferences.edit().putString("chordDualMappings",ChordDualSettings.encode(updated)).apply()
+                    }else onSelect(item.index)},label={Text(if(editingDual)"ASSIGN ${item.value}" else item.value,fontSize=12.sp)},modifier=Modifier.weight(1f).heightIn(min=48.dp))}
                 if(items.size==1)Spacer(Modifier.weight(1f))
             }
         }
