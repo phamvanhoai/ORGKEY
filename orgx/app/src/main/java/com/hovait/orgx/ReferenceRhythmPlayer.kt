@@ -13,8 +13,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
-    private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0)
-    private val voices=LinkedHashMap<Int,Voice>()
+    private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,val eventId:Int=0)
+    private val voices=LinkedHashMap<Long,Voice>()
+    private var voiceSequence=0L
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
     private var children:List<ReferenceRhythmPlayer> = emptyList()
     private val releaseTails=ArrayList<ReferenceRhythmPlayer>()
@@ -30,7 +31,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 source.fx=source.fx?.fresh()
                 tail.tailGain=source.tracks.getOrNull(source.current)?.outputGain ?: 1.0
                 source.voices.values.forEach{if(it.release<0)it.release=0}
-                tail.voices.putAll(source.voices);source.voices.clear()
+                source.voices.values.forEach{tail.voices[tail.voiceSequence++]=it};source.voices.clear()
                 releaseTails.add(tail)
             }
         }
@@ -131,9 +132,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==2 && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
-                voices[event.id]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note,event.tune,ImportedNoteTouch.pan(event.touch)),
-                    panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1))
-            } else if(event.type==1)voices[event.id]?.release=0
+                voices[voiceSequence++]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note,event.tune,ImportedNoteTouch.pan(event.touch)),
+                    panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1),eventId=event.id)
+            } else if(event.type==1)voices.values.forEach{if(it.eventId==event.id && it.release<0)it.release=0}
         }
         renderVoices(track.outputGain)
         if(!track.bounded && timeline?.exhausted==true && (timeline?.endsWithNoteOff==true || voices.isEmpty()))finished=true

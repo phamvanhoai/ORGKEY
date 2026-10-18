@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Nhiều voice cùng event ID
+
+ReferenceRhythmPlayer trước đây dùng event.id làm khóa duy nhất, nên note-on trùng ID ghi đè voice đang phát. Nay mỗi voice có khóa cấp phát riêng và giữ eventId làm metadata. Note-off duyệt tất cả voice cùng eventId như Channels.Close, chỉ bắt đầu release nếu voice chưa release; note-off lặp không khởi động lại envelope. Khi chuyển tail, voice được cấp khóa mới tại owner đích để không ghi đè nhau. Giới hạn tổng 128 voice hiện giữ nguyên.
+
+Kiểm thử hai note-on cùng ID được cộng, note-off đóng cả hai và note-off lặp không kéo dài release. Chưa dựng đầy đủ DNC connection/aftertouch hoặc đối chiếu bản thu note trùng ID với APK gốc.
+
+Xác minh: build debug thành công, 274 kiểm thử không lỗi, gồm SET cục bộ. Đã cài APK và mở trên điện thoại; file SET giữ nguyên.
+
 ### Packed Touch của note-on
 
 Đã tách event.touch theo Channels.OpenKey: low 16 bit unsigned là velocity/100, high 16 bit signed là pan. Trước đây dùng cả Int làm gain và chặn giá trị âm về 0, nên nốt có pan âm có thể im, pan dương tạo gain quá lớn. Mỗi voice giữ gain pan trái/phải riêng, áp trước channel FX; cả nhánh sampled và fallback đều nhận. Kiểm thử hai nốt đồng thời pan đối nghịch, velocity khác nhau và Touch âm.
