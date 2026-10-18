@@ -12,12 +12,13 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun close(){ }
     }
     private class BandBooster(payload:List<Int>,sampleRate:Int):Stage {
+        private val tailFrames=(sampleRate/10).coerceAtLeast(1)
         private val processor=ReferenceBandBooster(payload[0].toByte().toInt(),payload[1].toByte().toInt(),payload[2].toByte().toInt(),sampleRate)
         private var remaining=0
         override var left=0.0;override var right=0.0
         override val active get()=remaining>0
         override fun process(l:Double,r:Double){
-            if(l!=0.0 || r!=0.0)remaining=4800 else if(remaining>0)remaining--
+            if(l!=0.0 || r!=0.0)remaining=tailFrames else if(remaining>0)remaining--
             left=processor.process((l*32768).toLong())/32768.0
             right=processor.process((r*32768).toLong())/32768.0
         }
