@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Ghi MIDI bổ sung pitch bend, poly pressure và channel pressure từ đầu vào live, gồm áp lực phím cảm ứng. File writer ghi đúng số byte cho channel message (D0/C0 một data byte, các message khác hai), tránh làm hỏng track khi xuất Channel Pressure. Event từ file playback không được ghi lại qua hook expression. Test encode -> MIDI parser xác nhận thứ tự, channel và giá trị pressure/bend; build đạt. Chưa thử xuất/đọc file trên thiết bị và tiếng MIDI mặc định chưa thực thi đầy đủ biểu cảm.
+
 Kiểm thử chuyển section với Pitch Shake: render 25 frame trước chuyển, chuyển voice sang release tail rồi so sánh 30 frame stereo với cùng voice được release tại chỗ. Hai luồng trùng từng frame; reset section nguồn không xóa tail ở đích. Không cần sửa engine cho trường hợp này vì Playback được chuyển nguyên state. Test đạt; chưa đối chiếu âm thanh APK gốc.
 
 Kiểm thử tích hợp Pitch Shake qua ImportedStylePlayer.load và PCM trên đĩa: timeline bật/cấu hình slot 2, mở thêm nốt, rồi tắt Effect; output khác bản không Effect, hữu hạn và phát lại đúng từng frame sau reset (1.920 frame). Test đã chạy đạt. Đây là PCM tổng hợp, chưa phải bản thu đối chiếu APK hoặc SET thực có event 65 slot 2.

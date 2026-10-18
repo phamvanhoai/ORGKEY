@@ -69,14 +69,18 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     /** Per-key aftertouch from the hardware piano surface; sound switching remains mode-dependent. */
     fun keyboardNotePressure(note:Int,pressure:Float){
         val key=MidiVoiceKey.key(note,0,false)
+        captureMidi(0xa0,note,(pressure.coerceIn(0f,1f)*127).toInt())
         voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
     }
     /** MIDI poly/channel pressure hook; applies only to imported SET voices. */
     fun midiNotePressure(note:Int,pressure:Float,channel:Int=0,playback:Boolean=false){
         val key=MidiVoiceKey.key(note,channel,playback)
+        if(!playback)captureMidi(0xa0 or channel,note,(pressure.coerceIn(0f,1f)*127).toInt())
         voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
     }
     fun midiChannelPressure(pressure:Float,channel:Int=0,playback:Boolean=false){
+        require(channel in 0..15)
+        if(!playback)captureMidi(0xd0 or channel,(pressure.coerceIn(0f,1f)*127).toInt(),0)
         val gain=VoiceVelocity.gain(pressure,false)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{
             if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=gain}
@@ -84,6 +88,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
     fun midiPitchBend(value:Int,channel:Int=0,playback:Boolean=false){
         pitchState.set(value,channel,playback)
+        if(!playback){val bend=value.coerceIn(0,16383);captureMidi(0xe0 or channel,bend and 127,bend shr 7)}
         val semitones=MidiPitchBend.semitones(value)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
     }
@@ -328,7 +333,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             variable(0);track.writeByte(0xff);track.writeByte(0x51);track.writeByte(3)
             val microsPerQuarter=60_000_000/tempoBpm.coerceIn(40,240);track.writeByte(microsPerQuarter shr 16);track.writeByte(microsPerQuarter shr 8);track.writeByte(microsPerQuarter)
             var previousTick=0L
-            events.forEach{event->val tick=event.timeNanos*tempoBpm.coerceIn(40,240)*480L/60_000_000_000L;variable(tick-previousTick);previousTick=tick;track.writeByte(event.status);track.writeByte(event.note);track.writeByte(event.velocity)}
+            events.forEach{event->val tick=event.timeNanos*tempoBpm.coerceIn(40,240)*480L/60_000_000_000L;variable(tick-previousTick);previousTick=tick;track.write(MidiChannelMessage.bytes(event.status,event.note,event.velocity))}
             variable(0);track.writeByte(0xff);track.writeByte(0x2f);track.writeByte(0)
         }
         DataOutputStream(FileOutputStream(file)).use{output->output.writeBytes("MThd");output.writeInt(6);output.writeShort(0);output.writeShort(1);output.writeShort(480);output.writeBytes("MTrk");output.writeInt(trackData.size());trackData.writeTo(output)}
