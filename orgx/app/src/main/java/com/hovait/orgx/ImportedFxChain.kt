@@ -10,6 +10,35 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    /** NEqualizer: eight parallel four-pole high-pass branches, summed / 4. */
+    private class Equalizer(values:List<Int>,sampleRate:Int):Stage {
+        private val frequency=floatArrayOf(1250f,2500f,3750f,5000f,6250f,7500f,8750f,10000f)
+        private val angles=doubleArrayOf(Math.PI/8,Math.PI/4,Math.PI/2,Math.PI/2,Math.PI,Math.PI,Math.PI,Math.PI)
+        private val coefficients=FloatArray(8){i->(2*kotlin.math.sin((frequency[i]*(1f/sampleRate)).toDouble()*angles[i])).toFloat()}
+        private val gains=FloatArray(8){values.getOrElse(it){100}*.01f}
+        private val history=Array(2){Array(8){FloatArray(4)}}
+        private val delayed=Array(2){FloatArray(3)}
+        override var left=0.0;override var right=0.0
+        override val active get()=history.any{it.any{row->row.any{v->kotlin.math.abs(v)>1e-9f}}} || delayed.any{it.any{v->kotlin.math.abs(v)>1e-9f}}
+        // sofeh.audio.d inherits the empty n01.c reset.
+        override fun reset(){ }
+        private fun channel(input:Double,c:Int):Double {
+            val x=input.toFloat();var sum=0.0
+            for(band in 0..7){
+                val state=history[c][band];val coefficient=coefficients[band]
+                var value=x
+                for(stage in 0..3){
+                    val base=if(stage==0)state[stage]+Float.fromBits(0x2f800000) else state[stage]
+                    value=Math.fma(value-state[stage],coefficient,base)
+                    state[stage]=value
+                }
+                sum+=((delayed[c][2]-value)*gains[band]).toDouble()
+            }
+            delayed[c][2]=delayed[c][1];delayed[c][1]=delayed[c][0];delayed[c][0]=x
+            return sum/4
+        }
+        override fun process(l:Double,r:Double){left=channel(l,0);right=channel(r,1)}
+    }
     /** NFlanger ARM64: shared modulation coefficient, independent all-pass states. */
     private class Flanger(values:List<Int>,sampleRate:Int):Stage {
         private val states=Array(2){FloatArray(values[4])}
@@ -206,7 +235,13 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7)}.map{
+        if(it.type==7){
+            require(it.payload.size%4==0 && it.payload.size<=32){"Invalid Equalizer band count"}
+            val values=List(it.payload.size/4){i->int(it.payload,i*4)}
+            require(values.all{v->v in 0..200} && sampleRate==48000){"Unsupported Equalizer parameters"}
+            return@map Equalizer(values,sampleRate)
+        }
         if(it.type==8){
             require(it.payload.size==28){"Invalid Flanger payload"}
             val values=listOf(int(it.payload,0),int(it.payload,8),int(it.payload,12),int(it.payload,16),int(it.payload,20),int(it.payload,24))

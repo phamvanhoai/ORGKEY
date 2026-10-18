@@ -26,6 +26,16 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Equalizer, type 7
+
+Đã dựng đường stereo từ `NEqualizer_build/processLeft` ARM64: tám nhánh song song, mỗi nhánh bốn tầng low-pass recurrence Float/FMA; nhánh output lấy input trễ ba frame trừ tầng thứ tư, nhân band gain. Cộng tám nhánh rồi chia bốn. Gain lưu trong SET 0..200 được nhân .01; band thiếu giữ mặc định 100 theo facade `sofeh.audio.d`. Payload count được parser tách riêng; chain nhận tối đa tám int32.
+
+Hệ số native dùng `2*sin((frequency/sampleRate)*angle)`, frequency `[1250,2500,3750,5000,6250,7500,8750,10000]`, angle `[pi/8,pi/4,pi/2,pi/2,pi,pi,pi,pi]`. Các hằng double được đọc từ rodata ELF, PLT xác nhận sin. Giữ bias 2^-32 trên tầng đầu như assembly. Reset giữ native history (facade không override n01.c), fresh tạo instance mới. Phạm vi nhận hiện tại 48000 Hz, đúng engine ORGX; chưa hỗ trợ tùy chọn sample rate khác.
+
+Kiểm thử gain 0/50/100, stereo cùng pha, reset giữ history, count vượt tám và band mặc định. Chưa có kiểm tra độc lập bằng chạy binary native hoặc bản thu; đây là bản dựng theo assembly, chưa xác nhận tương đương. Chưa sao chép cast long từng nhánh và chia integer cuối. Band Move, Reverb và DNC/aftertouch/script vẫn còn thiếu.
+
+Xác minh: build debug thành công, 254 kiểm thử không lỗi, gồm kiểm tra style SET cục bộ. Đã cài APK và mở thành công trên điện thoại. File SET giữ nguyên.
+
 ### Flanger / Phaser, type 8
 
 Đã dựng đường stereo từ assembly `Java_sofeh_audio_NFlanger_processLeft/Right/build` ARM64 và đối chiếu x86. Relocation PLT của ELF xác nhận hai lời gọi toán học là cos và exp. Mỗi 20 frame, coefficient = `1+(exp(2*cos(StartPhase+frame*increment)+2)-1)*(-Depth/255)/53.598148345947266`, increment = `Frequency*0.15707963705062866/sampleRate`. StartPhase giữ giá trị native, không tự đổi sang radians.
