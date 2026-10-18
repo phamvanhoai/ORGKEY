@@ -4,6 +4,11 @@ import sofeh.audio.NPitchShift
 
 /** Explicit lifetime for the original phase-vocoder library; allocated on first signal. */
 class ImportedNativePitchShift(private val shift:Int,private val rate:Int):AutoCloseable {
+    companion object {
+        // JNI uses a 1024-point FFT with 4x overlap. Keep four windows for
+        // flushing, independent of sample rate; verified on the native bridge.
+        const val FLUSH_FRAMES=4096
+    }
     private var handle=0L
     private var closed=false
     var left=0.0;private set

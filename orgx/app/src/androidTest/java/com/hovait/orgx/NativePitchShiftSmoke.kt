@@ -33,6 +33,24 @@ class NativePitchShiftSmoke:Instrumentation(){
                 }
             }
             check(peak>0){"No Pitch Shift output"}
+            val windows=mutableListOf<String>()
+            var maxTail=0
+            for(rate in listOf(32000,44100,48000,96000))for(shift in 50..200){
+                ImportedNativePitchShift(shift,rate).use{processor->
+                    val burst=4096
+                    var first=-1
+                    var last=-1
+                    repeat(burst+ImportedNativePitchShift.FLUSH_FRAMES){i->
+                        val input=if(i<burst).2*sin(2*Math.PI*440*i/rate) else 0.0
+                        processor.process(input,0.0)
+                        check(processor.left.isFinite() && processor.right==0.0)
+                        if(processor.left!=0.0){if(first<0)first=i;last=i}
+                    }
+                    check(first>=0 && last<burst+ImportedNativePitchShift.FLUSH_FRAMES-1){"Unbounded tail: rate=$rate shift=$shift last=$last"}
+                    maxTail=maxOf(maxTail,last-burst+1)
+                    if(shift in listOf(50,75,100,150,200))windows.add("$rate/$shift:first=$first,tail=${last-burst+1}")
+                }
+            }
             val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(
                 ImportedFxModule(15,true,false,listOf(200,0,0,0))))
             ImportedFxChain(settings).use{chain->
@@ -51,12 +69,12 @@ class NativePitchShiftSmoke:Instrumentation(){
                 chain.process(0.0,0.0);check(chain.left==0.0 && chain.right==0.0)
                 val second=render()
                 check(abs(first-second)<1e-9){"FX reset did not reproduce initial Pitch Shift state"}
-                repeat(96000){chain.process(0.0,0.0)}
+                repeat(ImportedNativePitchShift.FLUSH_FRAMES){chain.process(0.0,0.0)}
                 check(!chain.active){"Pitch Shift tail remained active past its budget"}
                 val afterIdle=render()
                 check(abs(first-afterIdle)<1e-9){"Expired FFT tail contaminated the next note"}
             }
-            result.putString("result","PASS native Pitch Shift: ${measured.joinToString()}, signal/stereo/reset/close; peak=$peak")
+            result.putString("result","PASS native Pitch Shift: ${measured.joinToString()}, signal/stereo/reset/close; peak=$peak; 604 flush configurations maxTail=$maxTail; windows=${windows.joinToString()}")
             finish(-1,result)
         }catch(error:Throwable){result.putString("result","FAIL: ${error.stackTraceToString()}");finish(0,result)}
     }

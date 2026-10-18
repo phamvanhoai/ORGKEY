@@ -18,7 +18,7 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private class PitchShift(shift:Int,rate:Int):Stage {
         private val processor=ImportedNativePitchShift(shift,rate)
-        private val tailFrames=rate*2L
+        private val tailFrames=ImportedNativePitchShift.FLUSH_FRAMES.toLong()
         private var remaining=0L
         override var left=0.0;override var right=0.0
         override val active get()=remaining>0
