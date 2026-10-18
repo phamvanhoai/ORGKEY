@@ -33,6 +33,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0)=Playback(note,tune,pan)
     inner class Playback(private val note:Int,private val tune:Int,private val pan:Int){
+        private var balance=0
+        fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val children=layers.map{it.voice(note,tune,pan)}
         private val step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var bendSemitones=0.0
@@ -41,7 +43,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun pitchBend(semitones:Double){bendSemitones=semitones;children.forEach{it.pitchBend(semitones)};alternate?.pitchBend(semitones)}
         fun aftertouch(pressure:Float){
             if(!aftertouch && pressure>=.5f && aftertouchInstrument!=null){
-                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan);alternate?.pitchBend(bendSemitones)
+                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
             }
         }
         private val state=envelope?.voice(outputRate)
@@ -62,7 +64,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }else{
                 val gain=state?.next(noteOff) ?: if(noteOff)0.0 else 1.0
                 val currentStep=step*2.0.pow(bendSemitones/12.0)
-                left=samplePosition(note,position,0,pan)*gain;right=samplePosition(note,position,1,pan)*gain
+                left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
                 position+=currentStep
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
                     (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && noteOff)
