@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Luồng STS được lưu/khôi phục: sau khi áp dụng thành công, preferences giữ tên file SET, chỉ số Track và số slot STS gốc. Khởi động nạp bank trước rồi resolve/nạp STS; thiếu Track/slot hoặc snapshot không nạp được sẽ báo lỗi, không chọn thay theo tên. Chọn voice khác hoặc mở bank mới xóa lựa chọn STS đã lưu. LCD tên tiếng và trạng thái sustain đồng bộ từ engine. Kiểm thử xác nhận tên Track/STS trùng, slot tắt, tham chiếu mất, loader PCM và 112 STS trong SET thật; build APK đạt. Chưa chạy thao tác đóng/mở app trên thiết bị cho luồng này; ChordSingles/fSTSChanges vẫn chưa hoàn thiện.
+
 STS keyboard dùng `ImportedStsLoader`: cộng transpose/octave của Music đúng một lần trước khi chọn sample, giữ volume/pan cho bus bàn phím và không dịch cao độ percussion. Test PCM xác nhận tổng tune, pitch toàn cục và mixer settings; test SET thực tiếp tục xác nhận 112 STS. Đã build APK sau thay đổi này.
 
 Kiểm chứng STS trên SET legacy cục bộ: `ImportedStsIntegrationTest` đọc đủ 112 snapshot theo bản kiểm kê, xác nhận slot riêng biệt trong từng Track (0–12), tham chiếu instrument/system hợp lệ và số phần tử ChordSingle đúng. Test này đã chạy trên file thật, không bị skip. Đây là kiểm chứng parser, chưa xác nhận thực thi/âm thanh STS tương đương APK.

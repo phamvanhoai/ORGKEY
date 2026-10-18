@@ -106,6 +106,18 @@ private fun ORGXApp(engine: AudioEngine) {
             }catch(error:Exception){Toast.makeText(context,"SET styles: ${error.message}",Toast.LENGTH_LONG).show()}
         }
         bankIndex=engine.activeSetIndex
+        val savedStsSet=preferences.getString("selectedStsSet",null)
+        if(savedStsSet!=null && savedStsSet==engine.activeSetFile?.name){
+            try{
+                val snapshot=ImportedStsSelection.resolve(checkNotNull(engine.activeSetIndex),
+                    preferences.getInt("selectedStsTrack",-1),preferences.getInt("selectedStsSlot",-1))
+                check(withContext(Dispatchers.IO){engine.applySts(snapshot)}){"Cannot load saved STS sound"}
+                restoredSetName=engine.importedInstrumentName
+            }catch(error:Exception){
+                if(error is kotlinx.coroutines.CancellationException)throw error
+                Toast.makeText(context,"STS restore: ${error.message}",Toast.LENGTH_LONG).show()
+            }
+        }
         val savedStyle=preferences.getString("selectedStyleSet",null)
         if(savedStyle!=null && savedStyle==engine.activeSetFile?.name){
             try{
@@ -138,6 +150,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var temporaryLoop by remember{mutableStateOf(false)}
     LaunchedEffect(engine){while(true){
         playing=engine.rhythmPlaying
+        restoredSetName=engine.importedInstrumentName
         bankIndex=engine.activeSetIndex
         setSession=engine.importedStyleSession
         temporaryLoop=setSession?.temporaryLoop==true
@@ -145,6 +158,7 @@ private fun ORGXApp(engine: AudioEngine) {
         kotlinx.coroutines.delay(100)
     }}
     var sustain by remember { mutableStateOf(false) }
+    LaunchedEffect(engine){while(true){sustain=engine.sustain;kotlinx.coroutines.delay(100)}}
     var instrument by remember { mutableIntStateOf(InstrumentCatalog.validIndex(preferences.getInt("instrument", 0))) }
     var chord by remember { mutableIntStateOf(ChordSelection.resolve(chordNames, preferences.getString("chordName", null), preferences.getInt("chord", 0))) }
     var leftChord by remember{mutableStateOf(preferences.getBoolean("leftChord",false))}
@@ -235,13 +249,13 @@ private fun ORGXApp(engine: AudioEngine) {
                                             val sound=voiceSounds[chosen];val file=checkNotNull(engine.activeSetFile)
                                             val loaded=withContext(Dispatchers.IO){val bank=engine.activeSetIndex;ImportedInstrumentLoader.load(file,sound,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings())}
                                             engine.importedInstrument=loaded;engine.importedInstrumentName=sound.name;restoredSetName=sound.name
-                                            preferences.edit().putString("importedSetFile",file.name).putString("importedSetSound",sound.name).apply()
+                                            preferences.edit().remove("selectedStsSet").putString("importedSetFile",file.name).putString("importedSetSound",sound.name).apply()
                                             bankStatus="SELECTED: ${sound.name}"
                                         }catch(error:Exception){bankStatus=error.message ?: "Cannot load voice"}
                                         finally{bankBusy=false}
                                     }else{
                                         instrument=chosen;engine.instrument=chosen;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
-                                        preferences.edit().remove("importedSetFile").remove("importedSetSound").apply();bankStatus="SELECTED: ${InstrumentCatalog.names[chosen]}"
+                                        preferences.edit().remove("selectedStsSet").remove("importedSetFile").remove("importedSetSound").apply();bankStatus="SELECTED: ${InstrumentCatalog.names[chosen]}"
                                     }
                                 }else if(bankIndex==null){
                                     engine.setRhythmEnabled(false);engine.clearImportedStyle()
@@ -280,7 +294,7 @@ private fun ORGXApp(engine: AudioEngine) {
                         }}},confirmButton={})
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
-                    preferences.edit().remove("importedSetFile").remove("importedSetSound").apply() },
+                    preferences.edit().remove("selectedStsSet").remove("importedSetFile").remove("importedSetSound").apply() },
                 onStyle = { engine.clearImportedStyle();style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
                 onEffect = { effect = it; engine.effectType = it },
                 onSetStyles={showMixer=false;browseStyles=true;bankPage=0;bankStatus=""},
@@ -496,7 +510,7 @@ private fun ORGXApp(engine: AudioEngine) {
         engine.setRhythmEnabled(false);engine.clearImportedStyle();onRhythmSelected(engine.bpm)
         setFile=bank.file;setIndex=bank.index;setGroups=bank.index.styles;setInstruments=bank.sounds
         engine.activeSetFile=bank.file;engine.activeSetIndex=bank.index;engine.activeSetSounds=bank.sounds
-        preferences.edit().putString("activeSetFile",bank.file.name).apply()
+        preferences.edit().remove("selectedStsSet").putString("activeSetFile",bank.file.name).apply()
         showSetVoices=false;styleQuery=""
         showBankFiles=false
         importStatus="SET read: ${ImportedStyleCatalog.styles(bank.index).size} styles, ${bank.sounds.size} supported sounds."
@@ -552,22 +566,25 @@ private fun ORGXApp(engine: AudioEngine) {
                 try{
                     val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item,setIndex?.systems?.firstOrNull(),musicSettings=setIndex?.musicSettings ?: ImportedChannelSettings())}
                     engine.importedInstrument=loaded;engine.importedInstrumentName=item.name
-                    preferences.edit().putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).apply()
+                    preferences.edit().remove("selectedStsSet").putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).apply()
                     importStatus="Keyboard: ${item.name}. Select a built-in voice in Mixer to switch back."
                 }catch(error:Exception){importStatus=error.message ?: "Cannot load instrument"}
                 finally{importing=false}
             }},modifier=Modifier.fillMaxWidth()){Text(item.name)}
         }
         if(showSetSts){
-            val snapshots=setIndex?.tracks.orEmpty().flatMap{track->track.sts.map{track.name to it}}
+            val snapshots=setIndex?.tracks.orEmpty().flatMapIndexed{trackIndex,track->track.sts.map{Triple(trackIndex,track.name,it)}}
             if(snapshots.isEmpty())Text("SET này không có STS đang bật",fontSize=12.sp)
-            snapshots.forEach{(track,snapshot)->
+            snapshots.forEach{(trackIndex,track,snapshot)->
                 OutlinedButton(enabled=!importing,onClick={scope.launch{
                     importing=true
                     val label=snapshot.name.ifBlank{"STS ${snapshot.slot+1}"}
                     importStatus="Đang nạp $label…"
                     try{
                         val applied=withContext(Dispatchers.IO){engine.applySts(snapshot)}
+                        if(applied)preferences.edit().putString("selectedStsSet",setFile?.name)
+                            .putInt("selectedStsTrack",trackIndex).putInt("selectedStsSlot",snapshot.slot)
+                            .remove("importedSetFile").remove("importedSetSound").apply()
                         importStatus=if(applied)"Đã áp dụng $label ($track)" else "Không thể áp dụng $label: kiểm tra instrument/system của STS"
                     }catch(error:Exception){
                         if(error is kotlinx.coroutines.CancellationException)throw error
