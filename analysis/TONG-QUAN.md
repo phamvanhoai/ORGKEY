@@ -387,3 +387,5 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phát. Với mode có sound `aftertouch`, app giữ sound chính và chuyển sang layer alternate khi áp lực đạt ngưỡng 0.5; các layer Mix vẫn được giữ cùng mode. Đây là chuyển đổi playback ở engine, không sửa file `.SET`.
 
+Nút Intro khi đang chạy hiện hủy các Intro/Fill đang chờ trước đó, phát đúng Intro vừa chọn một lần rồi quay về Main đang chọn; tránh tình trạng bấm Intro 1 nhưng chạy tiếp chuỗi Intro cũ.
+

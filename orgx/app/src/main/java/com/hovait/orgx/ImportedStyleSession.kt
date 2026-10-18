@@ -52,6 +52,13 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     @Synchronized fun press(id:Int,running:Boolean,autoFill:Boolean,repeatToLoop:Boolean=false){
         if(id !in players)return
         val group=groups.getValue(id)
+        // A physical Intro button is a new one-shot request. Do not let a
+        // previously queued Intro/Fill continue after it; the selected intro
+        // must finish once and then return to the last Main variation.
+        if(running && group.section in 16..18) {
+            queue.clear()
+            jumpId=lastLoop ?: main.id
+        }
         if(repeatToLoop && running && (queue.lastOrNull()?.id ?: currentId)==id){
             if(!group.loop && (group.limit || group.end-group.start>10))temporaryLoops.add(id)
             return
