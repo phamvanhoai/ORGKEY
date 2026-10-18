@@ -28,6 +28,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
     }
     private val voices = ConcurrentHashMap<Int, Voice>()
+    private val pitchState=MidiPitchState()
     private val outputLoop: AudioOutputLoop
     @Volatile var masterVolume = 0.65f
     @Volatile var keysVolume = 0.78f
@@ -82,6 +83,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
     }
     fun midiPitchBend(value:Int,channel:Int=0,playback:Boolean=false){
+        pitchState.set(value,channel,playback)
         val semitones=MidiPitchBend.semitones(value)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
     }
@@ -202,7 +204,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (voices.size >= 24 && !voices.containsKey(key)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        voices[key] = Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain)
+        val voice=Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain)
+        voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback))
+        voices[key]=voice
         captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
