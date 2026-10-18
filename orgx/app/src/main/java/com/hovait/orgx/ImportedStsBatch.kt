@@ -9,7 +9,10 @@ object ImportedStsBatch {
     data class Prepared(val file:File,val index:ImportedSetIndex,val selection:Selection,
         val voices:Map<Int,ImportedStsLoader.Prepared>){
         fun keyboardParts():List<ImportedKeyboardParts.Part> = voices.map{(position,voice)->
-            ImportedKeyboardParts.Part(position,voice.sound,voice.snapshot.pedal!=0)
+            val member=selection.members.single{it.position==position}
+            val track=index.tracks[member.trackIndex]
+            ImportedKeyboardParts.Part(position,voice.sound,voice.snapshot.pedal!=0,
+                voice.snapshot.record,track.keyAreaFrom,track.keyAreaTo)
         }
     }
     fun resolve(index:ImportedSetIndex,slot:Int,changes:List<Boolean> = ImportedStsPlan.defaultChanges):Selection {

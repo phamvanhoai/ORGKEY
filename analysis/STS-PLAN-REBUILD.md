@@ -33,3 +33,9 @@ Test queue xác nhận thứ tự replace → note-on → replace → note-on, n
 Đã nối setSustainEnabled vào pedalAll qua queue, áp cho cả part hiện hành lẫn voice thuộc part cũ còn ngân. Pitch bend live kênh 0 đi qua queue, cập nhật nốt hiện hành và lưu cho note-on sau; clear trả bend về unity. Pressure từ keyboard surface gọi aftertouch từng Playback đa part (chưa thay gain velocity theo pressure). Setter importedInstrument xóa đường đa part khi chọn tiếng thường. Test pedal-off sau thay nhóm và ramp PCM pitch bend/clear đạt; test queue/parts/mixer/batch và assembleDebug đạt.
 
 Chưa kiểm thử aftertouch đa part bằng PCM alternate, chưa nối poly/channel pressure MIDI hoặc ghi MIDI note của đường đa part. Vẫn chưa bật giao diện, chưa cài bản nội bộ này; vùng phím, change masks, Master và ngân sách PCM chung còn thiếu.
+
+## Vùng phím và Record routing
+
+Đối chiếu Tracks.RecordMusic: note-on (2/4) chỉ vào track có fRecord và phím gốc nằm trong [fKeyAreaFromKey, fKeyAreaToKey], bao gồm hai đầu. Note-off (1) bỏ qua điều kiện Record/vùng phím. ImportedKeyboardParts.Part nay giữ enabled/fromKey/toKey và lọc trước keyboardNote transpose, không lọc note-off. Đổi part tắt/vùng mới không làm nốt cũ kẹt.
+
+Prepared.keyboardParts lấy enabled từ STS.Record (đường full snapshot) và vùng phím từ Track trong SET, không suy từ instrument range hoặc ChordSingles. Kiểm thử biên chung hai vùng, part tắt, ngoài vùng, đổi vùng rồi nhả nốt và truyền dữ liệu batch đều đạt; test queue/parts/batch và assembleDebug đạt. Các lượt STS change-mask bỏ qua Record vẫn chưa được hỗ trợ bởi prepareFull; không tuyên bố executor hoàn chỉnh. Vẫn chưa bật đường này qua UI và chưa cài bản nội bộ.

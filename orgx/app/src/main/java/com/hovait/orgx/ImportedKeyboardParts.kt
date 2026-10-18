@@ -2,7 +2,8 @@ package com.hovait.orgx
 
 /** Audio-thread owned STS parts. Replacements affect future notes, not live tails. */
 class ImportedKeyboardParts {
-    data class Part(val id:Int,val sound:SampledInstrument,val pedal:Boolean=false)
+    data class Part(val id:Int,val sound:SampledInstrument,val pedal:Boolean=false,
+        val enabled:Boolean=true,val fromKey:Int=0,val toKey:Int=127)
     private data class Note(val part:Int,val key:Int,val sound:SampledInstrument,
         val playback:SampledInstrument.Playback,val velocity:Double,var pedal:Boolean,
         var released:Boolean=false,var waiting:Boolean=false)
@@ -17,7 +18,7 @@ class ImportedKeyboardParts {
     fun noteOn(key:Int,velocity:Double){
         require(key in 0..127 && velocity.isFinite() && velocity in 0.0..1.0)
         if(velocity==0.0){noteOff(key);return}
-        parts.values.forEach{part->
+        parts.values.filter{it.enabled && key>=it.fromKey && key<=it.toKey}.forEach{part->
             if(notes.size>=512)notes.removeAt(0)
             val playback=part.sound.voice(part.sound.keyboardNote(key))
             playback.pitchBend(bend)
