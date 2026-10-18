@@ -22,7 +22,8 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         private val previous=FloatArray(2)
         override var left=0.0;override var right=0.0
         override val active get()=previous.any{kotlin.math.abs(it)>1e-9f} || states.any{it.any{v->kotlin.math.abs(v)>1e-9f}}
-        override fun reset(){states.forEach{it.fill(0f)};previous.fill(0f);frame=0;coefficient=0f;left=0.0;right=0.0}
+        // sofeh.audio.e inherits n01.c(), which leaves the native instance untouched.
+        override fun reset(){ }
         private fun channel(input:Double,c:Int):Double {
             var value=Math.fma(previous[c]*.01f,feedback,input.toFloat())
             for(i in states[c].indices){
@@ -209,7 +210,7 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         if(it.type==8){
             require(it.payload.size==28){"Invalid Flanger payload"}
             val values=listOf(int(it.payload,0),int(it.payload,8),int(it.payload,12),int(it.payload,16),int(it.payload,20),int(it.payload,24))
-            require(values[0] in 1..300 && values[1] in 1..90 && values[2] in 1..100 && values[3] in 1..255 && values[4] in 1..16 && values[5] in 1..255 && sampleRate>0){"Unsupported Flanger parameters"}
+            require(values[0] in 1..300 && values[1] in 1..90 && values[2] in 1..100 && values[3] in 1..255 && values[4] in 1..16 && values[5] in 1..256 && sampleRate>0){"Unsupported Flanger parameters"}
             return@map Flanger(values,sampleRate)
         }
         if(it.type==23){
