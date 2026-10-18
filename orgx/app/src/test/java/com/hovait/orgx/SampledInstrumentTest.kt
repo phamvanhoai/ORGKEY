@@ -4,6 +4,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun aftertouchSwitchesAnActiveVoiceToAlternateLayer() {
+        val primary=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(48000,1,shortArrayOf(8192,8192)),0,2,looping=false)),48000)
+        val alternate=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(48000,1,shortArrayOf(16384,16384)),0,2,looping=false)),48000)
+        val playback=primary.withAftertouch(alternate).voice(60)
+        playback.next(false)
+        assertEquals(8192.0/32768,playback.left,1e-9)
+        playback.aftertouch(.5f)
+        playback.next(false)
+        assertEquals(16384.0/32768,playback.left,1e-9)
+    }
     @Test fun exactMappingDoesNotBorrowOrTransposeNearbySections() {
         val pcm=SamplePcm(48000,1,shortArrayOf(1000,2000,3000))
         val instrument=SampledInstrument(listOf(InstrumentRegion(60,pcm,0,3)),48000,exactNotes=true)

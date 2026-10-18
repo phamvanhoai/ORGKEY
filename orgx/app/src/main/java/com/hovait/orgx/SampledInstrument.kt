@@ -15,9 +15,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     }
     private val roots=regions.map{it.root}
     private var layers:List<SampledInstrument> = emptyList()
+    private var aftertouchInstrument:SampledInstrument?=null
     var keyboardSettings=ImportedChannelSettings();private set
     private var keyboardMelodic=true
     fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{keyboardSettings=settings;keyboardMelodic=melodic}
+    fun withAftertouch(alternate:SampledInstrument)=also{aftertouchInstrument=alternate}
     fun keyboardNote(note:Int):Int=if(!keyboardMelodic)note else
         (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     companion object {
@@ -28,18 +30,26 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0)=Playback(note,tune,pan)
-    inner class Playback(private val note:Int,tune:Int,private val pan:Int){
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int){
         private val children=layers.map{it.voice(note,tune,pan)}
         private val step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var bendSemitones=0.0
-        fun pitchBend(semitones:Double){bendSemitones=semitones;children.forEach{it.pitchBend(semitones)}}
+        private var aftertouch=false
+        private var alternate:Playback?=null
+        fun pitchBend(semitones:Double){bendSemitones=semitones;children.forEach{it.pitchBend(semitones)};alternate?.pitchBend(semitones)}
+        fun aftertouch(pressure:Float){
+            if(!aftertouch && pressure>=.5f && aftertouchInstrument!=null){
+                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan);alternate?.pitchBend(bendSemitones)
+            }
+        }
         private val state=envelope?.voice(outputRate)
         private var age=0L
         var left=0.0;private set
         var right=0.0;private set
         var finished=false;private set
         fun next(noteOff:Boolean){
-            if(children.isNotEmpty()){
+            if(aftertouch){alternate?.next(noteOff);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
+            }else if(children.isNotEmpty()){
                 children.forEach{it.next(noteOff)}
                 left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
             }else{

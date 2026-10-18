@@ -68,12 +68,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     /** Per-key aftertouch from the hardware piano surface; sound switching remains mode-dependent. */
     fun keyboardNotePressure(note:Int,pressure:Float){
         val key=MidiVoiceKey.key(note,0,false)
-        voices[key]?.let{if(it.imported!=null)it.velocity=VoiceVelocity.gain(pressure,false)}
+        voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
     }
     /** MIDI poly/channel pressure hook; applies only to imported SET voices. */
     fun midiNotePressure(note:Int,pressure:Float,channel:Int=0){
         val key=MidiVoiceKey.key(note,channel,false)
-        voices[key]?.let{if(it.imported!=null)it.velocity=VoiceVelocity.gain(pressure,false)}
+        voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
     }
     fun midiChannelPressure(pressure:Float,channel:Int=0){
         val gain=VoiceVelocity.gain(pressure,false)

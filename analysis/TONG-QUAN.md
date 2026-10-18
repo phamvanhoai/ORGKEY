@@ -383,3 +383,7 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 - Trong khi khôi phục hiển thị `LOADING SAVED SET...`, chặn Play/style để tránh phát nhầm mặc định. Với dữ liệu cũ chưa lưu ID style, cần chọn style một lần; sau đó ứng dụng nhớ lựa chọn.
 - Giữ nguyên file SET nhập vào.
 
+# Cập nhật engine Aftertouch
+
+ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phát. Với mode có sound `aftertouch`, app giữ sound chính và chuyển sang layer alternate khi áp lực đạt ngưỡng 0.5; các layer Mix vẫn được giữ cùng mode. Đây là chuyển đổi playback ở engine, không sửa file `.SET`.
+
