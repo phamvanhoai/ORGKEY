@@ -290,6 +290,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         synchronized(recordingLock) {
             recordingData.reset()
             midiEvents.clear();midiStartNanos=System.nanoTime();midiRecordBpm=bpm
+            pitchState.recordingMessages().forEach{message->
+                midiEvents.add(MidiEvent(0,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
+            }
             isRecording = true
         }
     }
