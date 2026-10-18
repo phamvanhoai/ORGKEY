@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã bổ sung Band pass (FX type 1) theo `o01/v01`, gồm history riêng hai kênh, reset, cờ enable và kiểm tra hệ số không hữu hạn. Đây là bộ lọc Band pass; Band Move native vẫn cần dựng riêng. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã bổ sung FX Robot (16) theo `x01`: gain cosine dùng pha integer, bộ đếm chung hai kênh, reset và vòng một giây. Áp dụng trong chain FX dùng chung, giữ enable/thứ tự. Chưa đối chiếu bản thu hoặc lượng tử long nội bộ; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã bổ sung bộ lọc FX High pass (9) và Low pass (10) theo `u01/v01`, với history riêng hai kênh, reset và cờ enable. Giữ công thức/thang tham số trong mã gốc, gồm phép chia integer của High pass. Band Move/Flanger/Reverb native vẫn chưa dựng đầy đủ; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).

@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Band pass, type 1
+
+Đã dựng bộ lọc bậc hai theo `o01.a/v01.e`, giữ hệ số/history Float và thứ tự cộng feedforward rồi feedback. Payload gồm frequency (0..150000), bandwidth (0..25000), hai int32 little-endian. Radius = `1-3*bandwidth/sampleRate`; cosine = `2*cos(2*pi*frequency/sampleRate)`. Hai kênh có ba mẫu input và hai mẫu output history độc lập; reset xóa lịch sử, active giữ bus khi còn tín hiệu trong history.
+
+Tham số sinh hệ số NaN/Infinity (ví dụ frequency 0 làm mẫu số `2-cosine` bằng 0) bị từ chối rõ ràng khi module bật. Không tự thay bằng bộ lọc khác. Kiểm thử impulse nhiều frame, stereo, reset, bypass và hệ số suy biến; chưa mô phỏng lượng tử long của APK gốc hoặc đối chiếu bản thu. Native Band Move/Flanger/Reverb vẫn chưa hoàn chỉnh.
+
+Xác minh: build debug thành công, 242 kiểm thử không lỗi. Đã cài APK cập nhật và gửi lệnh mở ứng dụng thành công trên điện thoại; giữ nguyên file SET.
+
 ### Robot, type 16
 
 Đã dựng theo `x01.e/c`: payload frequency int32 little-endian miền 0..1000; gain = `cos((frequency * frame) / sampleRate)` với phép chia integer. Hai kênh dùng chung gain và bộ đếm; bộ đếm quay về 0 sau sampleRate frame, reset/fresh bắt đầu từ 0. Không tự thay công thức bằng oscillator có 2*pi. Stage không có đuôi tín hiệu, giữ cờ enable và thứ tự chain.

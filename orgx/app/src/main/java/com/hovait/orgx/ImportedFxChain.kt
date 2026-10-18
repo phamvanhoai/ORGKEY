@@ -10,6 +10,31 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    /** o01/v01: second-order band pass, evaluated with Float coefficients/history. */
+    private class BandPass(frequency:Int,width:Int,sampleRate:Int):Stage {
+        private val radius=1f-(width/sampleRate.toFloat())*3f
+        private val cosine=kotlin.math.cos((frequency/sampleRate.toFloat()).toDouble()*2*Math.PI).toFloat()*2f
+        private val a1=radius*cosine
+        private val a2=-radius*radius
+        private val scale=((1f-a1)+radius*radius)/(2f-cosine)
+        private val b=floatArrayOf(1f-scale,(scale-radius)*cosine,radius*radius-scale)
+        private val x=Array(2){FloatArray(3)}
+        private val y=Array(2){FloatArray(2)}
+        init{require(b.all{it.isFinite()} && a1.isFinite() && a2.isFinite()){"Non-finite Band Pass coefficients"}}
+        override var left=0.0;override var right=0.0
+        override val active get()=x.any{row->row.any{kotlin.math.abs(it)>1e-9f}} || y.any{row->row.any{kotlin.math.abs(it)>1e-9f}}
+        override fun reset(){x.forEach{it.fill(0f)};y.forEach{it.fill(0f)};left=0.0;right=0.0}
+        private fun channel(input:Double,c:Int):Double {
+            val h=x[c];val out=y[c]
+            h[2]=h[1];h[1]=h[0];h[0]=input.toFloat()
+            var value=0f
+            for(i in b.indices)value=b[i]*h[i]+value
+            value=a1*out[0]+value;value=a2*out[1]+value
+            out[1]=out[0];out[0]=value
+            return value.toDouble()
+        }
+        override fun process(l:Double,r:Double){left=channel(l,0);right=channel(r,1)}
+    }
     /** x01: both channels share the same frame counter, reset every sampleRate frames. */
     private class Robot(private val frequency:Int,private val sampleRate:Int):Stage {
         private var frame=0
@@ -90,7 +115,13 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1)}.map{
+        if(it.type==1){
+            require(it.payload.size==8){"Invalid Band Pass payload"}
+            val frequency=int(it.payload,0);val width=int(it.payload,4)
+            require(frequency in 0..150000 && width in 0..25000 && sampleRate>0){"Unsupported Band Pass parameters"}
+            return@map BandPass(frequency,width,sampleRate)
+        }
         if(it.type==16){
             require(it.payload.size==4){"Invalid Robot payload"}
             val frequency=int(it.payload,0)
