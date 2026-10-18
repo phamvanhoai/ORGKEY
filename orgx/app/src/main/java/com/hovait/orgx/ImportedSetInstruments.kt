@@ -20,7 +20,7 @@ data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val mu
 data class ImportedSystem(val name:String,val startKey:Int,val selectedKeys:Int,val table:List<Double>)
 data class ImportedSts(val name:String,val record:Boolean,val midiChannel:Int,val instrument:Int,val system:Int,
     val pedal:Int,val mode:Int,val data1:Int,val data2:Int,val chordType:Int,val chordSingle:List<Int>,
-    val settings:ImportedChannelSettings)
+    val settings:ImportedChannelSettings,val slot:Int=-1)
 data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList(),val systems:List<ImportedSystem> = emptyList(),
     val musicSettings:ImportedChannelSettings=ImportedChannelSettings(),val waveSettings:ImportedChannelSettings=ImportedChannelSettings(),val rhythmSettings:ImportedChannelSettings=ImportedChannelSettings())
 
@@ -140,7 +140,7 @@ object ImportedSetInstruments {
             val stored=count(10000);val number=if(musicVersion!!<"1.2.9")13 else stored
             val sts=buildList{
                 if(trackGroup==0 || musicVersion<"1.2.8"){
-                    val enabled=List(number){f.readBoolean()};enabled.forEachIndexed{_,on->if(on)add(parseSts())}
+                    val enabled=List(number){f.readBoolean()};enabled.forEachIndexed{slot,on->if(on)add(parseSts().copy(slot=slot))}
                 }
             }
             skip(23);val channelFx=fx();skip(320)

@@ -38,6 +38,8 @@
     31
   ],
   "known_missing_clusters": [
+    "STS ChordSingles, change masks and complete snapshot routing",
+    "original Aftertouch switching conditions and timing verification",
     "DNC articulation/connection",
     "instrument/mode script runtime",
     "SET control events outside the accepted list",

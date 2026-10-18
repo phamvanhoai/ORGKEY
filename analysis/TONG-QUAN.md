@@ -393,5 +393,5 @@ Parser SET hiện giữ lại STS bật trên từng Track: tên, MIDI channel, 
 
 Engine đã có đường áp dụng snapshot `applySts`: nạp instrument/system tương ứng từ SET đang mở, áp dụng channel settings của STS và cập nhật pedal/sustain theo snapshot. Nếu STS hoặc instrument không hợp lệ, hàm từ chối mà không làm thay đổi voice hiện tại.
 
-Snapshot cũng khôi phục mode được lưu và loại hợp âm khi thư viện hợp âm hiện tại có mục tương ứng; AUTO chord được tắt để trạng thái STS không bị ghi đè ngay lập tức.
+Snapshot khôi phục mode được lưu. Đối chiếu `track-play-dispatch.java` cho thấy STS.ChordType điều khiển Music.ChordSingles, không phải chỉ số thư viện hợp âm ORGX; đã bỏ ánh xạ sai và việc tự tắt AUTO. Chưa hoàn thiện thực thi ChordSingles và mặt nạ fSTSChanges. STS giữ nguyên chỉ số slot dù các slot trước bị tắt. Channel settings được gắn vào voice bàn phím để bộ trộn nhận volume/pan/FX/transpose; tắt pedal qua STS nhả cả nốt sustain đang giữ.
 
