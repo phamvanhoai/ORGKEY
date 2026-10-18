@@ -224,7 +224,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         captureMidi(0x80 or channel,note,0)
     }
     fun setSustainEnabled(enabled:Boolean) {
-        if(sustain!=enabled)captureMidi(0xb0,64,if(enabled)127 else 0)
+        if(sustain!=enabled)MidiRecordingPedal.messages(enabled).forEach{message->
+            captureMidi(message[0].toInt() and 255,64,message[2].toInt() and 127)
+        }
         sustain=enabled
         if(!enabled)voices.values.forEach { voice -> if (voice.pendingSustain) { voice.pendingSustain = false; voice.releasing = true } }
     }
@@ -294,7 +296,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         synchronized(recordingLock) {
             recordingData.reset()
             midiEvents.clear();midiStartNanos=System.nanoTime();midiRecordBpm=bpm
-            if(sustain)midiEvents.add(MidiEvent(0,0xb0,64,127))
+            if(sustain)MidiRecordingPedal.messages(true).forEach{message->
+                midiEvents.add(MidiEvent(0,message[0].toInt() and 255,64,127))
+            }
             pitchState.recordingMessages().forEach{message->
                 midiEvents.add(MidiEvent(0,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
             }
