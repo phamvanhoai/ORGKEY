@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã tách packed Touch của note-on SET thành velocity 16 bit thấp và pan có dấu 16 bit cao, tránh pan bị tính nhầm vào lực nhấn. Pan từng note chạy độc lập trước FX; cộng pan note với pan region/instrument vẫn cần hoàn thiện. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã hỗ trợ tune riêng của note-on trong track SET: bước đọc PCM riêng cho từng voice, áp dụng các layer MODE và kết thúc sample theo cao độ thực tế. Không còn loại style chỉ vì event.tune khác 0. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã chuyển thao tác xóa/chọn session style từ UI sang hàng đợi audio, gồm trở về factory, đổi bank và khôi phục style đã lưu. Session cũ được đóng ở luồng render để tránh bỏ sót native Reverb handle. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).

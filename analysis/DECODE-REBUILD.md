@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Packed Touch của note-on
+
+Đã tách event.touch theo Channels.OpenKey: low 16 bit unsigned là velocity/100, high 16 bit signed là pan. Trước đây dùng cả Int làm gain và chặn giá trị âm về 0, nên nốt có pan âm có thể im, pan dương tạo gain quá lớn. Mỗi voice giữ gain pan trái/phải riêng, áp trước channel FX; cả nhánh sampled và fallback đều nhận. Kiểm thử hai nốt đồng thời pan đối nghịch, velocity khác nhau và Touch âm.
+
+Giới hạn hiện tại: pan note áp thành hệ số trên output sample đã có pan instrument/region, trong khi gốc cộng note+instrument+region pan trước clamp. Trường hợp các pan đối nghịch chưa hoàn toàn tương đương; chưa có đối chiếu bản thu hoặc hỗ trợ aftertouch thay pan lúc nốt ngân. Các sự kiện ngoài note-on/off vẫn bị chặn rõ ràng.
+
+Xác minh: build debug thành công, 269 kiểm thử không lỗi. Đã cài cập nhật và mở trên điện thoại; SET giữ nguyên.
+
 ### Tune riêng sự kiện note-on
 
 Đã bỏ chặn style có event.tune khác 0 và truyền tune qua ReferenceRhythmPlayer vào SampledInstrument.voice. Mỗi Playback tính bước đọc riêng lúc tạo, cộng event tune với region/channel/Music tune đã load trước đó; đơn vị 1/1000 semitone theo KeyToPitchEx/OpenKey. Tune không đổi root mapping hoặc tuning table slot. MODE truyền cùng event tune xuống từng layer; percussion nhận event tune dù bỏ qua channel/Music melodic tune như OpenKey.
