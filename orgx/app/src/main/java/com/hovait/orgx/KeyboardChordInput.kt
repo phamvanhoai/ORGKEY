@@ -1,16 +1,22 @@
 package com.hovait.orgx
 
-/** Exact pitch-class matching with bass-root preference and chord hold on release. */
+/** Original ChordGet/ChordFind recognition and chord hold on release. */
 class KeyboardChordInput {
     private val held=sortedSetOf<Int>()
-    private var singleFinger=false
+    private var mode=0
+    private var duals:Map<Int,Int> = emptyMap()
     private var singles:List<Int> = emptyList()
     private var lastLibrary:List<PlayableChord> = emptyList()
     @Volatile var chord:Int?=null;private set
     @Synchronized fun configureSingleFinger(enabled:Boolean,masks:List<Int>,library:List<PlayableChord>){
-        require(!enabled || (masks.size==12 && masks.all{it in 0..4095})){"Invalid STS single-finger chord table"}
-        singleFinger=enabled
-        if(enabled)singles=masks.toList()
+        configureChordMode(if(enabled)1 else 0,masks,library)
+    }
+    @Synchronized fun configureChordMode(value:Int,masks:List<Int>,library:List<PlayableChord>,dualMasks:Map<Int,Int> = emptyMap()){
+        require(value!=1 || (masks.size==12 && masks.all{it in 0..4095})){"Invalid STS single-finger chord table"}
+        require(dualMasks.all{(key,mask)->key in 0..4095 && Integer.bitCount(key)==2 && mask in 0..4095}){"Invalid two-key chord table"}
+        mode=value
+        if(value==1)singles=masks.toList()
+        duals=dualMasks.toMap()
         lastLibrary=library
         detect(library)
     }
@@ -22,22 +28,16 @@ class KeyboardChordInput {
     }
     private fun detect(library:List<PlayableChord>){
         if(held.isEmpty())return
-        val mask=if(singleFinger)singles[held.first()%12] else held.fold(0){value,key->value or (1 shl (key%12))}
-        if(singleFinger){
-            ReferenceChordMatcher.find(mask,library)?.let{chord=it}
-            return
+        var mask=if(mode==1)singles[held.first()%12] else ReferenceChordInput.mask(held)
+        if(mode==2 && Integer.bitCount(mask)==2){
+            val mapped=duals[mask]
+            if(mapped!=null && ReferenceChordMatcher.find(mapped,library)!=null)mask=mapped
         }
-        if(Integer.bitCount(mask)<3)return
-        val candidates=library.indices.filter{index->
-            library[index].notes.fold(0){value,key->value or (1 shl (key%12))}==mask
-        }
-        val bass=held.first()%12
-        val match=candidates.firstOrNull{it%12==bass} ?: candidates.firstOrNull()
-        if(match!=null)chord=match
+        ReferenceChordMatcher.find(mask,library)?.let{chord=it}
     }
     @Synchronized fun release(note:Int):Boolean {
         val removed=held.remove(note)
-        if(removed && singleFinger)detect(lastLibrary)
+        if(removed)detect(lastLibrary)
         return removed
     }
     @Synchronized fun reset(){held.clear();chord=null}

@@ -113,7 +113,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         importedInstrument=prepared.sound
         importedInstrumentName=snapshot.name.ifBlank{prepared.index.instruments[snapshot.instrument].name}
         setSustainEnabled(snapshot.pedal!=0)
-        keyboardChordInput.configureSingleFinger(snapshot.chordType==1,snapshot.chordSingle,referenceChords)
+        keyboardChordInput.configureChordMode(snapshot.chordType,snapshot.chordSingle,referenceChords)
         return true
     }
 

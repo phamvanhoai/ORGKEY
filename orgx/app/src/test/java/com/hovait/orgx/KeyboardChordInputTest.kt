@@ -62,9 +62,9 @@ class KeyboardChordInputTest {
         assertEquals("C M",library[play(64,67,72).chord!!].name)
         assertEquals("C M",library[play(48,60,64,67,72).chord!!].name)
     }
-    @Test fun ambiguousMaskPrefersBassRoot() {
+    @Test fun ambiguousMaskUsesOriginalTableOrder() {
         assertEquals("C 6",library[play(48,52,55,57).chord!!].name)
-        assertEquals("A m7",library[play(45,48,52,55).chord!!].name)
+        assertEquals("C 6",library[play(45,48,52,55).chord!!].name)
     }
     @Test fun releaseAndUnknownClusterKeepLastMatch() {
         val input=play(60,64,67);val chord=input.chord
