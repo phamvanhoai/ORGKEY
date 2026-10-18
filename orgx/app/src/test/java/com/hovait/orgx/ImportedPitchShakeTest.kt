@@ -5,6 +5,30 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedPitchShakeTest {
+    @Test fun changingSectionKeepsTheExactPitchPhaseOfReleasedVoices(){
+        val pcm=SamplePcm(1000,1,ShortArray(200){(it*100).toShort()})
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,pcm,0,200)),1000,
+            envelope=ImportedEnvelope(0,0,100,100,false))
+        val shake=effect().copy(startDelay=0,byPedal=false,stopByRelease=false,depth=8192,gain=0)
+        val track=ReferenceDrumTrack("Main",1,0,32,120,true,0,1000,false,
+            listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))
+        fun player()=ReferenceRhythmPlayer(listOf(track),sound::durationFrames,
+            {n,a,c->sound.sample(n,a.toLong(),c)},1000,sampled=sound,expressionEffects=listOf(shake))
+        val source=player();val reference=player()
+        val destination=ReferenceRhythmPlayer(emptyList(),{0},{_,_,_->0.0},1000)
+        try{
+            repeat(25){source.next(0,120);reference.next(0,120)}
+            reference.releaseAll();destination.releaseVoicesFrom(source)
+            repeat(30){
+                reference.renderTail();destination.renderTail()
+                assertEquals(reference.left,destination.mixedLeft(1f,1f),1e-12)
+                assertEquals(reference.right,destination.mixedRight(1f,1f),1e-12)
+            }
+            source.reset();source.next(0,120)
+            assertEquals(0.0,source.left,0.0)
+            assertTrue(destination.hasTail)
+        }finally{source.close();reference.close();destination.close()}
+    }
     @Test fun automationPreservesPhaseAndDisableImmediatelyClearsPitchOffset(){
         val first=effect().copy(startDelay=0,byPedal=false,gain=0)
         val state=ImportedPitchShake(first,1000)

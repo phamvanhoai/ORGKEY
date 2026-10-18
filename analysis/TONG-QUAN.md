@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Kiểm thử chuyển section với Pitch Shake: render 25 frame trước chuyển, chuyển voice sang release tail rồi so sánh 30 frame stereo với cùng voice được release tại chỗ. Hai luồng trùng từng frame; reset section nguồn không xóa tail ở đích. Không cần sửa engine cho trường hợp này vì Playback được chuyển nguyên state. Test đạt; chưa đối chiếu âm thanh APK gốc.
+
 Kiểm thử tích hợp Pitch Shake qua ImportedStylePlayer.load và PCM trên đĩa: timeline bật/cấu hình slot 2, mở thêm nốt, rồi tắt Effect; output khác bản không Effect, hữu hạn và phát lại đúng từng frame sau reset (1.920 frame). Test đã chạy đạt. Đây là PCM tổng hợp, chưa phải bản thu đối chiếu APK hoặc SET thực có event 65 slot 2.
 
 Automation event 65 mở thêm slot 2 Pitch Shake (parameter 0–6). Cấu hình mới cập nhật nốt đang ngân mà không khởi tạo lại phase, dùng cho note-on tiếp theo và reset trả về cấu hình Track. Tắt Effect xóa pitch offset ngay. Test thay Depth giữ phase, disable, kiểm tra tương thích và hồi quy Volume Shake đạt; APK build thành công. Mode setter/clamp, EffectAllow và timing thực vẫn cần đối chiếu gốc.
