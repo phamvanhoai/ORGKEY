@@ -11,6 +11,12 @@ class ImportedStsIntegrationTest {
         assumeNotNull(path)
         val index=ImportedSetInstruments.index(File(path!!))
         val snapshots=index.tracks.flatMap{it.sts}
+        val effectBlocks=index.tracks.map{it.effects}+snapshots.map{it.effects}+
+            index.instruments.flatMap{it.modes}.map{it.effects}
+        effectBlocks.forEach{effects->
+            assertEquals((0..7).toList(),effects.map{it.slot})
+            assertTrue(effects.all{it.raw.size==40})
+        }
         assertEquals("Snapshot count differs from the audited legacy SET",112,snapshots.size)
         index.tracks.forEach{track->
             assertEquals(track.sts.size,track.sts.map{it.slot}.distinct().size)

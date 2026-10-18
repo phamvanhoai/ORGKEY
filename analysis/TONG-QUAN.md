@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Parser không còn bỏ qua 320 byte Effect ở mode/STS/Track: giữ đủ tám record 40 byte, gồm Enable, StartDelay, ByPedal, StopByRelease, Mode, Speed, Depth, Gain và bản sao byte gốc/reserved. Effect biểu cảm này khác FX module DSP. Kiểm thử offset/little-endian/record thiếu đạt; kiểm thử SET legacy xác nhận mọi khối Effect của 370 Track, 112 STS và các mode giữ đúng tám slot. Dữ liệu đã được giải mã, chưa có nghĩa cả tám loại Effect đã thực thi trong engine.
+
 Luồng STS được lưu/khôi phục: sau khi áp dụng thành công, preferences giữ tên file SET, chỉ số Track và số slot STS gốc. Khởi động nạp bank trước rồi resolve/nạp STS; thiếu Track/slot hoặc snapshot không nạp được sẽ báo lỗi, không chọn thay theo tên. Chọn voice khác hoặc mở bank mới xóa lựa chọn STS đã lưu. LCD tên tiếng và trạng thái sustain đồng bộ từ engine. Kiểm thử xác nhận tên Track/STS trùng, slot tắt, tham chiếu mất, loader PCM và 112 STS trong SET thật; build APK đạt. Chưa chạy thao tác đóng/mở app trên thiết bị cho luồng này; ChordSingles/fSTSChanges vẫn chưa hoàn thiện.
 
 STS keyboard dùng `ImportedStsLoader`: cộng transpose/octave của Music đúng một lần trước khi chọn sample, giữ volume/pan cho bus bàn phím và không dịch cao độ percussion. Test PCM xác nhận tổng tune, pitch toàn cục và mixer settings; test SET thực tiếp tục xác nhận 112 STS. Đã build APK sau thay đổi này.

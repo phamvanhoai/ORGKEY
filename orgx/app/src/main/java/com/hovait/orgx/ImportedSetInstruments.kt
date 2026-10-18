@@ -10,17 +10,17 @@ data class ImportedSound(val name:String,val envelope:List<Int>,val sections:Lis
 data class ImportedFxModule(val type:Int,val enabled:Boolean,val realtime:Boolean,val payload:List<Int>)
 data class ImportedChannelSettings(val volume:Int=100,val pan:Int=0,val tune:Int=0,val transpose:Int=0,val octave:Int=0,val releasePercent:Int=100,
     val fxEnabled:Boolean=false,val modules:List<ImportedFxModule> = emptyList())
-data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix:List<Int>,val mixVolume:List<Int>,val mixPan:List<Int>,val settings:ImportedChannelSettings=ImportedChannelSettings())
+data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix:List<Int>,val mixVolume:List<Int>,val mixPan:List<Int>,val settings:ImportedChannelSettings=ImportedChannelSettings(),val effects:List<ImportedExpressionEffect> = emptyList())
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList())
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4,val settings:ImportedChannelSettings=ImportedChannelSettings(),
     val chordType:Int=0,val chordBase:Int=0)
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
-    val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList())
+    val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList(),val effects:List<ImportedExpressionEffect> = emptyList())
 data class ImportedSystem(val name:String,val startKey:Int,val selectedKeys:Int,val table:List<Double>)
 data class ImportedSts(val name:String,val record:Boolean,val midiChannel:Int,val instrument:Int,val system:Int,
     val pedal:Int,val mode:Int,val data1:Int,val data2:Int,val chordType:Int,val chordSingle:List<Int>,
-    val settings:ImportedChannelSettings,val slot:Int=-1)
+    val settings:ImportedChannelSettings,val slot:Int=-1,val effects:List<ImportedExpressionEffect> = emptyList())
 data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList(),val systems:List<ImportedSystem> = emptyList(),
     val musicSettings:ImportedChannelSettings=ImportedChannelSettings(),val waveSettings:ImportedChannelSettings=ImportedChannelSettings(),val rhythmSettings:ImportedChannelSettings=ImportedChannelSettings())
 
@@ -36,6 +36,7 @@ object ImportedSetInstruments {
         fun text():String=bytes(count(1000000)).toString(Charsets.UTF_8)
         var lastGroup=0
         fun common():List<String>{val metadata=text().split('\r');lastGroup=int();return metadata}
+        fun effects()=List(8){slot->ImportedExpressionEffect.decode(slot,bytes(40))}
         fun fx():ImportedChannelSettings{
             val volume=int();val pan=int();val tune=int();int();val transpose=int();val octave=int();val release=int().let{if(it==0)100 else it}
             skip(19);val fxEnabled=f.readBoolean();val modules=count(1000)
@@ -69,14 +70,14 @@ object ImportedSetInstruments {
             val modes=List(f.readUnsignedByte()){mode->
                 val modeName=if(!legacy || mode!=0)text() else "Default mode"
                 val selectedSound=int();val aftertouch=int();val mix=List(8){f.readByte().toInt()}
-                val modeSettings=fx();skip(320)
+                val modeSettings=fx();val modeEffects=effects()
                 val mixVolume=List(8){f.readByte().toInt()};val mixPan=List(8){f.readByte().toInt()}
                 if(!legacy)text()
                 if(version=="1.4.6"){
                     val settings=count(10000);repeat(settings){text()}
                     if(settings>0)repeat(count(10000)){text()}
                 }
-                ImportedMode(modeName,selectedSound,aftertouch,mix,mixVolume,mixPan,modeSettings)
+                ImportedMode(modeName,selectedSound,aftertouch,mix,mixVolume,mixPan,modeSettings,modeEffects)
             }
             // Instrument.ReadFromStream resets legacy ADS before 1.3.1; stored bytes are not the effective ADS.
             val effectiveLegacyAds=legacyAds.map{listOf(0,0,100)}
@@ -130,8 +131,8 @@ object ImportedSetInstruments {
             val mode=java.lang.Short.reverseBytes(f.readShort()).toInt();val data1=java.lang.Short.reverseBytes(f.readShort()).toInt()
             val data2=f.readUnsignedByte();val chordType=f.readUnsignedByte()
             val chordSingle=if(chordType!=0)List(12){java.lang.Short.reverseBytes(f.readShort()).toInt()} else emptyList()
-            val settings=fx();skip(320)
-            return ImportedSts(name,record,midiChannel,instrument,system,pedal,mode,data1,data2,chordType,chordSingle,settings)
+            val settings=fx();val stsEffects=effects()
+            return ImportedSts(name,record,midiChannel,instrument,system,pedal,mode,data1,data2,chordType,chordSingle,settings,effects=stsEffects)
         }
         val tracks=List(count(100000)){
             val metadata=common();val trackGroup=lastGroup
@@ -143,7 +144,7 @@ object ImportedSetInstruments {
                     val enabled=List(number){f.readBoolean()};enabled.forEachIndexed{slot,on->if(on)add(parseSts().copy(slot=slot))}
                 }
             }
-            skip(23);val channelFx=fx();skip(320)
+            skip(23);val channelFx=fx();val channelEffects=effects()
             val events=List(count(2000000)){
                 val type=java.lang.Short.reverseBytes(f.readShort()).toInt()
                 val tune=java.lang.Short.reverseBytes(f.readShort()).toInt()
@@ -151,7 +152,7 @@ object ImportedSetInstruments {
                 require(type!=101){"Embedded wave events in SET tracks are not supported yet"}
                 ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune)
             }
-            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts)
+            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts,effects=channelEffects)
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
