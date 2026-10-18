@@ -393,3 +393,5 @@ Parser SET hiện giữ lại STS bật trên từng Track: tên, MIDI channel, 
 
 Engine đã có đường áp dụng snapshot `applySts`: nạp instrument/system tương ứng từ SET đang mở, áp dụng channel settings của STS và cập nhật pedal/sustain theo snapshot. Nếu STS hoặc instrument không hợp lệ, hàm từ chối mà không làm thay đổi voice hiện tại.
 
+Snapshot cũng khôi phục mode được lưu và loại hợp âm khi thư viện hợp âm hiện tại có mục tương ứng; AUTO chord được tắt để trạng thái STS không bị ghi đè ngay lập tức.
+
