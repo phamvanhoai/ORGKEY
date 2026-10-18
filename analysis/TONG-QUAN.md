@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+STS kiểm tra toàn bộ cấu hình hợp âm trước khi thay tiếng/pedal: cả ChordType 1 và 2 phải có 12 mask hợp lệ, ChordType 0 giữ bảng cũ. Đã chặn bảng lỗi ở STS hai ngón gây lỗi khi đổi về một ngón; ChordType chưa hỗ trợ báo lỗi rõ. Test cấu hình/loader/STS cục bộ/bàn phím và build đạt, đã cài bản mới.
+
 Đã thêm chỉnh/lưu ChordDuals trong trang Chord: chọn TWO KEYS, EDIT TWO-KEY CHORDS, chọn hai phím rồi ASSIGN hợp âm; có CLEAR THIS PAIR. Bảng lưu riêng trong preferences, khôi phục trước STS và được giữ khi đổi tiếng. STS khôi phục thành công quyết định chế độ; khi STS lỗi dùng chế độ người dùng đã lưu. Test lưu/khôi phục/nhận hợp âm và build đạt, đã cài bản mới; chưa kiểm chứng toàn bộ thao tác UI trên thiết bị. Xem [CHORD-DUAL-SETTINGS.md](CHORD-DUAL-SETTINGS.md).
 
 Đã dựng `ChordGet` cho bàn phím trái: bảy quy tắc octave doubling, quét MIDI tăng dần, matcher hợp âm con theo thứ tự bảng và nhận lại khi nhả phím. STS truyền đầy đủ ChordType; engine hỗ trợ bảng ChordDuals tùy cấu hình, nhưng giao diện chỉnh/lưu bảng này chưa dựng và mặc định vẫn rỗng như APK. Kiểm thử chord/STS đạt, build và cài bản mới thành công; xem [CHORD-GET-REBUILD.md](CHORD-GET-REBUILD.md). Ghi chú cũ “matcher nhiều ngón chưa dựng” bên dưới đã được thay thế ở phạm vi này.

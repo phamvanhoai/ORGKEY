@@ -124,12 +124,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun applyPreparedSts(prepared:ImportedStsLoader.Prepared,expectedSound:SampledInstrument?):Boolean {
         if(activeSetFile!=prepared.file || activeSetIndex!==prepared.index || importedInstrument!==expectedSound)return false
         val snapshot=prepared.snapshot
+        val nextSingles=ImportedStsChordSettings.singles(snapshot.chordType,snapshot.chordSingle,chordSingles)
+        keyboardChordInput.configureChordMode(snapshot.chordType,nextSingles,referenceChords,chordDualMappings)
+        chordSingles=nextSingles
+        chordInputMode=snapshot.chordType
         importedInstrument=prepared.sound
         importedInstrumentName=snapshot.name.ifBlank{prepared.index.instruments[snapshot.instrument].name}
         setSustainEnabled(snapshot.pedal!=0)
-        if(snapshot.chordType!=0 && snapshot.chordSingle.size==12)chordSingles=snapshot.chordSingle.toList()
-        keyboardChordInput.configureChordMode(snapshot.chordType,chordSingles,referenceChords,chordDualMappings)
-        chordInputMode=snapshot.chordType
         return true
     }
 
