@@ -62,12 +62,14 @@ object ImportedInstrumentLoader {
             val layers=layers(instrument,aftertouch)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             val alternateLayers=if(!aftertouch && instrument.modes.first().aftertouch>=0)layers(instrument,true) else emptyList()
-            require((layers+alternateLayers).sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
+            val uniqueLayers=(layers+alternateLayers).distinct()
+            require(uniqueLayers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
             val modeSettings=settings ?: ImportedMusicParameters.pitch(instrument.modes.first().settings,musicSettings,musicSettings.octave)
-            val loaded=SampledInstrument.combine(layers.map{load(file,it,system,modeSettings,musicSettings)})
+            val decoded=uniqueLayers.associateWith{load(file,it,system,modeSettings,musicSettings)}
+            val loaded=SampledInstrument.combine(layers.map{decoded.getValue(it).copySampleSource()})
                 .withExpressionEffects(if(settings==null)instrument.modes.first().effects else emptyList())
             if(alternateLayers.isNotEmpty()){
-                val alternate=SampledInstrument.combine(alternateLayers.map{load(file,it,system,modeSettings,musicSettings)})
+                val alternate=SampledInstrument.combine(alternateLayers.map{decoded.getValue(it).copySampleSource()})
                 loaded.withAftertouch(alternate)
             }
             return if(settings==null)loaded.withKeyboardSettings(modeSettings,instrument.type==0) else loaded

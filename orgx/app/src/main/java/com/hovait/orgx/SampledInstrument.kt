@@ -22,6 +22,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var keyboardMelodic=true
     fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{keyboardSettings=settings;keyboardMelodic=melodic}
     fun withAftertouch(alternate:SampledInstrument)=also{aftertouchInstrument=alternate}
+    /** Reuse immutable PCM while keeping mode/keyboard configuration isolated. */
+    fun copySampleSource():SampledInstrument {
+        require(layers.isEmpty()){"Copy each decoded source before composing mode layers"}
+        return SampledInstrument(regions,outputRate,exactNotes,envelope,pitchMode,tuning,tuningTranspose)
+    }
     fun keyboardNote(note:Int):Int=if(!keyboardMelodic)note else
         (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     companion object {

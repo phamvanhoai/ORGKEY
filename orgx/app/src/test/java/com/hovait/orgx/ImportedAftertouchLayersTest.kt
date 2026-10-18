@@ -17,7 +17,7 @@ class ImportedAftertouchLayersTest {
     @Test fun combinedPrimaryAndAftertouchBudgetIsCheckedBeforeReadingPcm(){
         val section=ImportedSection(60,48000,1,1,100,0,0,0,0,0,0,ImportedWave(0,40*1024*1024))
         val sound=ImportedSound("Large",listOf(0,0,100,10,0,0),listOf(section))
-        val source=ImportedInstrument("Large mode",100,0,0,listOf(sound,sound),listOf(
+        val source=ImportedInstrument("Large mode",100,0,0,listOf(sound,sound.copy(name="Different")),listOf(
             ImportedMode("Mode",0,1,List(8){-1},List(8){0},List(8){0})))
         val missing=java.io.File("nonexistent-aftertouch-budget-test.pcm")
         try{ImportedInstrumentLoader.load(missing,source);fail("Accepted combined 80 MB mode")}
