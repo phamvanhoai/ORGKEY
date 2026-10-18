@@ -72,7 +72,7 @@ import androidx.compose.ui.input.pointer.pointerInput
         rect(230f,16f,534f,18f,Color(0xFF98521B));text("ORGX  •  MAIN PAGE",238f,29f,12f,0xFFFFE1B0.toInt())
         rect(233f,39f,245f,69f,Color(0xFF452C21));rect(484f,39f,275f,69f,Color(0xFF183F59))
         text("STYLE",239f,52f,10f,0xFFE2C35B.toInt());text(style.take(32),239f,72f,15f,0xFFFFFFFF.toInt())
-        text("TEMPO $bpm    METER ${session?.style?.sections?.firstOrNull{it.id==current}?.let{"${it.meterX}/${it.meterY}"} ?: "4/4"}",239f,96f,12f,0xFFDDDDDD.toInt())
+        text("TEMPO $bpm    METER ${session?.style?.sections?.firstOrNull{it.id==current}?.let{ReferenceSectionTiming.meter(it)}?.let{"${it.first}/${it.second}"} ?: "4/4"}",239f,96f,12f,0xFFDDDDDD.toInt())
         text("UPPER / VOICE",492f,52f,10f,0xFF8CD5FA.toInt());text(voice.take(30),492f,74f,14f,0xFFFFFFFF.toInt())
         text("OCTAVE $octave",492f,98f,12f,0xFFDDDDDD.toInt())
         text("CHORD   $chord",239f,131f,16f,0xFF8CDEA4.toInt())

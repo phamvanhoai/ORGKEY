@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceSectionTimingTest {
+    @Test fun unspecifiedMeterResolvesAsAPairWithoutChangingStoredSetData(){
+        val raw=ImportedStyleGroup(1,100,"Main",32,true,0,6000,120,meterX=0,meterY=0)
+        assertEquals(4 to 4,ReferenceSectionTiming.meter(raw))
+        assertEquals(3 to 4,ReferenceSectionTiming.meter(raw,3,4))
+        assertEquals(3 to 4,ReferenceSectionTiming.meter(raw.copy(meterX=7),3,4))
+        assertEquals(7 to 8,ReferenceSectionTiming.meter(raw.copy(meterX=7,meterY=8),3,4))
+        assertEquals(1500,ReferenceSectionTiming.scale(raw,2,3,4))
+        assertEquals(0,raw.meterX);assertEquals(0,raw.meterY)
+    }
     private val group=ImportedStyleGroup(1,100,"Main",32,true,0,8000,120)
     @Test fun referenceModesUseMeterAndLimitRatherThanWholeSection() {
         assertEquals(1000,ReferenceSectionTiming.scale(group,0))

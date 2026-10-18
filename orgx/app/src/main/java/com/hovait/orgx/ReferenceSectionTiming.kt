@@ -2,11 +2,14 @@ package com.hovait.orgx
 
 /** Ports Tracks.CalcRhythmScale and the start anchor from GroupPlayStart. */
 object ReferenceSectionTiming {
+    fun meter(group:ImportedStyleGroup,fallbackX:Int=4,fallbackY:Int=4):Pair<Int,Int> {
+        val resolved=if(group.meterX==0 || group.meterY==0)fallbackX to fallbackY else group.meterX to group.meterY
+        require(resolved.first>0 && resolved.second>0)
+        return resolved
+    }
     fun scale(group:ImportedStyleGroup,method:Int=0,fallbackX:Int=4,fallbackY:Int=4):Int {
         val mode=if(group.parent==Int.MIN_VALUE)0 else method
-        val x=if(group.meterX==0 || group.meterY==0)fallbackX else group.meterX
-        val y=if(group.meterX==0 || group.meterY==0)fallbackY else group.meterY
-        require(x>0 && y>0)
+        val (x,y)=meter(group,fallbackX,fallbackY)
         val bar=x*2000/y
         require(bar>0)
         val length=group.end.toLong()-group.start
