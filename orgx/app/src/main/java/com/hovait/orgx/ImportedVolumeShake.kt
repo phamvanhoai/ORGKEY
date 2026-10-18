@@ -13,7 +13,7 @@ class ImportedVolumeShake(private var effect:ImportedExpressionEffect,private va
     init{require(sampleRate>0 && effect.slot==3)}
     fun next(released:Boolean,pedal:Boolean){
         if(frames*100/sampleRate != (frames+1)*100/sampleRate){
-            if(!released && (!effect.byPedal || pedal))start+=10
+            if(effect.enabled && !released && (!effect.byPedal || pedal))start+=10
             if(effect.enabled && (!effect.stopByRelease || !released) && start>effect.startDelay){
                 phase+=effect.speed/100.0
                 val wave=sin(phase)

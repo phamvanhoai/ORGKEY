@@ -5,6 +5,16 @@ import org.junit.Test
 import kotlin.math.sin
 
 class ImportedVolumeShakeTest {
+    @Test fun disabledEffectDoesNotConsumeItsStartDelayBeforeTimelineEnablesIt(){
+        val enabled=effect(delay=20)
+        val state=ImportedVolumeShake(enabled.copy(enabled=false),1000)
+        repeat(100){state.next(false,false)}
+        state.configure(enabled)
+        repeat(20){state.next(false,false)}
+        assertEquals(1.0,state.left,0.0)
+        repeat(10){state.next(false,false)}
+        assertEquals(1+sin(1.0)*.1,state.left,1e-9)
+    }
     @Test fun timelineCanChangeActiveAndFutureVoiceExpression(){
         val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(48000,1,shortArrayOf(8192,8192)),0,2)),48000)
         val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),
