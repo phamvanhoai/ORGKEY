@@ -10,6 +10,18 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    /** y01: widen the side signal while preserving the mono centre. */
+    private class StereoWidth(volume:Int):Stage {
+        private val width=(volume/10000.0f)*6.5536f
+        override var left=0.0;override var right=0.0
+        override val active=false
+        override fun reset(){left=0.0;right=0.0}
+        override fun process(l:Double,r:Double){
+            val centre=(l+r)/2.0
+            left=((l-centre)*width+centre+l)/2.0
+            right=((r-centre)*width+centre+r)/2.0
+        }
+    }
     private class Bass(val volume:Float,val frequency:Float):Stage{
         private var stateL=0f;private var stateR=0f
         override var left=0.0;override var right=0.0
@@ -47,7 +59,13 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17)}.map{
+        if(it.type==17){
+            require(it.payload.size==4){"Invalid Stereo Width payload"}
+            val volume=int(it.payload,0)
+            require(volume in 0..50000){"Unsupported Stereo Width volume"}
+            return@map StereoWidth(volume)
+        }
         require(it.payload.size==8)
         val volume=int(it.payload,0);val frequency=int(it.payload,4)
         require(volume in 0..(if(it.type in listOf(4,6))99 else 100) && frequency in 0..100){"Unsupported SET DSP parameters"}

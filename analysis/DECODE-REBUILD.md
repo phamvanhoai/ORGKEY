@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### FX 3D Sound (Stereo), type 17
+
+Đã dựng module 17 theo `defpackage.y01`: payload là volume int32 little-endian, miền 0..50000; width = `(volume/10000f)*6.5536f`. Với centre = `(L+R)/2`, output mỗi kênh = `((input-centre)*width + centre + input)/2`. Module giữ mono centre, có thể đảo dấu kênh còn lại khi mở rộng stereo, không có buffer/đuôi. Volume 0 vẫn giữ một nửa side, không đồng nghĩa bypass.
+
+Module dùng chung chain track, group, keyboard MODE và Music; giữ thứ tự với stage khác và cờ enable block/module. Kiểm thử mono, stereo lệch một phía, volume 0/max, bypass, payload sai và volume vượt miền. Tính trên PCM chuẩn hóa; chưa sao chép lượng tử long của APK gốc hoặc xác nhận bằng bản thu. Các module 2/8/29 và những module chưa triển khai vẫn chưa được tính là hỗ trợ.
+
+Xác minh: build debug thành công, 234 kiểm thử không lỗi, gồm kiểm tra style SET cục bộ. Đã cài cập nhật và mở ứng dụng trên điện thoại; không sửa SET.
+
 ### Tuning table khi transpose
 
 `Music.KeyToPitchEx` tra `table[(key - transpose) % 24]`, sửa chỉ số âm trước khi tra; phép tính cao độ vẫn dùng key đã dịch và root sample đã chọn. ORGX truyền transpose hiệu lực của channel vào `SampledInstrument` và trừ riêng transpose khi chọn slot tuning. Octave không bị trừ. Nhánh PitchMode 1 dùng key sau ánh xạ lặp như `Channels.OpenKey`.

@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã bổ sung DSP type 17 “3D Sound (Stereo)” theo `y01` của APK gốc, áp dụng qua chuỗi FX dùng chung cho track/group/voice MODE/Music. Giữ cờ bật/tắt và thứ tự module; không thay đổi file SET. Chưa xác nhận tương đương lượng tử PCM/bản thu gốc; các module DSP còn thiếu được ghi trong [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã sửa tra bảng tuning khi transpose theo `Music.KeyToPitchEx`: trừ transpose khỏi key trước khi chọn slot 24 phím, giữ octave; áp dụng cho raw voice, MODE và channel style. Đây là sửa cao độ theo mã gốc, chưa phải xác nhận âm thanh tương đương toàn bộ APK.
 
 ORGX đã nối Music tune/transpose/release cho voice SET và style; octave bàn phím lấy từ Music, octave style lấy từ Rhythm theo `Channels.OpenKey`. Release nhân đủ ba yếu tố trước khi làm tròn. Music/Rhythm balance chốt vào nốt mới trước FX, không đổi mức đuôi echo đang ngân. Music FX (module 4/6/20) chạy sau mixer voice SET, volume Music áp lên tổng đầu ra theo `Music.ProcessOut`. Chưa hoàn chỉnh chỉnh pitch trực tiếp khi nốt ngân, Music FX/balance cho voice factory/MIDI, Wave FX và các module còn thiếu; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
