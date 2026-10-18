@@ -113,9 +113,18 @@ object ImportedSetInstruments {
         common()
         fun parseSts():ImportedSts{
             val record=f.readBoolean()
-            val nameLength=f.readUnsignedByte()
-            require(nameLength<=255 && nameLength.toLong()<=f.length()-f.filePointer)
-            val name=bytes(nameLength).toString(Charsets.UTF_8)
+            // STS names were added in 1.4.5. Older SET layouts retain the
+            // surrounding snapshot fields but have no length-prefixed name.
+            val name=if(musicVersion!!>="1.4.5"){
+                val nameLength=f.readUnsignedByte()
+                require(nameLength.toLong()<=f.length()-f.filePointer)
+                bytes(nameLength).toString(Charsets.UTF_8)
+            }else{
+                val legacyLength=f.readUnsignedByte()
+                require(legacyLength.toLong()<=f.length()-f.filePointer)
+                skip(legacyLength.toLong())
+                ""
+            }
             val midiChannel=f.readUnsignedByte() or (f.readUnsignedByte() shl 8)
             val instrument=int();val system=int();val pedal=java.lang.Short.reverseBytes(f.readShort()).toInt()
             val mode=java.lang.Short.reverseBytes(f.readShort()).toInt();val data1=java.lang.Short.reverseBytes(f.readShort()).toInt()
