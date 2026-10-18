@@ -212,6 +212,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val voice=Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
         voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback))
         voices[key]=voice
+        if(!playback && voice.imported==null && !MidiVoiceKey.percussion(channel))
+            captureMidi(0xc0 or channel,GmProgramMap.program(voiceInstrument),0)
         captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
     }
     fun triggerPad(pad: Int) { if (pad in 0..7) padAges.set(pad, 0) }
@@ -303,6 +305,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 midiEvents.add(MidiEvent(0,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
             }
             voices.entries.filter{!it.value.playback && !it.value.releasing}.forEach{(key,voice)->
+                if(voice.imported==null && !MidiVoiceKey.percussion(key/128))
+                    midiEvents.add(MidiEvent(0,0xc0 or (key/128),GmProgramMap.program(voice.instrument),0))
                 MidiRecordingStart.noteMessages(voice.note,voice.recordingVelocity,key/128,voice.pendingSustain).forEach{message->
                     midiEvents.add(MidiEvent(0,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
                 }

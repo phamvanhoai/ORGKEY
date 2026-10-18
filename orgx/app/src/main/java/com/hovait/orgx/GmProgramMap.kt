@@ -2,6 +2,8 @@ package com.hovait.orgx
 
 /** Approximate GM mapping onto the eight sampled voices currently available. */
 object GmProgramMap {
+    /** Representative zero-based GM programs for built-in voices, not SET sample identities. */
+    fun program(instrument:Int):Int=listOf(0,16,81,73,33,53,40,48)[InstrumentCatalog.validIndex(instrument)]
     fun instrument(program:Int):Int=when(program.coerceIn(0,127)){
         in 0..15->0
         in 16..23->1

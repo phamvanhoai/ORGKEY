@@ -6,6 +6,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiChannelMessageTest {
+    @Test fun representativeProgramsRoundTripToTheirBuiltInVoiceFamilies(){
+        InstrumentCatalog.names.indices.forEach{instrument->
+            val program=GmProgramMap.program(instrument)
+            assertEquals(instrument,GmProgramMap.instrument(program))
+            assertArrayEquals(byteArrayOf(0xc3.toByte(),program.toByte()),MidiChannelMessage.bytes(0xc3,program))
+        }
+    }
     @Test fun recordedPedalMessagesDelayNoteOffUntilRelease(){
         val track=ByteArrayOutputStream()
         listOf(Triple(0xb0,64,127),Triple(0x90,60,100),Triple(0x80,60,0),Triple(0xb0,64,0)).forEach{(status,a,b)->
