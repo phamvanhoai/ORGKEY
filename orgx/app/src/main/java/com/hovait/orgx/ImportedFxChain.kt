@@ -2,6 +2,11 @@ package com.hovait.orgx
 
 /** Ordered SET track DSP stages; state belongs to a track, never the sample bank. */
 class ImportedFxChain(private val settings:ImportedChannelSettings,private val sampleRate:Int=48000):AutoCloseable {
+    init {
+        if(settings.fxEnabled)settings.modules.firstOrNull{it.enabled && it.type !in setOf(1,2,4,6,7,8,9,10,15,16,17,20,21,23,29,31)}?.let{
+            throw IllegalArgumentException("Unsupported enabled SET FX module ${it.type}")
+        }
+    }
     fun fresh()=ImportedFxChain(settings,sampleRate)
     private interface Stage {
         var left:Double
