@@ -111,7 +111,12 @@ private fun ORGXApp(engine: AudioEngine) {
             try{
                 val snapshot=ImportedStsSelection.resolve(checkNotNull(engine.activeSetIndex),
                     preferences.getInt("selectedStsTrack",-1),preferences.getInt("selectedStsSlot",-1))
-                check(withContext(Dispatchers.IO){engine.applySts(snapshot)}){"Cannot load saved STS sound"}
+                val file=checkNotNull(engine.activeSetFile)
+                val index=checkNotNull(engine.activeSetIndex)
+                val expectedSound=engine.importedInstrument
+                val prepared=withContext(Dispatchers.IO){ImportedStsLoader.prepare(file,index,snapshot)}
+                if(preferences.getString("selectedStsSet",null)==savedStsSet)
+                    check(engine.applyPreparedSts(prepared,expectedSound)){"Saved STS selection changed while loading"}
                 restoredSetName=engine.importedInstrumentName
             }catch(error:Exception){
                 if(error is kotlinx.coroutines.CancellationException)throw error
@@ -581,7 +586,11 @@ private fun ORGXApp(engine: AudioEngine) {
                     val label=snapshot.name.ifBlank{"STS ${snapshot.slot+1}"}
                     importStatus="Đang nạp $label…"
                     try{
-                        val applied=withContext(Dispatchers.IO){engine.applySts(snapshot)}
+                        val file=checkNotNull(engine.activeSetFile)
+                        val index=checkNotNull(engine.activeSetIndex)
+                        val expectedSound=engine.importedInstrument
+                        val prepared=withContext(Dispatchers.IO){ImportedStsLoader.prepare(file,index,snapshot)}
+                        val applied=engine.applyPreparedSts(prepared,expectedSound)
                         if(applied)preferences.edit().putString("selectedStsSet",setFile?.name)
                             .putInt("selectedStsTrack",trackIndex).putInt("selectedStsSlot",snapshot.slot)
                             .remove("importedSetFile").remove("importedSetSound").apply()

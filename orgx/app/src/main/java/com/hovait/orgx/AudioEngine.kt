@@ -97,13 +97,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var isRecording = false
 
     /** Apply a decoded SET snapshot without editing the source file. */
-    fun applySts(snapshot:ImportedSts):Boolean {
-        val file=activeSetFile ?: return false
-        val index=activeSetIndex ?: return false
-        val rawSource=index.instruments.getOrNull(snapshot.instrument) ?: return false
-        val loaded=runCatching{ImportedStsLoader.load(file,index,snapshot)}.getOrNull() ?: return false
-        importedInstrument=loaded
-        importedInstrumentName=snapshot.name.ifBlank{rawSource.name}
+    fun applyPreparedSts(prepared:ImportedStsLoader.Prepared,expectedSound:SampledInstrument?):Boolean {
+        if(activeSetFile!=prepared.file || activeSetIndex!==prepared.index || importedInstrument!==expectedSound)return false
+        val snapshot=prepared.snapshot
+        importedInstrument=prepared.sound
+        importedInstrumentName=snapshot.name.ifBlank{prepared.index.instruments[snapshot.instrument].name}
         if(snapshot.pedal!=0)sustain=true else releaseSustain()
         // STS.ChordType controls Music.ChordSingles in the original engine;
         // it is not an index into our root/quality chord picker.

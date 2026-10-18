@@ -4,6 +4,8 @@ import java.io.File
 
 /** Prepare the keyboard sound completely before replacing the active snapshot. */
 object ImportedStsLoader {
+    data class Prepared(val file:File,val index:ImportedSetIndex,val snapshot:ImportedSts,val sound:SampledInstrument)
+    fun prepare(file:File,index:ImportedSetIndex,snapshot:ImportedSts)=Prepared(file,index,snapshot,load(file,index,snapshot))
     fun load(file:File,index:ImportedSetIndex,snapshot:ImportedSts):SampledInstrument {
         val raw=index.instruments.getOrNull(snapshot.instrument) ?: error("STS instrument unavailable")
         require(snapshot.mode<0 || snapshot.mode in raw.modes.indices || (raw.modes.isEmpty() && snapshot.mode==0)){
