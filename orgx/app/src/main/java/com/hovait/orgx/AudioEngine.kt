@@ -65,6 +65,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val chordKey=keyboardChordInput.release(note)
         if(!chordKey || voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
     }
+    /** Per-key aftertouch from the hardware piano surface; sound switching remains mode-dependent. */
+    fun keyboardNotePressure(note:Int,pressure:Float){
+        val key=MidiVoiceKey.key(note,0,false)
+        voices[key]?.let{if(it.imported!=null)it.velocity=VoiceVelocity.gain(pressure,false)}
+    }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
         autoChordMap.chord(progression,harmonyClock.time) else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
     @Volatile var autoChord = false

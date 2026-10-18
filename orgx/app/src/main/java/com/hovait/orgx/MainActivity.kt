@@ -394,6 +394,9 @@ private fun ORGXApp(engine: AudioEngine) {
                                 active[current] = (active[current] ?: 0) + 1
                                 val velocity = (0.25f + 0.75f * (change.position.y / size.height)).coerceIn(0.25f, 1f)
                                 engine.keyboardNoteOn(current,velocity,(octave+2)*12)
+                            } else if(previous==current){
+                                val pressure=(0.25f + 0.75f * (change.position.y / size.height)).coerceIn(0.25f,1f)
+                                engine.keyboardNotePressure(current,pressure)
                             }
                         }
                         change.consume()
