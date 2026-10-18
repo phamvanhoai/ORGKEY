@@ -49,12 +49,12 @@ object ImportedInstrumentLoader {
             val layers=layers(instrument)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             require(layers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
-            val modeSettings=settings ?: instrument.modes.first().settings
+            val modeSettings=settings ?: ImportedMusicParameters.pitch(instrument.modes.first().settings,musicSettings,musicSettings.octave)
             val loaded=SampledInstrument.combine(layers.map{load(file,it,system,modeSettings,musicSettings)})
-            return if(settings==null)loaded.withKeyboardSettings(ImportedMusicParameters.pitch(modeSettings,musicSettings,musicSettings.octave),instrument.type==0) else loaded
+            return if(settings==null)loaded.withKeyboardSettings(modeSettings,instrument.type==0) else loaded
         }
         require(supported(instrument)){"Unsupported instrument parameters"}
-        val channel=settings ?: ImportedChannelSettings()
+        val channel=settings ?: ImportedMusicParameters.pitch(ImportedChannelSettings(),musicSettings,musicSettings.octave)
         val sections=instrument.sounds.first().sections
         require(sections.sumOf{it.wave.bytes.toLong()}<=64L*1024*1024){"Instrument exceeds 64 MB PCM budget"}
         return RandomAccessFile(file,"r").use{reader->
@@ -72,8 +72,8 @@ object ImportedInstrumentLoader {
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
                 envelope=ImportedEnvelope.from(instrument.sounds.first().envelope).let{it.copy(release=ImportedMusicParameters.release(it.release,channel,musicSettings))},pitchMode=instrument.sounds.first().envelope[4],
-                tuning=if(instrument.type==0)system?.table.orEmpty() else emptyList())
-        }.let{if(settings==null)it.withKeyboardSettings(ImportedMusicParameters.pitch(channel,musicSettings,musicSettings.octave),instrument.type==0) else it}
+                tuning=if(instrument.type==0)system?.table.orEmpty() else emptyList(),tuningTranspose=channel.transpose)
+        }.let{if(settings==null)it.withKeyboardSettings(channel,instrument.type==0) else it}
     }
     /** Channels.OpenKey: default mode primary plus every enabled Mix slot, including duplicates. */
     fun layers(instrument:ImportedInstrument):List<ImportedInstrument>{

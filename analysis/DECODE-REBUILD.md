@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Tuning table khi transpose
+
+`Music.KeyToPitchEx` tra `table[(key - transpose) % 24]`, sửa chỉ số âm trước khi tra; phép tính cao độ vẫn dùng key đã dịch và root sample đã chọn. ORGX truyền transpose hiệu lực của channel vào `SampledInstrument` và trừ riêng transpose khi chọn slot tuning. Octave không bị trừ. Nhánh PitchMode 1 dùng key sau ánh xạ lặp như `Channels.OpenKey`.
+
+Loader MODE hợp nhất transpose channel/Music trước khi nạp layer, không cộng Music transpose lần nữa ở metadata bàn phím. Loader raw sound cũng giữ transpose Music cho tuning; style dùng settings đã hợp nhất theo track. Kiểm thử so PCM giữa MODE/raw/style channel, slot 24 phím, giữ octave và vòng chỉ số âm. Chưa dựng thay đổi tuning/pitch của voice đang ngân hoặc đầy đủ DNC; kiểm thử không thay thế so bản thu APK gốc.
+
+Xác minh: build debug thành công, 230 kiểm thử không lỗi (gồm style SET cục bộ). Đã cài APK và mở thành công trên điện thoại. Không sửa file SET.
+
 ### Music/Rhythm balance tại OpenKey
 
 Đối chiếu `Channels.OpenKey` (đoạn `iMin`): keyboard nhận `min(100,100+Music.pan)/100`; rhythm nhận `min(100,100-Music.pan)/100 * Rhythm.volume/100`, sau đó melodic nhân `min(100,100-Rhythm.pan)/100`, percussion nhân `min(100,100+Rhythm.pan)/100`. Đây là cân bằng giữa nguồn âm, không phải pan stereo. Music.volume vẫn là master sau khi cộng các bus.
@@ -40,7 +48,7 @@ Xác minh: build debug thành công, 228 kiểm thử không lỗi (gồm style 
 
 Theo `Channels.OpenKey`, tune của melodic bằng section + channel + Music; transpose bằng channel + Music. Octave bàn phím cộng Music octave, còn style cộng Rhythm octave. ORGX áp transpose/octave trước chọn region, bao gồm nhánh trim sample của style, và truyền tune vào bước phát PCM. Percussion giữ key/tune theo quy tắc cũ. Các đường chọn voice và khôi phục voice đã lưu đều truyền Music settings của SET vào loader; MODE nhiều layer chỉ nhận mỗi yếu tố một lần.
 
-Release được tính `soundRelease * channelRelease * musicRelease / 10000`, chặn 0..100 sau phép chia; không làm tròn phần trăm channel/Music trước. Phép tính dùng Long. Giữ nguyên volume/pan/module của channel khi hợp nhất pitch; FX Music và master volume vẫn xử lý ở bus đầu ra. Chưa dựng thay đổi pitch Music trực tiếp khi nốt đang ngân, tempOctaveMove hoặc đầy đủ quy tắc tuning table khi transpose.
+Release được tính `soundRelease * channelRelease * musicRelease / 10000`, chặn 0..100 sau phép chia; không làm tròn phần trăm channel/Music trước. Phép tính dùng Long. Giữ nguyên volume/pan/module của channel khi hợp nhất pitch; FX Music và master volume vẫn xử lý ở bus đầu ra. Chưa dựng thay đổi pitch Music trực tiếp khi nốt đang ngân hoặc tempOctaveMove. Tuning khi transpose đã được bổ sung như phần trên.
 
 Xác minh: build debug thành công, 226 kiểm thử không lỗi, gồm kiểm tra style SET cục bộ. Đã cài cập nhật và khởi động trên điện thoại; chưa có đối chiếu bản thu với APK gốc. File SET giữ nguyên.
 

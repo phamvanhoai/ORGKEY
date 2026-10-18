@@ -3,7 +3,7 @@ package com.hovait.orgx
 data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true,val tune:Int=0)
 
 class SampledInstrument(private val regions:List<InstrumentRegion>,private val outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null,
-    private val pitchMode:Int=if(exactNotes)2 else 0,private val tuning:List<Double> = emptyList()) {
+    private val pitchMode:Int=if(exactNotes)2 else 0,private val tuning:List<Double> = emptyList(),private val tuningTranspose:Int=0) {
     init {
         require(regions.isNotEmpty())
         regions.forEach {
@@ -54,7 +54,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         val key=if(pitchMode==1)mapped[note] ?: note else note
         val region=selected[note]
         if(tuning.isEmpty())SamplePitch.step(key,region.root,region.sample.sampleRate,outputRate,region.tune)
-        else SamplePitch.referenceStep(key,region.root,region.sample.sampleRate,outputRate,region.tune,tuning)
+        else SamplePitch.referenceStep(key,region.root,region.sample.sampleRate,outputRate,region.tune,tuning,tuningTranspose)
     }
     private fun missing(note:Int)=mapped[note]==null
     fun durationFrames(note:Int):Int {
