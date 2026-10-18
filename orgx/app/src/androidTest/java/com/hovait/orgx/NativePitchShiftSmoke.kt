@@ -53,6 +53,8 @@ class NativePitchShiftSmoke:Instrumentation(){
                 check(abs(first-second)<1e-9){"FX reset did not reproduce initial Pitch Shift state"}
                 repeat(96000){chain.process(0.0,0.0)}
                 check(!chain.active){"Pitch Shift tail remained active past its budget"}
+                val afterIdle=render()
+                check(abs(first-afterIdle)<1e-9){"Expired FFT tail contaminated the next note"}
             }
             result.putString("result","PASS native Pitch Shift: ${measured.joinToString()}, signal/stereo/reset/close; peak=$peak")
             finish(-1,result)

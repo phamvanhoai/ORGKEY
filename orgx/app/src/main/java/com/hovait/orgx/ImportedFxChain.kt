@@ -18,7 +18,10 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         override var left=0.0;override var right=0.0
         override val active get()=remaining>0
         override fun process(l:Double,r:Double){
-            if(l!=0.0 || r!=0.0)remaining=tailFrames else if(remaining>0)remaining--
+            if(l!=0.0 || r!=0.0)remaining=tailFrames else if(remaining>0){
+                remaining--
+                if(remaining==0L)processor.reset()
+            }
             if(remaining==0L){left=0.0;right=0.0;return}
             processor.process(l,r);left=processor.left;right=processor.right
         }
