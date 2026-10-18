@@ -40,6 +40,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 val tail=ReferenceRhythmPlayer(emptyList(),source.drumLength,source.drum,source.sampleRateForEnvelope,
                     source.accompaniment,source.mapNote,source.envelope,source.sampled,{if(it==0)gainL else gainR},source.fx)
                 source.fx=source.fx?.fresh()
+                // Retiring voices retain their channel's pedal/expression state.
+                // The destination section has an independent channel state.
+                tail.pedalDown=source.pedalDown
+                tail.volumeShake=source.volumeShake
                 tail.tailGain=source.tracks.getOrNull(source.current)?.outputGain ?: 1.0
                 source.voices.values.forEach{if(it.release<0)it.release=0}
                 source.voices.values.forEach{tail.voices[tail.voiceSequence++]=it};source.voices.clear()

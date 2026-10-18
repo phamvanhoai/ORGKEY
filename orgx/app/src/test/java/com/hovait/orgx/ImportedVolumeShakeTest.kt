@@ -5,6 +5,24 @@ import org.junit.Test
 import kotlin.math.sin
 
 class ImportedVolumeShakeTest {
+    @Test fun sectionReleaseTailKeepsPedalForDelayedExpression(){
+        val sample=SamplePcm(48000,1,shortArrayOf(8192,8192))
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,sample,0,2)),48000,
+            envelope=ImportedEnvelope(0,0,100,100,false))
+        val shake=effect(pedal=true)
+        val events=listOf(ReferenceDrumEvent(12,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,0,1000))
+        val track=ReferenceDrumTrack("Track",1,0,32,120,true,0,1000,false,events)
+        val source=ReferenceRhythmPlayer(listOf(track),sound::durationFrames,{n,a,c->sound.sample(n,a.toLong(),c)},48000,sampled=sound,expressionEffects=listOf(shake))
+        val destination=ReferenceRhythmPlayer(emptyList(),{0},{_,_,_->0.0},48000)
+        try{
+            repeat(480){source.next(0,120)}
+            destination.releaseVoicesFrom(source)
+            destination.renderTail()
+            assertTrue(destination.mixedLeft(1f,1f)>0)
+            assertTrue(destination.mixedRight(1f,1f)>destination.mixedLeft(1f,1f))
+            assertTrue(destination.hasTail)
+        }finally{source.close();destination.close()}
+    }
     @Test fun disabledEffectDoesNotConsumeItsStartDelayBeforeTimelineEnablesIt(){
         val enabled=effect(delay=20)
         val state=ImportedVolumeShake(enabled.copy(enabled=false),1000)
