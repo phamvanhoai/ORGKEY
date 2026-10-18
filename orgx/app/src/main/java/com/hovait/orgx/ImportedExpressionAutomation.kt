@@ -2,9 +2,9 @@ package com.hovait.orgx
 
 /** Track.Play(65, slot, parameter, value): only implemented slot 3 fields. */
 object ImportedExpressionAutomation {
-    fun supported(event:ReferenceDrumEvent)=event.type==65 && event.id==3 && event.note in 0..6
+    fun supported(event:ReferenceDrumEvent)=event.type==65 && event.id in 2..3 && event.note in 0..6
     fun update(effect:ImportedExpressionEffect,event:ReferenceDrumEvent):ImportedExpressionEffect {
-        require(effect.slot==3 && supported(event))
+        require(effect.slot==event.id && supported(event))
         return when(event.note){
             0->effect.copy(enabled=event.touch!=0)
             1->effect.copy(startDelay=event.touch)

@@ -70,7 +70,7 @@ class ImportedVolumeShakeTest {
             assertTrue("Automation did not modulate active note",player.left>.25)
             player.reset();player.next(0,120)
             assertEquals(.25,player.left,1e-9)
-            assertFalse(ImportedExpressionAutomation.supported(ReferenceDrumEvent(65,2,5,20,0,0)))
+            assertFalse(ImportedExpressionAutomation.supported(ReferenceDrumEvent(65,1,5,20,0,0)))
         }finally{player.close()}
     }
     private fun effect(delay:Int=0,pedal:Boolean=false,stop:Boolean=false)=ImportedExpressionEffect(

@@ -61,7 +61,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val state=envelope?.voice(outputRate)
         private var position=0.0
         private var pitchShake=expressionEffects.firstOrNull{it.slot==2 && it.enabled}?.let{ImportedPitchShake(it,outputRate)}
-        fun configurePitchShake(effect:ImportedExpressionEffect){pitchShake=ImportedPitchShake(effect,outputRate)}
+        fun configurePitchShake(effect:ImportedExpressionEffect){
+            val current=pitchShake
+            if(current==null)pitchShake=ImportedPitchShake(effect,outputRate) else current.configure(effect)
+        }
         private var volumeShake=expressionEffects.firstOrNull{it.slot==3}?.let{ImportedVolumeShake(it,outputRate)}
         fun configureVolumeShake(effect:ImportedExpressionEffect){
             val current=volumeShake

@@ -3,7 +3,8 @@ package com.hovait.orgx
 import kotlin.math.sin
 
 /** Slot 2 adds to the original fixed-point sample pitch (8192 = unity). */
-class ImportedPitchShake(private val effect:ImportedExpressionEffect,private val sampleRate:Int) {
+class ImportedPitchShake(private var effect:ImportedExpressionEffect,private val sampleRate:Int) {
+    fun configure(value:ImportedExpressionEffect){require(value.slot==2);effect=value;if(!value.enabled)offset=0.0}
     private var frames=0L
     private var start=0L
     private var count=0L
