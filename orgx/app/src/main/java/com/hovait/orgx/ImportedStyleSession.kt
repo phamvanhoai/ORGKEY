@@ -87,7 +87,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         val immediate=queue.firstOrNull()?.takeIf{it.immediate}
         queue.clear();if(immediate==null)jumpId=null;clock.reset();startedAt=0;tempoChange=null
         if(immediate!=null)select(immediate.id)
-        player.reset();finished=false
+        players.values.forEach{it.reset()};finished=false
     }
     @Synchronized fun next(tempo:Int){
         if(queue.firstOrNull()?.immediate==true){clock.reset();select(queue.removeFirst().id)}

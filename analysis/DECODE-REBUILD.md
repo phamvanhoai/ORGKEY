@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Stop/reset toàn bộ player của session
+
+ImportedStyleSession.reset trước đây chỉ reset player hiện tại, để player của section từng phát giữ voice/track FX/tail. Nay reset mọi player trong map sau khi xử lý lựa chọn immediate. Voice/envelope/timeline được xóa và Reverb flush theo reset từng chain; module có reset no-op như Flanger/EQ vẫn giữ lịch sử theo facade gốc. Không thay đổi reset của riêng module đó thành xóa cưỡng bức.
+
+Kiểm thử tạo voice trong section không active, reset session rồi renderTail xác nhận voice đã xóa; phần active vẫn phát lại được. Kiểm thử immediate Main/Intro sau Ending tiếp tục nằm trong bộ hồi quy. Chưa đối chiếu đầy đủ tempLoop/lastLoop khi Stop trên APK gốc nên không tự thay các cờ đó trong lần sửa này.
+
+Xác minh: build debug thành công, 279 kiểm thử không lỗi. Đã cài cập nhật và mở ứng dụng trên điện thoại; SET giữ nguyên.
+
 ### Play lại sau Ending
 
 Sửa regression từ đường giữ natural tail: session.finished còn true khi nhấn Play, khiến frame kế tiếp dừng lại ngay. Rising Play gửi AtomicBoolean tới audio thread; preparePlay reset session nếu đã finished. Reset giữ request immediate theo cơ chế hiện có, nên bấm Main/Intro sau Ending không bị đổi về phần cũ. Không gọi reset trực tiếp từ UI hoặc mỗi frame.

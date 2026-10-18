@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun sessionResetClearsVoicesFromInactiveSectionsToo(){
+        val parts=listOf(part(1,32),part(2,33))
+        val players=parts.associate{p->p.id to ReferenceRhythmPlayer(listOf(
+            ReferenceDrumTrack("Part",p.id,100,p.section,120,true,0,1000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),
+            {10000},{_,_,_->1.0},1000)}
+        // Inactive sections may retain state after prior visits or partial transitions.
+        players.getValue(2).next(0,120);assertTrue(players.getValue(2).left>0)
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",parts),players,1000)
+        session.reset()
+        players.getValue(2).renderTail()
+        assertEquals(0.0,players.getValue(2).left,0.0)
+        session.next(120);assertEquals(1,session.currentId);assertTrue(session.player.left>0)
+    }
     @Test fun playAfterEndingRestartsSelectedSection(){
         val session=session();session.request(6,immediate=true)
         repeat(1001){session.next(120)};assertTrue(session.finished)
