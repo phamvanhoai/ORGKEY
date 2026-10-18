@@ -34,6 +34,8 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 Xác minh: build debug thành công, 287 kiểm thử không lỗi. APK đã cài và mở trên điện thoại; file SET giữ nguyên. Đây là bước loader, chưa là hỗ trợ Aftertouch end-to-end.
 
+Bổ sung riêng cho bàn phím cảm ứng: khi giữ cùng phím và di chuyển theo chiều lực, `keyboardNotePressure` cập nhật velocity của voice SET đang ngân; voice factory bị bỏ qua. Đây là pressure gain, không chọn mode Aftertouch sound và không áp dụng cho MIDI/event4. Build/install vẫn đạt 287 test; giới hạn cụm vẫn giữ nguyên.
+
 ### Channel automation volume/pan, event 44/45
 
 Theo Track event44 ghi FXs.b, event45 ghi FXs.c từ trường Key. Loader truyền header channel vào player; sự kiện cập nhật volume/pan và render áp gain trước channel FX cho cả nốt đang ngân. Reset khôi phục header. Tail chuyển section chốt gain hiện tại vào owner mới để thay đổi ở nguồn không làm đổi tail đã chuyển. Không thay đổi mode FX toàn bank như tác dụng phụ trong APK gốc; chưa dựng chia sẻ automation mode hoặc script.
