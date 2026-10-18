@@ -1,5 +1,9 @@
 # Tổng quan APK ORG 24
 
+Loader Aftertouch hiện chọn được sound thay primary và vẫn giữ Mix layer; chuyển voice theo áp lực người dùng chưa nối end-to-end. Bảng phạm vi: [TIEN-DO-DUNG-LAI.md](TIEN-DO-DUNG-LAI.md).
+
+**Tiến độ dựng lại theo cụm:** xem [TIEN-DO-DUNG-LAI.md](TIEN-DO-DUNG-LAI.md). Đây là bảng mã đã có / phần còn thiếu / phần chưa kiểm chứng, thay cho việc dùng số kiểm thử để nói mức độ giống APK. Danh sách FX/event từ mã được xuất bằng `rebuild_status.py` vào [REBUILD-STATUS.json](REBUILD-STATUS.json). Cụm tiếp theo là voice biểu cảm (DNC/aftertouch/script), chưa hoàn thành.
+
 Đã bổ sung automation volume/pan channel bằng event44/45 của SET, áp trước FX và tác động nốt đang ngân; reset khôi phục header. Tail chuyển phần giữ gain đã chốt. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã hỗ trợ track mute trong header nhưng unmute ở timeline: nạp track, giữ im đến event14, reset về mute ban đầu. Không sửa header SET. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).

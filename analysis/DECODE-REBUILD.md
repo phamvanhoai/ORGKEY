@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Bắt đầu cụm aftertouch: chọn sound/layer
+
+Đối chiếu Channels.OpenKey wrapper: khi cờ aftertouch true và mode.Aftertouch>=0, primary sound đổi sang Aftertouch, Mix slots vẫn giữ nguyên. Loader nhận lựa chọn aftertouch tường minh và dùng cùng pipeline tune/envelope/FX channel như mode thường. Giá trị âm giữ primary như cũ; primary âm vẫn cho phép Mix. Kiểm thử lựa chọn normal/alternate/mix và không sửa mode nguồn.
+
+Đây mới là nạp bộ sound, chưa nối event4/áp lực từ UI hoặc MIDI để chuyển voice đang ngân. Không đưa event4 vào danh sách hỗ trợ và không tính là đã hoàn tất aftertouch/DNC. Bảng tiến độ theo cụm nằm tại TIEN-DO-DUNG-LAI.md; REBUILD-STATUS.json được sinh từ khai báo support hiện tại.
+
+Xác minh: build debug thành công, 287 kiểm thử không lỗi. APK đã cài và mở trên điện thoại; file SET giữ nguyên. Đây là bước loader, chưa là hỗ trợ Aftertouch end-to-end.
+
 ### Channel automation volume/pan, event 44/45
 
 Theo Track event44 ghi FXs.b, event45 ghi FXs.c từ trường Key. Loader truyền header channel vào player; sự kiện cập nhật volume/pan và render áp gain trước channel FX cho cả nốt đang ngân. Reset khôi phục header. Tail chuyển section chốt gain hiện tại vào owner mới để thay đổi ở nguồn không làm đổi tail đã chuyển. Không thay đổi mode FX toàn bank như tác dụng phụ trong APK gốc; chưa dựng chia sẻ automation mode hoặc script.

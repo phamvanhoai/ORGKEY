@@ -44,9 +44,9 @@ object ImportedInstrumentLoader {
             }
     }
     fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings?=null,
-        musicSettings:ImportedChannelSettings=ImportedChannelSettings()):SampledInstrument {
+        musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false):SampledInstrument {
         if(instrument.modes.isNotEmpty()){
-            val layers=layers(instrument)
+            val layers=layers(instrument,aftertouch)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             require(layers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
             val modeSettings=settings ?: ImportedMusicParameters.pitch(instrument.modes.first().settings,musicSettings,musicSettings.octave)
@@ -76,13 +76,14 @@ object ImportedInstrumentLoader {
         }.let{if(settings==null)it.withKeyboardSettings(channel,instrument.type==0) else it}
     }
     /** Channels.OpenKey: default mode primary plus every enabled Mix slot, including duplicates. */
-    fun layers(instrument:ImportedInstrument):List<ImportedInstrument>{
+    fun layers(instrument:ImportedInstrument,aftertouch:Boolean=false):List<ImportedInstrument>{
         val mode=instrument.modes.firstOrNull() ?: return listOf(instrument)
         fun layer(sound:Int,volume:Int,pan:Int)=instrument.sounds.getOrNull(sound)?.let{selected->
             instrument.copy(volume=instrument.volume*volume/100,pan=instrument.pan+pan,sounds=listOf(selected),modes=emptyList())
         }
         return buildList {
-            layer(mode.sound,100,0)?.let(::add)
+            val primary=if(aftertouch && mode.aftertouch>=0)mode.aftertouch else mode.sound
+            layer(primary,100,0)?.let(::add)
             mode.mix.forEachIndexed{slot,sound->if(sound>=0)layer(sound,100+mode.mixVolume.getOrElse(slot){0},mode.mixPan.getOrElse(slot){0})?.let(::add)}
         }
     }
