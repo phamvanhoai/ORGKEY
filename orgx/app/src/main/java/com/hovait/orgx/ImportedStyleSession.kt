@@ -23,6 +23,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     val pendingId get()=synchronized(this){queue.firstOrNull()?.id}
     fun available(id:Int)=id in players
     fun close(){players.values.forEach{it.close()}}
+    @Synchronized fun renderTail(){if(finished)player.renderTail()}
     /** MainActivity.B1 keeps the section, with Fill/Break returning to Main. */
     fun continueFrom(previous:ImportedStyleSession){
         val (section,time)=synchronized(previous){previous.groups.getValue(previous.currentId).section to previous.clock.time}
@@ -101,7 +102,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
                     else->null
                 }
                 jumpId=null
-                if(target==null){finished=true;player.reset();return}else select(target)
+                if(target==null){finished=true;player.releaseAll();player.renderTail();return}else select(target)
             }
             else if(completed && ((!section.limit && section.loop) || currentId in temporaryLoops))select(currentId)
         }

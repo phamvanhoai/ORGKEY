@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã tách Ending tự dừng khỏi reset âm thanh: transport dừng, voice/FX tiếp tục render đuôi mà không phát note mới; Stop chủ động vẫn reset. Chưa đối chiếu toàn bộ timing Ending với APK gốc. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã thay xóa voice tại đầu vòng style bằng release, giữ đuôi nốt/FX qua ranh giới loop và phát nốt mới độc lập. Chưa đối chiếu tất cả đường loop/Ending với bản thu gốc. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã sửa track ghi đè voice khi note-on trùng ID: giữ nhiều voice và note-off đóng tất cả voice cùng ID theo Channels.Close. Note-off lặp không reset lại release. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).

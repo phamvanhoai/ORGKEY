@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun tailRenderingReleasesVoicesWithoutSchedulingNewNotes(){
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,100),ReferenceDrumEvent(2,2,60,100,2,100))
+        val player=ReferenceRhythmPlayer(listOf(track(events)),{1000},{_,_,_->1.0},1000)
+        player.next(0,120);assertEquals(1.0,player.left,0.0)
+        player.releaseAll();player.renderTail();assertEquals(1.0,player.left,0.0)
+        player.renderTail();assertEquals(.9,player.left,1e-9)
+        repeat(20){player.renderTail()};assertEquals(0.0,player.left,0.0)
+    }
     @Test fun loopBoundaryReleasesOldNotesInsteadOfErasingThem(){
         val events=listOf(ReferenceDrumEvent(2,1,60,100,0,100))
         val track=track(events,end=5)

@@ -62,6 +62,7 @@ class ImportedStyleSessionTest {
         assertEquals(6,session.currentId)
         repeat(1000){session.next(120)}
         assertTrue(session.finished)
+        repeat(30){session.renderTail()}
         assertEquals(0.0,session.player.left,0.0)
     }
     @Test fun fillAndBreakReturnToLastSelectedMainAtSectionBoundary() {

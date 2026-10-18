@@ -186,6 +186,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     fun setRhythmEnabled(enabled: Boolean) {
+        naturalStyleTail=false
+        stoppedStyleReset.invalidate()
         rhythmPlaying = enabled
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
@@ -303,9 +305,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private val stoppedStyleReset=StoppedStyleReset()
+    @Volatile private var naturalStyleTail=false
     private fun rhythmSample(): Double {
         val selected=pendingStyle.getAndSet(null)
         selected?.let{selection->
+            naturalStyleTail=false
             val session=selection.session
             if(session!=null && rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
             importedStyleSession?.close()
@@ -314,6 +318,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
         val resetStopped=stoppedStyleReset.shouldReset(rhythmPlaying,selected!=null)
         if (!rhythmPlaying) {
+            if(naturalStyleTail && importedStyleSession?.finished==true){
+                importedStyleSession?.renderTail()
+                return 0.0
+            }
             if(resetStopped){
                 rhythmAges.fill(-1);referenceRhythm?.reset()
                 val session=importedStyleSession
@@ -324,7 +332,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
         importedStyleSession?.let{
             it.next(bpm.coerceIn(40,240));it.takeTempoChange()?.let{tempo->bpm=tempo};importedRhythm=it.player;importedRhythmName=it.displayName
-            if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++
+            if(it.finished){naturalStyleTail=true;rhythmPlaying=false;transportFrame=0}else transportFrame++
             return 0.0
         }
         importedRhythm?.let{it.next(0,bpm.coerceIn(40,240));if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++;return 0.0}

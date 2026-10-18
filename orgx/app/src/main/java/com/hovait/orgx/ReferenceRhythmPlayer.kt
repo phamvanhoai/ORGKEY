@@ -80,6 +80,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     var left=0.0;private set
     var right=0.0;private set
     var finished=false;private set
+    fun releaseAll(){children.forEach{it.releaseAll()};voices.values.forEach{if(it.release<0)it.release=0}}
+    fun renderTail(){
+        nextReleaseTails()
+        if(children.isNotEmpty()){
+            children.forEach{it.renderTail()};left=children.sumOf{it.left};right=children.sumOf{it.right}
+        }else renderVoices(tracks.getOrNull(current)?.outputGain ?: tailGain)
+    }
     fun mixedLeft(drumGain:Float,chordGain:Float):Double =
         (if(children.isNotEmpty())children.sumOf{it.mixedLeft(drumGain,chordGain)}
         else left*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedLeft(drumGain,chordGain)}

@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Đuôi Ending khi tự dừng
+
+Session kết thúc không còn reset player ngay: releaseAll đánh dấu release rồi renderTail tiếp tục các voice/track FX/tail đã có mà không advance timeline hoặc phát sự kiện mới. AudioEngine đánh dấu naturalStyleTail, dừng transport nhưng vẫn render session tail và group FX. Stop chủ động hoặc chọn style mới thoát trạng thái này; Stop vô hiệu gate reset để xóa tail kể cả transport đã dừng. Nhánh direct player/one-shot ngoài session chưa thay đổi.
+
+Kiểm thử renderTail không chạy note-on tương lai, release giảm và hết voice. Chưa đối chiếu thời điểm CloseAll/Ending của APK gốc bằng bản thu; đây là sửa đường reset cắt âm, không kết luận parity đầy đủ. Group FX vẫn được render sau khi voice im; chưa tối ưu CPU khi tail đã hết hoàn toàn.
+
+Xác minh: build debug thành công, 276 kiểm thử không lỗi; kiểm thử Ending cập nhật để xác nhận hết tiếng sau render release thay vì im ngay. Đã cài APK và mở trên điện thoại; SET giữ nguyên.
+
 ### Đuôi nốt qua ranh giới loop
 
 ReferenceRhythmPlayer trước đây xóa voices khi timeline quay về đầu loop. Nay bắt đầu release cho voice chưa release và giữ voice/track FX state, trong khi timeline reset để phát các note-on của vòng mới. Nhờ khóa voice riêng, nốt đầu vòng mới không ghi đè đuôi cùng event ID. Note đã release không bắt đầu release lại. Reset transport vẫn xóa voices theo lifecycle cũ.
