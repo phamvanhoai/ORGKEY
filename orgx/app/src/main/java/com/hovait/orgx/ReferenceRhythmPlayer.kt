@@ -171,7 +171,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         while(iterator.hasNext()){
             val voice=iterator.next()
             if(voice.playback!=null){
-                voice.playback.next(voice.release>=0)
+                voice.playback.next(voice.release>=0,pedalDown)
                 left+=voice.playback.left*voice.gain*currentChannelGain(0);right+=voice.playback.right*voice.gain*currentChannelGain(1)
                 if(voice.playback.finished)iterator.remove()
                 continue
