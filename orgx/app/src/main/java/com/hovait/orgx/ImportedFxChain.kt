@@ -10,6 +10,43 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    /** q01: fixed 10082-frame ring, fractional delay, independent stereo feedback. */
+    private class Chorus(values:List<Int>,rate:Int):Stage {
+        private val buffers=Array(2){FloatArray(10082)}
+        private var cursor=0;private var phase=0f;private var energy=0.0
+        private val depth=(values[1]/100f)*rate/1000f
+        private val delay=values[2]*rate/1000f
+        private val feedback=values[3]/100f
+        private val mix=values[4]/100f
+        private val spread=Math.toRadians(values[5].toDouble()).toFloat()
+        private val increment=((values[0]/100f).toDouble()*2*Math.PI/rate).toFloat()
+        override var left=0.0;override var right=0.0
+        override val active get()=energy>1e-18
+        // q01.c clears rings/cursor while retaining oscillator phase.
+        override fun reset(){buffers.forEach{it.fill(0f)};cursor=0;energy=0.0;left=0.0;right=0.0}
+        private fun read(position:Float,buffer:FloatArray):Float {
+            var p=position
+            while(p<0)p+=buffer.size
+            p-=(kotlin.math.floor(p/buffer.size)*buffer.size)
+            val index=p.toInt();val fraction=p-index
+            return (buffer[(index+1)%buffer.size]-buffer[index])*fraction+buffer[index]
+        }
+        override fun process(l:Double,r:Double){
+            val dl=delay+((kotlin.math.sin(phase)*.5f)+.5f)*depth
+            val dr=delay+((kotlin.math.sin(phase+spread)*.5f)+.5f)*depth
+            phase+=increment;if(phase>2*Math.PI)phase-=6.2831855f
+            val wetL=read(cursor-dl,buffers[0]);val wetR=read(cursor-dr,buffers[1])
+            for(c in 0..1){
+                val old=buffers[c][cursor].toDouble()
+                val value=(if(c==0)l else r).toFloat()+(if(c==0)wetL else wetR)*feedback
+                buffers[c][cursor]=value
+                energy=(energy-old*old+value.toDouble()*value).coerceAtLeast(0.0)
+            }
+            cursor=(cursor+1)%10082
+            left=(wetL*mix+l.toFloat()*(1f-mix)).toDouble()
+            right=(wetR*mix+r.toFloat()*(1f-mix)).toDouble()
+        }
+    }
     /** o01/v01: second-order band pass, evaluated with Float coefficients/history. */
     private class BandPass(frequency:Int,width:Int,sampleRate:Int):Stage {
         private val radius=1f-(width/sampleRate.toFloat())*3f
@@ -115,7 +152,14 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21)}.map{
+        if(it.type==21){
+            require(it.payload.size==24){"Invalid Chorus payload"}
+            val values=List(6){i->int(it.payload,i*4)}
+            require(values[0] in 5..500 && values[1] in 10..2000 && values[2] in 5..100 &&
+                values[3] in -95..95 && values[4] in 0..100 && values[5] in 0..180 && sampleRate>0){"Unsupported Chorus parameters"}
+            return@map Chorus(values,sampleRate)
+        }
         if(it.type==1){
             require(it.payload.size==8){"Invalid Band Pass payload"}
             val frequency=int(it.payload,0);val width=int(it.payload,4)

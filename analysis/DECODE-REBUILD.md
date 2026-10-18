@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Chorus, type 21
+
+Đã dựng theo `q01`: ring cố định 10082 frame mỗi kênh, delay phân số nội suy tuyến tính, sine LFO với stereo spread, feedback riêng hai kênh và dry/wet mix. Payload giữ đủ 6 int32: Rate, Depth, Delay, Feedback, Mix, Stereo Spread. Reset xóa rings/cursor nhưng giữ phase như `q01.c`; fresh tạo phase 0. Kiểm thử impulse có delay phân số, stereo không crossfeed, dry mix và reset đuôi feedback.
+
+PCM chuẩn hóa giữ Float buffer và coefficients nhưng không sao chép chia/nhân 6553600 và lượng tử Math.round long của bản gốc. Chưa đối chiếu bản thu; native Flanger/Reverb/Band Move vẫn cần dựng riêng.
+
+Xác minh: build debug thành công, 244 kiểm thử không lỗi. Đã cài cập nhật và mở trên điện thoại; SET giữ nguyên. Miền Rate 5..500 đã đối chiếu hằng số `Sdk.SDKError.Reason.BANNER_VIEW_INVALID_SIZE_VALUE` dùng trong `q01`.
+
 ### Band pass, type 1
 
 Đã dựng bộ lọc bậc hai theo `o01.a/v01.e`, giữ hệ số/history Float và thứ tự cộng feedforward rồi feedback. Payload gồm frequency (0..150000), bandwidth (0..25000), hai int32 little-endian. Radius = `1-3*bandwidth/sampleRate`; cosine = `2*cos(2*pi*frequency/sampleRate)`. Hai kênh có ba mẫu input và hai mẫu output history độc lập; reset xóa lịch sử, active giữ bus khi còn tín hiệu trong history.
