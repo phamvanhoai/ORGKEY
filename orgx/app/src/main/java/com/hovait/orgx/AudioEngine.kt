@@ -79,6 +79,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val gain=VoiceVelocity.gain(pressure,false)
         voices.filterKeys{((it and 2047)/128)==channel}.values.forEach{if(it.imported!=null)it.velocity=gain}
     }
+    fun midiPitchBend(value:Int,channel:Int=0){
+        val semitones=MidiPitchBend.semitones(value)
+        voices.filterKeys{((it and 2047)/128)==channel}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
+    }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
         autoChordMap.chord(progression,harmonyClock.time) else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
     @Volatile var autoChord = false

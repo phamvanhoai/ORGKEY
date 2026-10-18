@@ -1,5 +1,7 @@
 package com.hovait.orgx
 
+import kotlin.math.pow
+
 data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true,val tune:Int=0)
 
 class SampledInstrument(private val regions:List<InstrumentRegion>,private val outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null,
@@ -29,6 +31,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     inner class Playback(private val note:Int,tune:Int,private val pan:Int){
         private val children=layers.map{it.voice(note,tune,pan)}
         private val step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
+        private var bendSemitones=0.0
+        fun pitchBend(semitones:Double){bendSemitones=semitones;children.forEach{it.pitchBend(semitones)}}
         private val state=envelope?.voice(outputRate)
         private var age=0L
         var left=0.0;private set
@@ -40,9 +44,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
             }else{
                 val gain=state?.next(noteOff) ?: if(noteOff)0.0 else 1.0
-                left=sampleAt(note,age,0,step,pan)*gain;right=sampleAt(note,age,1,step,pan)*gain
+                val currentStep=step*2.0.pow(bendSemitones/12.0)
+                left=sampleAt(note,age,0,currentStep,pan)*gain;right=sampleAt(note,age,1,currentStep,pan)*gain
                 age++;finished=state?.finished==true || note !in 0..127 || missing(note) ||
-                    (!selected[note].looping && age*step>=selected[note].sample.frames.size) || (state==null && noteOff)
+                    (!selected[note].looping && age*currentStep>=selected[note].sample.frames.size) || (state==null && noteOff)
             }
         }
     }
