@@ -4,6 +4,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedAftertouchLayersTest {
+    @Test fun missingModeReferencesAreRejectedBeforeAnyPcmRead(){
+        val source=instrument(99)
+        assertFalse(ImportedInstrumentLoader.supported(source))
+        assertTrue(ImportedInstrumentLoader.modeReferenceError(source).orEmpty().contains("Aftertouch sound 99"))
+        val badMix=instrument(-1).let{it.copy(modes=listOf(it.modes.single().copy(mix=listOf(88))))}
+        assertTrue(ImportedInstrumentLoader.modeReferenceError(badMix).orEmpty().contains("Mix 1 sound 88"))
+        try{ImportedInstrumentLoader.load(java.io.File("missing-mode-pcm.bin"),source);fail("Missing sound accepted")}
+        catch(expected:IllegalArgumentException){assertTrue(expected.message.orEmpty().contains("Aftertouch sound 99"))}
+        assertNull(ImportedInstrumentLoader.modeReferenceError(instrument(-1)))
+    }
     @Test fun combinedPrimaryAndAftertouchBudgetIsCheckedBeforeReadingPcm(){
         val section=ImportedSection(60,48000,1,1,100,0,0,0,0,0,0,ImportedWave(0,40*1024*1024))
         val sound=ImportedSound("Large",listOf(0,0,100,10,0,0),listOf(section))

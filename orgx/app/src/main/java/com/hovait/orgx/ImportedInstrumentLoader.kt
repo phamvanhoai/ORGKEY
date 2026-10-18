@@ -4,6 +4,13 @@ import java.io.File
 import java.io.RandomAccessFile
 
 object ImportedInstrumentLoader {
+    fun modeReferenceError(instrument:ImportedInstrument):String? {
+        val mode=instrument.modes.firstOrNull() ?: return null
+        val references=listOf("primary" to mode.sound,"Aftertouch" to mode.aftertouch)+
+            mode.mix.mapIndexed{slot,sound->"Mix ${slot+1}" to sound}
+        return references.firstOrNull{(_,sound)->sound>=0 && sound !in instrument.sounds.indices}
+            ?.let{(role,sound)->"Mode '${mode.name}': missing $role sound $sound"}
+    }
     /** Preserve original nearest-root decisions, while loading only regions used by this track. */
     fun forTrack(instrument:ImportedInstrument,events:List<ReferenceDrumEvent>):ImportedInstrument {
         if(instrument.sounds.size>1 || instrument.modes.isNotEmpty())return instrument.copy(sounds=instrument.sounds.map{sound->
@@ -33,7 +40,12 @@ object ImportedInstrumentLoader {
             }
         }
     fun supported(instrument:ImportedInstrument):Boolean {
-        if(instrument.modes.isNotEmpty())return layers(instrument).let{it.isNotEmpty() && it.all(::supported)}
+        if(instrument.modes.isNotEmpty()){
+            if(modeReferenceError(instrument)!=null)return false
+            val primary=layers(instrument)
+            val alternate=if(instrument.modes.first().aftertouch>=0)layers(instrument,true) else emptyList()
+            return primary.isNotEmpty() && (primary+alternate).all(::supported)
+        }
         val sound=instrument.sounds.firstOrNull() ?: return false
         val pitchMode=sound.envelope.getOrNull(4)
         val supportedType=instrument.type in 0..2
@@ -46,6 +58,7 @@ object ImportedInstrumentLoader {
     fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings?=null,
         musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false):SampledInstrument {
         if(instrument.modes.isNotEmpty()){
+            require(modeReferenceError(instrument)==null){modeReferenceError(instrument).orEmpty()}
             val layers=layers(instrument,aftertouch)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             val alternateLayers=if(!aftertouch && instrument.modes.first().aftertouch>=0)layers(instrument,true) else emptyList()
