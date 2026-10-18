@@ -486,6 +486,7 @@ private fun ORGXApp(engine: AudioEngine) {
     var setGroups by remember{mutableStateOf(engine.activeSetIndex?.styles.orEmpty())}
     var setIndex by remember{mutableStateOf(engine.activeSetIndex)}
     var showSetVoices by remember{mutableStateOf(false)}
+    var showSetSts by remember{mutableStateOf(false)}
     var styleQuery by remember{mutableStateOf("")}
     var showBankFiles by remember{mutableStateOf(engine.activeSetFile==null)}
     var previewAccompaniment by remember{mutableStateOf(preferences.getInt("bankMode",2)>0)}
@@ -540,8 +541,10 @@ private fun ORGXApp(engine: AudioEngine) {
             }}){Text("OPEN SET ${file.name.take(12)}")}
         }
         if(setFile!=null)Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){
-            FilterChip(selected=!showSetVoices,onClick={showSetVoices=false},label={Text("STYLES (${setIndex?.let{ImportedStyleCatalog.styles(it).size} ?: 0})")})
-            FilterChip(selected=showSetVoices,onClick={showSetVoices=true},label={Text("VOICES (${setInstruments.size})")})
+            FilterChip(selected=!showSetVoices && !showSetSts,onClick={showSetVoices=false;showSetSts=false},label={Text("STYLES (${setIndex?.let{ImportedStyleCatalog.styles(it).size} ?: 0})")})
+            FilterChip(selected=showSetVoices,onClick={showSetVoices=true;showSetSts=false},label={Text("VOICES (${setInstruments.size})")})
+            val stsCount=setIndex?.tracks?.sumOf{it.sts.size} ?: 0
+            FilterChip(selected=showSetSts,onClick={showSetSts=true;showSetVoices=false},label={Text("STS ($stsCount)")})
         }
         if(showSetVoices)setInstruments.forEach{item->
             OutlinedButton(enabled=!importing,onClick={scope.launch{
@@ -555,7 +558,19 @@ private fun ORGXApp(engine: AudioEngine) {
                 finally{importing=false}
             }},modifier=Modifier.fillMaxWidth()){Text(item.name)}
         }
-        if(!showSetVoices && setGroups.isNotEmpty()){
+        if(showSetSts){
+            val snapshots=setIndex?.tracks.orEmpty().flatMap{track->track.sts.map{track.name to it}}
+            if(snapshots.isEmpty())Text("SET này không có STS đang bật",fontSize=12.sp)
+            snapshots.forEach{(track,snapshot)->
+                OutlinedButton(enabled=!importing,onClick={
+                    if(engine.applySts(snapshot))importStatus="STS ${snapshot.name.ifBlank{"(unnamed)"}} applied (${track})"
+                    else importStatus="Không thể áp dụng STS ${snapshot.name}"
+                },modifier=Modifier.fillMaxWidth()){
+                    Text("${snapshot.name.ifBlank{"STS"}} • ${track}")
+                }
+            }
+        }
+        if(!showSetVoices && !showSetSts && setGroups.isNotEmpty()){
             TextButton(onClick={showStyleOptions=!showStyleOptions}){Text("TÙY CHỌN NHẠC ĐỆM")}
             if(showStyleOptions){
             Row(verticalAlignment=Alignment.CenterVertically){
