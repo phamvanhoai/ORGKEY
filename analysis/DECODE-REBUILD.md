@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Sự kiện mute/unmute track, type 13/14
+
+Đã bổ sung event 13 theo Track: đặt mute và bắt đầu release voice hiện có (CloseAll(false)); event 14 bỏ mute. Trong khoảng mute không tạo note-on mới; note-off vẫn xử lý, FX vẫn render release/tail. Reset player trả event mute về trạng thái ban đầu không mute; replay không sửa dữ liệu track trong index. Gate hỗ trợ chấp nhận 1/2/13/14, key của event điều khiển không phải phím đàn.
+
+Kiểm thử mute khi có note ngân, bỏ qua note mới, unmute rồi phát note tiếp theo, reset phát lại. Giới hạn: track bị mute trong header vẫn bị loại ở bước chọn activeTracks như trước, chưa dựng trường hợp header mute nhưng timeline có unmute. Chưa hỗ trợ pedal/aftertouch/script hoặc các event type khác và chưa đối chiếu bản thu/runtime đầy đủ.
+
 ### Vòng đời chuỗi FX đã đóng
 
 ImportedFxChain có trạng thái closed chung: close idempotent, output xóa, active=false sau close; process/reset sau close báo IllegalStateException trước khi chạm module/native handle. Fresh vẫn tạo owner độc lập với cùng cấu hình. Kiểm thử Reverb backend kiểm tra đóng hai lần chỉ close native một lần, cấm render/reset sau close và fresh chạy được sau khi chain cũ đóng.

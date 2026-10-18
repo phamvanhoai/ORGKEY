@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã bổ sung event mute/unmute 13/14 trong track SET: mute release nốt đang ngân, chặn nốt mới; unmute cho phát tiếp, FX giữ đuôi. Track mute từ header vẫn cần xử lý riêng nếu có unmute trong timeline. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã thống nhất vòng đời FX chain: đóng lặp an toàn, ngừng báo active và cấm process/reset sau close trước khi gọi JNI; fresh chain độc lập. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã thêm điều kiện hết đuôi Ending để ngừng render/mix bus style khi dừng và không còn voice/FX active, tránh gọi Reverb native mãi sau khi im. Chi tiết ngưỡng/giới hạn: [DECODE-REBUILD.md](DECODE-REBUILD.md).

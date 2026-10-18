@@ -16,6 +16,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,val eventId:Int=0)
     private val voices=LinkedHashMap<Long,Voice>()
     private var voiceSequence=0L
+    private var eventMuted=false
     private val releaseFrames=(sampleRate/100).coerceAtLeast(1)
     private var children:List<ReferenceRhythmPlayer> = emptyList()
     private val releaseTails=ArrayList<ReferenceRhythmPlayer>()
@@ -96,7 +97,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     fun close(){fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
-    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=false;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false,preserveVoices:Boolean=false){
         require(referenceTime>=0)
         if(preserveVoices){
@@ -139,8 +140,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             voices.values.forEach{if(it.release<0)it.release=0}
         }
         timeline?.advance(local){event->
+            if(event.type==13){eventMuted=true;releaseAll();return@advance}
+            if(event.type==14){eventMuted=false;return@advance}
             val note=if(event.type==2)mapNote(event.note) else event.note
-            if(event.type==2 && drumLength(note)>0){
+            if(event.type==2 && !eventMuted && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 voices[voiceSequence++]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note,event.tune,ImportedNoteTouch.pan(event.touch)),
