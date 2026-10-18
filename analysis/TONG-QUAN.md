@@ -389,3 +389,5 @@ ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phá
 
 Nút Intro khi đang chạy hiện hủy các Intro/Fill đang chờ trước đó, phát đúng Intro vừa chọn một lần rồi quay về Main đang chọn; tránh tình trạng bấm Intro 1 nhưng chạy tiếp chuỗi Intro cũ.
 
+Parser SET hiện giữ lại STS bật trên từng Track: tên, MIDI channel, instrument/system, pedal/mode, chord data và FX block. Dữ liệu STS được lưu trong `ImportedTrack.sts` để bước áp dụng snapshot tiếp theo không phải đọc lại file.
+

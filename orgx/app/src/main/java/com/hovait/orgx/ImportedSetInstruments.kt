@@ -16,8 +16,11 @@ data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val sect
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4,val settings:ImportedChannelSettings=ImportedChannelSettings(),
     val chordType:Int=0,val chordBase:Int=0)
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
-    val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings())
+    val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList())
 data class ImportedSystem(val name:String,val startKey:Int,val selectedKeys:Int,val table:List<Double>)
+data class ImportedSts(val name:String,val record:Boolean,val midiChannel:Int,val instrument:Int,val system:Int,
+    val pedal:Int,val mode:Int,val data1:Int,val data2:Int,val chordType:Int,val chordSingle:List<Int>,
+    val settings:ImportedChannelSettings)
 data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList(),val systems:List<ImportedSystem> = emptyList(),
     val musicSettings:ImportedChannelSettings=ImportedChannelSettings(),val waveSettings:ImportedChannelSettings=ImportedChannelSettings(),val rhythmSettings:ImportedChannelSettings=ImportedChannelSettings())
 
@@ -108,18 +111,28 @@ object ImportedSetInstruments {
             ImportedSystem(metadata.firstOrNull().orEmpty(),startKey,selectedKeys,table)
         }
         common()
-        fun sts(){
-            skip(1);skip(f.readUnsignedByte().toLong());skip(16)
-            skip(1);val chord=f.readUnsignedByte();if(chord!=0)skip(24)
-            fx();skip(320)
+        fun parseSts():ImportedSts{
+            val record=f.readBoolean()
+            val nameLength=f.readUnsignedByte()
+            require(nameLength<=255 && nameLength.toLong()<=f.length()-f.filePointer)
+            val name=bytes(nameLength).toString(Charsets.UTF_8)
+            val midiChannel=f.readUnsignedByte() or (f.readUnsignedByte() shl 8)
+            val instrument=int();val system=int();val pedal=java.lang.Short.reverseBytes(f.readShort()).toInt()
+            val mode=java.lang.Short.reverseBytes(f.readShort()).toInt();val data1=java.lang.Short.reverseBytes(f.readShort()).toInt()
+            val data2=f.readUnsignedByte();val chordType=f.readUnsignedByte()
+            val chordSingle=if(chordType!=0)List(12){java.lang.Short.reverseBytes(f.readShort()).toInt()} else emptyList()
+            val settings=fx();skip(320)
+            return ImportedSts(name,record,midiChannel,instrument,system,pedal,mode,data1,data2,chordType,chordSingle,settings)
         }
         val tracks=List(count(100000)){
             val metadata=common();val trackGroup=lastGroup
             f.readUnsignedByte();val kind=f.readByte().toInt();skip(2);val system=int();val instrument=int();skip(1);val solo=f.readBoolean();val muted=f.readBoolean()
             skip(5);val chordRoot=f.readUnsignedByte();val chordType=f.readUnsignedByte();skip(106)
             val stored=count(10000);val number=if(musicVersion!!<"1.2.9")13 else stored
-            if(trackGroup==0 || musicVersion<"1.2.8"){
-                val enabled=List(number){f.readBoolean()};enabled.filter{it}.forEach{sts()}
+            val sts=buildList{
+                if(trackGroup==0 || musicVersion<"1.2.8"){
+                    val enabled=List(number){f.readBoolean()};enabled.forEachIndexed{_,on->if(on)add(parseSts())}
+                }
             }
             skip(23);val channelFx=fx();skip(320)
             val events=List(count(2000000)){
@@ -129,7 +142,7 @@ object ImportedSetInstruments {
                 require(type!=101){"Embedded wave events in SET tracks are not supported yet"}
                 ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune)
             }
-            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx)
+            ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts)
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
