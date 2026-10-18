@@ -29,7 +29,7 @@ def inventory():
             '2': 'Pitch Shake: mode, STS and style; fixed-point conversion and 10 ms timing need original-app validation',
             '3': 'Volume Shake: keyboard mode, STS and style; 10 ms timing needs original-app validation'},
         'native_reuse': {'29': 'libngverb.so; original binary, algorithm source not reconstructed'},
-        'missing_fx_types': [15, 31],
+        'missing_fx_types': [15],
         'known_missing_clusters': ['STS ChordSingles, change masks and complete snapshot routing',
                                    'original Aftertouch switching conditions and timing verification',
                                    'DNC articulation/connection',

@@ -28,7 +28,8 @@
     20,
     21,
     23,
-    29
+    29,
+    31
   ],
   "accepted_track_event_types": [
     1,
@@ -44,8 +45,7 @@
     "29": "libngverb.so; original binary, algorithm source not reconstructed"
   },
   "missing_fx_types": [
-    15,
-    31
+    15
   ],
   "known_missing_clusters": [
     "STS ChordSingles, change masks and complete snapshot routing",
