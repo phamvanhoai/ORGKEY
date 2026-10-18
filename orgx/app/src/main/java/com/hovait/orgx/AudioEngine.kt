@@ -240,8 +240,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         Thread.sleep(remaining/1_000_000,(remaining%1_000_000).toInt())
                     }
                     if(!midiSessionGate.runIfCurrent(session){
-                        if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel,true)
-                        else noteOff(event.note,event.channel,true)
+                        when(event.controller){
+                            -2->midiPitchBend(event.note or (event.velocity shl 7),event.channel)
+                            -3->midiNotePressure(event.note,event.velocity/127f,event.channel)
+                            else->if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel,true)
+                                else noteOff(event.note,event.channel,true)
+                        }
                     })return@thread
                 }
             } catch(_:InterruptedException){} finally {

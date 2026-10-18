@@ -37,7 +37,8 @@ object MidiFile {
                     status and 0xf0==0xb0->{val controller=dataByte();val value=dataByte()
                         if(controller in setOf(64,121,123)){noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,0,value,false,status and 15,controller=controller)}
                     }
-                    status and 0xf0 in setOf(0xa0,0xe0)->{dataByte();dataByte()}
+                    status and 0xf0==0xa0->{val note=dataByte();val pressure=dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,note,pressure,false,status and 15,controller=-3)}
+                    status and 0xf0==0xe0->{val low=dataByte();val high=dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,low,high,false,status and 15,controller=-2)}
                     status and 0xf0==0xc0->{val program=dataByte();require(program<128);programs+=Program(tick,status and 15,program,eventOrder)}
                     status and 0xf0==0xd0->dataByte()
                     else->error("Unsupported MIDI event")
