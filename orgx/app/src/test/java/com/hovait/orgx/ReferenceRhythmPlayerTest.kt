@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun tailStateBecomesIdleAfterVoicesFinishAndIncludesChildPlayers(){
+        val child=ReferenceRhythmPlayer(listOf(track(listOf(hit(0)))),{1000},{_,_,_->1.0},1000)
+        val combined=ReferenceRhythmPlayer.combine(listOf(child))
+        assertFalse(combined.hasTail)
+        combined.next(0,120);assertTrue(combined.hasTail)
+        combined.releaseAll()
+        repeat(20){combined.renderTail()}
+        assertFalse(combined.hasTail);assertEquals(0.0,combined.left,0.0)
+    }
     @Test fun tailRenderingReleasesVoicesWithoutSchedulingNewNotes(){
         val events=listOf(ReferenceDrumEvent(2,1,60,100,0,100),ReferenceDrumEvent(2,2,60,100,2,100))
         val player=ReferenceRhythmPlayer(listOf(track(events)),{1000},{_,_,_->1.0},1000)

@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Dừng xử lý bus sau khi đuôi Ending đã hết
+
+hasTail tổng hợp voice, track/group FX active, child và release-tail player. Khi natural Ending hết tail, engine thoát naturalStyleTail và reset tại frame dừng tiếp theo. Mixer không gọi mixOutput cho style đang dừng không còn natural tail, tránh tiếp tục gọi Reverb native sau reset. Factory reference output cũng chỉ cộng khi transport đang chạy. Kiểm thử trạng thái tail của player kết hợp từ có voice đến release hết.
+
+Phụ thuộc ngưỡng active của từng module hiện có; Reverb dùng timeout bảo thủ đã ghi ở phần Reverb. Không khẳng định mọi FX đều hết chính xác theo APK gốc hoặc mức CPU giảm cụ thể; EQ/Flanger có bias/history rất nhỏ có thể giữ active lâu.
+
 ### Kiểm tra phím note-off
 
 Điều kiện hỗ trợ style chỉ yêu cầu note-on có key 0..127. Note-off dùng ID để Channels.Close/ReferenceRhythmPlayer đóng voice nên trường key metadata ngoài miền không còn làm từ chối toàn bộ style. Event type ngoài 1/2 vẫn bị chặn, note-on key sai vẫn báo lỗi. Kiểm thử phân biệt hai trường hợp này; chưa mở rộng event điều khiển/aftertouch.

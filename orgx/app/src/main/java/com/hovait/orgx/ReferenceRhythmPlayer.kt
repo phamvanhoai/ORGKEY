@@ -80,6 +80,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     var left=0.0;private set
     var right=0.0;private set
     var finished=false;private set
+    val hasTail:Boolean get()=voices.isNotEmpty() || fx?.active==true || groupFx?.active==true ||
+        children.any{it.hasTail} || releaseTails.any{it.hasTail}
     fun releaseAll(){children.forEach{it.releaseAll()};voices.values.forEach{if(it.release<0)it.release=0}}
     fun renderTail(){
         nextReleaseTails()

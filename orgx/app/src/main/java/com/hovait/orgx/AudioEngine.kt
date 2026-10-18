@@ -325,6 +325,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (!rhythmPlaying) {
             if(naturalStyleTail && importedStyleSession?.finished==true){
                 importedStyleSession?.renderTail()
+                if(importedStyleSession?.hasTail==false){
+                    naturalStyleTail=false
+                    stoppedStyleReset.invalidate()
+                }
                 return 0.0
             }
             if(resetStopped){
@@ -463,10 +467,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         }
                     }
                 }
-                val setPlayer=importedRhythm
+                val setPlayer=importedRhythm.takeIf{rhythmPlaying || naturalStyleTail}
                 setPlayer?.mixOutput(drumsVolume,chordVolume)
-                val styleLeft=setPlayer?.outputLeft ?: ((referenceRhythm?.left ?: 0.0)*drumsVolume)
-                val styleRight=setPlayer?.outputRight ?: ((referenceRhythm?.right ?: 0.0)*drumsVolume)
+                val styleLeft=setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0)
+                val styleRight=setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0)
                 stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume+styleLeft,
                     mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume+styleRight,effectType,effectMix)
                 val setMasterGain=importedKeyboardMixer.musicVolume
