@@ -33,6 +33,27 @@ class NativePitchShiftSmoke:Instrumentation(){
                 }
             }
             check(peak>0){"No Pitch Shift output"}
+            val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(
+                ImportedFxModule(15,true,false,listOf(200,0,0,0))))
+            ImportedFxChain(settings).use{chain->
+                fun render():Double {
+                    var energy=0.0
+                    repeat(12000){i->
+                        chain.process(.2*sin(2*Math.PI*440*i/48000),0.0)
+                        check(chain.left.isFinite() && chain.right.isFinite())
+                        check(chain.right==0.0)
+                        energy+=chain.left*chain.left
+                    }
+                    return energy
+                }
+                val first=render();check(first>0 && chain.active)
+                chain.reset();check(!chain.active)
+                chain.process(0.0,0.0);check(chain.left==0.0 && chain.right==0.0)
+                val second=render()
+                check(abs(first-second)<1e-9){"FX reset did not reproduce initial Pitch Shift state"}
+                repeat(96000){chain.process(0.0,0.0)}
+                check(!chain.active){"Pitch Shift tail remained active past its budget"}
+            }
             result.putString("result","PASS native Pitch Shift: ${measured.joinToString()}, signal/stereo/reset/close; peak=$peak")
             finish(-1,result)
         }catch(error:Throwable){result.putString("result","FAIL: ${error.stackTraceToString()}");finish(0,result)}
