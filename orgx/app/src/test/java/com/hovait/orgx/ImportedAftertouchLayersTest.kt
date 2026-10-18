@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedAftertouchLayersTest {
+    @Test fun combinedPrimaryAndAftertouchBudgetIsCheckedBeforeReadingPcm(){
+        val section=ImportedSection(60,48000,1,1,100,0,0,0,0,0,0,ImportedWave(0,40*1024*1024))
+        val sound=ImportedSound("Large",listOf(0,0,100,10,0,0),listOf(section))
+        val source=ImportedInstrument("Large mode",100,0,0,listOf(sound,sound),listOf(
+            ImportedMode("Mode",0,1,List(8){-1},List(8){0},List(8){0})))
+        val missing=java.io.File("nonexistent-aftertouch-budget-test.pcm")
+        try{ImportedInstrumentLoader.load(missing,source);fail("Accepted combined 80 MB mode")}
+        catch(expected:IllegalArgumentException){assertEquals("Instrument mode exceeds 64 MB PCM budget",expected.message)}
+    }
     private fun instrument(alternate:Int)=ImportedInstrument("Voice",100,0,0,
         listOf(ImportedSound("Primary",emptyList(),emptyList()),ImportedSound("Alternate",emptyList(),emptyList()),ImportedSound("Mix",emptyList(),emptyList())),
         listOf(ImportedMode("Mode",0,alternate,listOf(2)+List(7){-1},List(8){0},List(8){0})))

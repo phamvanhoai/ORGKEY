@@ -48,11 +48,11 @@ object ImportedInstrumentLoader {
         if(instrument.modes.isNotEmpty()){
             val layers=layers(instrument,aftertouch)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
-            require(layers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
+            val alternateLayers=if(!aftertouch && instrument.modes.first().aftertouch>=0)layers(instrument,true) else emptyList()
+            require((layers+alternateLayers).sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
             val modeSettings=settings ?: ImportedMusicParameters.pitch(instrument.modes.first().settings,musicSettings,musicSettings.octave)
             val loaded=SampledInstrument.combine(layers.map{load(file,it,system,modeSettings,musicSettings)})
-            if(!aftertouch && instrument.modes.first().aftertouch>=0){
-                val alternateLayers=layers(instrument,true)
+            if(alternateLayers.isNotEmpty()){
                 val alternate=SampledInstrument.combine(alternateLayers.map{load(file,it,system,modeSettings,musicSettings)})
                 loaded.withAftertouch(alternate)
             }
