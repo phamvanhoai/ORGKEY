@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã nối hàng đợi `ImportedKeyboardPartQueue` vào AudioEngine: có API nhận nhóm STS đã chuẩn bị, nhận/nhả phím đa part và trộn trong vòng audio hiện tại. Chỉ audio thread thay state Playback. Test thứ tự đổi nhóm/nhấn phím/nhả/reset, mixer và batch đạt, build đạt. CHƯA bật qua giao diện, chưa thực thi mặt nạ/Master/vùng phím nên chọn STS hiện vẫn một voice; chi tiết [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
+
 Đã dựng `ImportedKeyboardParts` cho tối đa bốn tiếng STS: voice/pedal riêng, dùng chung ImportedKeyboardMixer, thay cấu hình giữ tiếng cũ đang ngân. Kết quả nạp `ImportedStsBatch.Prepared` chuyển được thành part đúng vị trí. Test tổng gain/sustain độc lập/thay tiếng/batch lỗi và build đạt. CHƯA nối note routing/vòng audio/UI nên hành vi ứng dụng chưa đổi; xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
 
 Đã dựng `ImportedStsBatch`: xác định Master và track bàn phím từ Group 0, giữ riêng vị trí main/index toàn SET, chuẩn bị tối đa bốn tiếng trước khi trả kết quả nhóm. Test nạp hai tiếng PCM, rhythm track xen giữa và thiếu slot cuối đều đạt; build đạt. CHƯA nối commit nhóm vào mixer/UI, nên ứng dụng hiện vẫn chọn STS một voice. Không cài bản chỉ bổ sung module nội bộ này; chi tiết tại [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).

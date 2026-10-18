@@ -44,7 +44,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var activeSetFile:File?=null
     @Volatile var activeSetIndex:ImportedSetIndex?=null
         set(value){
-            if(field!==value){setChordInputMode(0);keyboardChordInput.reset()}
+            if(field!==value){clearStsParts();setChordInputMode(0);keyboardChordInput.reset()}
             field=value
         }
     @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
@@ -58,6 +58,17 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         set(value){autoChordMap=AutoChordProgression(value);field=value}
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
+    private val stsParts=ImportedKeyboardPartQueue()
+    @Volatile private var stsPartsEnabled=false
+    private fun clearStsParts(){stsPartsEnabled=false;stsParts.clear()}
+    fun applyPreparedStsBatch(prepared:ImportedStsBatch.Prepared):Boolean {
+        if(activeSetFile!=prepared.file || activeSetIndex!==prepared.index)return false
+        val parts=prepared.keyboardParts()
+        if(parts.isEmpty())return false
+        stsParts.replace(parts)
+        stsPartsEnabled=true
+        return true
+    }
     @Volatile var chordInputMode=0;private set
     @Volatile var chordDualMappings:Map<Int,Int> = emptyMap();private set
     private var chordSingles=listOf(145,290,548,1096,2192,545,1090,2180,265,532,1060,2084)
@@ -79,9 +90,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(leftChordEnabled && note<splitNote){
             if(voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
             keyboardChordInput.press(note,referenceChords)
-        } else noteOn(note,velocity)
+        } else if(stsPartsEnabled)stsParts.noteOn(note,velocity.coerceIn(0f,1f).toDouble()) else noteOn(note,velocity)
     }
     fun keyboardNoteOff(note:Int){
+        stsParts.noteOff(note)
         val chordKey=keyboardChordInput.release(note)
         if(!chordKey || voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
     }
@@ -125,6 +137,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(activeSetFile!=prepared.file || activeSetIndex!==prepared.index || importedInstrument!==expectedSound)return false
         val snapshot=prepared.snapshot
         val nextSingles=ImportedStsChordSettings.singles(snapshot.chordType,snapshot.chordSingle,chordSingles)
+        clearStsParts()
         keyboardChordInput.configureChordMode(snapshot.chordType,nextSingles,referenceChords,chordDualMappings)
         chordSingles=nextSingles
         chordInputMode=snapshot.chordType
@@ -540,6 +553,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     // samples and pitch bend. The primary sample's age is no longer authoritative.
                     if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || (voice.sampledPlayback==null && voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
+                stsParts.renderInto(importedKeyboardMixer)
                 importedKeyboardMixer.finishFrame()
                 val rhythm = rhythmSample() + padSample()
                 val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + importedKeyboardMixer.left*keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
