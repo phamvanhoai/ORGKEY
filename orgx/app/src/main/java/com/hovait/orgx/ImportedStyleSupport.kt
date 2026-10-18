@@ -37,6 +37,17 @@ object ImportedStyleSupport {
         val tracks=playbackTracks(index,group,includeAccompaniment)
         if(index.systems.isNotEmpty() && tracks.any{it.system !in index.systems.indices})return "Track references missing tuning system"
         if(tracks.isEmpty())return "No supported tracks found"
+        tracks.firstOrNull{it.instrument !in index.instruments.indices}?.let{
+            return "Track '${it.name}' references missing instrument ${it.instrument}"
+        }
+        tracks.forEach{track->track.events.forEach{event->
+            if(event.type !in listOf(1,2,11,12,13,14,44,45) && !ImportedExpressionAutomation.supported(event)){
+                val detail=if(event.type==65)" (Effect slot ${event.id}, parameter ${event.note})" else ""
+                return "Track '${track.name}': unsupported event ${event.type}$detail at time ${event.time}"
+            }
+            if(event.type==2 && event.note !in 0..127)
+                return "Track '${track.name}': invalid note ${event.note} at time ${event.time}"
+        }}
         if(group.limit && (group.start<0 || group.end<=group.start))return "Unsupported loop boundaries"
         if(followChord && tracks.any{track->instrument(index,track)?.let{
             it.type==0 && ImportedInstrumentLoader.layers(it).any{layer->layer.sounds.firstOrNull()?.envelope?.getOrNull(4)!=0}
@@ -44,7 +55,6 @@ object ImportedStyleSupport {
         if(tracks.any{track->instrument(index,track)?.let{
             ImportedInstrumentLoader.supported(if(followChord && it.type==0)it else ImportedInstrumentLoader.forTrack(it,sampleEvents(track.copy(settings=channelSettings(index,track)),it.type==0)))
         }!=true})return "Used track samples contain unsupported parameters"
-        if(tracks.any{track->track.events.any{(it.type !in listOf(1,2,11,12,13,14,44,45) && !ImportedExpressionAutomation.supported(it)) || (it.type==2 && it.note !in 0..127)}})return "Track contains unsupported events"
         return null
     }
 }

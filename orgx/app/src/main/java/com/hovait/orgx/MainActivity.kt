@@ -626,7 +626,9 @@ private fun ORGXApp(engine: AudioEngine) {
             matches.forEach{definition->
                 val index=setIndex
                 val available=definition.sections.filter{ImportedStyleSupport.reason(index,it,previewAccompaniment,previewAccompaniment && followSetChord)==null}
-                val reason=if(available.any{it.section in 32..35})null else "No supported Main section"
+                val reason=if(available.any{it.section in 32..35})null else
+                    definition.sections.firstOrNull{it.section in 32..35}?.let{ImportedStyleSupport.reason(index,it,previewAccompaniment,previewAccompaniment && followSetChord)}
+                        ?: "No supported Main section"
                 val supported=reason==null
                 OutlinedButton(enabled=supported && !importing,onClick={scope.launch{
                     importing=true

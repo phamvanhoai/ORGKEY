@@ -11,7 +11,7 @@ def inventory():
     support = (SOURCE / 'ImportedStyleSupport.kt').read_text(encoding='utf-8')
     parser = (SOURCE / 'ImportedSetInstruments.kt').read_text(encoding='utf-8')
     fx_match = re.search(r'it\.enabled && it\.type in listOf\(([^)]+)\)', fx)
-    event_match = re.search(r'it\.type !in listOf\(([^)]+)\)', support)
+    event_match = re.search(r'(?:it|event)\.type !in listOf\(([^)]+)\)', support)
     if not fx_match or not event_match:
         raise RuntimeError('Support declarations changed; update inventory extractor')
     numbers = lambda text: sorted(int(v.strip()) for v in text.split(','))
