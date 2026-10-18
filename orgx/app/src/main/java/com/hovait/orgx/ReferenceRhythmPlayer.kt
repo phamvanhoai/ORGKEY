@@ -14,10 +14,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
-    private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,val eventId:Int=0)
+    private data class Voice(val note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,val eventId:Int=0)
     private val voices=LinkedHashMap<Long,Voice>()
     private var voiceSequence=0L
     private var eventMuted=initiallyMuted
+    private var pedalDown=false
     private var channelVolume=initialChannel?.volume ?: 100
     private var channelPan=initialChannel?.pan ?: 0
     private fun currentChannelGain(channel:Int)=if(initialChannel==null)channelGain(channel) else
@@ -103,7 +104,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     fun close(){fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
-    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=initiallyMuted;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    fun reset(){clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=initiallyMuted;pedalDown=false;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false,preserveVoices:Boolean=false){
         require(referenceTime>=0)
         if(preserveVoices){
@@ -148,6 +149,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         timeline?.advance(local){event->
             if(event.type==13){eventMuted=true;releaseAll();return@advance}
             if(event.type==14){eventMuted=false;return@advance}
+            if(event.type==12){pedalDown=true;return@advance}
+            if(event.type==11){pedalDown=false;voices.values.forEach{if(it.pendingRelease && it.release<0){it.pendingRelease=false;it.release=0}};return@advance}
             if(event.type==44){channelVolume=event.note;return@advance}
             if(event.type==45){channelPan=event.note;return@advance}
             val note=if(event.type==2)mapNote(event.note) else event.note
@@ -156,7 +159,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 voices[voiceSequence++]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=sampled?.voice(note,event.tune,ImportedNoteTouch.pan(event.touch)),
                     panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1),eventId=event.id)
-            } else if(event.type==1)voices.values.forEach{if(it.eventId==event.id && it.release<0)it.release=0}
+            } else if(event.type==1)voices.values.forEach{if(it.eventId==event.id && it.release<0){if(pedalDown)it.pendingRelease=true else it.release=0}}
         }
         renderVoices(track.outputGain)
         if(!track.bounded && timeline?.exhausted==true && (timeline?.endsWithNoteOff==true || voices.isEmpty()))finished=true
