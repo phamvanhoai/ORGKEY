@@ -63,8 +63,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile private var stsPartsEnabled=false
     private val stsGeneration=java.util.concurrent.atomic.AtomicLong()
     @Volatile private var stsMusic:ImportedChannelSettings?=null
+    @Volatile var currentStsGroup:ImportedStsBatch.Prepared?=null;private set
     private fun clearStsParts(){
         stsGeneration.incrementAndGet();stsPartsEnabled=false
+        currentStsGroup=null
         stsParts.clear{stsMusic=null}
     }
     fun applyStsRequest(prepared:ImportedStsRequest.Prepared,expectedSound:SampledInstrument?):Boolean {
@@ -91,11 +93,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     stsMusic=master.music
                     master.tempo?.let{bpm=it}
                 }
+                currentStsGroup=prepared
+                importedInstrumentName=prepared.selection.master.name.ifBlank{"STS ${prepared.selection.slot+1}"}+" / ${parts.size} PARTS"
                 true
             }
         }
         stsPartsEnabled=true
-        importedInstrumentName=prepared.selection.master.name.ifBlank{"STS ${prepared.selection.slot+1}"}+" / ${parts.size} PARTS"
         return true
     }
     @Volatile var chordInputMode=0;private set

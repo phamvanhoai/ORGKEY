@@ -14,6 +14,7 @@ android {
         targetSdk = 35
         versionCode = 41
         versionName = "0.1.6"
+        testInstrumentationRunner = "com.hovait.orgx.ImportedStsGroupSmoke"
     }
 
     buildFeatures { compose = true }

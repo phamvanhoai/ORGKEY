@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <instrumentation android:name="com.hovait.orgx.ImportedStsGroupSmoke" android:targetPackage="com.hovait.orgx" />
     <instrumentation android:name="com.hovait.orgx.NativeReverbSmoke" android:targetPackage="com.hovait.orgx" />
     <instrumentation android:name="com.hovait.orgx.NativeBandBoosterSmoke" android:targetPackage="com.hovait.orgx" />
     <instrumentation android:name="com.hovait.orgx.NativePitchShiftSmoke" android:targetPackage="com.hovait.orgx" />

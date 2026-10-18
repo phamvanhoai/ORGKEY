@@ -81,3 +81,11 @@ ImportedStsRequest phân tuyến track index 0 (Master) vào prepareFull, track 
 Luồng UI này cố ý dùng snapshot tiếng đầy đủ prepareFull: CHƯA thực thi default fSTSChanges/STSPut toàn bộ, CHƯA áp Master tempo/chord/Music qua lựa chọn UI. prepareMasked/Master commit vẫn là API nội bộ. Không coi MASTER / ALL VOICES là parity STSPut. Nạp thiếu slot/PCM quá ngân sách báo lỗi trước thay nhóm.
 
 Test phân tuyến Master vs track riêng, batch/queue/memory/loader và assembleDebug đạt. Đã cài APK và xác nhận MainActivity chạy trên 88d75c04. Chưa trực tiếp chọn/thử nghe nhóm SET thật hoặc đóng/mở lại trên điện thoại; các lượt restore/link mới được build, không tuyên bố đã kiểm chứng UI đầy đủ.
+
+## Kiểm chứng SET thật trên thiết bị
+
+ImportedStsGroupSmoke chạy offline trong instrumentation trên thiết bị arm64 88d75c04, đọc hai file ReferenceSets đã nhập trong app, không chỉnh file. Build test runner được khai báo rõ trong defaultConfig để đăng ký runner mới. Render 5 nốt 36/48/60/72/84, mỗi nốt 2.400 frame, note-off/pedal-off, qua queue và mixer có FX thực.
+
+Kết quả PASS 4 nhóm: bank bcfb82bc slot 0/1/2 đều 4 part, Record bật 1/1/2, peak lần lượt 0.9856957575 / 1.8387102908 / 1.4209156253; bank 9d613732 slot 0 có 4 part, bật 1, peak 0.8776496053. Đây là tín hiệu trước gain/limiter đầu ra engine; peak trên 1 không tự chứng minh âm thanh loa bị clipping. Tất cả frame được kiểm tra finite. Chưa thử nghe, chưa đo latency, chưa đối chiếu audio APK hoặc thao tác UI/restore trên thiết bị.
+
+AudioEngine.currentStsGroup nay chỉ cập nhật bên trong commit audio đã vượt kiểm tra generation/file/index, cùng tên nhóm hiển thị; clear/đổi voice xóa trạng thái. Trước đây tên đổi ngay lúc enqueue, có thể hiển thị nhóm bị từ chối về sau. Trạng thái giữ Prepared gồm raw snapshot hiệu lực để bước áp mask sau có thể đọc; chưa tự dùng trạng thái này làm current của luồng UI.
