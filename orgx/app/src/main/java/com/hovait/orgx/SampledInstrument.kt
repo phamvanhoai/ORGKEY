@@ -16,6 +16,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private val roots=regions.map{it.root}
     private var layers:List<SampledInstrument> = emptyList()
     private var aftertouchInstrument:SampledInstrument?=null
+    private var expressionEffects:List<ImportedExpressionEffect> = emptyList()
+    fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{expressionEffects=effects.toList()}
     var keyboardSettings=ImportedChannelSettings();private set
     private var keyboardMelodic=true
     fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{keyboardSettings=settings;keyboardMelodic=melodic}
@@ -44,13 +46,14 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private val state=envelope?.voice(outputRate)
         private var position=0.0
+        private val volumeShake=expressionEffects.firstOrNull{it.slot==3 && it.enabled}?.let{ImportedVolumeShake(it,outputRate)}
         var left=0.0;private set
         var right=0.0;private set
         var finished=false;private set
-        fun next(noteOff:Boolean){
-            if(aftertouch){alternate?.next(noteOff);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
+        fun next(noteOff:Boolean,pedal:Boolean=false){
+            if(aftertouch){alternate?.next(noteOff,pedal);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
             }else if(children.isNotEmpty()){
-                children.forEach{it.next(noteOff)}
+                children.forEach{it.next(noteOff,pedal)}
                 left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
             }else{
                 val gain=state?.next(noteOff) ?: if(noteOff)0.0 else 1.0
@@ -60,6 +63,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
                     (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && noteOff)
             }
+            volumeShake?.let{it.next(noteOff,pedal);left*=it.left;right*=it.right}
         }
     }
     private val mapped=Array(128){note->when(pitchMode){

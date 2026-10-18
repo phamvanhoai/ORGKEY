@@ -18,5 +18,6 @@ object ImportedStsLoader {
         val settings=ImportedMusicParameters.pitch(snapshot.settings,index.musicSettings,index.musicSettings.octave)
         return ImportedInstrumentLoader.load(file,source,index.systems.getOrNull(snapshot.system),settings,index.musicSettings)
             .withKeyboardSettings(settings,source.type==0)
+            .withExpressionEffects(snapshot.effects)
     }
 }

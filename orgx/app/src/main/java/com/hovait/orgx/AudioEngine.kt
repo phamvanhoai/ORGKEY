@@ -469,7 +469,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 importedKeyboardMixer.beginFrame()
                 voices.forEach { (note, voice) ->
                     val frequency = 440.0 * 2.0.pow((voice.note - 69) / 12.0)
-                    voice.sampledPlayback?.next(voice.releasing)
+                    voice.sampledPlayback?.next(voice.releasing,sustain)
                     val sample = voice.sampledPlayback?.left ?: (if(voice.instrument == -1)sampleBank?.drum(voice.note,voice.ageFrames.toInt(),0) else sampleBank?.instrument(voice.instrument,voice.note,voice.ageFrames)) ?: when (voice.instrument) {
                         1 -> sin(voice.phase) * 0.58 + sin(voice.phase * 2.0) * 0.28 + sin(voice.phase * 4.0) * 0.14
                         2 -> sin(voice.phase) * 0.55 + sin(voice.phase * 2.0) * 0.25 + sin(voice.phase * 3.0) * 0.12 + sin(voice.phase * 5.0) * 0.08
