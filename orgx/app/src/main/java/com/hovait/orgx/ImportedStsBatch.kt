@@ -7,7 +7,7 @@ object ImportedStsBatch {
     data class Member(val position:Int,val trackIndex:Int,val snapshot:ImportedSts)
     data class Selection(val slot:Int,val master:ImportedSts,val members:List<Member>,val actions:List<ImportedStsPlan.Action>)
     data class Prepared(val file:File,val index:ImportedSetIndex,val selection:Selection,
-        val voices:Map<Int,ImportedStsLoader.Prepared>){
+        val voices:Map<Int,ImportedStsLoader.Prepared>,val master:ImportedStsMaster.Prepared?=null){
         fun keyboardParts():List<ImportedKeyboardParts.Part> = voices.map{(position,voice)->
             val member=selection.members.single{it.position==position}
             val track=index.tracks[member.trackIndex]
@@ -32,13 +32,15 @@ object ImportedStsBatch {
     /** Full voice snapshots only. Masked PCM preparation requires current Track state. */
     fun prepareMasked(file:File,index:ImportedSetIndex,slot:Int,current:Map<Int,ImportedSts>,changes:List<Boolean>):Prepared {
         val selection=resolve(index,slot,changes)
+        val master=ImportedStsMaster.prepare(index,selection.master,changes)
+        val loadIndex=index.copy(musicSettings=master.music,systems=master.systems)
         val effective=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
             .associate{member->
                 val prior=current[member.position] ?: error("Current STS part ${member.position} unavailable")
                 member.position to ImportedStsChanges.transition(index,member.position,prior,member.snapshot,selection.actions,changes)
             }
-        val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,index,snapshot)}
-        return Prepared(file,index,selection,voices)
+        val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot)}
+        return Prepared(file,index,selection,voices,master)
     }
     fun prepareFull(file:File,index:ImportedSetIndex,slot:Int):Prepared {
         val selection=resolve(index,slot)

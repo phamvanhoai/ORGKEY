@@ -53,3 +53,11 @@ Test từng cờ channel, Tune giữ nguyên, track/chord/MIDI giữ đúng và 
 ImportedStsChanges.transition thực hiện các action 62/61 theo thứ tự trước track merge. Event 62 đổi instrument hợp lệ (>0 theo Track.Play), ID khác 0 gọi ModeSet(0). Event 61 ID=0 chỉ gán mode, ID khác 0 nạp FX/Effect từ mode. ModeSet không tìm thấy mode trả -1 với channel mặc định và Effect tắt (ORGX biểu diễn bằng list rỗng). Sau đó mới áp các cờ channel/Effect của STS. prepareMasked đã bỏ chặn chung đổi instrument/mode và dùng resolver này.
 
 Test xác nhận ModeSet lấy volume/Tune mode, gán chỉ số trực tiếp giữ channel cũ, mask volume chép STS sau ModeSet nhưng không chép Tune, đổi instrument dùng mode mặc định mới và mode thiếu reset về channel mặc định. Test changes/batch/plan và assembleDebug đạt. Chưa port callback ScriptEvent, toàn bộ z01 header/reserved, hoặc những Effect mặc định tắt dạng record đầy đủ. Direct selection tới mode không tồn tại vẫn được loader từ chối thay vì âm thầm nạp tiếng khác. Chưa bật UI hay commit Master đa part, chưa cài bản nội bộ.
+
+## Chuẩn bị Master trước PCM
+
+ImportedStsMaster.prepare giải quyết event 224 với cờ 2..7 tương ứng volume/pan/transpose/octave/release/FX, giữ Tune hiện hành theo z01.e. Event 223 sao chép name/table từ system được chọn vào system 0, giữ StartKey/SelectedKeys theo handler gốc; system không hợp lệ bỏ qua. Event 222/225 trả tempo/chord riêng khi cờ 0/20 bật, null nghĩa giữ giá trị live. Chord được kiểm tra trước nạp; tempo bật phải dương.
+
+prepareMasked tạo loadIndex riêng từ Music settings và systems hiệu lực để tiếng mới được giải mã theo global pitch/scale đã chọn. Prepared.index vẫn là index gốc để kiểm tra danh tính SET khi commit; từng voice Prepared bên trong giữ loadIndex hiệu lực. Không dùng từng voice này qua applyPreparedSts một voice, vì kiểm tra index identity sẽ từ chối.
+
+Test Master xác nhận mask, Tune giữ, scale copy chỉ name/table, dữ liệu SET không bị đổi, tempo/chord null khi không chọn và system lỗi bỏ qua. Test master/changes/batch và assembleDebug đạt. Chưa commit Music bus/tempo/chord cùng cả nhóm trong audio thread; UI đa part vẫn tắt, chưa cài bản nội bộ. prepareFull vẫn là đường full-voice snapshot riêng và không tự áp Master.
