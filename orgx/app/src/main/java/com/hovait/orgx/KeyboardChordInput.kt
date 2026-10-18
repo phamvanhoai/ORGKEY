@@ -23,6 +23,10 @@ class KeyboardChordInput {
     private fun detect(library:List<PlayableChord>){
         if(held.isEmpty())return
         val mask=if(singleFinger)singles[held.first()%12] else held.fold(0){value,key->value or (1 shl (key%12))}
+        if(singleFinger){
+            ReferenceChordMatcher.find(mask,library)?.let{chord=it}
+            return
+        }
         if(Integer.bitCount(mask)<3)return
         val candidates=library.indices.filter{index->
             library[index].notes.fold(0){value,key->value or (1 shl (key%12))}==mask

@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Chế độ một ngón STS nay dùng `ReferenceChordMatcher` theo `Tracks.ChordFind`: nhận hợp âm con khi mask dư nốt, chọn hợp âm nhiều nốt nhất và giữ thứ tự bảng khi hòa điểm. Không áp ưu tiên bass của matcher cũ vào bảng một ngón. Kiểm thử matcher/bàn phím/loader/STS đạt, build và cài bản mới thành công. ChordDuals và matcher nhiều ngón đầy đủ vẫn chưa dựng.
+
 Đã nối STS ChordType=1/ChordSingles vào nhận hợp âm bàn phím trái: dùng bảng 12 mask riêng của STS, chọn theo phím thấp nhất đang giữ, cập nhật khi đổi STS hoặc nhả phím thấp nhất và giữ hợp âm cuối khi nhả hết. Đổi SET xóa cấu hình cũ; file SET giữ nguyên. Kiểm thử bàn phím/loader/STS đạt, build và cài bản mới thành công. ChordDuals, ChordFind fallback và fSTSChanges chưa hoàn chỉnh; xem [STS-SINGLE-FINGER-REBUILD.md](STS-SINGLE-FINGER-REBUILD.md).
 
 Đã sửa phân tuyến Effect style theo `Tracks.ReadFromStream` và `Channels.Process`: group Type 1 dùng channel type 1, không chạy Pitch Shake/Volume Shake dù instrument melodic. ORGX trước đây áp dụng sai và các test tích hợp cũng kỳ vọng sai; đã chỉnh cả note-on và automation. Voice mode/STS bàn phím giữ đường Shake riêng. Các ghi chú cũ về Shake trên style Type 1 phía dưới đã bị thay thế bởi quy tắc này; xem [EXPRESSION-ROUTING-REBUILD.md](EXPRESSION-ROUTING-REBUILD.md).

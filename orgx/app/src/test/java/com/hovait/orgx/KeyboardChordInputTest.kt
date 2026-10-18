@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class KeyboardChordInputTest {
+    @Test fun singleFingerUsesOriginalContainedChordFallbackAndTableOrder(){
+        val input=KeyboardChordInput()
+        input.configureSingleFinger(true,List(12){145 or (1 shl 1)},library)
+        input.press(60,library)
+        assertEquals("C M",library[input.chord!!].name)
+        input.configureSingleFinger(true,List(12){657},library)
+        input.reset();input.press(57,library)
+        assertEquals("C 6",library[input.chord!!].name)
+    }
     @Test fun stsSingleFingerUsesCustomTableAndLowestHeldMidiNote(){
         val input=KeyboardChordInput()
         val masks=MutableList(12){145} // C major

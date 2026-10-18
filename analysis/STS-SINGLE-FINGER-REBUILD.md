@@ -8,4 +8,6 @@ ORGX áp bảng ChordSingle khi `AudioEngine.applyPreparedSts` thành công và 
 
 Kiểm chứng: KeyboardChordInputTest gồm các ca bảng tùy biến, octave, nhiều phím, release, đổi snapshot khi đang giữ phím, trở về nhiều ngón và bảng lỗi; cùng ImportedStsLoaderTest và ImportedStsIntegrationTest đều đạt. AssembleDebug thành công, cài và mở bản mới trên thiết bị 88d75c04.
 
-Giới hạn: ChordType=2 dùng ChordDuals gốc chưa dựng; không khẳng định tương đương chế độ hai ngón. Chưa hoàn thiện fSTSChanges và STSPut đa Track. Mask không tìm thấy trong thư viện giữ hợp âm cuối; chưa port toàn bộ ChordFind fallback của APK. Chưa thử thao tác một ngón với SET thật trên điện thoại hoặc đối chiếu âm thanh APK.
+Đã bổ sung ReferenceChordMatcher theo Tracks.ChordFind cho chế độ một ngón: duyệt thư viện theo thứ tự, chọn hợp âm có ít nhất ba pitch class, mọi pitch class nằm trong mask đầu vào và số nốt lớn nhất. Bằng số nốt thì giữ mục trước, không ưu tiên bass. Nhờ đó bảng STS có thêm nốt vẫn nhận được hợp âm con hợp lệ. Không tìm được giữ hợp âm cuối. Kiểm thử mask dư nốt, hợp âm ba/bốn nốt, thứ tự hòa điểm, nốt trùng octave, bảng trống và dữ liệu không khớp đều đạt; build/cài bản mới thành công.
+
+Giới hạn: ChordType=2 dùng ChordDuals gốc chưa dựng; không khẳng định tương đương chế độ hai ngón. Chưa hoàn thiện fSTSChanges và STSPut đa Track. Chế độ nhiều ngón mặc định vẫn dùng matcher exact/bass hiện có, chưa đổi sang toàn bộ ChordGet/ChordFind gốc. Chưa thử thao tác một ngón với SET thật trên điện thoại hoặc đối chiếu âm thanh APK.

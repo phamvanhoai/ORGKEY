@@ -31,7 +31,7 @@ def inventory():
         'native_reuse': {'29': 'libngverb.so; original binary, algorithm source not reconstructed',
                          '15': 'libnpitchshift.so; original binary, device sine frequency checks passed'},
         'missing_fx_types': [],
-        'sts_chord_input': 'ChordType 1 uses snapshot ChordSingles on left keyboard; ChordDuals and original ChordFind fallback missing',
+        'sts_chord_input': 'ChordType 1 uses snapshot ChordSingles and original ChordFind subset/order rules; ChordDuals and complete fingered ChordGet missing',
         'known_missing_clusters': ['STS ChordDuals, change masks and complete snapshot routing',
                                    'original Aftertouch switching conditions and timing verification',
                                    'DNC articulation/connection',
