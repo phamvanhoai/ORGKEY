@@ -7,7 +7,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StylePitchShakeIntegrationTest {
-    @Test fun styleLoaderAppliesTimelinePitchShakeAndResetReplaysTheSameAudio(){
+    @Test fun rhythmGroupBypassesTimelinePitchShakeAndResetReplaysTheSameAudio(){
         val file=File.createTempFile("style-pitch-shake",".pcm")
         try{
             val pcm=ByteBuffer.allocate(8192).order(ByteOrder.LITTLE_ENDIAN)
@@ -27,7 +27,7 @@ class StylePitchShakeIntegrationTest {
                 var different=false
                 audio.indices.forEach{i->changed.next(0,120);plain.next(0,120);audio[i]=changed.left
                     assertTrue(audio[i].isFinite());if(kotlin.math.abs(changed.left-plain.left)>1e-8)different=true}
-                assertTrue("Timeline pitch automation did not reach decoded PCM",different)
+                assertFalse("Rhythm channel applied expression excluded by original Channels.Process",different)
                 changed.reset()
                 audio.forEach{expected->changed.next(0,120);assertEquals(expected,changed.left,1e-12)}
             }finally{changed.close();plain.close()}

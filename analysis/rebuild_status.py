@@ -24,10 +24,10 @@ def inventory():
             '51': 'Nonnegative KeyTouch, low 16 bits; no script/smoothing',
             '52': 'KeyBalance -100 through 100; sampled voices',
             '53': 'Positive KeyPitchMove /1000; no script/smoothing',
-            '65': 'Pitch Shake slot 2 and Volume Shake slot 3; parameters 0 through 6'},
+            '65': 'Slots 2/3 parameters 0 through 6; retained but expression bypassed on rhythm channel type 1'},
         'expression_effects': {
-            '2': 'Pitch Shake: mode, STS and style; fixed-point conversion and 10 ms timing need original-app validation',
-            '3': 'Volume Shake: keyboard mode, STS and style; 10 ms timing needs original-app validation'},
+            '2': 'Pitch Shake: keyboard mode/STS and allowed channel types 0/2; rhythm groups bypass; mixer quantization and timing need original-app validation',
+            '3': 'Volume Shake: keyboard mode/STS and allowed channel types 0/2; rhythm groups bypass; timing needs original-app validation'},
         'native_reuse': {'29': 'libngverb.so; original binary, algorithm source not reconstructed',
                          '15': 'libnpitchshift.so; original binary, device sine frequency checks passed'},
         'missing_fx_types': [],

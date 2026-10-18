@@ -6,7 +6,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StyleVolumeShakeTest {
-    @Test fun tracksSharingPcmKeepDifferentExpressionAndPedalSettings(){
+    @Test fun rhythmGroupBypassesStoredAndAutomatedExpressionAcrossReset(){
         val file=File.createTempFile("style-shake",".pcm")
         try{
             file.writeBytes(byteArrayOf(0,32,0,32))
@@ -21,15 +21,15 @@ class StyleVolumeShakeTest {
             val player=ImportedStylePlayer.load(file,index,group,true)
             try{
                 repeat(480){player.next(0,120)}
-                assertEquals(.25*(2+sin(1.0)*.1),player.left,1e-9)
-                assertEquals(.25*(2+sin(1.0)*.3),player.right,1e-9)
+                assertEquals(.5,player.left,1e-9)
+                assertEquals(.5,player.right,1e-9)
                 repeat(481){player.next(0,120)}
                 assertEquals(.5,player.left,1e-9)
                 assertEquals(.5,player.right,1e-9)
                 player.reset();player.next(0,120)
                 assertEquals(.5,player.left,1e-9)
                 repeat(479){player.next(0,120)}
-                assertEquals(.25*(2+sin(1.0)*.1),player.left,1e-9)
+                assertEquals(.5,player.left,1e-9)
             }finally{player.close()}
         }finally{file.delete()}
     }
