@@ -36,6 +36,8 @@ Xác minh: build debug thành công, 287 kiểm thử không lỗi. APK đã cà
 
 Bổ sung riêng cho bàn phím cảm ứng: khi giữ cùng phím và di chuyển theo chiều lực, `keyboardNotePressure` cập nhật velocity của voice SET đang ngân; voice factory bị bỏ qua. Đây là pressure gain, không chọn mode Aftertouch sound và không áp dụng cho MIDI/event4. Build/install vẫn đạt 287 test; giới hạn cụm vẫn giữ nguyên.
 
+MIDI có hook `midiNotePressure`/`midiChannelPressure` và `midiPitchBend` để cập nhật voice SET đang ngân; `MidiPitchBend` dùng miền ±2 semitone. Parser/playback MIDI hiện chưa đưa channel pressure/pitch-bend events vào `MidiNoteEvent`/lịch phát, nên chưa gọi đây là MIDI biểu cảm end-to-end. Bảng tiến độ ghi rõ giới hạn này.
+
 ### Channel automation volume/pan, event 44/45
 
 Theo Track event44 ghi FXs.b, event45 ghi FXs.c từ trường Key. Loader truyền header channel vào player; sự kiện cập nhật volume/pan và render áp gain trước channel FX cho cả nốt đang ngân. Reset khôi phục header. Tail chuyển section chốt gain hiện tại vào owner mới để thay đổi ở nguồn không làm đổi tail đã chuyển. Không thay đổi mode FX toàn bank như tác dụng phụ trong APK gốc; chưa dựng chia sẻ automation mode hoặc script.
