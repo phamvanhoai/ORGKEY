@@ -36,6 +36,19 @@ class NativeReverbSmoke:Instrumentation() {
             }
             check(transferredPeak>0){"Transferred native track FX tail was lost"}
             next.close();next.close()
+            fun bus(impulse:Boolean)=ReferenceRhythmPlayer(listOf(track),{1},{_,_,_->if(impulse).5 else 0.0},48000).withGroupFx(settings)
+            val first=bus(true);val second=bus(false)
+            first.next(0,120);first.mixOutput(1f,1f)
+            second.continueGroupFxFrom(first)
+            var groupPeak=0.0
+            repeat(24000){second.next(0,120);second.mixOutput(1f,1f);groupPeak=maxOf(groupPeak,kotlin.math.abs(second.outputLeft))}
+            check(groupPeak>0){"Group FX transfer lost native tail"}
+            // Return to the previously visited section: it must still own a usable bus.
+            first.reset();first.next(0,120);first.mixOutput(1f,1f)
+            var revisitPeak=0.0
+            repeat(24000){first.next(0,120);first.mixOutput(1f,1f);revisitPeak=maxOf(revisitPeak,kotlin.math.abs(first.outputLeft))}
+            check(revisitPeak>0){"Revisited section lost its Reverb bus"}
+            first.close();second.close()
             result.putString("result","PASS: real JNI impulse/tail/flush/close + player tail transfer; peak=$peak transferred=$transferredPeak")
             finish(RESULT_OK,result)
         }catch(error:Throwable){result.putString("result","FAIL: ${error.stackTraceToString()}");finish(RESULT_CANCELED,result)}

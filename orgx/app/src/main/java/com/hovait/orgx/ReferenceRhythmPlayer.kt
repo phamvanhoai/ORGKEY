@@ -55,7 +55,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     fun continueGroupFxFrom(previous:ReferenceRhythmPlayer){
         if(previous===this || groupFxSettings!=previous.groupFxSettings)return
         val live=previous.groupFx ?: return
-        previous.groupFx=null
+        // A section can be selected again later; leave it an unallocated fresh bus.
+        previous.groupFx=live.fresh()
         groupFx?.close();groupFx=live
     }
     fun withRhythmSettings(settings:ImportedChannelSettings,music:ImportedChannelSettings=ImportedChannelSettings()):ReferenceRhythmPlayer=also{

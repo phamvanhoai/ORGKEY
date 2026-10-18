@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Quay lại section sau khi chuyển bus FX
+
+Sửa lỗi `continueGroupFxFrom`: sau khi chuyển live group chain sang player đích, player nguồn từng bị để groupFx=null nên khi chọn lại section sẽ phát thiếu FX. Nay nguồn giữ `live.fresh()` (Reverb vẫn chưa cấp phát handle cho tới khi có tín hiệu). Đích nhận đúng live chain và đuôi đang ngân; nguồn có bus sạch khi phát lại. Không sao chép cùng native handle cho hai owner.
+
+Kiểm thử JVM chuyển bus hai lần rồi chọn lại nguồn, xác nhận Bass Booster vẫn áp dụng. Bổ sung instrumentation JNI thật: chuyển group Reverb tail, phát nguồn lại và xác nhận cả đuôi chuyển lẫn đuôi mới đều có output. Chưa coi là đối chiếu đầy đủ mọi chuỗi nút style với APK gốc.
+
+Xác minh: build debug/test APK thành công, 262 kiểm thử JVM không lỗi. Instrumentation native trên điện thoại PASS, gồm assert group transfer/revisit. Đã cài cập nhật, mở ứng dụng thành công; SET giữ nguyên.
+
 ### Reverb native đã nối vào chain SET
 
 Đã bỏ Pair/boxed Long khỏi kết quả mỗi frame: wrapper dùng LongArray hai phần tử cấp phát một lần, native ghi trực tiếp dưới khóa stereo. Test backend kiểm tra cùng buffer được tái sử dụng qua nhiều frame. Đây là giảm cấp phát trong wrapper, chưa phải phép đo latency/GC toàn engine.

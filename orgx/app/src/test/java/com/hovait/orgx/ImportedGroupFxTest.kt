@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedGroupFxTest {
+    @Test fun revisitedSectionRetainsFreshBusAfterLiveBusWasTransferred(){
+        val track=ReferenceDrumTrack("Test",1,0,32,120,true,0,1000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,100)))
+        fun player()=ReferenceRhythmPlayer(listOf(track),{1000},{_,_,_->1.0},1000).withGroupFx(effect)
+        val original=player();val destination=player()
+        original.next(0,120);original.mixOutput(1f,1f)
+        destination.continueGroupFxFrom(original)
+        original.reset();original.next(0,120);original.mixOutput(1f,1f)
+        assertEquals(1.5,original.outputLeft,0.0)
+        destination.continueGroupFxFrom(original)
+        original.reset();original.next(0,120);original.mixOutput(1f,1f)
+        assertEquals(1.5,original.outputLeft,0.0)
+        original.close();destination.close()
+    }
     @Test fun globalRhythmBalanceSelectsDrumsOrChordsWithoutPanningStereo(){
         val track=ReferenceDrumTrack("Test",1,0,32,120,true,0,1000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,100)))
         fun player(melodic:Boolean,value:Double)=ReferenceRhythmPlayer(listOf(track),{1000},{_,_,_->value},1000,accompaniment=melodic)
