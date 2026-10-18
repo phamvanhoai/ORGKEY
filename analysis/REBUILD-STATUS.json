@@ -15,6 +15,7 @@
     "1.4.6"
   ],
   "implemented_fx_types": [
+    15,
     1,
     2,
     4,
@@ -44,9 +45,7 @@
   "native_reuse": {
     "29": "libngverb.so; original binary, algorithm source not reconstructed"
   },
-  "missing_fx_types": [
-    15
-  ],
+  "missing_fx_types": [],
   "known_missing_clusters": [
     "STS ChordSingles, change masks and complete snapshot routing",
     "original Aftertouch switching conditions and timing verification",
