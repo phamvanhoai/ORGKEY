@@ -61,3 +61,9 @@ ImportedStsMaster.prepare giải quyết event 224 với cờ 2..7 tương ứng
 prepareMasked tạo loadIndex riêng từ Music settings và systems hiệu lực để tiếng mới được giải mã theo global pitch/scale đã chọn. Prepared.index vẫn là index gốc để kiểm tra danh tính SET khi commit; từng voice Prepared bên trong giữ loadIndex hiệu lực. Không dùng từng voice này qua applyPreparedSts một voice, vì kiểm tra index identity sẽ từ chối.
 
 Test Master xác nhận mask, Tune giữ, scale copy chỉ name/table, dữ liệu SET không bị đổi, tempo/chord null khi không chọn và system lỗi bỏ qua. Test master/changes/batch và assembleDebug đạt. Chưa commit Music bus/tempo/chord cùng cả nhóm trong audio thread; UI đa part vẫn tắt, chưa cài bản nội bộ. prepareFull vẫn là đường full-voice snapshot riêng và không tự áp Master.
+
+## Chuyển nhóm ở biên frame
+
+ImportedKeyboardPartQueue.commit nhận một lệnh kiểm tra/trước-replace; AudioEngine drain đúng đầu frame rồi configure Music mixer và render. Không drain lần hai sau configureMusic, tránh nhóm mới dùng Music settings cũ trong cùng frame. applyPreparedStsBatch cập nhật tempo, chord mode/table và Music override trước thay part trong cùng lệnh. Scale đã được bake vào PCM ở prepareMasked. Generation + file/index identity chặn kết quả cũ sau đổi SET/chọn voice thường. Clear xóa Music override trên audio thread.
+
+Test queue kiểm tra Master/part đổi ở frame render, không đổi ngay lúc enqueue, commit bị từ chối giữ part cũ và clear callback chạy đúng thứ tự; test queue/master/batch và assembleDebug đạt. Chưa bật UI, chưa cài bản nội bộ. Đây là đồng bộ thứ tự trên audio thread, không phải transaction rollback khi callback/DSP phát sinh lỗi. Chưa có ngân sách PCM chung, cập nhật current snapshot sau commit và toàn bộ MIDI multi-part; không tuyên bố luồng STS hoàn chỉnh.

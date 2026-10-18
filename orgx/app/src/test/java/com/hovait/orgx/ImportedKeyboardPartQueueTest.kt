@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartQueueTest {
+    @Test fun groupAndMasterAreCommittedAtTheSameFrameAndStaleCommitIsIgnored(){
+        val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
+        try{
+            var tempo=120
+            queue.commit(listOf(part(100))){tempo=142;mixer.configureMusic(ImportedChannelSettings(volume=40));true}
+            queue.noteOn(60,1.0)
+            assertEquals(120,tempo)
+            assertEquals(.25,frame(queue,mixer),0.0)
+            assertEquals(142,tempo);assertEquals(.4,mixer.musicVolume,0.0)
+            queue.commit(listOf(part(50))){false}
+            queue.noteOff(60);queue.noteOn(60,1.0)
+            assertEquals(.25,frame(queue,mixer),0.0)
+            queue.clear{tempo=120}
+            frame(queue,mixer);assertEquals(120,tempo)
+        }finally{mixer.close()}
+    }
     @Test fun livePedalReleasesHeldNotesEvenAfterTheirPartWasReplaced(){
         val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
         try{

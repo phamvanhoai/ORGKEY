@@ -61,12 +61,32 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val keyboardChordInput=KeyboardChordInput()
     private val stsParts=ImportedKeyboardPartQueue()
     @Volatile private var stsPartsEnabled=false
-    private fun clearStsParts(){stsPartsEnabled=false;stsParts.clear()}
+    private val stsGeneration=java.util.concurrent.atomic.AtomicLong()
+    @Volatile private var stsMusic:ImportedChannelSettings?=null
+    private fun clearStsParts(){
+        stsGeneration.incrementAndGet();stsPartsEnabled=false
+        stsParts.clear{stsMusic=null}
+    }
     fun applyPreparedStsBatch(prepared:ImportedStsBatch.Prepared):Boolean {
         if(activeSetFile!=prepared.file || activeSetIndex!==prepared.index)return false
         val parts=prepared.keyboardParts()
         if(parts.isEmpty())return false
-        stsParts.replace(parts)
+        val generation=stsGeneration.get()
+        stsParts.commit(parts){
+            if(generation!=stsGeneration.get() || activeSetFile!=prepared.file || activeSetIndex!==prepared.index)false
+            else {
+                prepared.master?.let{master->
+                    master.chord?.let{snapshot->
+                        val next=ImportedStsChordSettings.singles(snapshot.chordType,snapshot.chordSingle,chordSingles)
+                        keyboardChordInput.configureChordMode(snapshot.chordType,next,referenceChords,chordDualMappings)
+                        chordSingles=next;chordInputMode=snapshot.chordType
+                    }
+                    stsMusic=master.music
+                    master.tempo?.let{bpm=it}
+                }
+                true
+            }
+        }
         stsPartsEnabled=true
         return true
     }
@@ -525,8 +545,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val importedKeyboardMixer=ImportedKeyboardMixer()
     private fun renderBlock(output: ShortArray) {
         val frames = output.size / 2
-        importedKeyboardMixer.configureMusic(activeSetIndex?.musicSettings ?: ImportedChannelSettings())
             for (frame in 0 until frames) {
+                stsParts.drain()
+                importedKeyboardMixer.configureMusic(stsMusic ?: activeSetIndex?.musicSettings ?: ImportedChannelSettings())
                 if(resetHarmony || !rhythmPlaying){harmonyClock.reset();resetHarmony=false}
                 var mixedLeft = 0.0
                 var mixedRight = 0.0
@@ -557,7 +578,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     // samples and pitch bend. The primary sample's age is no longer authoritative.
                     if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || (voice.sampledPlayback==null && voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
-                stsParts.renderInto(importedKeyboardMixer)
+                stsParts.renderInto(importedKeyboardMixer,drainCommands=false)
                 importedKeyboardMixer.finishFrame()
                 val rhythm = rhythmSample() + padSample()
                 val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + importedKeyboardMixer.left*keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume

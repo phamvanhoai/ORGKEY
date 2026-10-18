@@ -7,9 +7,12 @@ class ImportedKeyboardPartQueue {
     private val commands=ConcurrentLinkedQueue<()->Unit>()
     private val parts=ImportedKeyboardParts()
     fun replace(values:List<ImportedKeyboardParts.Part>){
+        commit(values){true}
+    }
+    fun commit(values:List<ImportedKeyboardParts.Part>,beforeReplace:()->Boolean){
         require(values.size<=4 && values.all{it.id in 1..4} && values.map{it.id}.distinct().size==values.size)
         val snapshot=values.toList()
-        commands.add{parts.replace(snapshot)}
+        commands.add{if(beforeReplace())parts.replace(snapshot)}
     }
     fun noteOn(note:Int,velocity:Double){
         require(note in 0..127 && velocity.isFinite() && velocity in 0.0..1.0)
@@ -25,9 +28,12 @@ class ImportedKeyboardPartQueue {
         require(value.isFinite() && value in 0f..1f)
         commands.add{parts.pressure(note,value)}
     }
-    fun clear(){commands.add{parts.reset();parts.replace(emptyList())}}
-    fun renderInto(mixer:ImportedKeyboardMixer){
+    fun clear(afterClear:()->Unit = {}){commands.add{parts.reset();parts.replace(emptyList());afterClear()}}
+    fun drain(){
         while(true){val command=commands.poll() ?: break;command()}
+    }
+    fun renderInto(mixer:ImportedKeyboardMixer,drainCommands:Boolean=true){
+        if(drainCommands)drain()
         parts.renderInto(mixer)
     }
 }
