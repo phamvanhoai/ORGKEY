@@ -39,9 +39,7 @@
   ],
   "known_missing_clusters": [
     "DNC articulation/connection",
-    "aftertouch sound switching",
     "instrument/mode script runtime",
-    "STS application",
     "SET control events outside the accepted list",
     "embedded wave events (101)"
   ],
