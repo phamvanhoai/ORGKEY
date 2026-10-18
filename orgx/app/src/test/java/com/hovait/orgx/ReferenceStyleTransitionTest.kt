@@ -97,6 +97,10 @@ class ReferenceStyleTransitionTest {
         running.press(3,true,false)
         repeat(2000){running.next(120)}
         assertEquals(2,running.currentId);assertFalse(running.finished)
+        val replace=create();replace.request(2,immediate=true);replace.next(120)
+        replace.request(3)
+        replace.press(4,true,false)
+        assertEquals(4,replace.pendingId)
         val raw=create();raw.request(3,true)
         repeat(1001){raw.next(120)}
         assertEquals(4,raw.currentId) // Raw playback still honors the unmodified SET jump.
