@@ -40,7 +40,7 @@ object MidiFile {
                     status and 0xf0==0xa0->{val note=dataByte();val pressure=dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,note,pressure,false,status and 15,controller=-3)}
                     status and 0xf0==0xe0->{val low=dataByte();val high=dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,low,high,false,status and 15,controller=-2)}
                     status and 0xf0==0xc0->{val program=dataByte();require(program<128);programs+=Program(tick,status and 15,program,eventOrder)}
-                    status and 0xf0==0xd0->dataByte()
+                    status and 0xf0==0xd0->{val pressure=dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,0,pressure,false,status and 15,controller=-4)}
                     else->error("Unsupported MIDI event")
                 }
             };p=end;readEnd=data.size

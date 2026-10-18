@@ -8,6 +8,8 @@ class MidiVoiceKeyTest {
         for(channel in 0..15)for(note in 0..127){
             assertTrue(MidiVoiceKey.isLiveChannel(MidiVoiceKey.key(note,channel),channel))
             assertFalse(MidiVoiceKey.isLiveChannel(MidiVoiceKey.key(note,channel,true),channel))
+            assertTrue(MidiVoiceKey.isChannel(MidiVoiceKey.key(note,channel,true),channel,true))
+            assertFalse(MidiVoiceKey.isChannel(MidiVoiceKey.key(note,channel),channel,true))
             assertFalse(MidiVoiceKey.isLiveChannel(MidiVoiceKey.key(note,channel),(channel+1)%16))
         }
         assertFalse(MidiVoiceKey.isLiveChannel(-1,0))

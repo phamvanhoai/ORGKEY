@@ -71,19 +71,19 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
     }
     /** MIDI poly/channel pressure hook; applies only to imported SET voices. */
-    fun midiNotePressure(note:Int,pressure:Float,channel:Int=0){
-        val key=MidiVoiceKey.key(note,channel,false)
+    fun midiNotePressure(note:Int,pressure:Float,channel:Int=0,playback:Boolean=false){
+        val key=MidiVoiceKey.key(note,channel,playback)
         voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
     }
-    fun midiChannelPressure(pressure:Float,channel:Int=0){
+    fun midiChannelPressure(pressure:Float,channel:Int=0,playback:Boolean=false){
         val gain=VoiceVelocity.gain(pressure,false)
-        voices.filterKeys{MidiVoiceKey.isLiveChannel(it,channel)}.values.forEach{
+        voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{
             if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=gain}
         }
     }
-    fun midiPitchBend(value:Int,channel:Int=0){
+    fun midiPitchBend(value:Int,channel:Int=0,playback:Boolean=false){
         val semitones=MidiPitchBend.semitones(value)
-        voices.filterKeys{MidiVoiceKey.isLiveChannel(it,channel)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
+        voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
     }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
         autoChordMap.chord(progression,harmonyClock.time) else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
@@ -257,8 +257,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     if(!midiSessionGate.runIfCurrent(session){
                         when(event.controller){
-                            -2->midiPitchBend(event.note or (event.velocity shl 7),event.channel)
-                            -3->midiNotePressure(event.note,event.velocity/127f,event.channel)
+                            -2->midiPitchBend(event.note or (event.velocity shl 7),event.channel,true)
+                            -3->midiNotePressure(event.note,event.velocity/127f,event.channel,true)
+                            -4->midiChannelPressure(event.velocity/127f,event.channel,true)
                             else->if(event.on)noteOn(event.note,event.velocity/127f,GmProgramMap.instrument(event.program),event.channel,true)
                                 else noteOff(event.note,event.channel,true)
                         }

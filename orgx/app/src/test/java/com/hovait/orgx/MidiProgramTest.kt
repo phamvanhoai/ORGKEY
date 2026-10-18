@@ -6,6 +6,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiProgramTest {
+    @Test fun channelPressureKeepsRunningStatusAndTime(){
+        val track=byteArrayOf(0,0x91.toByte(),60,100,2,0xd1.toByte(),70,3,90,
+            1,0x81.toByte(),60,0,0,0xff.toByte(),0x2f,0)
+        val bytes=ByteArrayOutputStream()
+        DataOutputStream(bytes).use{out->
+            out.writeBytes("MThd");out.writeInt(6);out.writeShort(0);out.writeShort(1);out.writeShort(480)
+            out.writeBytes("MTrk");out.writeInt(track.size);out.write(track)
+        }
+        val pressure=MidiFile.read(bytes.toByteArray().inputStream()).events.filter{it.controller==-4}
+        assertEquals(listOf(2L,5L),pressure.map{it.tick})
+        assertEquals(listOf(70,90),pressure.map{it.velocity})
+        assertTrue(pressure.all{it.channel==1})
+    }
     @Test fun noteBeforeSameTickProgramChangeKeepsPreviousVoice() {
         val track=byteArrayOf(0,0x90.toByte(),60,100,0,0xc0.toByte(),73,
             0,0x90.toByte(),62,100,0,0xff.toByte(),0x2f,0)
