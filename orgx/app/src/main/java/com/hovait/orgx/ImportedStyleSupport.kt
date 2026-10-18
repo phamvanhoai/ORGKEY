@@ -24,7 +24,7 @@ object ImportedStyleSupport {
     fun activeTracks(index:ImportedSetIndex,group:ImportedStyleGroup):List<ImportedTrack>{
         val tracks=index.tracks.filter{it.group==group.id}
         val solo=tracks.any{it.solo}
-        return tracks.filter{!it.muted && (!solo || it.solo) && it.events.any{event->event.type==2}}
+        return tracks.filter{(!it.muted || it.events.any{event->event.type==14}) && (!solo || it.solo) && it.events.any{event->event.type==2}}
     }
     fun drumTracks(index:ImportedSetIndex,group:ImportedStyleGroup)=activeTracks(index,group).filter{
             instrument(index,it)?.type in 1..2

@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Header mute và unmute trong timeline
+
+activeTracks không loại track header mute nếu có event unmute 14. Loader truyền initiallyMuted=track.muted tới player; reset trả eventMuted về giá trị header. Note-on trước unmute bị bỏ qua, không phát bù khi unmute; note sau đó phát bình thường. Track header mute không có event14 vẫn được loại như trước. Solo filter giữ nguyên. Không đột biến ImportedTrack/index.
+
+Kiểm thử header mute→unmute→note-on, reset im lại, gate có/không có unmute và header không đổi. Chưa hỗ trợ mute qua script/STS hay xác nhận loop khôi phục mute giống mọi đường của APK gốc.
+
 ### Sự kiện mute/unmute track, type 13/14
 
 Đã bổ sung event 13 theo Track: đặt mute và bắt đầu release voice hiện có (CloseAll(false)); event 14 bỏ mute. Trong khoảng mute không tạo note-on mới; note-off vẫn xử lý, FX vẫn render release/tail. Reset player trả event mute về trạng thái ban đầu không mute; replay không sửa dữ liệu track trong index. Gate hỗ trợ chấp nhận 1/2/13/14, key của event điều khiển không phải phím đàn.
