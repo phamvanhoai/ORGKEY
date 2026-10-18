@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Wrapper Reverb native, chưa nối vào chain SET
+
+Đã thêm khai báo JNI `sofeh.audio.NGVerb` cho libngverb đã có trong jniLibs và `ImportedNativeReverb` sở hữu handle tường minh. Tham số open theo `w01.e`: maxRoom 100, room/time từ payload, damping/bandwidth/early/tail chia 100, spread .5; mix lấy byte 6. JNI stereo quy đổi input/output theo 32768 như assembly, không dùng 6553600 của các module Java khác.
+
+Cặp processStereoLeft/processStereoRight được khóa toàn cục vì output phải nằm trong biến global của thư viện. process/reset/close khóa instance để không dùng handle đã giải phóng; close idempotent, reset flush native. Kiểm thử adapter bằng backend giả cho scale stereo, mix, payload, flush/close và cấm dùng sau close. Đây chưa phải kiểm thử thuật toán native. Wrapper chưa nối vào ImportedFxChain do cần hoàn thiện quyền sở hữu/giải phóng chain khi chuyển style/voice; Reverb trong SET vẫn chưa được phát qua đường mới. Không coi wrapper là đã dựng xong Reverb hay khôi phục mã nguồn C/C++.
+
+Xác minh: build debug thành công, 259 kiểm thử JVM không lỗi. Chưa chạy wrapper native trên thiết bị; chưa cài bản này vì chưa thay đổi đường phát âm thanh.
+
 ### Band Move, type 2
 
 Đã nối `sofeh.audio.c` vào Equalizer đã dựng: payload 17 byte = From+100, To+100, Delay, Speed (int32) và Loop boolean. `NEqualizer_bandMove` cắt về int `100-position` cho bốn band đầu và `100+position` cho bốn band sau. Chuyển động giữ Float, step = Speed*1e-6*sampleRate/48000; delay tăng 1000/sampleRate ms trên frame có input vượt ngưỡng. Chỉ tiến khi elapsed > Delay, gần đích trong một step thì dừng hoặc đổi chiều/đặt elapsed 0 nếu Loop bật, không tự snap đến đích. Reset giữ position/delay/EQ history theo n01.c.
