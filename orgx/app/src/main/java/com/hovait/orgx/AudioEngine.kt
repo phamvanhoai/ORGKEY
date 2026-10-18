@@ -143,6 +143,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         var releasing: Boolean = false,
         var gain: Float = 0f,
         var velocity: Float = 1f,
+        val recordingVelocity:Int=127,
         var ageFrames: Long = 0
     ) {
         val renderedNote=imported?.keyboardNote(note) ?: note
@@ -208,7 +209,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (voices.size >= 24 && !voices.containsKey(key)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        val voice=Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain)
+        val voice=Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
         voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback))
         voices[key]=voice
         captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
@@ -296,6 +297,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             if(sustain)midiEvents.add(MidiEvent(0,0xb0,64,127))
             pitchState.recordingMessages().forEach{message->
                 midiEvents.add(MidiEvent(0,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
+            }
+            voices.entries.filter{!it.value.playback && !it.value.releasing}.forEach{(key,voice)->
+                MidiRecordingStart.noteMessages(voice.note,voice.recordingVelocity,key/128,voice.pendingSustain).forEach{message->
+                    midiEvents.add(MidiEvent(0,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
+                }
             }
             isRecording = true
         }
