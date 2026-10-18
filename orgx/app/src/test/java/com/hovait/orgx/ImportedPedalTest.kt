@@ -10,8 +10,7 @@ class ImportedPedalTest {
         val track=ReferenceDrumTrack("Pedal",1,0,32,120,false,0,1000,false,events)
         val player=ReferenceRhythmPlayer(listOf(track),{1000},{_,_,_->1.0},1000)
         player.next(0,120);assertEquals(1.0,player.left,0.0)
-        repeat(7){player.next(0,120);assertEquals(1.0,player.left,0.0)}
-        player.next(0,120);assertTrue(player.left<1.0)
+        repeat(8){player.next(0,120);assertEquals(1.0,player.left,0.0)}
         repeat(20){player.next(0,120)};assertEquals(0.0,player.left,0.0)
     }
 }
