@@ -14,6 +14,23 @@ class ImportedReverbChainTest {
             assertEquals(.5,chain.left,0.0);assertEquals(-.25,chain.right,0.0)
             chain.reset();assertEquals(1,backend.flushes);assertFalse(chain.active)
             chain.close();chain.close();assertEquals(1,backend.closes)
+            assertFalse(chain.active)
+            try{chain.process(.5,.5);fail("Closed chain accepted audio")}
+            catch(expected:IllegalStateException){ }
+            try{chain.reset();fail("Closed chain accepted reset")}
+            catch(expected:IllegalStateException){ }
+            assertEquals(1,backend.opens);assertEquals(1,backend.closes)
+        }finally{ImportedNativeReverb.testBackend.remove()}
+    }
+    @Test fun freshChainHasIndependentLifetimeAfterOriginalIsClosed(){
+        val backend=JvmReverbBackend();ImportedNativeReverb.testBackend.set(backend)
+        try{
+            val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(ImportedFxModule(29,true,false,listOf(40,7,50,50,50,50,50,0))))
+            val original=ImportedFxChain(settings);original.process(.5,.25)
+            val fresh=original.fresh();original.close()
+            fresh.process(.25,.125);assertEquals(.25,fresh.left,0.0)
+            assertEquals(2,backend.opens);assertEquals(1,backend.closes)
+            fresh.close();assertEquals(2,backend.closes)
         }finally{ImportedNativeReverb.testBackend.remove()}
     }
     @Test fun keyboardResetReleasesBothChannelAndMusicNativeHandles(){

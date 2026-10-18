@@ -347,10 +347,16 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     var left=0.0;private set
     var right=0.0;private set
-    val active get()=stages.any{it.active}
-    fun reset(){stages.forEach{it.reset()};left=0.0;right=0.0}
-    override fun close(){stages.forEach{it.close()};left=0.0;right=0.0}
+    private var closed=false
+    val active get()=!closed && stages.any{it.active}
+    fun reset(){check(!closed){"SET FX chain is closed"};stages.forEach{it.reset()};left=0.0;right=0.0}
+    override fun close(){
+        if(closed)return
+        closed=true
+        try{stages.forEach{it.close()}}finally{left=0.0;right=0.0}
+    }
     fun process(inputLeft:Double,inputRight:Double){
+        check(!closed){"SET FX chain is closed"}
         left=inputLeft;right=inputRight
         for(stage in stages){
             stage.process(left,right);left=stage.left;right=stage.right

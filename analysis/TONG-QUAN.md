@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã thống nhất vòng đời FX chain: đóng lặp an toàn, ngừng báo active và cấm process/reset sau close trước khi gọi JNI; fresh chain độc lập. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã thêm điều kiện hết đuôi Ending để ngừng render/mix bus style khi dừng và không còn voice/FX active, tránh gọi Reverb native mãi sau khi im. Chi tiết ngưỡng/giới hạn: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã sửa điều kiện kiểm tra style để note-off đóng theo ID không bị từ chối vì key metadata ngoài 0..127; note-on vẫn kiểm tra miền phím. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).

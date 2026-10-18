@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Vòng đời chuỗi FX đã đóng
+
+ImportedFxChain có trạng thái closed chung: close idempotent, output xóa, active=false sau close; process/reset sau close báo IllegalStateException trước khi chạm module/native handle. Fresh vẫn tạo owner độc lập với cùng cấu hình. Kiểm thử Reverb backend kiểm tra đóng hai lần chỉ close native một lần, cấm render/reset sau close và fresh chạy được sau khi chain cũ đóng.
+
+Đây là bảo vệ vòng đời tài nguyên, chưa chứng minh không còn mọi race khi đổi style và không thêm tính năng DNC/aftertouch/script. Lỗi dùng owner đã đóng sẽ được bộc lộ rõ thay vì giữ active hoặc xử lý một phần module trước khi thất bại tại JNI.
+
 ### Dừng xử lý bus sau khi đuôi Ending đã hết
 
 hasTail tổng hợp voice, track/group FX active, child và release-tail player. Khi natural Ending hết tail, engine thoát naturalStyleTail và reset tại frame dừng tiếp theo. Mixer không gọi mixOutput cho style đang dừng không còn natural tail, tránh tiếp tục gọi Reverb native sau reset. Factory reference output cũng chỉ cộng khi transport đang chạy. Kiểm thử trạng thái tail của player kết hợp từ có voice đến release hết.
