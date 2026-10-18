@@ -28,6 +28,10 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ### Reverb native đã nối vào chain SET
 
+Đã bỏ Pair/boxed Long khỏi kết quả mỗi frame: wrapper dùng LongArray hai phần tử cấp phát một lần, native ghi trực tiếp dưới khóa stereo. Test backend kiểm tra cùng buffer được tái sử dụng qua nhiều frame. Đây là giảm cấp phát trong wrapper, chưa phải phép đo latency/GC toàn engine.
+
+Instrumentation bổ sung đi qua ReferenceRhythmPlayer và ImportedFxChain thật: phát impulse, chuyển track FX tail sang player mới, đóng player cũ, render thêm 48000 frame; xác nhận đuôi không mất và output hữu hạn, đóng player mới hai lần không lỗi. JNI thật trên thiết bị báo PASS với transferred tail peak 0.142822265625. Chưa so toàn bộ thao tác style/âm sắc với APK gốc.
+
 Đã thêm khai báo JNI `sofeh.audio.NGVerb` cho libngverb đã có trong jniLibs và `ImportedNativeReverb` sở hữu handle tường minh. Tham số open theo `w01.e`: maxRoom 100, room/time từ payload, damping/bandwidth/early/tail chia 100, spread .5; mix lấy byte 6. JNI stereo quy đổi input/output theo 32768 như assembly, không dùng 6553600 của các module Java khác.
 
 Cặp processStereoLeft/processStereoRight được khóa toàn cục vì output phải nằm trong biến global của thư viện. process/reset/close khóa instance để không dùng handle đã giải phóng; close idempotent, reset flush native. Module 29 đã nối vào ImportedFxChain ở đúng thứ tự; chỉ cấp phát handle khi có input. Thay style đóng session cũ sau khi chuyển các tail/chain cần giữ; bỏ tail/bus, thay Music FX và audio owner kết thúc đều đóng chain. Module chưa phát không cấp phát native.
