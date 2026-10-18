@@ -10,6 +10,17 @@ class ImportedKeyboardMixer {
         var left=0.0;var right=0.0;var notes=false
     }
     private val buses=IdentityHashMap<SampledInstrument,Bus>()
+    private var musicSettings=ImportedChannelSettings()
+    private var musicFx=ImportedFxChain(musicSettings)
+    /** Music volume is a master gain, applied after mixing rhythm/wave as well. */
+    val musicVolume get()=musicSettings.volume/100.0
+    fun configureMusic(settings:ImportedChannelSettings){
+        if(settings==musicSettings)return
+        // Gain changes must not discard an echo already in flight.
+        if(settings.fxEnabled!=musicSettings.fxEnabled || settings.modules!=musicSettings.modules)
+            musicFx=ImportedFxChain(settings)
+        musicSettings=settings
+    }
     var left=0.0;private set
     var right=0.0;private set
     fun beginFrame(){buses.values.forEach{it.left=0.0;it.right=0.0;it.notes=false}}
@@ -27,6 +38,8 @@ class ImportedKeyboardMixer {
             left+=bus.fx.left;right+=bus.fx.right
             if(!bus.notes && !bus.fx.active)iterator.remove()
         }
+        musicFx.process(left,right)
+        left=musicFx.left;right=musicFx.right
     }
-    fun reset(){buses.clear();left=0.0;right=0.0}
+    fun reset(){buses.clear();musicFx=musicFx.fresh();left=0.0;right=0.0}
 }

@@ -381,6 +381,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val importedKeyboardMixer=ImportedKeyboardMixer()
     private fun renderBlock(output: ShortArray) {
         val frames = output.size / 2
+        importedKeyboardMixer.configureMusic(activeSetIndex?.musicSettings ?: ImportedChannelSettings())
             for (frame in 0 until frames) {
                 if(resetHarmony || !rhythmPlaying){harmonyClock.reset();resetHarmony=false}
                 var mixedLeft = 0.0
@@ -436,7 +437,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val styleRight=setPlayer?.outputRight ?: ((referenceRhythm?.right ?: 0.0)*drumsVolume)
                 stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume+styleLeft,
                     mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume+styleRight,effectType,effectMix)
-                outputLimiter.process(stereoEffect.left*masterVolume,stereoEffect.right*masterVolume)
+                val setMasterGain=importedKeyboardMixer.musicVolume
+                outputLimiter.process(stereoEffect.left*masterVolume*setMasterGain,stereoEffect.right*masterVolume*setMasterGain)
                 fun pcm(value:Double)=(value * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
                 output[frame * 2] = pcm(outputLimiter.left)

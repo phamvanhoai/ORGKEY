@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Music FX và volume đầu ra
+
+Đối chiếu `Music.ProcessOut`: `fFXMusic.h` xử lý bus Music trước khi cộng bus Wave/Rhythm; `fFXMusic.b` nhân tổng đầu ra sau phép cộng. ORGX nối các module đã hỗ trợ (4/6/20) của Music sau tổng các bus voice SET và trước khi cộng style. Volume Music nhân đầu ra chung trước limiter, không nhân riêng từng voice. Không dùng Music pan như stereo pan: trường này phân phối mức Music/Rhythm trong `Channels.OpenKey` và vẫn cần dựng riêng.
+
+Đuôi Music echo tiếp tục chạy khi không còn bus voice. Đổi volume không dựng lại chuỗi DSP; đổi enable/modules dựng lại chuỗi, reset xóa đuôi. Kiểm thử tổng nhiều channel, đuôi sau thả phím, đổi volume/pan, bypass và reset. Phạm vi hiện tại là voice SET nhập; chưa nối Music FX cho voice factory/MIDI, chưa dựng đầy đủ Music tune/transpose/release, Wave FX và các module DSP còn thiếu. Chưa có bản thu so sánh để kết luận âm thanh giống APK gốc.
+
+Xác minh: build debug thành công, 223 kiểm thử không lỗi (gồm kiểm tra style SET cục bộ); đã cài cập nhật lên thiết bị ADB. Không sửa file SET đầu vào.
+
 ### Keyboard MODE channel mixer
 
 Voice MODE nạp trực tiếp giữ cấu hình channel hiệu lực trên sample đã load; bàn phím melodic áp transpose/octave trước chọn region, percussion giữ key. Mixer dùng bus theo identity của sound đã load, cộng các nốt/layer trước rồi áp volume/pan và DSP đã hỗ trợ (4/6/20) một lần trên tổng stereo. Không nhân lại gain của từng layer. Echo buffer tiếp tục chạy với input 0 khi hết nốt. Voice cũ giữ bus của sound cũ khi đổi voice; bus im và hết note được loại.

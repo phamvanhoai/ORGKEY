@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+ORGX đã nối Music FX (module 4/6/20) sau mixer voice SET và áp volume Music lên tổng đầu ra theo `Music.ProcessOut`. Đuôi echo chạy tiếp sau thả phím, đổi volume không xóa đuôi. Chưa nối Music FX cho voice factory/MIDI hoặc dựng đầy đủ Music pitch/balance, Wave FX và các module còn thiếu; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Mục lục toàn bộ báo cáo: [INDEX.md](INDEX.md). Manifest kiểm chứng 491 artifact, kích thước và SHA-256 nằm tại [ANALYSIS-MANIFEST.md](ANALYSIS-MANIFEST.md).
 
 Đã dựng [luồng khởi động ứng dụng](APP-STARTUP.md): `MainApplication → SplashActivity → MainActivity`, tạo 13 thư mục, nhập URI `VIEW/SEND`, xử lý extras; preference `safe_mode` bật launcher riêng `SafeActivity → MainActivity` sau 750 ms.
