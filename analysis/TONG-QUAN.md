@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+STS keyboard dùng `ImportedStsLoader`: cộng transpose/octave của Music đúng một lần trước khi chọn sample, giữ volume/pan cho bus bàn phím và không dịch cao độ percussion. Test PCM xác nhận tổng tune, pitch toàn cục và mixer settings; test SET thực tiếp tục xác nhận 112 STS. Đã build APK sau thay đổi này.
+
 Kiểm chứng STS trên SET legacy cục bộ: `ImportedStsIntegrationTest` đọc đủ 112 snapshot theo bản kiểm kê, xác nhận slot riêng biệt trong từng Track (0–12), tham chiếu instrument/system hợp lệ và số phần tử ChordSingle đúng. Test này đã chạy trên file thật, không bị skip. Đây là kiểm chứng parser, chưa xác nhận thực thi/âm thanh STS tương đương APK.
 
 ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phát. Với mode có sound `aftertouch`, app giữ sound chính và chuyển sang layer alternate khi áp lực đạt ngưỡng 0.5; các layer Mix vẫn được giữ cùng mode. Đây là chuyển đổi playback ở engine, không sửa file `.SET`.

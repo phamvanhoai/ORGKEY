@@ -97,14 +97,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val file=activeSetFile ?: return false
         val index=activeSetIndex ?: return false
         val rawSource=index.instruments.getOrNull(snapshot.instrument) ?: return false
-        val source=if(snapshot.mode in rawSource.modes.indices)
-            rawSource.copy(modes=listOf(rawSource.modes[snapshot.mode])) else rawSource
-        if(index.systems.isNotEmpty() && snapshot.system !in index.systems.indices)return false
-        val system=index.systems.getOrNull(snapshot.system)
-        val loaded=runCatching{ImportedInstrumentLoader.load(file,source,system,snapshot.settings,index.musicSettings)
-            .withKeyboardSettings(snapshot.settings,source.type==0)}.getOrNull() ?: return false
+        val loaded=runCatching{ImportedStsLoader.load(file,index,snapshot)}.getOrNull() ?: return false
         importedInstrument=loaded
-        importedInstrumentName=snapshot.name.ifBlank{source.name}
+        importedInstrumentName=snapshot.name.ifBlank{rawSource.name}
         if(snapshot.pedal!=0)sustain=true else releaseSustain()
         // STS.ChordType controls Music.ChordSingles in the original engine;
         // it is not an index into our root/quality chord picker.
