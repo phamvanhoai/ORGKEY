@@ -125,7 +125,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(!track.loop){voices.clear();left=0.0;right=0.0;finished=true;return}
             loopOrigin+=(local-track.start)/duration*duration
             local=clock.time-loopOrigin+track.start
-            timeline?.reset();voices.clear()
+            timeline?.reset()
+            // Closing channels starts their release; it does not erase the sample/FX state.
+            voices.values.forEach{if(it.release<0)it.release=0}
         }
         timeline?.advance(local){event->
             val note=if(event.type==2)mapNote(event.note) else event.note

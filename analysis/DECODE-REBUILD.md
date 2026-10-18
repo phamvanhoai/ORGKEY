@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Đuôi nốt qua ranh giới loop
+
+ReferenceRhythmPlayer trước đây xóa voices khi timeline quay về đầu loop. Nay bắt đầu release cho voice chưa release và giữ voice/track FX state, trong khi timeline reset để phát các note-on của vòng mới. Nhờ khóa voice riêng, nốt đầu vòng mới không ghi đè đuôi cùng event ID. Note đã release không bắt đầu release lại. Reset transport vẫn xóa voices theo lifecycle cũ.
+
+Đây là thay đổi theo nguyên tắc Channels.CloseAll đánh dấu Close, không xóa channel lập tức; chưa đối chiếu mọi đường restart loop của APK gốc bằng bản thu. Kiểm thử vòng ngắn giữ tổng nốt mới + release cũ, envelope giảm qua frame và reset làm sạch. One-shot kết thúc vẫn dùng nhánh dừng hiện tại, chưa sửa tail của Ending.
+
 ### Nhiều voice cùng event ID
 
 ReferenceRhythmPlayer trước đây dùng event.id làm khóa duy nhất, nên note-on trùng ID ghi đè voice đang phát. Nay mỗi voice có khóa cấp phát riêng và giữ eventId làm metadata. Note-off duyệt tất cả voice cùng eventId như Channels.Close, chỉ bắt đầu release nếu voice chưa release; note-off lặp không khởi động lại envelope. Khi chuyển tail, voice được cấp khóa mới tại owner đích để không ghi đè nhau. Giới hạn tổng 128 voice hiện giữ nguyên.

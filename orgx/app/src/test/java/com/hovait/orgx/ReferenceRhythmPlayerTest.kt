@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun loopBoundaryReleasesOldNotesInsteadOfErasingThem(){
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,100))
+        val track=track(events,end=5)
+        val player=ReferenceRhythmPlayer(listOf(track),{1000},{_,_,_->1.0},1000)
+        repeat(5){player.next(0,120);assertEquals(1.0,player.left,0.0)}
+        player.next(0,120)
+        assertEquals(2.0,player.left,0.0)
+        player.next(0,120)
+        assertEquals(1.9,player.left,1e-9)
+        player.reset();player.next(0,120);assertEquals(1.0,player.left,0.0)
+    }
     @Test fun oneShotStopsAtEndAndCanRestartAfterReset() {
         val player=player(track(listOf(hit(0)),end=10).copy(loop=false))
         player.next(0,120);assertEquals(1.0,player.left,0.0)
