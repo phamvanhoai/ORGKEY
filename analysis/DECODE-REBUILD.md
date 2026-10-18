@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Robot, type 16
+
+Đã dựng theo `x01.e/c`: payload frequency int32 little-endian miền 0..1000; gain = `cos((frequency * frame) / sampleRate)` với phép chia integer. Hai kênh dùng chung gain và bộ đếm; bộ đếm quay về 0 sau sampleRate frame, reset/fresh bắt đầu từ 0. Không tự thay công thức bằng oscillator có 2*pi. Stage không có đuôi tín hiệu, giữ cờ enable và thứ tự chain.
+
+Kiểm thử pha integer, stereo cùng pha, chu kỳ một giây, reset/fresh, frequency 0 và block disabled. Tính trên PCM chuẩn hóa, chưa mô phỏng Math.round lên long nội bộ hoặc xác nhận bản thu gốc. Module này mở rộng chuỗi FX, không hoàn tất Band Move/Flanger/Reverb native hay aftertouch/DNC/script.
+
+Xác minh: build debug thành công, 240 kiểm thử không lỗi. Đã cài cập nhật và mở trên điện thoại; file SET giữ nguyên.
+
 ### Bộ lọc High pass / Low pass, type 9 và 10
 
 Đã dựng recurrence IIR theo `u01.a` và `v01.e`: `y = b0*x + b1*xPrevious + a*yPrevious`, trạng thái Float độc lập trái/phải. High pass dùng `a=exp(-2*pi*(frequency/sampleRate))`, phép chia hai Int như Java decompile; `b0=(1+a)/2`, `b1=-b0`. Low pass dùng `a=exp(-2*pi*((frequency*1000f/150000f)/sampleRate))`, `b0=1-a`, `b1=0`. Payload mỗi module là int32 frequency, miền 0..150000. Giữ nguyên tỷ lệ và phép chia của mã đối chiếu, không tự thay bằng cutoff Hz thông thường.

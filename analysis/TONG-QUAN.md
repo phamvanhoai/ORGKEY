@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã bổ sung FX Robot (16) theo `x01`: gain cosine dùng pha integer, bộ đếm chung hai kênh, reset và vòng một giây. Áp dụng trong chain FX dùng chung, giữ enable/thứ tự. Chưa đối chiếu bản thu hoặc lượng tử long nội bộ; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã bổ sung bộ lọc FX High pass (9) và Low pass (10) theo `u01/v01`, với history riêng hai kênh, reset và cờ enable. Giữ công thức/thang tham số trong mã gốc, gồm phép chia integer của High pass. Band Move/Flanger/Reverb native vẫn chưa dựng đầy đủ; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã bổ sung DSP type 17 “3D Sound (Stereo)” theo `y01` của APK gốc, áp dụng qua chuỗi FX dùng chung cho track/group/voice MODE/Music. Giữ cờ bật/tắt và thứ tự module; không thay đổi file SET. Chưa xác nhận tương đương lượng tử PCM/bản thu gốc; các module DSP còn thiếu được ghi trong [DECODE-REBUILD.md](DECODE-REBUILD.md).

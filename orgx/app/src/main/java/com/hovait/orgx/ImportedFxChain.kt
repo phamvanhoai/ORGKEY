@@ -10,6 +10,18 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    /** x01: both channels share the same frame counter, reset every sampleRate frames. */
+    private class Robot(private val frequency:Int,private val sampleRate:Int):Stage {
+        private var frame=0
+        override var left=0.0;override var right=0.0
+        override val active=false
+        override fun reset(){frame=0;left=0.0;right=0.0}
+        override fun process(l:Double,r:Double){
+            if(frame>=sampleRate)frame=0
+            val gain=kotlin.math.cos(((frequency*frame)/sampleRate).toDouble())
+            left=l*gain;right=r*gain;frame++
+        }
+    }
     /** u01/v01: one-pole IIR, including the integer division in High pass.a(). */
     private class PassFilter(frequency:Int,sampleRate:Int,high:Boolean):Stage {
         private val feedback=kotlin.math.exp(-2*Math.PI*(if(high)(frequency/sampleRate).toDouble()
@@ -78,7 +90,13 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16)}.map{
+        if(it.type==16){
+            require(it.payload.size==4){"Invalid Robot payload"}
+            val frequency=int(it.payload,0)
+            require(frequency in 0..1000 && sampleRate>0){"Unsupported Robot frequency"}
+            return@map Robot(frequency,sampleRate)
+        }
         if(it.type==9 || it.type==10){
             require(it.payload.size==4){"Invalid Pass Filter payload"}
             val frequency=int(it.payload,0)
