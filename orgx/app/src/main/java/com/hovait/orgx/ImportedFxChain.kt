@@ -11,6 +11,20 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         val active:Boolean
         fun close(){ }
     }
+    private class PitchShift(shift:Int,rate:Int):Stage {
+        private val processor=ImportedNativePitchShift(shift,rate)
+        private val tailFrames=rate*2L
+        private var remaining=0L
+        override var left=0.0;override var right=0.0
+        override val active get()=remaining>0
+        override fun process(l:Double,r:Double){
+            if(l!=0.0 || r!=0.0)remaining=tailFrames else if(remaining>0)remaining--
+            if(remaining==0L){left=0.0;right=0.0;return}
+            processor.process(l,r);left=processor.left;right=processor.right
+        }
+        override fun reset(){processor.reset();remaining=0;left=0.0;right=0.0}
+        override fun close(){processor.close();remaining=0}
+    }
     private class BandBooster(payload:List<Int>,sampleRate:Int):Stage {
         private val tailFrames=(sampleRate/10).coerceAtLeast(1)
         private val processor=ReferenceBandBooster(payload[0].toByte().toInt(),payload[1].toByte().toInt(),payload[2].toByte().toInt(),sampleRate)
@@ -291,7 +305,11 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2,29,31)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2,29,31,15)}.map{
+        if(it.type==15){
+            require(it.payload.size==4){"Invalid Pitch Shift payload"}
+            return@map PitchShift(int(it.payload,0),sampleRate)
+        }
         if(it.type==31){
             require(it.payload.size==4 && it.payload.take(3).all{v->v.toByte().toInt() in -100..100}){"Invalid SET Band Booster parameters"}
             return@map BandBooster(it.payload,sampleRate)
