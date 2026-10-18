@@ -67,3 +67,9 @@ Test Master xác nhận mask, Tune giữ, scale copy chỉ name/table, dữ li�
 ImportedKeyboardPartQueue.commit nhận một lệnh kiểm tra/trước-replace; AudioEngine drain đúng đầu frame rồi configure Music mixer và render. Không drain lần hai sau configureMusic, tránh nhóm mới dùng Music settings cũ trong cùng frame. applyPreparedStsBatch cập nhật tempo, chord mode/table và Music override trước thay part trong cùng lệnh. Scale đã được bake vào PCM ở prepareMasked. Generation + file/index identity chặn kết quả cũ sau đổi SET/chọn voice thường. Clear xóa Music override trên audio thread.
 
 Test queue kiểm tra Master/part đổi ở frame render, không đổi ngay lúc enqueue, commit bị từ chối giữ part cũ và clear callback chạy đúng thứ tự; test queue/master/batch và assembleDebug đạt. Chưa bật UI, chưa cài bản nội bộ. Đây là đồng bộ thứ tự trên audio thread, không phải transaction rollback khi callback/DSP phát sinh lỗi. Chưa có ngân sách PCM chung, cập nhật current snapshot sau commit và toàn bộ MIDI multi-part; không tuyên bố luồng STS hoàn chỉnh.
+
+## Ngân sách PCM nhóm
+
+ImportedStsMemory kiểm tra trước giải mã ở cả prepareFull và prepareMasked, giới hạn 64 MiB cho nhóm mới. Mono giữ frames*2 byte, stereo giữ stereo + mono = frames*6 byte; cộng raw buffer đọc lớn nhất. Chọn source dùng chung ImportedStsLoader.source để thống nhất mode đã chọn; các layer/Mix/Aftertouch trùng trong cùng part được distinct như loader, part riêng tính riêng vì hiện giải mã riêng. Không chỉ cộng kích thước file PCM stereo.
+
+Test tính mono/stereo/hai part và nhóm lớn thất bại trước mở file không tồn tại đều đạt, cùng test batch/loader/STS cục bộ; assembleDebug đạt. Giới hạn chỉ cho PCM nhóm mới + raw scratch, chưa tính object overhead, garbage chờ GC, nhóm cũ còn ngân, FX/native buffers hoặc PCM style. Chưa phải cap RAM toàn app. Chưa bật UI, chưa cài bản nội bộ.

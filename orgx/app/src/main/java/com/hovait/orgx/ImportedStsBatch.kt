@@ -39,14 +39,16 @@ object ImportedStsBatch {
                 val prior=current[member.position] ?: error("Current STS part ${member.position} unavailable")
                 member.position to ImportedStsChanges.transition(index,member.position,prior,member.snapshot,selection.actions,changes)
             }
+        ImportedStsMemory.check(loadIndex,effective.values)
         val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot)}
         return Prepared(file,index,selection,voices,master)
     }
     fun prepareFull(file:File,index:ImportedSetIndex,slot:Int):Prepared {
         val selection=resolve(index,slot)
         // Resolve all slots first, so a missing later Track cannot cause partial apply.
-        val voices=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
-            .associate{it.position to ImportedStsLoader.prepare(file,index,it.snapshot)}
+        val members=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
+        ImportedStsMemory.check(index,members.map{it.snapshot})
+        val voices=members.associate{it.position to ImportedStsLoader.prepare(file,index,it.snapshot)}
         return Prepared(file,index,selection,voices)
     }
 }
