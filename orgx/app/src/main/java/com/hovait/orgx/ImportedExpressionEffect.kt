@@ -7,6 +7,8 @@ import java.nio.ByteOrder
 data class ImportedExpressionEffect(val slot:Int,val enabled:Boolean,val startDelay:Int,
     val byPedal:Boolean,val stopByRelease:Boolean,val mode:Int,val speed:Int,val depth:Int,val gain:Int,
     val raw:List<Int>) {
+    /** Effect.getSpeed(): mode overrides playback without destroying saved Speed. */
+    val playbackSpeed:Int get()=if(mode==1 || mode==2)0 else speed
     companion object {
         fun decode(slot:Int,bytes:ByteArray):ImportedExpressionEffect {
             require(slot in 0..7 && bytes.size==40){"Invalid expression Effect record"}

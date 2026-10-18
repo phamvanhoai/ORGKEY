@@ -19,7 +19,7 @@ class ImportedVolumeShake(private var effect:ImportedExpressionEffect,private va
         if(frames*100/sampleRate != (frames+1)*100/sampleRate){
             if(effect.enabled && !released && (!effect.byPedal || pedal))start+=10
             if(effect.enabled && (!effect.stopByRelease || !released) && start>effect.startDelay){
-                phase+=effect.speed/100.0
+                phase+=effect.playbackSpeed/100.0
                 val wave=sin(phase)
                 left=1+wave*(effect.depth.toDouble()-effect.gain)/100
                 right=1+wave*(effect.depth.toDouble()+effect.gain)/100

@@ -7,15 +7,19 @@ class ImportedPitchShake(private var effect:ImportedExpressionEffect,private val
     fun configure(value:ImportedExpressionEffect){require(value.slot==2);effect=value;if(!value.enabled)offset=0.0}
     private var frames=0L
     private var start=0L
-    private var count=0L
+    private var count=0
     var offset=0.0;private set
     init{require(effect.slot==2 && sampleRate>0)}
     fun next(released:Boolean,pedal:Boolean){
         if(frames*100/sampleRate != (frames+1)*100/sampleRate){
             if(effect.enabled && !released && (!effect.byPedal || pedal))start+=10
             if(effect.enabled && (!effect.stopByRelease || !released) && start>effect.startDelay){
-                count+=effect.speed.toLong()*10
-                offset=sin(count/1000.0)*effect.depth+count.toDouble()*effect.gain/10000
+                // Original Java uses int counters/product/division, then float sin.
+                // Keep the fractional offset: truncation of the combined base
+                // pitch belongs to the sample mixer, not this modulation state.
+                count+=effect.playbackSpeed*10
+                val wave=sin((count/1000f).toDouble()).toFloat()*effect.depth
+                offset=(wave+(count*effect.gain/10000)).toDouble()
             }else offset=0.0
         }
         frames++

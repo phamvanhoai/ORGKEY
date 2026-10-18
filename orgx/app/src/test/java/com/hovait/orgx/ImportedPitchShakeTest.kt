@@ -35,7 +35,7 @@ class ImportedPitchShakeTest {
         repeat(10){state.next(false,false)}
         state.configure(ImportedExpressionAutomation.update(first,ReferenceDrumEvent(65,2,5,200,0,0)))
         repeat(10){state.next(false,false)}
-        assertEquals(sin(2.0)*200,state.offset,1e-9)
+        assertEquals((sin(2.0).toFloat()*200).toDouble(),state.offset,0.0)
         state.configure(first.copy(enabled=false))
         assertEquals(0.0,state.offset,0.0)
     }
@@ -44,7 +44,7 @@ class ImportedPitchShakeTest {
         val state=ImportedPitchShake(effect(),1000)
         repeat(30){state.next(false,false)};assertEquals(0.0,state.offset,0.0)
         repeat(19){state.next(false,true)};assertEquals(0.0,state.offset,0.0)
-        state.next(false,true);assertEquals(sin(1.0)*100+5,state.offset,1e-9)
+        state.next(false,true);assertEquals((sin(1.0).toFloat()*100+5).toDouble(),state.offset,0.0)
         state.next(true,true);assertEquals(0.0,state.offset,0.0)
     }
     @Test fun sampledOutputChangesWithoutSharingPhaseWithAnotherVoice(){
