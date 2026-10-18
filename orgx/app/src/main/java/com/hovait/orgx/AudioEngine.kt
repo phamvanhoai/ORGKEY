@@ -35,6 +35,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var chordVolume = 0.22f
     @Volatile var drumsVolume = 0.55f
     @Volatile var sustain = false
+        private set
     @Volatile var rhythmPlaying = false
     @Volatile var bpm = 120
     @Volatile var instrument = 0
@@ -107,7 +108,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val snapshot=prepared.snapshot
         importedInstrument=prepared.sound
         importedInstrumentName=snapshot.name.ifBlank{prepared.index.instruments[snapshot.instrument].name}
-        if(snapshot.pedal!=0)sustain=true else releaseSustain()
+        setSustainEnabled(snapshot.pedal!=0)
         // STS.ChordType controls Music.ChordSingles in the original engine;
         // it is not an index into our root/quality chord picker.
         return true
@@ -221,10 +222,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
         captureMidi(0x80 or channel,note,0)
     }
-    fun releaseSustain() {
-        sustain = false
-        voices.values.forEach { voice -> if (voice.pendingSustain) { voice.pendingSustain = false; voice.releasing = true } }
+    fun setSustainEnabled(enabled:Boolean) {
+        if(sustain!=enabled)captureMidi(0xb0,64,if(enabled)127 else 0)
+        sustain=enabled
+        if(!enabled)voices.values.forEach { voice -> if (voice.pendingSustain) { voice.pendingSustain = false; voice.releasing = true } }
     }
+    fun releaseSustain() = setSustainEnabled(false)
 
     fun setRhythmEnabled(enabled: Boolean) {
         if(enabled && !rhythmPlaying)restartStyleOnPlay.set(true)
@@ -290,6 +293,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         synchronized(recordingLock) {
             recordingData.reset()
             midiEvents.clear();midiStartNanos=System.nanoTime();midiRecordBpm=bpm
+            if(sustain)midiEvents.add(MidiEvent(0,0xb0,64,127))
             pitchState.recordingMessages().forEach{message->
                 midiEvents.add(MidiEvent(0,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
             }

@@ -234,7 +234,7 @@ private fun ORGXApp(engine: AudioEngine) {
                         onVoice={closePages();browseStyles=false;browseVoices=true;bankPage=0;bankStatus=""},onMixer={closePages();showMixer=true},onChord={closePages();showChords=true},
                         onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null))engine.setRhythmEnabled(!engine.rhythmPlaying)},
                         onTempo={bpm=(bpm+it).coerceIn(40,240);engine.bpm=bpm},onOctave={octave=(octave+it).coerceIn(1,7)},
-                        onSustain={sustain=!sustain;engine.sustain=sustain;if(!sustain)engine.releaseSustain()},
+                        onSustain={engine.setSustainEnabled(!engine.sustain);sustain=engine.sustain},
                         onAutoFill={styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},
                         onPart={engine.requestStyleSection(it)},
                         stylePage=browseStyles || browseVoices,
