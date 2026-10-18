@@ -43,7 +43,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }
         }
         private val state=envelope?.voice(outputRate)
-        private var age=0L
+        private var position=0.0
         var left=0.0;private set
         var right=0.0;private set
         var finished=false;private set
@@ -55,9 +55,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }else{
                 val gain=state?.next(noteOff) ?: if(noteOff)0.0 else 1.0
                 val currentStep=step*2.0.pow(bendSemitones/12.0)
-                left=sampleAt(note,age,0,currentStep,pan)*gain;right=sampleAt(note,age,1,currentStep,pan)*gain
-                age++;finished=state?.finished==true || note !in 0..127 || missing(note) ||
-                    (!selected[note].looping && age*currentStep>=selected[note].sample.frames.size) || (state==null && noteOff)
+                left=samplePosition(note,position,0,pan)*gain;right=samplePosition(note,position,1,pan)*gain
+                position+=currentStep
+                finished=state?.finished==true || note !in 0..127 || missing(note) ||
+                    (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && noteOff)
             }
         }
     }
@@ -93,12 +94,14 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         return sampleAt(note,age,channel,if(note in 0..127)steps[note] else 1.0)
     }
     private fun sampleAt(note:Int,age:Long,channel:Int,step:Double,notePan:Int=0):Double {
-        if(note !in 0..127 || age<0)return 0.0
+        return samplePosition(note,age*step,channel,notePan)
+    }
+    private fun samplePosition(note:Int,position:Double,channel:Int,notePan:Int=0):Double {
+        if(note !in 0..127 || position<0)return 0.0
         if(missing(note))return 0.0
         val region=selected[note]
         val pan=region.pan+notePan
         val panGain=if(channel==0)minOf(100,100-pan) else minOf(100,100+pan)
-        val position=age*step
         val value=if(region.looping)SampleResampler.looped(region.sample,position,channel,region.loopStart,region.loopEnd)
             else SampleResampler.channel(region.sample,position,channel)
         return value*region.gain*panGain/100
