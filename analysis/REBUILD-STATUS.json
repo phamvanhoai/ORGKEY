@@ -23,6 +23,8 @@
   "accepted_track_event_types": [
     1,
     2,
+    11,
+    12,
     13,
     14,
     44,

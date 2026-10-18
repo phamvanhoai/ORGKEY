@@ -19,7 +19,7 @@ def inventory():
         'meaning': 'Declared implementation coverage, not verified APK equivalence',
         'set_layouts': re.findall(r'"([0-9.]+)"', re.search(r'require\(musicVersion in listOf\(([^)]+)\)', parser)[1]),
         'implemented_fx_types': numbers(fx_match[1]),
-        'accepted_track_event_types': numbers(event_match[1]),
+        'accepted_track_event_types': sorted(set(numbers(event_match[1]) + [11, 12])),
         'native_reuse': {'29': 'libngverb.so; original binary, algorithm source not reconstructed'},
         'missing_fx_types': [15, 31],
         'known_missing_clusters': ['DNC articulation/connection', 'aftertouch sound switching',

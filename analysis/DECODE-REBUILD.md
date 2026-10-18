@@ -26,6 +26,12 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Pedal track, type 11/12
+
+Đã bổ sung type 12 pedal-on và type 11 pedal-off theo `Track.java`/`Channels.Pedal`. Note-off trong lúc pedal giữ chỉ đặt pendingRelease; pedal-off chuyển mọi voice pending sang release. Reset trả pedal về off. Gate style chấp nhận 11/12; header mute và pedal là hai trạng thái độc lập. Kiểm thử pedal giữ nốt, release sau pedal-off và reset.
+
+Chưa dựng pedal modes/Effect.byPedal, script pedal event hoặc các thay đổi STS liên quan; đây là sustain cơ bản cho track, chưa phải toàn bộ pedal behavior của APK.
+
 ### Bắt đầu cụm aftertouch: chọn sound/layer
 
 Đối chiếu Channels.OpenKey wrapper: khi cờ aftertouch true và mode.Aftertouch>=0, primary sound đổi sang Aftertouch, Mix slots vẫn giữ nguyên. Loader nhận lựa chọn aftertouch tường minh và dùng cùng pipeline tune/envelope/FX channel như mode thường. Giá trị âm giữ primary như cũ; primary âm vẫn cho phép Mix. Kiểm thử lựa chọn normal/alternate/mix và không sửa mode nguồn.
