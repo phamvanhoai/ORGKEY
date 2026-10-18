@@ -73,3 +73,11 @@ Test queue kiểm tra Master/part đổi ở frame render, không đổi ngay l�
 ImportedStsMemory kiểm tra trước giải mã ở cả prepareFull và prepareMasked, giới hạn 64 MiB cho nhóm mới. Mono giữ frames*2 byte, stereo giữ stereo + mono = frames*6 byte; cộng raw buffer đọc lớn nhất. Chọn source dùng chung ImportedStsLoader.source để thống nhất mode đã chọn; các layer/Mix/Aftertouch trùng trong cùng part được distinct như loader, part riêng tính riêng vì hiện giải mã riêng. Không chỉ cộng kích thước file PCM stereo.
 
 Test tính mono/stereo/hai part và nhóm lớn thất bại trước mở file không tồn tại đều đạt, cùng test batch/loader/STS cục bộ; assembleDebug đạt. Giới hạn chỉ cho PCM nhóm mới + raw scratch, chưa tính object overhead, garbage chờ GC, nhóm cũ còn ngân, FX/native buffers hoặc PCM style. Chưa phải cap RAM toàn app. Chưa bật UI, chưa cài bản nội bộ.
+
+## Giao diện nạp nhóm tiếng
+
+ImportedStsRequest phân tuyến track index 0 (Master) vào prepareFull, track riêng vào loader một voice. Trang STS hiển thị MASTER / ALL VOICES cho Master; chọn mục này nạp tối đa bốn voice Group 0, theo Record và vùng phím đã lưu. Chọn STS track riêng quay về đường một voice. Restore khi mở app và link Main dùng cùng resolver nên giữ kiểu nhóm đã chọn. Tên engine hiển thị tên STS / số part. Note-on multi-part được ghi MIDI kênh 0 một lần cho thao tác phím; đây không phải export cấu trúc từng part/MIDI channel gốc.
+
+Luồng UI này cố ý dùng snapshot tiếng đầy đủ prepareFull: CHƯA thực thi default fSTSChanges/STSPut toàn bộ, CHƯA áp Master tempo/chord/Music qua lựa chọn UI. prepareMasked/Master commit vẫn là API nội bộ. Không coi MASTER / ALL VOICES là parity STSPut. Nạp thiếu slot/PCM quá ngân sách báo lỗi trước thay nhóm.
+
+Test phân tuyến Master vs track riêng, batch/queue/memory/loader và assembleDebug đạt. Đã cài APK và xác nhận MainActivity chạy trên 88d75c04. Chưa trực tiếp chọn/thử nghe nhóm SET thật hoặc đóng/mở lại trên điện thoại; các lượt restore/link mới được build, không tuyên bố đã kiểm chứng UI đầy đủ.

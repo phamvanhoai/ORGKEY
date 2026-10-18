@@ -25,6 +25,10 @@ class ImportedStsBatchTest {
             val master=ImportedTrack("Master",0,0,false,emptyList(),sts=listOf(snapshot("Master")))
             val index=ImportedSetIndex(listOf(sound),emptyList(),listOf(master,master.copy(name="R"),master.copy(name="L")))
             val prepared=ImportedStsBatch.prepareFull(file,index,1)
+            val groupRequest=ImportedStsRequest.prepare(file,index,0,1)
+            assertTrue(groupRequest is ImportedStsRequest.Prepared.Group)
+            assertEquals(2,(groupRequest as ImportedStsRequest.Prepared.Group).value.voices.size)
+            assertTrue(ImportedStsRequest.prepare(file,index,1,1) is ImportedStsRequest.Prepared.Single)
             assertEquals(setOf(1,2),prepared.voices.keys)
             assertEquals(listOf(1,2),prepared.keyboardParts().map{it.id})
             assertTrue(prepared.keyboardParts().none{it.enabled}) // snapshot Record=false

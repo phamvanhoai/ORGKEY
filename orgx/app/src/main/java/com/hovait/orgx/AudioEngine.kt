@@ -67,6 +67,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         stsGeneration.incrementAndGet();stsPartsEnabled=false
         stsParts.clear{stsMusic=null}
     }
+    fun applyStsRequest(prepared:ImportedStsRequest.Prepared,expectedSound:SampledInstrument?):Boolean {
+        if(importedInstrument!==expectedSound)return false
+        return when(prepared){
+            is ImportedStsRequest.Prepared.Single->applyPreparedSts(prepared.value,expectedSound)
+            is ImportedStsRequest.Prepared.Group->applyPreparedStsBatch(prepared.value)
+        }
+    }
     fun applyPreparedStsBatch(prepared:ImportedStsBatch.Prepared):Boolean {
         if(activeSetFile!=prepared.file || activeSetIndex!==prepared.index)return false
         val parts=prepared.keyboardParts()
@@ -88,6 +95,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             }
         }
         stsPartsEnabled=true
+        importedInstrumentName=prepared.selection.master.name.ifBlank{"STS ${prepared.selection.slot+1}"}+" / ${parts.size} PARTS"
         return true
     }
     @Volatile var chordInputMode=0;private set
@@ -111,7 +119,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(leftChordEnabled && note<splitNote){
             if(voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
             keyboardChordInput.press(note,referenceChords)
-        } else if(stsPartsEnabled)stsParts.noteOn(note,velocity.coerceIn(0f,1f).toDouble()) else noteOn(note,velocity)
+        } else if(stsPartsEnabled){
+            val amount=velocity.coerceIn(0f,1f)
+            stsParts.noteOn(note,amount.toDouble())
+            captureMidi(0x90,note,(amount*127).toInt().coerceIn(0,127))
+        }else noteOn(note,velocity)
     }
     fun keyboardNoteOff(note:Int){
         stsParts.noteOff(note)

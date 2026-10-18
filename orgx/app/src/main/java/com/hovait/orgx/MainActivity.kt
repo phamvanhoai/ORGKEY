@@ -116,9 +116,9 @@ private fun ORGXApp(engine: AudioEngine) {
                 val file=checkNotNull(engine.activeSetFile)
                 val index=checkNotNull(engine.activeSetIndex)
                 val expectedSound=engine.importedInstrument
-                val prepared=withContext(Dispatchers.IO){ImportedStsLoader.prepare(file,index,snapshot)}
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot)}
                 if(preferences.getString("selectedStsSet",null)==savedStsSet){
-                    check(engine.applyPreparedSts(prepared,expectedSound)){"Saved STS selection changed while loading"}
+                    check(engine.applyStsRequest(prepared,expectedSound)){"Saved STS selection changed while loading"}
                     restoredSts=true
                 }
                 restoredSetName=engine.importedInstrumentName
@@ -182,11 +182,11 @@ private fun ORGXApp(engine: AudioEngine) {
                 val trackIndex=linkedStsTrack
                 val snapshot=ImportedStsSelection.resolve(index,trackIndex,slot)
                 val expectedSound=engine.importedInstrument
-                val prepared=withContext(Dispatchers.IO){ImportedStsLoader.prepare(file,index,snapshot)}
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot)}
                 if(engine.importedStyleSession===session && session.currentId==part.id &&
                     preferences.getString("selectedStsSet",null)==file.name &&
                     preferences.getInt("selectedStsTrack",-1)==trackIndex &&
-                    preferences.getBoolean("linkMainSts",false) && engine.applyPreparedSts(prepared,expectedSound)){
+                    preferences.getBoolean("linkMainSts",false) && engine.applyStsRequest(prepared,expectedSound)){
                     preferences.edit().putInt("selectedStsSlot",slot).apply()
                     restoredSetName=engine.importedInstrumentName
                 }
@@ -629,7 +629,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 })
                 Text("Đổi STS theo Main 1–4 trên Track đã chọn",fontSize=12.sp)
             }
-            Text("Chọn một STS bên dưới để xác định Track dùng cho liên kết. Thiếu slot sẽ giữ nguyên tiếng.",fontSize=12.sp)
+            Text("Chọn Master để nạp các tiếng Group 0, hoặc chọn Track để nạp một tiếng. Nhóm dùng toàn bộ snapshot tiếng; chưa áp mặt nạ Master. Thiếu slot sẽ giữ nguyên tiếng.",fontSize=12.sp)
             val snapshots=setIndex?.tracks.orEmpty().flatMapIndexed{trackIndex,track->track.sts.map{Triple(trackIndex,track.name,it)}}
             if(snapshots.isEmpty())Text("SET này không có STS đang bật",fontSize=12.sp)
             snapshots.forEach{(trackIndex,track,snapshot)->
@@ -641,8 +641,8 @@ private fun ORGXApp(engine: AudioEngine) {
                         val file=checkNotNull(engine.activeSetFile)
                         val index=checkNotNull(engine.activeSetIndex)
                         val expectedSound=engine.importedInstrument
-                        val prepared=withContext(Dispatchers.IO){ImportedStsLoader.prepare(file,index,snapshot)}
-                        val applied=engine.applyPreparedSts(prepared,expectedSound)
+                        val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot)}
+                        val applied=engine.applyStsRequest(prepared,expectedSound)
                         if(applied)preferences.edit().putString("selectedStsSet",setFile?.name)
                             .putInt("selectedStsTrack",trackIndex).putInt("selectedStsSlot",snapshot.slot)
                             .remove("importedSetFile").remove("importedSetSound").apply()
@@ -652,7 +652,7 @@ private fun ORGXApp(engine: AudioEngine) {
                         importStatus="Không thể áp dụng $label: ${error.message}"
                     }finally{importing=false}
                 }},modifier=Modifier.fillMaxWidth()){
-                    Text("${snapshot.name.ifBlank{"STS ${snapshot.slot+1}"}} • ${track}")
+                    Text("${snapshot.name.ifBlank{"STS ${snapshot.slot+1}"}} • ${if(trackIndex==0)"MASTER / ALL VOICES" else track}")
                 }
             }
         }

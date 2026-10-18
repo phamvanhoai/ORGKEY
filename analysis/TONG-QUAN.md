@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã bật nạp nhóm tiếng STS từ giao diện: mục Master hiện MASTER / ALL VOICES, nạp tối đa bốn snapshot tiếng Group 0 với Record/vùng phím/pedal riêng; restore và link Main đi cùng resolver. STS track riêng vẫn nạp một voice. Đây là full voice snapshot, CHƯA áp Master hoặc default fSTSChanges/STSPut đầy đủ. Test resolver/batch/queue/memory/loader đạt, build và cài/mở bản mới trên điện thoại thành công; chưa thử nghe nhóm SET thật. Xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
+
 Đã thêm ngân sách PCM chung 64 MiB cho nhóm STS mới, kiểm tra trước mở/giải mã PCM và tính cả mono/stereo + buffer đọc tạm. Test tính byte/nhóm vượt giới hạn/batch/loader/STS cục bộ đạt, build đạt. Chưa tính nhóm cũ đang ngân, FX và RAM toàn app; UI đa part vẫn chưa bật, chưa cài bản nội bộ. Xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
 
 Đã nối chuyển nhóm STS tại đầu frame audio: Master Music/tempo/chord và part được cập nhật trước render, kiểm tra lại generation/file/index để chặn kết quả nạp cũ. Không drain lại queue sau cấu hình mixer trong cùng frame. Test commit/giữ nhóm cũ/clear và Master/batch đạt, build đạt. CHƯA bật UI, chưa có ngân sách PCM chung hoặc theo dõi current snapshot đầy đủ; chưa cài bản nội bộ. Xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
