@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Reset khi transport dừng
+
+Sửa AudioEngine.rhythmSample trước đây reset player ở mỗi frame khi !rhythmPlaying; với Reverb native đã nối, đường này flush lặp 48000 lần/giây và reset session rồi reset lại cùng player. Nay StoppedStyleReset chỉ cho reset lần đầu của khoảng dừng, sau playing→stopped, hoặc khi thay session trong trạng thái dừng. Session reset đã bao gồm player nên không reset player lần hai. Chọn phần immediate trong session vẫn được xử lý khi session.next chạy lúc Play.
+
+Kiểm thử gate qua 48000 frame dừng, chuyển play/stop và thay selection ở cả trạng thái dừng/phát. Chưa đo mức CPU/latency trên thiết bị; thay đổi giảm số lần reset theo luồng điều khiển, không khẳng định mức cải thiện hiệu năng cụ thể.
+
+Xác minh: build debug thành công, 264 kiểm thử JVM không lỗi, gồm kiểm tra SET cục bộ. Đã cài APK mới và mở ứng dụng trên điện thoại; giữ nguyên SET đầu vào.
+
 ### Quay lại section sau khi chuyển bus FX
 
 Sửa lỗi `continueGroupFxFrom`: sau khi chuyển live group chain sang player đích, player nguồn từng bị để groupFx=null nên khi chọn lại section sẽ phát thiếu FX. Nay nguồn giữ `live.fresh()` (Reverb vẫn chưa cấp phát handle cho tới khi có tín hiệu). Đích nhận đúng live chain và đuôi đang ngân; nguồn có bus sạch khi phát lại. Không sao chép cùng native handle cho hai owner.

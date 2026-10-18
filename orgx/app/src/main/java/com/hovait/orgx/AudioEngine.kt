@@ -300,14 +300,25 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
     }
 
+    private val stoppedStyleReset=StoppedStyleReset()
     private fun rhythmSample(): Double {
-        pendingStyle.getAndSet(null)?.let{session->
+        val selected=pendingStyle.getAndSet(null)
+        selected?.let{session->
             if(rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
             importedStyleSession?.close()
             importedStyleSession=session;importedRhythm=session.player;importedRhythmName=session.displayName
             session.takeTempoChange()?.let{bpm=it}
         }
-        if (!rhythmPlaying) { rhythmAges.fill(-1);referenceRhythm?.reset();importedStyleSession?.let{it.reset();importedRhythm=it.player;importedRhythmName=it.displayName};importedRhythm?.reset();return 0.0 }
+        val resetStopped=stoppedStyleReset.shouldReset(rhythmPlaying,selected!=null)
+        if (!rhythmPlaying) {
+            if(resetStopped){
+                rhythmAges.fill(-1);referenceRhythm?.reset()
+                val session=importedStyleSession
+                if(session!=null){session.reset();importedRhythm=session.player;importedRhythmName=session.displayName}
+                else importedRhythm?.reset()
+            }
+            return 0.0
+        }
         importedStyleSession?.let{
             it.next(bpm.coerceIn(40,240));it.takeTempoChange()?.let{tempo->bpm=tempo};importedRhythm=it.player;importedRhythmName=it.displayName
             if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++

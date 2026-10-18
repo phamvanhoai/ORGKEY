@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã bỏ reset/flush FX lặp mỗi frame khi style dừng: reset một lần khi vừa dừng hoặc thay session đang dừng, không reset cùng player hai lần. Giảm lời gọi native thừa; chưa đo CPU/latency. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã sửa lỗi quay lại section mất group FX sau khi bus sống được chuyển sang section khác: nguồn giữ một chain sạch, đích giữ live chain và đuôi vang. Không dùng chung native handle giữa hai owner. Chi tiết/kiểm chứng: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã kiểm tra JNI thật qua player: chuyển đuôi Reverb sang player mới rồi đóng player cũ vẫn giữ đuôi vang. Wrapper Reverb dùng buffer stereo cấp phát một lần, bỏ Pair mỗi frame. Đây chưa phải kiểm tra toàn bộ chuyển style hoặc đo latency/GC của engine.
