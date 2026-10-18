@@ -10,6 +10,24 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    /** r01.e: clip first, then smooth using the previous final output. */
+    private class Distortion(private val gain:Int,private val soft:Boolean,cutoff:Int):Stage {
+        private val level=(1.0/maxOf(1.0,kotlin.math.sqrt(gain.toDouble()/cutoff))).toFloat()
+        private val smoothing=1f/cutoff
+        private var stateL=0.0;private var stateR=0.0
+        override var left=0.0;override var right=0.0
+        override val active get()=kotlin.math.abs(stateL)>1e-9 || kotlin.math.abs(stateR)>1e-9
+        override fun reset(){stateL=0.0;stateR=0.0;left=0.0;right=0.0}
+        private fun clip(input:Double):Double {
+            val amplified=input*gain
+            return if(soft)kotlin.math.tanh(amplified) else amplified.coerceIn(-1.0,1.0)
+        }
+        override fun process(l:Double,r:Double){
+            stateL=(stateL*(1.0-smoothing)+clip(l)*smoothing)*level
+            stateR=(stateR*(1.0-smoothing)+clip(r)*smoothing)*level
+            left=stateL;right=stateR
+        }
+    }
     /** q01: fixed 10082-frame ring, fractional delay, independent stereo feedback. */
     private class Chorus(values:List<Int>,rate:Int):Stage {
         private val buffers=Array(2){FloatArray(10082)}
@@ -152,7 +170,13 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23)}.map{
+        if(it.type==23){
+            require(it.payload.size==9){"Invalid Distortion payload"}
+            val gain=int(it.payload,0);val cutoff=int(it.payload,5)
+            require(gain in 1..100 && cutoff in 1..100 && it.payload[4] in 0..1){"Unsupported Distortion parameters"}
+            return@map Distortion(gain,it.payload[4]==1,cutoff)
+        }
         if(it.type==21){
             require(it.payload.size==24){"Invalid Chorus payload"}
             val values=List(6){i->int(it.payload,i*4)}

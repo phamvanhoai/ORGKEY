@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã bổ sung Distortion (FX 23) theo đường stereo `r01.e`: gain, soft/hard clip, CutOff và history final output riêng hai kênh. Giữ payload boolean Soft và thứ tự module; file SET không thay đổi. Giới hạn đối chiếu PCM/bản thu: [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã bổ sung Chorus (FX 21) theo `q01`: delay nội suy, feedback và độ lệch pha stereo; reset giữ pha, xóa buffer. Chưa xác nhận tương đương bản thu/lượng tử PCM gốc. Xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã bổ sung Band pass (FX type 1) theo `o01/v01`, gồm history riêng hai kênh, reset, cờ enable và kiểm tra hệ số không hữu hạn. Đây là bộ lọc Band pass; Band Move native vẫn cần dựng riêng. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).

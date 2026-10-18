@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Distortion, type 23
+
+Đã dựng theo đường stereo `r01.e`: nhân Gain, soft clip bằng tanh hoặc hard clip tại full scale, rồi `output=(previousOutput*(1-k)+clipped*k)*level`, với `k=1f/CutOff`, `level=float(1/max(1,sqrt(Gain/CutOff)))`. History lưu final output riêng hai kênh. Payload 9 byte: Gain int32, Soft boolean, CutOff int32; Gain/CutOff 1..100. Reset/fresh xóa state; active giữ bus khi còn đuôi lọc.
+
+Kiểm thử hard/soft clipping, bù mức, recurrence qua frame, stereo độc lập, reset/bypass và cutoff 0. PCM chuẩn hóa coi full scale tương ứng mốc 6553600 trong `r01.e`; chưa sao chép lượng tử long/cast Float của từng phép nhân nội bộ và chưa xác nhận loudness bằng bản thu. Không sử dụng đường `r01.f(short[])` khác cách cập nhật history. Các phần native và DNC/aftertouch/script vẫn chưa hoàn chỉnh.
+
+Xác minh: build debug thành công, 247 kiểm thử không lỗi. Đã cài cập nhật và mở ứng dụng trên điện thoại; giữ nguyên SET đầu vào.
+
 ### Chorus, type 21
 
 Đã dựng theo `q01`: ring cố định 10082 frame mỗi kênh, delay phân số nội suy tuyến tính, sine LFO với stereo spread, feedback riêng hai kênh và dry/wet mix. Payload giữ đủ 6 int32: Rate, Depth, Delay, Feedback, Mix, Stereo Spread. Reset xóa rings/cursor nhưng giữ phase như `q01.c`; fresh tạo phase 0. Kiểm thử impulse có delay phân số, stereo không crossfeed, dry mix và reset đuôi feedback.
