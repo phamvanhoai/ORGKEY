@@ -96,7 +96,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun applySts(snapshot:ImportedSts):Boolean {
         val file=activeSetFile ?: return false
         val index=activeSetIndex ?: return false
-        val source=index.instruments.getOrNull(snapshot.instrument) ?: return false
+        val rawSource=index.instruments.getOrNull(snapshot.instrument) ?: return false
+        val source=if(snapshot.mode in rawSource.modes.indices)
+            rawSource.copy(modes=listOf(rawSource.modes[snapshot.mode])) else rawSource
         val system=index.systems.getOrNull(snapshot.system)
         val loaded=runCatching{ImportedInstrumentLoader.load(file,source,system,snapshot.settings,index.musicSettings)}.getOrNull() ?: return false
         importedInstrument=loaded
