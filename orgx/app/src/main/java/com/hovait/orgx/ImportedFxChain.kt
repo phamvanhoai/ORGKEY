@@ -10,6 +10,25 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         fun reset()
         val active:Boolean
     }
+    /** u01/v01: one-pole IIR, including the integer division in High pass.a(). */
+    private class PassFilter(frequency:Int,sampleRate:Int,high:Boolean):Stage {
+        private val feedback=kotlin.math.exp(-2*Math.PI*(if(high)(frequency/sampleRate).toDouble()
+            else ((frequency*1000f/150000f)/sampleRate).toDouble())).toFloat()
+        private val direct=if(high)(1f+feedback)/2f else 1f-feedback
+        private val previous=if(high)-direct else 0f
+        private var inputL=0f;private var inputR=0f
+        private var outputL=0f;private var outputR=0f
+        override var left=0.0;override var right=0.0
+        override val active get()=kotlin.math.abs(outputL)>1e-9f || kotlin.math.abs(outputR)>1e-9f ||
+            (previous!=0f && (inputL!=0f || inputR!=0f))
+        override fun reset(){inputL=0f;inputR=0f;outputL=0f;outputR=0f;left=0.0;right=0.0}
+        override fun process(l:Double,r:Double){
+            val nextL=l.toFloat();val nextR=r.toFloat()
+            outputL=(direct*nextL+previous*inputL)+feedback*outputL
+            outputR=(direct*nextR+previous*inputR)+feedback*outputR
+            inputL=nextL;inputR=nextR;left=outputL.toDouble();right=outputR.toDouble()
+        }
+    }
     /** y01: widen the side signal while preserving the mono centre. */
     private class StereoWidth(volume:Int):Stage {
         private val width=(volume/10000.0f)*6.5536f
@@ -59,7 +78,13 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17)}.map{
+    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10)}.map{
+        if(it.type==9 || it.type==10){
+            require(it.payload.size==4){"Invalid Pass Filter payload"}
+            val frequency=int(it.payload,0)
+            require(frequency in 0..150000 && sampleRate>0){"Unsupported Pass Filter frequency"}
+            return@map PassFilter(frequency,sampleRate,it.type==9)
+        }
         if(it.type==17){
             require(it.payload.size==4){"Invalid Stereo Width payload"}
             val volume=int(it.payload,0)

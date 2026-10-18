@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Bộ lọc High pass / Low pass, type 9 và 10
+
+Đã dựng recurrence IIR theo `u01.a` và `v01.e`: `y = b0*x + b1*xPrevious + a*yPrevious`, trạng thái Float độc lập trái/phải. High pass dùng `a=exp(-2*pi*(frequency/sampleRate))`, phép chia hai Int như Java decompile; `b0=(1+a)/2`, `b1=-b0`. Low pass dùng `a=exp(-2*pi*((frequency*1000f/150000f)/sampleRate))`, `b0=1-a`, `b1=0`. Payload mỗi module là int32 frequency, miền 0..150000. Giữ nguyên tỷ lệ và phép chia của mã đối chiếu, không tự thay bằng cutoff Hz thông thường.
+
+Chain áp dụng type 9/10 cùng cờ enable và thứ tự hiện có; reset xóa input/output history, active giữ bus khi filter còn đuôi. Kiểm thử impulse, stereo độc lập, reset, low pass frequency 0, high pass qua ngưỡng phép chia integer và module disabled. Tính trên PCM chuẩn hóa, chưa mô phỏng lượng tử long sau mỗi frame của gốc, chưa có so sánh bản thu. Band Move (2), Flanger (8) và Reverb (29) gọi native nên vẫn cần dựng riêng.
+
+Xác minh: build debug thành công, 237 kiểm thử không lỗi (gồm kiểm tra style SET cục bộ). Đã cài APK cập nhật và mở thành công trên điện thoại. File SET đầu vào giữ nguyên.
+
 ### FX 3D Sound (Stereo), type 17
 
 Đã dựng module 17 theo `defpackage.y01`: payload là volume int32 little-endian, miền 0..50000; width = `(volume/10000f)*6.5536f`. Với centre = `(L+R)/2`, output mỗi kênh = `((input-centre)*width + centre + input)/2`. Module giữ mono centre, có thể đảo dấu kênh còn lại khi mở rộng stereo, không có buffer/đuôi. Volume 0 vẫn giữ một nửa side, không đồng nghĩa bypass.
