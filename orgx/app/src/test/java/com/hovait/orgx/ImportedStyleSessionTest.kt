@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun playAfterEndingRestartsSelectedSection(){
+        val session=session();session.request(6,immediate=true)
+        repeat(1001){session.next(120)};assertTrue(session.finished)
+        session.preparePlay();assertFalse(session.finished)
+        session.next(120);assertEquals(6,session.currentId);assertTrue(session.player.left>0)
+    }
+    @Test fun playAfterEndingPreservesImmediateMainChoice(){
+        val session=session();session.request(6,immediate=true)
+        repeat(1001){session.next(120)};assertTrue(session.finished)
+        session.request(2,immediate=true);session.preparePlay();session.next(120)
+        assertEquals(2,session.currentId);assertFalse(session.finished);assertTrue(session.player.left>0)
+    }
     private fun part(id:Int,section:Int)=ImportedStyleGroup(id,100,"Part",section,section in 32..35,0,1000,120,jumpGroup=if(section in 80..82)0 else -1)
     private val parts=listOf(part(1,32),part(2,33),part(3,16),part(4,48),part(5,64),part(6,80),part(7,81))
     private fun session():ImportedStyleSession {

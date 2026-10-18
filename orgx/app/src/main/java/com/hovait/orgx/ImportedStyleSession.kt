@@ -24,6 +24,8 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     fun available(id:Int)=id in players
     fun close(){players.values.forEach{it.close()}}
     @Synchronized fun renderTail(){if(finished)player.renderTail()}
+    /** Play after a natural ending must clear finished while retaining an immediate section choice. */
+    @Synchronized fun preparePlay(){if(finished)reset()}
     /** MainActivity.B1 keeps the section, with Fill/Break returning to Main. */
     fun continueFrom(previous:ImportedStyleSession){
         val (section,time)=synchronized(previous){previous.groups.getValue(previous.currentId).section to previous.clock.time}

@@ -26,6 +26,14 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Play lại sau Ending
+
+Sửa regression từ đường giữ natural tail: session.finished còn true khi nhấn Play, khiến frame kế tiếp dừng lại ngay. Rising Play gửi AtomicBoolean tới audio thread; preparePlay reset session nếu đã finished. Reset giữ request immediate theo cơ chế hiện có, nên bấm Main/Intro sau Ending không bị đổi về phần cũ. Không gọi reset trực tiếp từ UI hoặc mỗi frame.
+
+Kiểm thử Play sau Ending chạy lại phần đang chọn và giữ Main immediate vừa chọn. Chưa đối chiếu APK gốc xem Play sau Ending có tự chọn Main khác hay không; hiện giữ lựa chọn section như hành vi session trước đó. Không khẳng định parity 100%.
+
+Xác minh: build debug thành công, 278 kiểm thử không lỗi, gồm SET cục bộ. Đã cài APK cập nhật và mở trên điện thoại; SET giữ nguyên.
+
 ### Đuôi Ending khi tự dừng
 
 Session kết thúc không còn reset player ngay: releaseAll đánh dấu release rồi renderTail tiếp tục các voice/track FX/tail đã có mà không advance timeline hoặc phát sự kiện mới. AudioEngine đánh dấu naturalStyleTail, dừng transport nhưng vẫn render session tail và group FX. Stop chủ động hoặc chọn style mới thoát trạng thái này; Stop vô hiệu gate reset để xóa tail kể cả transport đã dừng. Nhánh direct player/one-shot ngoài session chưa thay đổi.

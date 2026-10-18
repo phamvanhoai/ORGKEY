@@ -1,5 +1,7 @@
 # Tổng quan APK ORG 24
 
+Đã sửa Play sau Ending bị dừng ngay do session còn finished: audio thread khởi tạo lại session, giữ phần Main/Intro immediate vừa chọn. Chi tiết/giới hạn đối chiếu: [DECODE-REBUILD.md](DECODE-REBUILD.md).
+
 Đã tách Ending tự dừng khỏi reset âm thanh: transport dừng, voice/FX tiếp tục render đuôi mà không phát note mới; Stop chủ động vẫn reset. Chưa đối chiếu toàn bộ timing Ending với APK gốc. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Đã thay xóa voice tại đầu vòng style bằng release, giữ đuôi nốt/FX qua ranh giới loop và phát nốt mới độc lập. Chưa đối chiếu tất cả đường loop/Ending với bản thu gốc. Chi tiết: [DECODE-REBUILD.md](DECODE-REBUILD.md).

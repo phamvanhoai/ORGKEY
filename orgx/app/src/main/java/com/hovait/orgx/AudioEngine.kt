@@ -186,6 +186,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     fun setRhythmEnabled(enabled: Boolean) {
+        if(enabled && !rhythmPlaying)restartStyleOnPlay.set(true)
         naturalStyleTail=false
         stoppedStyleReset.invalidate()
         rhythmPlaying = enabled
@@ -305,6 +306,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private val stoppedStyleReset=StoppedStyleReset()
+    private val restartStyleOnPlay=java.util.concurrent.atomic.AtomicBoolean(false)
     @Volatile private var naturalStyleTail=false
     private fun rhythmSample(): Double {
         val selected=pendingStyle.getAndSet(null)
@@ -315,6 +317,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             importedStyleSession?.close()
             importedStyleSession=session;importedRhythm=session?.player;importedRhythmName=session?.displayName
             session?.takeTempoChange()?.let{bpm=it}
+        }
+        if(restartStyleOnPlay.getAndSet(false) && rhythmPlaying){
+            importedStyleSession?.preparePlay()
         }
         val resetStopped=stoppedStyleReset.shouldReset(rhythmPlaying,selected!=null)
         if (!rhythmPlaying) {
