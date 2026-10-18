@@ -1,5 +1,7 @@
 # Band Booster: lõi DSP
 
+Kiểm chứng Android arm64 trên thiết bị 88d75c04: NativeBandBoosterSmoke chạy JNI libnbandbooster.so gốc và scalar trên cùng 36.000 sample (ba cấu hình gain, tín hiệu giả ngẫu nhiên rồi silence). PASS, sai khác lớn nhất 1 đơn vị PCM nguyên. Handle luôn close trong finally. Đây là đối chiếu thuật toán ở 48 kHz trên ABI hiện tại, chưa bao phủ mọi input/rate/ABI hoặc SET end-to-end.
+
 `ReferenceBandBooster` dựng lại đường scalar từ `Java_sofeh_audio_NBandBooster_build/process` trong assembly arm64 và x86_64 đã lưu.
 
 - Hai filter cascade bốn tầng; hệ số `2*sin(2764.602f/rate)` và `2*sin(15707.96f/rate)`.
