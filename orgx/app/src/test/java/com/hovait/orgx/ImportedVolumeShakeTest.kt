@@ -5,6 +5,20 @@ import org.junit.Test
 import kotlin.math.sin
 
 class ImportedVolumeShakeTest {
+    @Test fun sharedPcmDoesNotLeakModeEffectsAndAftertouchAppliesShakeOnce(){
+        val raw=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(48000,1,shortArrayOf(8192,8192)),0,2)),48000)
+        val primary=raw.copySampleSource().withExpressionEffects(listOf(effect()))
+        val alternate=raw.copySampleSource()
+        val voice=primary.withAftertouch(alternate).voice(60)
+        repeat(479){voice.next(false)}
+        voice.aftertouch(1f);voice.next(false)
+        assertEquals(.25*(1+sin(1.0)*.1),voice.left,1e-9)
+        assertEquals(.25*(1+sin(1.0)*.3),voice.right,1e-9)
+        val plain=alternate.voice(60)
+        repeat(480){plain.next(false)}
+        assertEquals(.25,plain.left,1e-9)
+        assertEquals(.25,plain.right,1e-9)
+    }
     @Test fun disablingBetweenControlTicksImmediatelyRestoresUnityGain(){
         val enabled=effect()
         val state=ImportedVolumeShake(enabled,1000)
