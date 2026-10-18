@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+SET/STS có tùy chọn linkMainSts (mặc định tắt): người dùng chọn STS để xác định Track, khi Main 1–4 trở thành phần hiện hành, coroutine nạp slot theo STSIndex của group hoặc mặc định 1–4. Nạp nền và chỉ commit nếu bank/voice/session/Main vẫn đúng; thiếu slot báo lỗi, giữ tiếng cũ. Đây là liên kết một Track bàn phím được chọn, chưa phải STSPut đa Track/fSTSChanges gốc. Build và test resolver/loader đạt; chưa kiểm chứng thao tác trên thiết bị, thời điểm đổi STS hiện theo polling 100 ms, không tuyên bố sample-accurate.
+
 Ghi MIDI giữ thêm sustain CC64: thao tác pedal qua nút bàn phím hoặc STS ghi bật/tắt khi trạng thái đổi; REC khi pedal đang bật thêm CC64 ở tick đầu. Trạng thái sustain chỉ đổi qua engine để không bỏ sót lệnh ghi/nhả nốt. Test encoder -> parser -> MidiSustain xác nhận note-off đợi tới pedal-off; build đạt. Chưa thử xuất MIDI trên thiết bị, pedal vẫn dùng kênh bàn phím 0 như nút hiện tại.
 
 Ghi MIDI bổ sung pitch bend, poly pressure và channel pressure từ đầu vào live, gồm áp lực phím cảm ứng. File writer ghi đúng số byte cho channel message (D0/C0 một data byte, các message khác hai), tránh làm hỏng track khi xuất Channel Pressure. Event từ file playback không được ghi lại qua hook expression. Test encode -> MIDI parser xác nhận thứ tự, channel và giá trị pressure/bend; build đạt. Chưa thử xuất/đọc file trên thiết bị và tiếng MIDI mặc định chưa thực thi đầy đủ biểu cảm.

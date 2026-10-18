@@ -152,6 +152,39 @@ private fun ORGXApp(engine: AudioEngine) {
     var styleAutoFill by remember{mutableStateOf(preferences.getBoolean("styleAutoFill",false))}
     LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
+    var linkSts by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
+    DisposableEffect(preferences){
+        val listener=SharedPreferences.OnSharedPreferenceChangeListener{prefs,key->
+            if(key=="linkMainSts")linkSts=prefs.getBoolean(key,false)
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
+    }
+    LaunchedEffect(setSession,sectionState.first,linkSts,restoringSet){
+        val session=setSession
+        val file=engine.activeSetFile
+        val index=engine.activeSetIndex
+        if(linkSts && session!=null && file!=null && index!=null && !restoringSet &&
+            preferences.getString("selectedStsSet",null)==file.name){
+            val part=session.style.sections.firstOrNull{it.id==sectionState.first}
+            if(part!=null && part.section in 32..35)try{
+                val group=index.styles.firstOrNull{it.id==session.style.id} ?: part
+                val slot=ImportedStsSelection.slotForMain(group,part.section)
+                val snapshot=ImportedStsSelection.resolve(index,preferences.getInt("selectedStsTrack",-1),slot)
+                val expectedSound=engine.importedInstrument
+                val prepared=withContext(Dispatchers.IO){ImportedStsLoader.prepare(file,index,snapshot)}
+                if(engine.importedStyleSession===session && session.currentId==part.id &&
+                    preferences.getString("selectedStsSet",null)==file.name &&
+                    preferences.getBoolean("linkMainSts",false) && engine.applyPreparedSts(prepared,expectedSound)){
+                    preferences.edit().putInt("selectedStsSlot",slot).apply()
+                    restoredSetName=engine.importedInstrumentName
+                }
+            }catch(error:Exception){
+                if(error is kotlinx.coroutines.CancellationException)throw error
+                Toast.makeText(context,"Main STS: ${error.message}",Toast.LENGTH_LONG).show()
+            }
+        }
+    }
     var temporaryLoop by remember{mutableStateOf(false)}
     LaunchedEffect(engine){while(true){
         playing=engine.rhythmPlaying
@@ -578,6 +611,14 @@ private fun ORGXApp(engine: AudioEngine) {
             }},modifier=Modifier.fillMaxWidth()){Text(item.name)}
         }
         if(showSetSts){
+            var linked by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
+            Row(verticalAlignment=Alignment.CenterVertically){
+                Checkbox(checked=linked,enabled=!importing,onCheckedChange={
+                    linked=it;preferences.edit().putBoolean("linkMainSts",it).apply()
+                })
+                Text("Đổi STS theo Main 1–4 trên Track đã chọn",fontSize=12.sp)
+            }
+            Text("Chọn một STS bên dưới để xác định Track dùng cho liên kết. Thiếu slot sẽ giữ nguyên tiếng.",fontSize=12.sp)
             val snapshots=setIndex?.tracks.orEmpty().flatMapIndexed{trackIndex,track->track.sts.map{Triple(trackIndex,track.name,it)}}
             if(snapshots.isEmpty())Text("SET này không có STS đang bật",fontSize=12.sp)
             snapshots.forEach{(trackIndex,track,snapshot)->
