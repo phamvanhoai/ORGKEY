@@ -43,14 +43,15 @@ object ImportedInstrumentLoader {
                     (it.loop==0 || (it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.frames))
             }
     }
-    fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings?=null):SampledInstrument {
+    fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings?=null,
+        musicSettings:ImportedChannelSettings=ImportedChannelSettings()):SampledInstrument {
         if(instrument.modes.isNotEmpty()){
             val layers=layers(instrument)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             require(layers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
             val modeSettings=settings ?: instrument.modes.first().settings
-            val loaded=SampledInstrument.combine(layers.map{load(file,it,system,modeSettings)})
-            return if(settings==null)loaded.withKeyboardSettings(modeSettings,instrument.type==0) else loaded
+            val loaded=SampledInstrument.combine(layers.map{load(file,it,system,modeSettings,musicSettings)})
+            return if(settings==null)loaded.withKeyboardSettings(ImportedMusicParameters.pitch(modeSettings,musicSettings,musicSettings.octave),instrument.type==0) else loaded
         }
         require(supported(instrument)){"Unsupported instrument parameters"}
         val channel=settings ?: ImportedChannelSettings()
@@ -67,12 +68,12 @@ object ImportedInstrumentLoader {
                 }
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
                     section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,
-                    section.tune+if(instrument.type==0)channel.tune else 0)
+                    section.tune+if(instrument.type==0)channel.tune+musicSettings.tune else 0)
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
-                envelope=ImportedEnvelope.from(instrument.sounds.first().envelope).let{it.copy(release=(it.release.toLong()*channel.releasePercent/100).coerceIn(0,100).toInt())},pitchMode=instrument.sounds.first().envelope[4],
+                envelope=ImportedEnvelope.from(instrument.sounds.first().envelope).let{it.copy(release=ImportedMusicParameters.release(it.release,channel,musicSettings))},pitchMode=instrument.sounds.first().envelope[4],
                 tuning=if(instrument.type==0)system?.table.orEmpty() else emptyList())
-        }
+        }.let{if(settings==null)it.withKeyboardSettings(ImportedMusicParameters.pitch(channel,musicSettings,musicSettings.octave),instrument.type==0) else it}
     }
     /** Channels.OpenKey: default mode primary plus every enabled Mix slot, including duplicates. */
     fun layers(instrument:ImportedInstrument):List<ImportedInstrument>{

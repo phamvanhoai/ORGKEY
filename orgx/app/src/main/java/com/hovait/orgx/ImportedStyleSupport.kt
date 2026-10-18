@@ -3,7 +3,7 @@ package com.hovait.orgx
 object ImportedStyleSupport {
     /** Track.ReadFromStream selects mode first, then restores Channels FX over it. */
     fun channelSettings(index:ImportedSetIndex,track:ImportedTrack)=
-        track.settings.copy(volume=track.volume,pan=track.pan)
+        ImportedMusicParameters.pitch(track.settings.copy(volume=track.volume,pan=track.pan),index.musicSettings,index.rhythmSettings.octave)
     fun shiftedNote(note:Int,track:ImportedTrack,melodic:Boolean):Int =
         if(melodic)(note.toLong()+track.settings.transpose+track.settings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt() else note
     fun sampleEvents(track:ImportedTrack,melodic:Boolean)=track.events.map{event->

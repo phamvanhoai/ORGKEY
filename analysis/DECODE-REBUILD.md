@@ -26,11 +26,19 @@ Thứ tự đối chiếu bắt buộc trước khi kết luận một phần ho
 
 ## Chưa hoàn thành
 
+### Music pitch và release
+
+Theo `Channels.OpenKey`, tune của melodic bằng section + channel + Music; transpose bằng channel + Music. Octave bàn phím cộng Music octave, còn style cộng Rhythm octave. ORGX áp transpose/octave trước chọn region, bao gồm nhánh trim sample của style, và truyền tune vào bước phát PCM. Percussion giữ key/tune theo quy tắc cũ. Các đường chọn voice và khôi phục voice đã lưu đều truyền Music settings của SET vào loader; MODE nhiều layer chỉ nhận mỗi yếu tố một lần.
+
+Release được tính `soundRelease * channelRelease * musicRelease / 10000`, chặn 0..100 sau phép chia; không làm tròn phần trăm channel/Music trước. Phép tính dùng Long. Giữ nguyên volume/pan/module của channel khi hợp nhất pitch; FX Music và master volume vẫn xử lý ở bus đầu ra. Chưa dựng thay đổi pitch Music trực tiếp khi nốt đang ngân, tempOctaveMove, đầy đủ quy tắc tuning table khi transpose, hoặc Music/Rhythm balance.
+
+Xác minh: build debug thành công, 226 kiểm thử không lỗi, gồm kiểm tra style SET cục bộ. Đã cài cập nhật và khởi động trên điện thoại; chưa có đối chiếu bản thu với APK gốc. File SET giữ nguyên.
+
 ### Music FX và volume đầu ra
 
 Đối chiếu `Music.ProcessOut`: `fFXMusic.h` xử lý bus Music trước khi cộng bus Wave/Rhythm; `fFXMusic.b` nhân tổng đầu ra sau phép cộng. ORGX nối các module đã hỗ trợ (4/6/20) của Music sau tổng các bus voice SET và trước khi cộng style. Volume Music nhân đầu ra chung trước limiter, không nhân riêng từng voice. Không dùng Music pan như stereo pan: trường này phân phối mức Music/Rhythm trong `Channels.OpenKey` và vẫn cần dựng riêng.
 
-Đuôi Music echo tiếp tục chạy khi không còn bus voice. Đổi volume không dựng lại chuỗi DSP; đổi enable/modules dựng lại chuỗi, reset xóa đuôi. Kiểm thử tổng nhiều channel, đuôi sau thả phím, đổi volume/pan, bypass và reset. Phạm vi hiện tại là voice SET nhập; chưa nối Music FX cho voice factory/MIDI, chưa dựng đầy đủ Music tune/transpose/release, Wave FX và các module DSP còn thiếu. Chưa có bản thu so sánh để kết luận âm thanh giống APK gốc.
+Đuôi Music echo tiếp tục chạy khi không còn bus voice. Đổi volume không dựng lại chuỗi DSP; đổi enable/modules dựng lại chuỗi, reset xóa đuôi. Kiểm thử tổng nhiều channel, đuôi sau thả phím, đổi volume/pan, bypass và reset. Phạm vi hiện tại là voice SET nhập; chưa nối Music FX cho voice factory/MIDI, Wave FX và các module DSP còn thiếu. Chưa có bản thu so sánh để kết luận âm thanh giống APK gốc.
 
 Xác minh: build debug thành công, 223 kiểm thử không lỗi (gồm kiểm tra style SET cục bộ); đã cài cập nhật lên thiết bị ADB. Không sửa file SET đầu vào.
 

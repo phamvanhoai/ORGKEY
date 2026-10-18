@@ -1,6 +1,6 @@
 # Tổng quan APK ORG 24
 
-ORGX đã nối Music FX (module 4/6/20) sau mixer voice SET và áp volume Music lên tổng đầu ra theo `Music.ProcessOut`. Đuôi echo chạy tiếp sau thả phím, đổi volume không xóa đuôi. Chưa nối Music FX cho voice factory/MIDI hoặc dựng đầy đủ Music pitch/balance, Wave FX và các module còn thiếu; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
+ORGX đã nối Music tune/transpose/release cho voice SET và style; octave bàn phím lấy từ Music, octave style lấy từ Rhythm theo `Channels.OpenKey`. Release nhân đủ ba yếu tố trước khi làm tròn. Music FX (module 4/6/20) chạy sau mixer voice SET, volume Music áp lên tổng đầu ra theo `Music.ProcessOut`. Chưa hoàn chỉnh Music/Rhythm balance, chỉnh pitch trực tiếp khi nốt ngân, Music FX cho voice factory/MIDI, Wave FX và các module còn thiếu; xem [DECODE-REBUILD.md](DECODE-REBUILD.md).
 
 Mục lục toàn bộ báo cáo: [INDEX.md](INDEX.md). Manifest kiểm chứng 491 artifact, kích thước và SHA-256 nằm tại [ANALYSIS-MANIFEST.md](ANALYSIS-MANIFEST.md).
 
