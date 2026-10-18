@@ -77,11 +77,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
     fun midiChannelPressure(pressure:Float,channel:Int=0){
         val gain=VoiceVelocity.gain(pressure,false)
-        voices.filterKeys{((it and 2047)/128)==channel}.values.forEach{if(it.imported!=null)it.velocity=gain}
+        voices.filterKeys{MidiVoiceKey.isLiveChannel(it,channel)}.values.forEach{
+            if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=gain}
+        }
     }
     fun midiPitchBend(value:Int,channel:Int=0){
         val semitones=MidiPitchBend.semitones(value)
-        voices.filterKeys{((it and 2047)/128)==channel}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
+        voices.filterKeys{MidiVoiceKey.isLiveChannel(it,channel)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
     }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
         autoChordMap.chord(progression,harmonyClock.time) else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)

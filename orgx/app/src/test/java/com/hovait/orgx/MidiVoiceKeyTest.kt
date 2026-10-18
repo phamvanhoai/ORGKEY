@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiVoiceKeyTest {
+    @Test fun expressiveLiveControlsOnlyTargetTheRequestedChannel(){
+        for(channel in 0..15)for(note in 0..127){
+            assertTrue(MidiVoiceKey.isLiveChannel(MidiVoiceKey.key(note,channel),channel))
+            assertFalse(MidiVoiceKey.isLiveChannel(MidiVoiceKey.key(note,channel,true),channel))
+            assertFalse(MidiVoiceKey.isLiveChannel(MidiVoiceKey.key(note,channel),(channel+1)%16))
+        }
+        assertFalse(MidiVoiceKey.isLiveChannel(-1,0))
+        assertFalse(MidiVoiceKey.isLiveChannel(0,16))
+    }
     @Test fun playbackAndLiveKeyboardNeverShareVoiceKeys() {
         val live=(0..15).flatMap{channel->(0..127).map{MidiVoiceKey.key(it,channel)}}.toSet()
         val playback=(0..15).flatMap{channel->(0..127).map{MidiVoiceKey.key(it,channel,true)}}.toSet()
