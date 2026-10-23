@@ -30,6 +30,21 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
             ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
     }
+    private fun applyScriptEffects(changes:List<ImportedSimpleScript.EffectChange>){
+                var updated=expressionEffects
+                changes.forEach{change->
+                    val old=updated.firstOrNull{it.slot==change.slot} ?: ImportedExpressionEffect(change.slot,false,0,false,false,0,0,0,0,emptyList())
+                    val next=when(change.property){
+                        "enable"->old.copy(enabled=change.value!=0)
+                        "mode"->old.copy(mode=change.value and 255)
+                        "speed"->old.copy(speed=change.value)
+                        "depth"->old.copy(depth=change.value)
+                        else->old.copy(gain=change.value)
+                    }
+                    updated=updated.filterNot{it.slot==change.slot}+next
+                }
+                expressionEffects=updated
+    }
     fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{expressionEffects=effects.toList()}
     val keyConnectionEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==1 && it.enabled}
     val keyRepeatEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==0 && it.enabled}
@@ -69,19 +84,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                     require(rate.isFinite() && rate>0){"Script pitch outside playback range"}
                 }
             }?.also{result->
-                var updated=expressionEffects
-                result.effects.forEach{change->
-                    val old=updated.firstOrNull{it.slot==change.slot} ?: ImportedExpressionEffect(change.slot,false,0,false,false,0,0,0,0,emptyList())
-                    val next=when(change.property){
-                        "enable"->old.copy(enabled=change.value!=0)
-                        "mode"->old.copy(mode=change.value and 255)
-                        "speed"->old.copy(speed=change.value)
-                        "depth"->old.copy(depth=change.value)
-                        else->old.copy(gain=change.value)
-                    }
-                    updated=updated.filterNot{it.slot==change.slot}+next
-                }
-                expressionEffects=updated
+                applyScriptEffects(result.effects)
             }
         }.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
@@ -176,7 +179,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 val handled=runCatching{scriptSession?.event("aftertouch",mapOf("key" to note,
                     "velocity" to (pressure.coerceIn(0f,1f)*127).toInt(),"keyvelocity" to scriptVelocity)){result->
                     require(result.plays.isEmpty()){"Aftertouch audio commands are not supported yet"}
-                    require(result.effects.isEmpty()){"Aftertouch effect commands are not supported yet"}
+                    require(result.effects.all{it.slot in 2..3}){"Unsupported aftertouch effect slot"}
+                }?.also{result->
+                    applyScriptEffects(result.effects)
+                    result.effects.map{it.slot}.distinct().forEach{slot->
+                        val effect=expressionEffects.first{it.slot==slot}
+                        if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
+                    }
                 }?.handled==true}.getOrDefault(false)
                 if(handled)return
             }

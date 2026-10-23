@@ -5,6 +5,18 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalAftertouchShakeChangesCurrentlySoundingVoice(){
+        fun instrument()=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(4000){(it%100*200).toShort()}),0,4000)),1000)
+        val scripted=instrument().withModeScript(original("Shake/Aftertouch Shake.Script")).voice(60)
+        val plain=instrument().voice(60)
+        scripted.aftertouch(1f)
+        var difference=0.0
+        repeat(500){scripted.next(false);plain.next(false);difference+=kotlin.math.abs(scripted.left-plain.left)}
+        assertTrue(difference>0.0)
+        scripted.aftertouch(0f)
+        repeat(20){scripted.next(false);assertTrue(scripted.left.isFinite())}
+    }
     @Test fun originalDynamicVelocityScriptGlidesFromPreviousTouch(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)
