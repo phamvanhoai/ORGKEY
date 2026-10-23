@@ -2,8 +2,30 @@ package com.hovait.orgx
 
 import org.junit.Assert.*
 import org.junit.Test
+import java.io.File
 
 class ImportedScriptPlaybackTest {
+    private fun original(path:String)=File(requireNotNull(System.getProperty("orgx.referenceScripts")),path).readText()
+    @Test fun bundledOctaveScriptsRenderTheirDeclaredMix(){
+        val upper=sound().withModeScript(original("Octave/Add Upper Octave.Script")).voice(60)
+        upper.next(false)
+        // No return(true): original key and script octave both contribute.
+        assertEquals(.5,upper.left,1e-12)
+        val both=sound().withModeScript(original("Octave/Add Upper & Lower Octave.Script")).voice(60)
+        both.next(false)
+        assertEquals(.375,both.left,1e-12)
+        both.next(true);assertTrue(both.finished)
+    }
+    @Test fun bundledRelativeLegatoScriptsProduceOppositePitchMovement(){
+        fun output(path:String):Double {
+            val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)
+            val voice=source.withModeScript(original(path)).voice(60)
+            voice.next(false);voice.next(false)
+            return voice.left
+        }
+        assertTrue(output("Legato/Legato from Lower.Script")<100.0/32768)
+        assertTrue(output("Legato/Legato from Upper.Script")>100.0/32768)
+    }
     @Test fun lowerLegatoScriptStartsSampleAtPitchOfLowerKey(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)
         val script=source.withModeScript("on(touch) { play(connectkey:key-12,connectspeed:50); return(true); }").voice(60)
