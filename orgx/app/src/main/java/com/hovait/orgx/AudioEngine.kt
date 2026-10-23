@@ -166,6 +166,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(!playback)captureMidi(0xa0 or channel,note,(pressure.coerceIn(0f,1f)*127).toInt())
         voices[key]?.let{if(it.imported!=null)it.sampledPlayback?.aftertouch(pressure)}
     }
+    fun midiModulation(value:Int,channel:Int=0,playback:Boolean=false){
+        require(value in 0..127 && channel in 0..15)
+        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.modulate(value,channel)
+        else voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{it.sampledPlayback?.modulate(value)}
+        if(!playback)captureMidi(0xb0 or channel,1,value)
+    }
     fun midiChannelPressure(pressure:Float,channel:Int=0,playback:Boolean=false){
         require(channel in 0..15)
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.channelPressure(pressure.coerceIn(0f,1f),channel)
@@ -374,6 +380,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     if(!midiSessionGate.runIfCurrent(session){
                         when(event.controller){
+                            1->midiModulation(event.velocity,event.channel,true)
                             -2->midiPitchBend(event.note or (event.velocity shl 7),event.channel,true)
                             -3->midiNotePressure(event.note,event.velocity/127f,event.channel,true)
                             -4->midiChannelPressure(event.velocity/127f,event.channel,true)
