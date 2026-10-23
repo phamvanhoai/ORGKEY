@@ -2,7 +2,7 @@ package com.hovait.orgx
 
 /** Track.Play(65, slot, parameter, value) for live expression processors. */
 object ImportedExpressionAutomation {
-    fun supported(event:ReferenceDrumEvent)=event.type==65 && event.id in 2..3 && event.note in 0..7
+    fun supported(event:ReferenceDrumEvent)=event.type==65 && event.id in 0..3 && event.note in 0..7
     fun update(effect:ImportedExpressionEffect,event:ReferenceDrumEvent,keyConnectionMethod:Int=0):ImportedExpressionEffect {
         require(effect.slot==event.id && supported(event))
         return when(event.note){

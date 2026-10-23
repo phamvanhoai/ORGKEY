@@ -50,6 +50,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var connectionDelay=0
         private var connectionByPedal=false
         private var connectionStopByRelease=false
+        private var connectionActive=false
         private var bendSemitones=0.0
         private var bentStep=step
         private var aftertouch=false
@@ -71,6 +72,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             connectionDelay=(effect.startDelay.coerceAtLeast(0).toLong()*outputRate/1000).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
             connectionByPedal=effect.byPedal
             connectionStopByRelease=effect.stopByRelease
+            connectionActive=effect.enabled
             connectionDelta=if(effect.playbackSpeed==0)target-step else
                 (target-step)*effect.playbackSpeed/(8.192*outputRate)
         }
@@ -87,8 +89,19 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             connectionDelay=(effect.startDelay.coerceAtLeast(0).toLong()*outputRate/1000).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
             connectionByPedal=effect.byPedal
             connectionStopByRelease=effect.stopByRelease
+            connectionActive=effect.enabled
             connectionDelta=if(effect.playbackSpeed==0)target-step else
                 (target-step)*effect.playbackSpeed/(8.192*outputRate)
+        }
+        fun configureConnection(effect:ImportedExpressionEffect){
+            require(effect.slot==1)
+            children.forEach{it.configureConnection(effect)};alternate?.configureConnection(effect)
+            connectionActive=effect.enabled
+            connectionByPedal=effect.byPedal
+            connectionStopByRelease=effect.stopByRelease
+            connectionDelay=(effect.startDelay.coerceAtLeast(0).toLong()*outputRate/1000).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+            connectionDelta=if(effect.playbackSpeed==0)connectionTarget-step else
+                (connectionTarget-step)*effect.playbackSpeed/(8.192*outputRate)
         }
         fun aftertouch(pressure:Float){
             // Original Track switches to InstMode.Aftertouch on the first
@@ -117,7 +130,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
             if(autoRelease && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
             val released=noteOff || autoReleaseStarted
-            if((!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
+            if(connectionActive && (!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
                     step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
                     bentStep=step*2.0.pow(bendSemitones/12.0)

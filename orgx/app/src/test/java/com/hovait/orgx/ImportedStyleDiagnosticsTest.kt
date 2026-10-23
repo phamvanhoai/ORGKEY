@@ -11,9 +11,9 @@ class ImportedStyleDiagnosticsTest {
         return ImportedStyleSupport.reason(ImportedSetIndex(listOf(source),listOf(group),listOf(track)),group,true)
     }
     @Test fun unsupportedEffectNamesTrackSlotParameterAndTime(){
-        val message=reason(ReferenceDrumEvent(65,1,5,20,123,0)).orEmpty()
+        val message=reason(ReferenceDrumEvent(65,4,5,20,123,0)).orEmpty()
         assertTrue(message.contains("Bass"));assertTrue(message.contains("event 65"))
-        assertTrue(message.contains("slot 1"));assertTrue(message.contains("parameter 5"));assertTrue(message.contains("123"))
+        assertTrue(message.contains("slot 4"));assertTrue(message.contains("parameter 5"));assertTrue(message.contains("123"))
     }
     @Test fun invalidNoteAndMissingInstrumentAreReportedBeforeSampleLoading(){
         assertTrue(reason(ReferenceDrumEvent(2,2,200,100,50,10)).orEmpty().contains("invalid note 200"))

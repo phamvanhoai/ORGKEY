@@ -18,4 +18,6 @@ ORGX đã nối nhánh Key Connection có bit mode cao (`mode > 15`) của `Chan
 
 Automation event 65 parameter 7 đã được mở cho Pitch Shake và Volume Shake. Nó thay `Mode` nhưng giữ nguyên `Speed` đã lưu; Mode 1/2 làm playback speed bằng 0, và khi trở về mode thường thì phase tiếp tục với Speed cũ. Thay đổi được cấu hình vào cả voice đang ngân và state dùng cho voice mở sau đó.
 
-Automation slot 0/1, các ngoại lệ AutoRelease/restart theo từng low nibble và cấu hình `fKeyConnectionMethod` vẫn cần dựng tiếp trước khi coi Key Connection/Legato/Mono hoàn chỉnh.
+Automation slot 0/1 đã được nối vào style player. Event thay đổi Key Repeat giữ nguyên bộ đếm 10 ms của voice hiện hành; event Key Connection cập nhật chuyển pitch đang chạy và cấu hình dùng khi nốt kế tiếp mở. Mode cao có thể chuyển quyền điều khiển sang voice hiện hành, mode thấp mở voice mới từ cao độ phím trước.
+
+Các ngoại lệ AutoRelease/restart theo từng low nibble và nguồn cấu hình toàn cục `fKeyConnectionMethod` vẫn cần dựng tiếp trước khi coi Key Connection/Legato/Mono hoàn chỉnh.
