@@ -14,6 +14,7 @@ object MidiRecording {
         val held=mutableSetOf<Int>()
         val pedals=mutableSetOf<Int>()
         val bentChannels=mutableSetOf<Int>()
+        val modulatedChannels=mutableSetOf<Int>()
         val gainControllers=mutableMapOf<Int,Int>()
         ordered.forEach{event->
             val channel=event.status and 15;val key=channel*128+event.note
@@ -22,6 +23,7 @@ object MidiRecording {
                 0x80->held.remove(key)
                 0xe0->if((event.note or (event.velocity shl 7))!=MidiPitchBend.CENTER)bentChannels.add(channel)else bentChannels.remove(channel)
                 0xb0->when(event.note){
+                    1->if(event.velocity!=0)modulatedChannels.add(channel)else modulatedChannels.remove(channel)
                     64->if(event.velocity>=64)pedals.add(channel)else pedals.remove(channel)
                     7,10,11->gainControllers[channel*128+event.note]=event.velocity
                 }
@@ -30,6 +32,7 @@ object MidiRecording {
         held.sorted().forEach{ordered+=RecordedMidiEvent(end,0x80 or (it/128),it%128,0)}
         pedals.sorted().forEach{ordered+=RecordedMidiEvent(end,0xb0 or it,64,0)}
         bentChannels.sorted().forEach{ordered+=RecordedMidiEvent(end,0xe0 or it,0,64)}
+        modulatedChannels.sorted().forEach{ordered+=RecordedMidiEvent(end,0xb0 or it,1,0)}
         gainControllers.toSortedMap().forEach{(key,value)->
             val default=when(key%128){7->MidiChannelGain.DEFAULT_VOLUME;10->MidiPan.CENTER;else->MidiChannelGain.DEFAULT_EXPRESSION}
             if(value!=default)ordered+=RecordedMidiEvent(end,0xb0 or (key/128),key%128,default)
