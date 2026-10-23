@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun effectReadsUseSetValuesRegardlessOfLoaderOrder(){
+        val effect=ImportedExpressionEffect(2,false,0,false,false,0,25,20,0,emptyList())
+        val script="on(touch) { play(volume:effect[2].Depth); return(true); }"
+        val before=sound().withExpressionEffects(listOf(effect)).withModeScript(script).voice(60)
+        val after=sound().withModeScript(script).withExpressionEffects(listOf(effect)).voice(60)
+        before.next(false);after.next(false)
+        assertEquals(.05,before.left,1e-12);assertEquals(before.left,after.left,1e-12)
+    }
     @Test fun scriptedPitchShakeWaitsForPedalAndStartDelay(){
         fun source()=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(4000){(it%100*200).toShort()}),0,4000)),1000)

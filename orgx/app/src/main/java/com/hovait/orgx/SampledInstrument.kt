@@ -26,6 +26,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun withModeScript(source:String)=also{
         modeScript=ImportedModeScript.parse(source)
         scriptSession=runCatching{ImportedScriptSession(source)}.getOrNull()
+        scriptSession?.synchronizeEffects(expressionEffects)
         scriptSliderValues=scriptSliders.associate{it.name to it.reset}
         touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
             ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
