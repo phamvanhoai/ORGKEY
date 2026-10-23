@@ -4,6 +4,34 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun octaveSwitchSupportsOpenRangesAndDottedVariables(){
+        val session=ImportedScriptSession("""
+            main(){touch.octave=0;}
+            on(touch){
+                switch(velocity){
+                    case 10..:touch.octave=-1;break;
+                    case 0:touch.octave=0;break;
+                    case ..-10:touch.octave=1;break;
+                }
+                play(octavemove:touch.octave);return(true);
+            }
+        """.trimIndent())
+        for((level,expected) in listOf(10 to -1,9 to -1,0 to 0,-9 to 0,-10 to 1,127 to -1))
+            assertEquals(expected,session.event("touch",mapOf("velocity" to level)).plays.single().parameters["octavemove"])
+    }
+    @Test fun switchBreakDoesNotStopSurroundingTimerAndSupportsFallthrough(){
+        val script=ImportedModeScript.parse("""
+            on(__timer){
+                switch(key){case 1,2:play(volume:25);case 3:play(volume:50);break;default:play(volume:100);}
+                play(volume:75);
+            }
+        """.trimIndent())
+        val selected=ImportedSimpleScript.evaluate(script,"__timer",mapOf("key" to 2))
+        assertEquals(listOf(25,50,75),selected.plays.map{it.parameters["volume"]})
+        assertFalse(selected.timerStopped)
+        val other=ImportedSimpleScript.evaluate(script,"__timer",mapOf("key" to 9))
+        assertEquals(listOf(100,75),other.plays.map{it.parameters["volume"]})
+    }
     @Test fun effectSetterNormalizesValuesBeforeSubsequentReads(){
         val session=ImportedScriptSession("on(touch) { effect[1].Mode=255; effect[2].Enable=-4; play(volume:effect[1].Mode+2,velocity:effect[2].Enable); }")
         val result=session.event("touch")

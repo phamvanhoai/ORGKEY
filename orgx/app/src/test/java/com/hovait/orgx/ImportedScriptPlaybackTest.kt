@@ -5,6 +5,18 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalModulationOctaveInitializesAndTracksTouchRelease(){
+        val original=original("Octave/Modulation Octave.Script")
+        val session=ImportedScriptSession(original+"\non(aftertouch){play(volume:touch.count, key:touch.key);}")
+        session.event("touch",mapOf("id" to 37,"key" to 60,"velocity" to 80))
+        session.event("touch",mapOf("id" to 38,"key" to 64,"velocity" to 90))
+        assertEquals(2,session.event("aftertouch").plays.single().parameters["volume"])
+        assertEquals(64,session.event("aftertouch").plays.single().parameters["key"])
+        session.event("release")
+        assertEquals(1,session.event("aftertouch").plays.single().parameters["volume"])
+        session.event("release")
+        assertEquals(0,session.event("aftertouch").plays.single().parameters["volume"])
+    }
     @Test fun explicitNoteIdPersistsAcrossTimerAndRelease(){
         val source=sound().withModeScript("""
             on(touch){timer(2){play(volume:id);break;}return(true);}

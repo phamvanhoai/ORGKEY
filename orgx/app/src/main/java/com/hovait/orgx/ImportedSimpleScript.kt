@@ -66,7 +66,7 @@ object ImportedSimpleScript {
                     pending["effect[$slot].$property"]=value
                     continue
                 }
-                val assignment=Regex("([a-zA-Z_][a-zA-Z_0-9]*)\\s*=\\s*([^=].*)").matchEntire(statement)
+                val assignment=Regex("([a-zA-Z_][a-zA-Z_0-9]*(?:\\.[a-zA-Z_][a-zA-Z_0-9]*)*)\\s*=\\s*([^=].*)").matchEntire(statement)
                 if(assignment!=null){
                     val name=assignment.groupValues[1].lowercase()
                     require(name !in variables){"Cannot overwrite event parameter: $name"}
@@ -184,12 +184,13 @@ object ImportedSimpleScript {
         data class Branch(val condition:String,val yes:Statement,val no:Statement?):Statement
         data class Block(val items:List<Statement>):Statement
         data class Timed(val interval:String,val body:String):Statement
+        data class Selection(val value:String,val cases:List<Pair<String?,List<Statement>>>):Statement
     }
     private class StatementReader(private val source:String) {
         private var position=0
         private fun space(){while(position<source.length && source[position].isWhitespace())position++}
         private fun word(value:String):Boolean {space();return source.regionMatches(position,value,0,value.length,true) &&
-            (position+value.length==source.length || !source[position+value.length].isLetterOrDigit())}
+            (position+value.length==source.length || source[position+value.length] !in "_." && !source[position+value.length].isLetterOrDigit())}
         fun all():List<Statement>{
             val result=ArrayList<Statement>();space()
             while(position<source.length){result.add(read());space()}
@@ -197,6 +198,38 @@ object ImportedSimpleScript {
         }
         private fun read():Statement {
             space();require(position<source.length){"Missing statement"}
+            if(word("switch")){
+                position+=6;space();require(position<source.length && source[position]=='(')
+                val start=++position;var depth=1
+                while(position<source.length && depth>0){when(source[position]){'('->depth++;')'->depth--};position++}
+                require(depth==0){"Unclosed switch expression"}
+                val value=source.substring(start,position-1)
+                space();require(position<source.length && source[position]=='{'){"Switch requires a block"};position++
+                val cases=mutableListOf<Pair<String?,List<Statement>>>()
+                var hasDefault=false
+                while(true){
+                    space();require(position<source.length){"Unclosed switch"}
+                    if(source[position]=='}'){position++;break}
+                    val label=when {
+                        word("case")->{
+                            position+=4;val labelStart=position
+                            while(position<source.length && source[position]!=':')position++
+                            require(position<source.length){"Missing case colon"}
+                            source.substring(labelStart,position).trim().also{require(it.isNotEmpty())}
+                        }
+                        word("default")->{position+=7;space();require(!hasDefault){"Duplicate default"};hasDefault=true;null}
+                        else->throw IllegalArgumentException("Expected switch case")
+                    }
+                    space();require(position<source.length && source[position]==':');position++
+                    val items=mutableListOf<Statement>()
+                    space()
+                    while(position<source.length && source[position]!='}' && !word("case") && !word("default")){
+                        items+=read();space()
+                    }
+                    cases+=label to items
+                }
+                return Statement.Selection(value,cases)
+            }
             if(word("timer")){
                 position+=5;space();require(position<source.length && source[position]=='(')
                 val start=++position;var depth=1
@@ -242,6 +275,35 @@ object ImportedSimpleScript {
             when(statement){
                 is Statement.Command->yield(statement.text)
                 is Statement.Timed->yield("__timer(${statement.interval}) {${statement.body}}")
+                is Statement.Selection->{
+                    val value=expression(statement.value,context())
+                    fun matches(label:String):Boolean=splitArguments(label).any{item->
+                        val limits=item.split("..")
+                        if(limits.size==1)value==expression(item,context())
+                        else {
+                            require(limits.size==2){"Invalid case range"}
+                            val low=limits[0].trim().takeIf{it.isNotEmpty()}?.let{expression(it,context())} ?: Int.MIN_VALUE
+                            val high=limits[1].trim().takeIf{it.isNotEmpty()}?.let{expression(it,context())} ?: Int.MAX_VALUE
+                            value in low..high
+                        }
+                    }
+                    val start=statement.cases.indexOfFirst{it.first?.let(::matches)==true}.let{matched->
+                        if(matched>=0)matched else statement.cases.indexOfFirst{it.first==null}
+                    }
+                    if(start>=0){
+                        var stopped=false
+                        for((_,items) in statement.cases.drop(start)){
+                            for(item in items){
+                                for(command in execute(item)){
+                                    if(command.equals("break",true)){stopped=true;break}
+                                    yield(command)
+                                }
+                                if(stopped)break
+                            }
+                            if(stopped)break
+                        }
+                    }
+                }
                 is Statement.Block->statement.items.forEach{yieldAll(execute(it))}
                 is Statement.Branch->{val selected=if(expression(statement.condition,context())!=0)statement.yes else statement.no
                     if(selected!=null)yieldAll(execute(selected))}
