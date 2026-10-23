@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun mainEffectAssignmentsOverrideStoredSetValuesInEitherLoaderOrder(){
+        val script="main() { effect[1].enable=true; effect[1].Speed=75; }"
+        val stored=listOf(ImportedExpressionEffect(1,false,0,false,false,0,10,0,0,emptyList()))
+        val before=sound().withExpressionEffects(stored).withModeScript(script)
+        val after=sound().withModeScript(script).withExpressionEffects(stored)
+        assertEquals(75,before.keyConnectionEffect?.speed)
+        assertEquals(before.keyConnectionEffect,after.keyConnectionEffect)
+    }
     @Test fun aftertouchSoundReceivesHeldPedalAndPedalOffExactlyOnce(){
         val alternate=sound().withModeScript("main() { gain=25; } on(pedalon) { gain=gain+25; } on(pedaloff) { gain=gain-25; } on(touch) { play(volume:gain); return(true); }")
         val primary=sound().withAftertouch(alternate).voice(60)

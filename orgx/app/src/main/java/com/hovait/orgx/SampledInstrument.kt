@@ -38,6 +38,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         modeScript=runCatching{ImportedModeScript.parse(source)}.getOrNull()
         scriptSession=runCatching{ImportedScriptSession(source)}.getOrNull()
         scriptSession?.synchronizeEffects(expressionEffects)
+        scriptSession?.let{applyScriptEffects(it.initialEffects)}
         scriptSliderValues=scriptSliders.associate{it.name to it.reset}
         touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
             ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
@@ -60,7 +61,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }
                 expressionEffects=updated
     }
-    fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{expressionEffects=effects.toList();scriptSession?.synchronizeEffects(effects)}
+    fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{
+        expressionEffects=effects.toList();scriptSession?.synchronizeEffects(effects)
+        scriptSession?.let{applyScriptEffects(it.initialEffects)}
+    }
     val keyConnectionEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==1 && it.enabled}
     val keyRepeatEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==0 && it.enabled}
     val outputSampleRate:Int get()=outputRate

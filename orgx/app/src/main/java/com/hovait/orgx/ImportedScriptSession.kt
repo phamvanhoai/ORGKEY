@@ -5,6 +5,7 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
     private val timeOrigin=clockMillis()
     data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int)
     val sliders:List<Slider>
+    val initialEffects:List<ImportedSimpleScript.EffectChange>
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
     private var pedalDown=false
@@ -31,6 +32,7 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
                 "mode" to effect.mode,"speed" to effect.speed,"depth" to effect.depth,"gain" to effect.gain)
             values.forEach{(name,value)->state["effect[${effect.slot}].$name"]=value}
         }
+        initialEffects.forEach{change->state["effect[${change.slot}].${change.property}"]=change.value}
     }
     private fun currentEffects(result:ImportedSimpleScript.Result)=result.copy(effects=result.effects.map{change->
         change.copy(value=state["effect[${change.slot}].${change.property}"] ?: change.value)
@@ -55,6 +57,8 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
         script=ImportedModeScript.parse(declarations.replace(code,""))
         val initialized=ImportedSimpleScript.evaluate(script,"main",state=state)
         require(initialized.plays.isEmpty()){"Audio commands in main are not supported"}
+        require(initialized.effects.all{it.slot in 0..3}){"Unsupported main effect slot"}
+        initialEffects=initialized.effects
     }
     fun event(name:String,parameters:Map<String,Int> = emptyMap(),validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
         val pending=state.toMutableMap()
