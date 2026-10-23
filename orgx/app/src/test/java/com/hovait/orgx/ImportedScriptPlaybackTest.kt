@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun handledAftertouchKeepsPrimaryAndStoresOriginalKeyVelocity(){
+        val source=sound().withAftertouch(SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(16){16384}),0,16)),1000))
+            .withModeScript("main() { level = 100; } on(touch) { play(volume:level); return(true); } on(aftertouch) { level = keyvelocity; return(true); }")
+        val first=source.voice(60,scriptVelocity=50)
+        first.aftertouch(1f);first.next(false)
+        assertEquals(.25,first.left,1e-12)
+        val second=source.voice(60);second.next(false)
+        assertEquals(.125,second.left,1e-12)
+    }
     @Test fun releaseUpdatesScriptStateOnlyOnceDuringTailRendering(){
         val source=sound().withModeScript("main() { level = 100; } on(touch) { play(volume:level); return(true); } on(release) { level = level - 25; }")
         val first=source.voice(60);first.next(false)

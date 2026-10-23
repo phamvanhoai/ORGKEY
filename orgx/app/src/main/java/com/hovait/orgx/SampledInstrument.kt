@@ -153,6 +153,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 (connectionTarget-step)*effect.playbackSpeed/(8.192*outputRate)
         }
         fun aftertouch(pressure:Float){
+            if(ownsScriptEvents){
+                val handled=runCatching{scriptSession?.event("aftertouch",mapOf("key" to note,
+                    "velocity" to (pressure.coerceIn(0f,1f)*127).toInt(),"keyvelocity" to scriptVelocity)){result->
+                    require(result.plays.isEmpty()){"Aftertouch audio commands are not supported yet"}
+                }?.handled==true}.getOrDefault(false)
+                if(handled)return
+            }
             // Original Track switches to InstMode.Aftertouch on the first
             // positive pressure event. It closes the old key and opens the
             // alternate sound once; pressure is not a 50% cross-fade gate.
