@@ -179,6 +179,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun connectTo(targetNote:Int,effect:ImportedExpressionEffect){
             require(targetNote in 0..127 && effect.slot==1)
             currentKey=targetNote
+            scriptReleased=false
+            releaseHandled=false
             children.forEach{it.connectTo(targetNote,effect)};alternate?.connectTo(targetNote,effect)
             if(children.isNotEmpty())return
             val target=pitchStep(targetNote,tune)
