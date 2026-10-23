@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun handledReleaseKeepsScriptVoiceWhileFalseUsesDefaultRelease(){
+        val held=sound().withModeScript("on(touch) { play(); return(true); } on(release) { return(true); }").voice(60)
+        val normal=sound().withModeScript("on(touch) { play(); return(true); } on(release) { return(false); }").voice(60)
+        held.next(false);normal.next(false)
+        repeat(20){held.next(true);normal.next(true)}
+        assertFalse(held.finished);assertEquals(.25,held.left,1e-12)
+        assertTrue(normal.finished);assertEquals(0.0,normal.left,0.0)
+    }
     @Test fun mainReadsStoredEffectBeforeUpdatingIt(){
         val stored=ImportedExpressionEffect(1,true,0,false,false,0,65,0,0,emptyList())
         val source=sound().withExpressionEffects(listOf(stored))

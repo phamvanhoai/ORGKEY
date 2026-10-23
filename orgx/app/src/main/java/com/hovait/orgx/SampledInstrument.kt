@@ -90,6 +90,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap()){
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
         private var scriptReleased=false
+        private var releaseHandled=false
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
@@ -296,9 +297,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(noteOff && ownsScriptEvents && !scriptReleased){
                 scriptReleased=true
                 runCatching{scriptSession?.event("release",mapOf("key" to note,"velocity" to scriptVelocity)){result->
-                    require(result.plays.isEmpty() && !result.handled){"Release audio commands are not supported yet"}
+                    require(result.plays.isEmpty()){"Release audio commands are not supported yet"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported release effect slot"}
                 }?.also{result->
+                    releaseHandled=result.handled
                     applyScriptEffects(result.effects)
                     result.effects.map{it.slot}.distinct().forEach{slot->
                         val effect=expressionEffects.first{it.slot==slot}
@@ -307,7 +309,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }}
             }
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
-            val released=noteOff || autoReleaseStarted
+            val effectiveNoteOff=noteOff && !releaseHandled
+            val released=effectiveNoteOff || autoReleaseStarted
             if(connectionActive && (!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
                     step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
@@ -316,11 +319,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }
             pitchShake?.next(released,pedal)
             val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)
-            if(aftertouch){alternate?.next(noteOff,pedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
+            if(aftertouch){alternate?.next(effectiveNoteOff,pedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
             }else if(scriptPlan!=null && children.isEmpty()){
                 left=0.0;right=0.0;finished=true
             }else if(children.isNotEmpty()){
-                children.forEach{it.next(noteOff,pedal,pitchOffset)}
+                children.forEach{it.next(effectiveNoteOff,pedal,pitchOffset)}
                 fun gain(child:Playback)=scriptChildren.firstOrNull{it.first===child}?.second ?: 1.0
                 left=children.sumOf{it.left*gain(it)};right=children.sumOf{it.right*gain(it)};finished=children.all{it.finished}
             }else{
@@ -328,7 +331,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
                 position+=(bentStep*scriptPitchFactor+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
-                    (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && noteOff)
+                    (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && effectiveNoteOff)
             }
             if(children.isEmpty() && state==null && autoReleaseStarted)finished=true
             volumeShake?.let{it.next(released,pedal);left*=it.left;right*=it.right}
