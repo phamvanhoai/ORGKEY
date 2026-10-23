@@ -16,4 +16,5 @@ class MidiPitchState {
         if(bend==MidiPitchBend.CENTER)null else MidiChannelMessage.bytes(0xe0 or channel,bend and 127,bend shr 7)
     }
     fun semitones(channel:Int,playback:Boolean=false)=MidiPitchBend.semitones(values.get(index(channel,playback)))
+    fun scriptLevel(channel:Int,playback:Boolean=false)=values.get(index(channel,playback))-MidiPitchBend.CENTER
 }
