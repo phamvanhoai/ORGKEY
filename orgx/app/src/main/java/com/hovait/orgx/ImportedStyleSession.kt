@@ -2,7 +2,7 @@ package com.hovait.orgx
 
 /** GroupPlayAdd/Next/Start rules for supported, bounded style groups. */
 class ImportedStyleSession(val style:ImportedStyleDefinition,private val players:Map<Int,ReferenceRhythmPlayer>,sampleRate:Int=48000,
-    private val changeMethod:Int=0,private val tempoLock:Boolean=false) {
+    private var changeMethod:Int=0,private var tempoLock:Boolean=false) {
     private val groups=style.sections.associateBy{it.id}
     private val main=style.sections.first{it.section in 32..35 && it.id in players}
     private val clock=ReferenceStyleClock(sampleRate)
@@ -71,6 +71,16 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         }
     }
     @Synchronized fun takeTempoChange():Int?=tempoChange.also{tempoChange=null}
+    @Synchronized fun configureTiming(method:Int,locked:Boolean){
+        require(method in 0..3)
+        if(changeMethod!=method){
+            changeMethod=method
+            val scale=ReferenceSectionTiming.scale(groups.getValue(currentId),method)
+            if(scale>0)rhythmScale=scale
+        }
+        tempoLock=locked
+        if(locked)tempoChange=null
+    }
     private fun select(id:Int){
         val section=groups[id]
         if(section==null || id !in players){

@@ -371,6 +371,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private data class StyleSelection(val session:ImportedStyleSession?,val presses:MutableList<SectionPress> = mutableListOf())
     private val pendingStyle=java.util.concurrent.atomic.AtomicReference<StyleSelection?>(null)
     private val styleSelectionLock=Any()
+    @Volatile var styleChangeMethod=0;private set
+    @Volatile var styleTempoLock=false;private set
+    fun configureStyleTiming(method:Int,locked:Boolean)=synchronized(styleSelectionLock){
+        require(method in 0..3)
+        styleChangeMethod=method;styleTempoLock=locked
+        importedStyleSession?.configureTiming(method,locked)
+        pendingStyle.get()?.session?.configureTiming(method,locked)
+    }
     fun selectImportedStyle(session:ImportedStyleSession)=synchronized(styleSelectionLock){pendingStyle.getAndSet(StyleSelection(session))?.session?.close();Unit}
     fun clearImportedStyle()=synchronized(styleSelectionLock){pendingStyle.getAndSet(StyleSelection(null))?.session?.close();Unit}
     fun requestStyleSection(id:Int)=synchronized(styleSelectionLock){
@@ -519,6 +527,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
           pendingStyle.getAndSet(null)?.also{selection->
             naturalStyleTail=false
             val session=selection.session
+            session?.configureTiming(styleChangeMethod,styleTempoLock)
             if(session!=null && rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
             importedStyleSession?.close()
             importedStyleSession=session;importedRhythm=session?.player;importedRhythmName=session?.displayName

@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun changingTimingWhileRunningPreservesPendingRequestUntilSectionBoundary(){
+        val session=session(lock=true)
+        repeat(100){session.next(120)}
+        session.request(2)
+        session.configureTiming(3,true)
+        repeat(3900){session.next(120);assertEquals(1,session.currentId)}
+        session.next(120);assertEquals(2,session.currentId);assertNull(session.takeTempoChange())
+    }
+    @Test fun enablingTempoLockClearsPendingTempoAndUnlockRestoresSectionTempo(){
+        val session=session();session.request(2,true);session.next(120)
+        session.configureTiming(0,true)
+        assertNull(session.takeTempoChange())
+        session.request(1,true);session.next(120);assertNull(session.takeTempoChange())
+        session.configureTiming(0,false)
+        session.request(2,true);session.next(120);assertEquals(160,session.takeTempoChange())
+    }
     private fun session(jump:Int=2,lock:Boolean=false):ImportedStyleSession {
         fun group(id:Int,section:Int,loop:Boolean,end:Int,jumpGroup:Int=-1)=
             ImportedStyleGroup(id,100,"Part",section,loop,0,end,if(id==2)160 else 120,jumpGroup=jumpGroup)

@@ -2,7 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — Chord Control, 24-10-2026
+## Kết quả mới nhất — tempo và chuyển phần, 24-10-2026
+
+- Nối Tempo Lock và Rhythm Change Method vào cài đặt, preference và engine. Bốn tên lựa chọn lấy từ mảng gốc: Auto/Don't wait/Wait for a cycle/Wait for a section; công thức ReferenceSectionTiming đã có trước nay được dùng theo lựa chọn thực.
+- Cấu hình cập nhật session đang phát lẫn session chờ chọn dưới cùng khóa chuyển style. Đổi method không xóa queue, không reset đồng hồ; scale được tính lại. Khóa tempo xóa tempo-change còn chờ để tránh BPM nhảy muộn.
+- Áp dụng cấu hình trước continueFrom khi audio nhận style mới. Các đường restore SET, chọn ở LCD, chọn ở trang SET và chọn factory style đều tôn trọng khóa tempo thay vì ghi đè BPM vô điều kiện.
+- ReferenceStyleTransitionTest, ReferenceSectionTimingTest và ImportedStyleSessionTest đạt, gồm đổi sang chờ hết section khi đang có request và lock/unlock tempo. Build cuối/cài APK thành công. Chưa đo thời điểm chuyển bằng bản thu đối chiếu APK; chức năng này không có nghĩa toàn bộ transport đã tương đương gốc. Không triển khai Auto Tempo Lock trong lượt này.
+
+## Chord Control, 24-10-2026
 
 - Đối chiếu `Track.CalcChordKey`, `Tracks.RecordChord` và mảng `ChordControl`/`ChordControlValue` gốc. Nối bốn lựa chọn Manual/Auto/by Chord 1/by Chord 2 vào trang CHORD, lưu preference và phục hồi trước khi nạp SET/style. Giá trị nội bộ 4 vẫn được engine nhận theo nhánh mã gốc; giao diện chỉ hiện 0..3 như APK.
 - Đường nạp style khi restore, chọn ở LCD và chọn trong trang SET đều truyền live ChordControl và octave-move vào transposer. Các nốt dài được cập nhật cả khi chỉ đổi Control hoặc quãng tám tay trái mà tên hợp âm giữ nguyên; original-notes và percussion không áp dụng.

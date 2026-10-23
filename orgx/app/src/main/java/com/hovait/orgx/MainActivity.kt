@@ -116,6 +116,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     }
     LaunchedEffect(Unit){
         engine.chordControl=preferences.getInt("chordControl",0).coerceIn(0,4)
+        engine.configureStyleTiming(preferences.getInt("styleChangeMethod",0).coerceIn(0,3),preferences.getBoolean("styleTempoLock",false))
         engine.setChordDualMappings(ChordDualSettings.decode(preferences.getString("chordDualMappings","").orEmpty()))
         val fileName=preferences.getString("importedSetFile",null)
         val soundName=preferences.getString("importedSetSound",null)
@@ -183,7 +184,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
                         chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(mode==2)engine::selectedSetChord else null)}
                     engine.selectImportedStyle(session)
-                    engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240)
+                    if(!engine.styleTempoLock)engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240)
                 }
             }catch(error:Exception){Toast.makeText(context,"SET style restore: ${error.message}",Toast.LENGTH_LONG).show()}
         }
@@ -311,7 +312,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 preferences.edit().putString("selectedStyleSet",file.name).putInt("selectedSetStyleId",loaded.style.id).putInt("bankMode",mode).apply()
                 bankMode=mode
                 val tempo=loaded.style.sections.first{it.id==loaded.currentId}.tempo
-                if(tempo>0){bpm=tempo.coerceIn(40,240);engine.bpm=bpm}
+                if(tempo>0 && !engine.styleTempoLock){bpm=tempo.coerceIn(40,240);engine.bpm=bpm}
                 if(closeBrowser)browseStyles=false
                 bankStatus=""
             }catch(error:Exception){
@@ -397,7 +398,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                                     }
                                 }else if(bankIndex==null){
                                     engine.setRhythmEnabled(false);engine.clearImportedStyle()
-                                    preferences.edit().remove("selectedStyleSet").remove("selectedSetStyleId").apply();style=chosen;engine.rhythmStyle=chosen;bpm=engine.styleTempos[chosen];engine.bpm=bpm;browseStyles=false
+                                    preferences.edit().remove("selectedStyleSet").remove("selectedSetStyleId").apply();style=chosen;engine.rhythmStyle=chosen
+                                    if(!engine.styleTempoLock){bpm=engine.styleTempos[chosen];engine.bpm=bpm};browseStyles=false
                                 }else loadBankStyle(bankStyles[chosen],bankMode)
                             }
                         })
@@ -420,7 +422,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             if (showMixer) MixerDialog(engine, preferences, instrument, style, effect,
                 onInstrument = { instrument = it; engine.instrument = it;engine.importedInstrument=null;engine.importedInstrumentName=null;restoredSetName=null
                     preferences.edit().remove("selectedStsSet").remove("importedSetFile").remove("importedSetSound").apply() },
-                onStyle = { engine.clearImportedStyle();style = it; engine.rhythmStyle = it;bpm=engine.styleTempos[it];engine.bpm=bpm },
+                onStyle = { engine.clearImportedStyle();style = it; engine.rhythmStyle = it;if(!engine.styleTempoLock){bpm=engine.styleTempos[it];engine.bpm=bpm} },
                 onEffect = { effect = it; engine.effectType = it },
                 onSetStyles={showMixer=false;browseStyles=true;bankPage=0;bankStatus=""},
                 onDismiss = { showMixer = false })
@@ -798,7 +800,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         engine.selectImportedStyle(session)
                         preferences.edit().putString("selectedStyleSet",setFile?.name).putInt("selectedSetStyleId",definition.id)
                             .putInt("bankMode",if(!previewAccompaniment)0 else if(followSetChord)2 else 1).apply()
-                        engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240);onRhythmSelected(engine.bpm)
+                        if(!engine.styleTempoLock)engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240)
+                        onRhythmSelected(engine.bpm)
                         onDismiss()
                     }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}
                     finally{importing=false}
@@ -937,6 +940,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     val preferences=remember { context.getSharedPreferences("orgx-settings",0) }
     var nativeOutput by remember { mutableStateOf(preferences.getBoolean("nativeOutput",false)) }
     var repeatToLoop by remember { mutableStateOf(preferences.getBoolean("styleRepeatToLoop",false)) }
+    var tempoLock by remember{mutableStateOf(engine.styleTempoLock)}
+    var changeMethod by remember{mutableIntStateOf(engine.styleChangeMethod)}
     var keyConnectionMethod by remember { mutableIntStateOf(preferences.getInt("key_connection",0).coerceIn(0,1)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
     val scriptSound=engine.importedInstrument
@@ -947,6 +952,17 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     InstrumentPage(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column(Modifier.verticalScroll(rememberScrollState())){Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle);
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Repeat section button to loop",Modifier.weight(1f));Switch(checked=repeatToLoop,onCheckedChange={repeatToLoop=it;engine.styleRepeatToLoop=it;preferences.edit().putBoolean("styleRepeatToLoop",it).apply()})
+        }
+        Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
+            Text("Tempo Lock",Modifier.weight(1f));Switch(checked=tempoLock,onCheckedChange={
+                tempoLock=it;engine.configureStyleTiming(changeMethod,it);preferences.edit().putBoolean("styleTempoLock",it).apply()
+            })
+        }
+        Text("Rhythm Change Method",fontWeight=FontWeight.Bold)
+        listOf("Auto","Don't wait","Wait for a cycle","Wait for a section").forEachIndexed{index,label->
+            FilterChip(selected=changeMethod==index,onClick={
+                changeMethod=index;engine.configureStyleTiming(index,tempoLock);preferences.edit().putInt("styleChangeMethod",index).apply()
+            },label={Text(label)},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp))
         }
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Portamento: Method ${keyConnectionMethod+1}",Modifier.weight(1f));TextButton(onClick={keyConnectionMethod=1-keyConnectionMethod;engine.keyConnectionMethod=keyConnectionMethod;preferences.edit().putInt("key_connection",keyConnectionMethod).apply()}){Text("CHANGE")}
