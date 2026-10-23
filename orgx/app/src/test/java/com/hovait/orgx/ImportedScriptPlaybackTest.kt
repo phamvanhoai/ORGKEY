@@ -5,6 +5,13 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun velocityConditionSelectsDifferentVoiceGainThroughPlayback(){
+        val source=sound().withModeScript("on(touch) { if (velocity < 100) { play(volume:25); } else { play(volume:75); } return(true); }")
+        val soft=source.voice(60,scriptVelocity=50);soft.next(false)
+        val hard=source.voice(60,scriptVelocity=110);hard.next(false)
+        assertEquals(.0625,soft.left,1e-12)
+        assertEquals(.1875,hard.left,1e-12)
+    }
     @Test fun handledAftertouchKeepsPrimaryAndStoresOriginalKeyVelocity(){
         val source=sound().withAftertouch(SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(16){16384}),0,16)),1000))
