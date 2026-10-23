@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun originalLegatoSliderInitializesConnectionOffset(){
+        val source="main() { setting(slider, name:\"legato_move\", title:\"Legato from\", reset:-2, from:-12, to:12); } on(touch) { play(connectkey:key+legato_move,connectspeed:50); return(true); }"
+        val session=ImportedScriptSession(source)
+        assertEquals(-2,session.sliders.single().reset)
+        assertEquals(58,session.event("touch",mapOf("key" to 60)).plays.single().parameters["connectkey"])
+    }
     @Test fun lastKeyDistanceExpressionSelectsLegatoOnlyWithinSixSemitones(){
         val script=ImportedModeScript.parse("on(touch) { if (abs(last_key - key) <= 6) { play(connectkey:last_key,connectspeed:75); return(true); } }")
         assertEquals(60,ImportedSimpleScript.evaluate(script,"touch",mapOf("last_key" to 60,"key" to 65)).plays.single().parameters["connectkey"])
