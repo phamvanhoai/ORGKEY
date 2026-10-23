@@ -27,7 +27,8 @@ class ImportedKeyboardMixer {
     var right=0.0;private set
     fun beginFrame(){buses.values.forEach{it.left=0.0;it.right=0.0;it.notes=false}}
     fun add(sound:SampledInstrument,l:Double,r:Double){
-        val bus=buses.getOrPut(sound){Bus(sound)}
+        val active=sound.activeModeSound
+        val bus=buses.getOrPut(active){Bus(active)}
         bus.left+=l;bus.right+=r;bus.notes=true
     }
     fun finishFrame(){

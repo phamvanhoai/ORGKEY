@@ -60,8 +60,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
     private val stsParts=ImportedKeyboardPartQueue()
-    fun setScriptSlider(sound:SampledInstrument,name:String,value:Int,completed:(Boolean)->Unit={}){
-        stsParts.updateScriptSlider(sound,name,value,{importedInstrument===sound},completed)
+    fun setScriptSlider(sound:SampledInstrument,name:String,value:Int,expectedMode:SampledInstrument=sound.activeModeSound,completed:(Boolean)->Unit={}){
+        stsParts.updateScriptSlider(sound,name,value,{importedInstrument===sound && sound.activeModeSound===expectedMode},completed)
     }
     private val stsWaiters=StsCommitWaiters()
     @Volatile private var stsPartsEnabled=false

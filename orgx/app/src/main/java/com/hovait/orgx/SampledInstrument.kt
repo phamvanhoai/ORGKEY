@@ -26,32 +26,52 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun withScriptSounds(sounds:Map<Int,SampledInstrument>,defaultSound:Int)=also{
         scriptSounds=sounds.toMap();scriptDefaultSound=defaultSound.coerceAtLeast(0);scriptSoundRouting=true
     }
-    @Volatile var scriptStatus:String="No mode script";private set
+    private class ModeRoute(val sounds:Map<Int,SampledInstrument>,@Volatile var selected:Int)
+    private var modeRoute:ModeRoute?=null
+    val activeModeSound:SampledInstrument get()=modeRoute?.let{it.sounds[it.selected]} ?: this
+    val activeMode:Int get()=modeRoute?.selected ?: 0
+    fun withExitModes(modes:Map<Int,SampledInstrument>,selected:Int)=also{
+        require(selected in modes)
+        val route=ModeRoute(modes.toMap(),selected)
+        modes.values.forEach{it.modeRoute=route}
+    }
+    private fun modeAvailable(mode:Int)=modeRoute?.sounds?.containsKey(mode) ?: (mode==0)
+    private fun exitMode(mode:Int){modeRoute?.let{if(mode in it.sounds)it.selected=mode}}
+    @Volatile private var ownScriptStatus="No mode script"
+    var scriptStatus:String
+        get()=if(activeModeSound!==this)"Mode $activeMode: ${activeModeSound.scriptStatus}" else ownScriptStatus
+        private set(value){ownScriptStatus=value}
     fun updateScriptModulation(level:Int){
+        if(activeModeSound!==this)return activeModeSound.updateScriptModulation(level)
         require(level in -127..127)
         runCatching{scriptSession?.modulation(level){result->
             require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
         }?.also{applyScriptEffects(it.effects)}}
     }
     fun updateScriptPedal(down:Boolean){
+        if(activeModeSound!==this)return activeModeSound.updateScriptPedal(down)
         runCatching{scriptSession?.pedal(down){result->
             require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
         }?.also{applyScriptEffects(it.effects)}}
     }
-    val scriptSliders:List<ImportedScriptSession.Slider> get()=scriptSession?.sliders.orEmpty()
-    val scriptSettingTitles:List<String> get()=scriptSession?.settingTitles.orEmpty()
-    val scriptSettings:List<ImportedScriptSession.Setting> get()=scriptSession?.settings.orEmpty()
-    var scriptSettingsKey:String?=null;internal set
-    @Volatile var scriptSliderValues:Map<String,Int> = emptyMap();private set
-    fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value);scriptSliderValues=scriptSliderValues+(name.lowercase() to value)}
+    val scriptSliders:List<ImportedScriptSession.Slider> get()=if(activeModeSound!==this)activeModeSound.scriptSliders else scriptSession?.sliders.orEmpty()
+    val scriptSettingTitles:List<String> get()=if(activeModeSound!==this)activeModeSound.scriptSettingTitles else scriptSession?.settingTitles.orEmpty()
+    val scriptSettings:List<ImportedScriptSession.Setting> get()=if(activeModeSound!==this)activeModeSound.scriptSettings else scriptSession?.settings.orEmpty()
+    private var ownScriptSettingsKey:String?=null
+    var scriptSettingsKey:String?
+        get()=if(activeModeSound!==this)activeModeSound.scriptSettingsKey else ownScriptSettingsKey
+        internal set(value){ownScriptSettingsKey=value}
+    @Volatile private var ownScriptSliderValues:Map<String,Int> = emptyMap()
+    val scriptSliderValues:Map<String,Int> get()=if(activeModeSound!==this)activeModeSound.scriptSliderValues else ownScriptSliderValues
+    fun setScriptSlider(name:String,value:Int){if(activeModeSound!==this)return activeModeSound.setScriptSlider(name,value);checkNotNull(scriptSession){"No script session"}.setSlider(name,value);ownScriptSliderValues=ownScriptSliderValues+(name.lowercase() to value)}
     fun withModeScript(source:String,storedSettings:Map<String,String> = emptyMap())=also{
         modeScript=runCatching{ImportedModeScript.parse(source)}.getOrNull()
-        val initialized=runCatching{ImportedScriptSession(source,expressionEffects,storedSettings=storedSettings)}
+        val initialized=runCatching{ImportedScriptSession(source,expressionEffects,storedSettings=storedSettings,modeAvailable=::modeAvailable,onModeExit=::exitMode)}
         scriptSession=initialized.getOrNull()
         scriptStatus=if(source.isBlank())"No mode script" else initialized.exceptionOrNull()?.let{"Script initialization failed: ${it.message}"} ?: "Mode script loaded; waiting for events"
         scriptSession?.synchronizeEffects(expressionEffects)
         scriptSession?.let{applyScriptEffects(it.initialEffects)}
-        scriptSliderValues=scriptSession?.settingValues.orEmpty()
+        ownScriptSliderValues=scriptSession?.settingValues.orEmpty()
         touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
             ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
     }
@@ -77,19 +97,20 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         expressionEffects=effects.toList();scriptSession?.synchronizeEffects(effects)
         scriptSession?.let{applyScriptEffects(it.initialEffects)}
     }
-    val keyConnectionEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==1 && it.enabled}
-    val keyRepeatEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==0 && it.enabled}
+    val keyConnectionEffect:ImportedExpressionEffect? get()=if(activeModeSound!==this)activeModeSound.keyConnectionEffect else expressionEffects.firstOrNull{it.slot==1 && it.enabled}
+    val keyRepeatEffect:ImportedExpressionEffect? get()=if(activeModeSound!==this)activeModeSound.keyRepeatEffect else expressionEffects.firstOrNull{it.slot==0 && it.enabled}
     val outputSampleRate:Int get()=outputRate
-    var keyboardSettings=ImportedChannelSettings();private set
+    private var ownKeyboardSettings=ImportedChannelSettings()
+    val keyboardSettings:ImportedChannelSettings get()=if(activeModeSound!==this)activeModeSound.keyboardSettings else ownKeyboardSettings
     private var keyboardMelodic=true
-    fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{keyboardSettings=settings;keyboardMelodic=melodic}
+    fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{ownKeyboardSettings=settings;keyboardMelodic=melodic}
     fun withAftertouch(alternate:SampledInstrument)=also{aftertouchInstrument=alternate}
     /** Reuse immutable PCM while keeping mode/keyboard configuration isolated. */
     fun copySampleSource():SampledInstrument {
         require(layers.isEmpty()){"Copy each decoded source before composing mode layers"}
         return SampledInstrument(regions,outputRate,exactNotes,envelope,pitchMode,tuning,tuningTranspose)
     }
-    fun keyboardNote(note:Int):Int=if(!keyboardMelodic)note else
+    fun keyboardNote(note:Int):Int=if(activeModeSound!==this)activeModeSound.keyboardNote(note) else if(!keyboardMelodic)note else
         (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     companion object {
         fun combine(sounds:List<SampledInstrument>):SampledInstrument {
@@ -98,7 +119,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{it.layers=sounds}
         }
     }
-    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal)
+    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true):Playback=if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed) else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal)
     inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false){
         private var scriptPedal=false
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
@@ -423,12 +444,14 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private val steps=DoubleArray(128){pitchStep(it)}
     private fun missing(note:Int)=mapped[note]==null
     fun durationFrames(note:Int):Int {
+        if(activeModeSound!==this)return activeModeSound.durationFrames(note)
         if(layers.isNotEmpty())return layers.maxOf{it.durationFrames(note)}
         if(note !in 0..127 || missing(note))return 0
         val region=selected[note]
         return if(region.looping)Int.MAX_VALUE else kotlin.math.ceil(region.sample.frames.size/steps[note]).coerceAtMost(Int.MAX_VALUE.toDouble()).toInt()
     }
     fun finished(note:Int,age:Long):Boolean {
+        if(activeModeSound!==this)return activeModeSound.finished(note,age)
         if(layers.isNotEmpty())return layers.all{it.finished(note,age)}
         if(note !in 0..127)return true
         if(missing(note))return true
@@ -436,6 +459,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         return !region.looping && age*steps[note]>=region.sample.frames.size
     }
     fun sample(note:Int,age:Long,channel:Int=0):Double {
+        if(activeModeSound!==this)return activeModeSound.sample(note,age,channel)
         if(layers.isNotEmpty())return layers.sumOf{it.sample(note,age,channel)}
         return sampleAt(note,age,channel,if(note in 0..127)steps[note] else 1.0)
     }

@@ -37,7 +37,8 @@ class ImportedKeyboardPartQueue {
         }
     }
     fun setScriptSlider(part:Int,expectedSound:SampledInstrument,name:String,value:Int,completed:(Boolean)->Unit={}){
-        commands.add{completed(parts.setScriptSlider(part,expectedSound,name,value))}
+        val mode=expectedSound.activeModeSound
+        commands.add{completed(expectedSound.activeModeSound===mode && parts.setScriptSlider(part,expectedSound,name,value))}
     }
     fun pedal(down:Boolean){commands.add{parts.pedalAll(down)}}
     fun pitchBend(semitones:Double,channel:Int=0,scriptLevel:Int?=null){

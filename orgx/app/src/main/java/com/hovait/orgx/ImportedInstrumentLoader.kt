@@ -35,8 +35,8 @@ object ImportedInstrumentLoader {
                     sounds=listOf(sound),modes=emptyList())
                 selected.takeIf(::supported)
             }
-            sounds+instrument.modes.mapNotNull{mode->
-                instrument.copy(name="${instrument.name} / MODE ${mode.name}",modes=listOf(mode)).takeIf(::supported)
+            sounds+instrument.modes.mapIndexedNotNull{index,mode->
+                instrument.copy(name="${instrument.name} / MODE ${mode.name}",modes=listOf(mode),selectedMode=index).takeIf(::supported)
             }
         }
     fun supported(instrument:ImportedInstrument):Boolean {
@@ -56,7 +56,7 @@ object ImportedInstrumentLoader {
             }
     }
     fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings?=null,
-        musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false,keyConnectionMethod:Int=0,sourceVersion:String="1.4.6",scriptOverrides:Map<String,String> = emptyMap()):SampledInstrument {
+        musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false,keyConnectionMethod:Int=0,sourceVersion:String="1.4.6",scriptOverrides:Map<String,String> = emptyMap(),prepareExit:Boolean=true):SampledInstrument {
         if(instrument.modes.isNotEmpty()){
             require(modeReferenceError(instrument)==null){modeReferenceError(instrument).orEmpty()}
             val layers=layers(instrument,aftertouch)
@@ -85,7 +85,17 @@ object ImportedInstrumentLoader {
                 val alternate=SampledInstrument.combine(alternateLayers.map{decoded.getValue(it).copySampleSource()})
                 loaded.withAftertouch(alternate)
             }
-            return if(settings==null)loaded.withKeyboardSettings(modeSettings,instrument.type==0) else loaded
+            if(settings==null)loaded.withKeyboardSettings(modeSettings,instrument.type==0)
+            if(prepareExit && instrument.selectedMode!=0 && mode.script.contains(Regex("(?i)\\bexit\\b")) && instrument.defaultMode!=null){
+                val target=instrument.copy(modes=listOf(instrument.defaultMode),selectedMode=0)
+                // Conservative aggregate budget for the two prepared mode contexts.
+                val currentBytes=uniqueLayers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}
+                val targetBytes=instrument.sounds.sumOf{it.sections.sumOf{section->section.wave.bytes.toLong()}}
+                require(currentBytes+targetBytes<=64L*1024*1024){"DNC exit modes exceed 64 MB PCM budget"}
+                val fallback=load(file,target,system,musicSettings=musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=sourceVersion,prepareExit=false)
+                loaded.withExitModes(mapOf(instrument.selectedMode to loaded,0 to fallback),instrument.selectedMode)
+            }else loaded.withExitModes(mapOf(instrument.selectedMode to loaded),instrument.selectedMode)
+            return loaded
         }
         require(supported(instrument)){"Unsupported instrument parameters"}
         val channel=settings ?: ImportedMusicParameters.pitch(ImportedChannelSettings(),musicSettings,musicSettings.octave)

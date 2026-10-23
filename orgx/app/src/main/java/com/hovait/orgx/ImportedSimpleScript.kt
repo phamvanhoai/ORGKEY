@@ -6,11 +6,12 @@ object ImportedSimpleScript {
     data class Play(val parameters:Map<String,Int>)
     data class EffectChange(val slot:Int,val property:String,val value:Int)
     data class Timer(val interval:Int,val body:String)
-    data class Result(val plays:List<Play>,val handled:Boolean,val effects:List<EffectChange> = emptyList(),val timers:List<Timer> = emptyList(),val timerStopped:Boolean=false)
+    data class Result(val plays:List<Play>,val handled:Boolean,val effects:List<EffectChange> = emptyList(),val timers:List<Timer> = emptyList(),val timerStopped:Boolean=false,val exitMode:Int?=null)
     fun evaluate(script:ImportedModeScript,event:String,variables:Map<String,Int> = emptyMap(),state:MutableMap<String,Int>?=null):Result {
         val plays=ArrayList<Play>()
         val effects=ArrayList<EffectChange>()
         val timers=ArrayList<Timer>()
+        var exitMode:Int?=null
         val pending=state?.toMutableMap() ?: mutableMapOf()
         fun context():Map<String,Int> {
             val values=(pending+variables).toMutableMap()
@@ -22,12 +23,17 @@ object ImportedSimpleScript {
         }
         fun result(handled:Boolean,timerStopped:Boolean=false):Result {
             state?.let{it.clear();it.putAll(pending)}
-            return Result(plays.toList(),handled,effects.toList(),timers.toList(),timerStopped)
+            return Result(plays.toList(),handled,effects.toList(),timers.toList(),timerStopped,exitMode)
         }
         var handled=false
         for(body in script.eventBodies(event)) {
             for(rawStatement in statements(body,::context)) {
                 var statement=rawStatement
+                val exit=Regex("(?is)^exit(?:\\s*\\(\\s*(?:mode\\s*:\\s*(.*?))?\\s*\\))?$").matchEntire(statement)
+                if(exit!=null){
+                    exitMode=exit.groupValues[1].takeIf{it.isNotBlank()}?.let{expression(it,context())} ?: 0
+                    continue
+                }
                 if(statement.equals("break",true)){
                     require(event=="__timer"){"break outside timer"}
                     return result(false,true)

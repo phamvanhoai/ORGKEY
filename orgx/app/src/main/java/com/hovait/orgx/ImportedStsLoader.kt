@@ -14,7 +14,7 @@ object ImportedStsLoader {
         }
         return when {
             snapshot.mode<0->raw.copy(modes=emptyList())
-            snapshot.mode in raw.modes.indices->raw.copy(modes=listOf(raw.modes[snapshot.mode]))
+            snapshot.mode in raw.modes.indices->raw.copy(modes=listOf(raw.modes[snapshot.mode]),selectedMode=snapshot.mode)
             else->raw
         }
     }

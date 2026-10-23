@@ -869,8 +869,10 @@ private fun ORGXApp(engine: AudioEngine) {
             if(setting==null){
                 Text(entry.title,Modifier.fillMaxWidth().background(Muted).padding(8.dp),fontWeight=FontWeight.Bold)
             }else{
-                var value by remember(scriptSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
-                fun change(next:Int){engine.setScriptSlider(scriptSound,setting.name,next){accepted->if(accepted)scriptScope.launch{value=next;ImportedDncPreferences(context).save(scriptSound.scriptSettingsKey,setting.name,next)}}}
+                val scriptMode=scriptSound.activeModeSound
+                val settingsKey=scriptMode.scriptSettingsKey
+                var value by remember(scriptSound.activeModeSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
+                fun change(next:Int){engine.setScriptSlider(scriptSound,setting.name,next,expectedMode=scriptMode){accepted->if(accepted)scriptScope.launch{value=next;ImportedDncPreferences(context).save(settingsKey,setting.name,next)}}}
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
                     Text(setting.title,Modifier.weight(1f))
                     if(setting.toggle){

@@ -5,6 +5,51 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalMoveReleaseReturnsFutureNotesToDefaultMode(){
+        val file=File.createTempFile("move-exit",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,64,0,64))
+            fun sample(offset:Long)=ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(offset,4))))
+            fun mode(name:String,sound:Int,script:String="")=ImportedMode(name,sound,-1,List(8){-1},List(8){0},List(8){0},script=script)
+            val raw=ImportedInstrument("Voice",100,0,0,listOf(sample(0),sample(4)),listOf(
+                mode("Default",1).copy(settings=ImportedChannelSettings(volume=50,transpose=12)),mode("Move",0,original("Move/Move from Upper.Script"))))
+            val selected=ImportedInstrumentLoader.playableSounds(listOf(raw)).last()
+            assertEquals(1,selected.selectedMode)
+            val source=ImportedInstrumentLoader.load(file,selected)
+            assertEquals(1,source.activeMode)
+            val first=source.voice(60)
+            first.next(false);assertEquals(0.0,first.left,0.0)
+            first.next(true)
+            assertEquals(0,source.activeMode)
+            assertFalse(source.scriptStatus,source.scriptStatus.contains("fallback"))
+            val next=source.voice(60);next.next(false)
+            assertEquals(.5,next.left,1e-9)
+            assertEquals(72,source.keyboardNote(60))
+            assertEquals(.5,source.sample(60,0),1e-9)
+            val mixer=ImportedKeyboardMixer()
+            try{
+                mixer.beginFrame();mixer.add(source,next.left,next.right);mixer.finishFrame()
+                assertEquals(.25,mixer.left,1e-9)
+            }finally{mixer.close()}
+            repeat(1500){first.next(true)}
+            assertTrue(first.finished)
+        }finally{file.delete()}
+    }
+    @Test fun exitContinuesAssignmentsAndUnavailableTargetDoesNotCommit(){
+        var selected=1
+        val session=ImportedScriptSession("""
+            main(){flag=1;}
+            on(release){exit;flag=0;}
+            on(aftertouch){play(volume:flag);}
+            on(touch){flag=99;exit(mode:7);}
+        """.trimIndent(),modeAvailable={it in 0..1},onModeExit={selected=it})
+        session.event("release")
+        assertEquals(0,selected)
+        assertEquals(0,session.event("aftertouch").plays.single().parameters["volume"])
+        try{session.event("touch");fail("Unavailable mode accepted")}catch(expected:IllegalArgumentException){}
+        assertEquals(0,session.event("aftertouch").plays.single().parameters["volume"])
+    }
     @Test fun originalMoveFromUpperProducesItsThreeDelayedNotes(){
         val source=sound().withScriptSounds(mapOf(0 to sound()),0)
             .withModeScript(original("Move/Move from Upper.Script"))
