@@ -8,6 +8,11 @@ class ImportedScriptSession(source:String) {
         val initialized=ImportedSimpleScript.evaluate(script,"main",state=state)
         require(initialized.plays.isEmpty()){"Audio commands in main are not supported"}
     }
-    fun event(name:String,parameters:Map<String,Int> = emptyMap()):ImportedSimpleScript.Result =
-        ImportedSimpleScript.evaluate(script,name,parameters,state)
+    fun event(name:String,parameters:Map<String,Int> = emptyMap(),validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
+        val pending=state.toMutableMap()
+        val result=ImportedSimpleScript.evaluate(script,name,parameters,pending)
+        validate(result)
+        state.clear();state.putAll(pending)
+        return result
+    }
 }

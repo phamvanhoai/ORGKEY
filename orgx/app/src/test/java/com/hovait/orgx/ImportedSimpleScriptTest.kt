@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun rejectedAudioPlanDoesNotAdvanceSessionState(){
+        val session=ImportedScriptSession("main() { count = 0; } on(touch) { count = count + 1; play(volume:count); }")
+        try{session.event("touch"){throw IllegalArgumentException("Cannot play")};fail("Accepted rejected plan")}
+        catch(expected:IllegalArgumentException){}
+        assertEquals(1,session.event("touch").plays.single().parameters["volume"])
+    }
     @Test fun mainInitializesOnceAndSessionsHaveIndependentState(){
         val source="main() { count = 0; } on(touch) { count = count + 1; play(volume:count); return(true); }"
         val first=ImportedScriptSession(source);val second=ImportedScriptSession(source)
