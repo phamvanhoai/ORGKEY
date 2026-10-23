@@ -225,7 +225,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         fun aftertouch(pressure:Float){
             if(ownsScriptEvents){
-                val handled=runCatching{scriptSession?.event("aftertouch",mapOf("key" to note,
+                val handled=runCatching{scriptSession?.event("aftertouch",mapOf("key" to currentKey,
                     "velocity" to (pressure.coerceIn(0f,1f)*127).toInt(),"keyvelocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
                     require(result.plays.isEmpty()){"Aftertouch audio commands are not supported yet"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported aftertouch effect slot"}
@@ -307,7 +307,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
             if(noteOff && ownsScriptEvents && !scriptReleased){
                 scriptReleased=true
-                runCatching{scriptSession?.event("release",mapOf("key" to note,"velocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
+                runCatching{scriptSession?.event("release",mapOf("key" to currentKey,"velocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
                     require(result.plays.isEmpty()){"Release audio commands are not supported yet"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported release effect slot"}
                 }?.also{result->

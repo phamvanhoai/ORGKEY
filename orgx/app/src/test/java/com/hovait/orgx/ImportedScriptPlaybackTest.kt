@@ -5,6 +5,15 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun legatoTransfersKeyForAftertouchAndReleaseScriptContexts(){
+        val source=sound().withModeScript("main() { gain=0; } on(touch) { play(volume:gain); return(true); } on(aftertouch) { gain=key; return(true); } on(release) { gain=key+1; }")
+        val voice=source.voice(60)
+        voice.connectTo(72,ImportedExpressionEffect(1,true,0,false,false,16,0,0,0,emptyList()))
+        voice.aftertouch(1f)
+        val after=source.voice(60);after.next(false);assertEquals(.18,after.left,1e-12)
+        voice.next(true)
+        val released=source.voice(60);released.next(false);assertEquals(.1825,released.left,1e-12)
+    }
     @Test fun aftertouchFollowingLegatoUsesTransferredKey(){
         val alternate=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)
