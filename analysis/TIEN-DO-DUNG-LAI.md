@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — chỉnh tempo thủ công, 24-10-2026
+## Kết quả mới nhất — nhớ tempo từng style, 24-10-2026
+
+- Hoàn thiện giới hạn của lượt chỉnh tempo trước: bộ nhớ tempo gắn với đối tượng index của SET đang mở và ID style, không gắn riêng session. Rời style/chọn lại hoặc nạp lại session đổi chế độ nhạc đệm vẫn lấy tempo đã chỉnh; mở index SET khác xóa bộ nhớ này.
+- Chỉ ghi tempo style khi chưa khóa. Session mới phục hồi override kể cả lúc Tempo Lock bật, để khi mở khóa vẫn dùng tempo đã chỉnh trước đó. selectedTempo được dùng ở cả đường restore, LCD và trang SET, tránh UI ghi đè lại tempo gốc sau engine chọn session.
+- Lệnh chỉnh tempo nhắm session đang chờ chọn nếu có; không sửa nhầm session cũ đang chờ bị thay. Cấu hình timing/lock được áp ngay khi đưa session vào hàng chờ.
+- Build/các kiểm tra ReferenceStyleTransitionTest và ImportedStyleSessionTest đạt. Đã cài APK và kiểm tra trên điện thoại: DJ VIP KVT 1 chỉnh 141 -> 142 BPM, chọn DJ VIP KVT 2 rồi chọn lại DJ VIP KVT 1 vẫn hiện 142 BPM. SET gốc không bị sửa, không tạo file test mới.
+- Bộ nhớ theo phiên mở SET, không lưu override của mọi style qua đóng ứng dụng; không triển khai chức năng ghi SET đã chỉnh. Không kết luận toàn bộ app đã tương đương APK gốc.
+
+## Chỉnh tempo thủ công, 24-10-2026
 
 - Đối chiếu MainActivity.a2: RecordMusic(Tempo), bật fTempoLock nếu rhythm_auto_tempolock, nếu chưa khóa thì cập nhật tempo các group Parent==style đang chọn.
 - Thêm Auto tempo lock (mặc định false như r1 gốc). Nút +/- dùng BPM hiện tại của engine, đi qua setManualTempo; tự khóa được áp dụng trước khi chỉnh session. Lưu BPM và trạng thái khóa vào preferences.

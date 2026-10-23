@@ -1,5 +1,14 @@
 package com.hovait.orgx
 
+/** Tempo edits belong to the opened SET, not its immutable decoded definitions. */
+class ImportedStyleTempoMemory {
+    private var bank:Any?=null
+    private val tempos=HashMap<Int,Int>()
+    private fun bind(value:Any?){if(bank!==value){bank=value;tempos.clear()}}
+    @Synchronized fun get(value:Any?,style:Int):Int?{bind(value);return tempos[style]}
+    @Synchronized fun remember(value:Any?,style:Int,tempo:Int){require(tempo in 40..240);bind(value);tempos[style]=tempo}
+}
+
 /** GroupPlayAdd/Next/Start rules for supported, bounded style groups. */
 class ImportedStyleSession(val style:ImportedStyleDefinition,private val players:Map<Int,ReferenceRhythmPlayer>,sampleRate:Int=48000,
     private var changeMethod:Int=0,private var tempoLock:Boolean=false) {
@@ -16,6 +25,14 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     private var rhythmScale=ReferenceSectionTiming.scale(main,changeMethod).takeIf{it>0} ?: 1000
     private var tempoChange:Int?=null
     private var manualTempo:Int?=null
+    @Synchronized internal fun restoreManualTempo(tempo:Int?){
+        require(tempo==null || tempo in 40..240)
+        manualTempo=tempo;tempoChange=null
+    }
+    val selectedTempo:Int get()=synchronized(this){
+        val section=groups.getValue(currentId)
+        if(section.parent==style.id)manualTempo ?: section.tempo else section.tempo
+    }
     @Synchronized fun setManualTempo(tempo:Int){
         require(tempo in 40..240)
         tempoChange=null

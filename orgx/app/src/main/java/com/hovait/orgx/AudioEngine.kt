@@ -368,9 +368,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
     private data class SectionPress(val id:Int,val running:Boolean,val autoFill:Boolean,val repeatToLoop:Boolean)
-    private data class StyleSelection(val session:ImportedStyleSession?,val presses:MutableList<SectionPress> = mutableListOf())
+    private data class StyleSelection(val session:ImportedStyleSession?,val bank:ImportedSetIndex?=null,val presses:MutableList<SectionPress> = mutableListOf())
     private val pendingStyle=java.util.concurrent.atomic.AtomicReference<StyleSelection?>(null)
     private val styleSelectionLock=Any()
+    private val styleTempoMemory=ImportedStyleTempoMemory()
+    private var playingStyleBank:ImportedSetIndex?=null
     @Volatile var styleChangeMethod=0;private set
     @Volatile var styleTempoLock=false;private set
     fun configureStyleTiming(method:Int,locked:Boolean)=synchronized(styleSelectionLock){
@@ -383,11 +385,18 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun setManualTempo(tempo:Int,autoLock:Boolean)=synchronized(styleSelectionLock){
         require(tempo in 40..240)
         if(autoLock)configureStyleTiming(styleChangeMethod,true)
-        importedStyleSession?.setManualTempo(tempo)
-        pendingStyle.get()?.session?.setManualTempo(tempo)
+        val pending=pendingStyle.get()
+        val session=if(pending!=null)pending.session else importedStyleSession
+        session?.setManualTempo(tempo)
+        val bank=if(pending!=null)pending.bank else playingStyleBank
+        if(!styleTempoLock && session!=null && bank===activeSetIndex)styleTempoMemory.remember(bank,session.style.id,tempo)
         bpm=tempo
     }
-    fun selectImportedStyle(session:ImportedStyleSession)=synchronized(styleSelectionLock){pendingStyle.getAndSet(StyleSelection(session))?.session?.close();Unit}
+    fun selectImportedStyle(session:ImportedStyleSession)=synchronized(styleSelectionLock){
+        session.configureTiming(styleChangeMethod,styleTempoLock)
+        session.restoreManualTempo(styleTempoMemory.get(activeSetIndex,session.style.id))
+        pendingStyle.getAndSet(StyleSelection(session,activeSetIndex))?.session?.close();Unit
+    }
     fun clearImportedStyle()=synchronized(styleSelectionLock){pendingStyle.getAndSet(StyleSelection(null))?.session?.close();Unit}
     fun requestStyleSection(id:Int)=synchronized(styleSelectionLock){
         val pending=pendingStyle.get()
@@ -538,7 +547,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             session?.configureTiming(styleChangeMethod,styleTempoLock)
             if(session!=null && rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
             importedStyleSession?.close()
-            importedStyleSession=session;importedRhythm=session?.player;importedRhythmName=session?.displayName
+            importedStyleSession=session;playingStyleBank=selection.bank;importedRhythm=session?.player;importedRhythmName=session?.displayName
             selection.presses.forEach{press->session?.press(press.id,press.running,press.autoFill,press.repeatToLoop)}
             session?.takeTempoChange()?.let{bpm=it}
           }

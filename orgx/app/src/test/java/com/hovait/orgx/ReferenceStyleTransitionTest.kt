@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun revisitingStyleRestoresEditedTempoEvenWhenSelectedWhileLocked(){
+        val bank=Any();val memory=ImportedStyleTempoMemory()
+        val first=session();first.setManualTempo(147)
+        memory.remember(bank,first.style.id,147)
+        memory.remember(bank,999,173) // A different style must not replace this one's tempo.
+        val revisited=session(lock=true)
+        revisited.restoreManualTempo(memory.get(bank,revisited.style.id))
+        assertEquals(147,revisited.selectedTempo)
+        revisited.request(2,true);revisited.next(120);assertNull(revisited.takeTempoChange())
+        revisited.configureTiming(0,false)
+        revisited.request(1,true);revisited.next(120);assertEquals(147,revisited.takeTempoChange())
+        val otherBank=Any()
+        val replacement=session();replacement.restoreManualTempo(memory.get(otherBank,replacement.style.id))
+        assertEquals(120,replacement.selectedTempo)
+        assertEquals(120,replacement.style.sections.first().tempo)
+    }
     @Test fun manualTempoAppliesAcrossPartsWithoutMutatingImportedSet(){
         val session=session()
         session.setManualTempo(147)
