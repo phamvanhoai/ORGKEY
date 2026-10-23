@@ -5,6 +5,12 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun touchScriptReceivesPedalBeforeSelectingBranch(){
+        val source=sound().withModeScript("on(touch) { if(pedal) { play(volume:25); } else { play(volume:75); } return(true); }")
+        val held=source.voice(60,initialScriptPedal=true);held.next(false)
+        val normal=source.voice(60);normal.next(false)
+        assertEquals(.0625,held.left,1e-12);assertEquals(.1875,normal.left,1e-12)
+    }
     @Test fun unsupportedTouchShowsFallbackReasonWithoutStoppingAudio(){
         val source=sound().withModeScript("on(touch) { timer(10) { play(); } }")
         val voice=source.voice(60);voice.next(false)

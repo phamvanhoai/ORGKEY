@@ -89,8 +89,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{it.layers=sounds}
         }
     }
-    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity=scriptVelocity)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap()){
+    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal)
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),initialScriptPedal:Boolean=false){
+        private var scriptPedal=false
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
         private var scriptReleased=false
         private var releaseHandled=false
@@ -102,7 +103,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
-            scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity)){result->
+            scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity,"pedal" to if(initialScriptPedal)1 else 0)){result->
                 require(result.effects.all{it.slot in 0..3}){"Unsupported script effect slot"}
                 require(result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
                 result.plays.forEach{command->
@@ -223,7 +224,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun aftertouch(pressure:Float){
             if(ownsScriptEvents){
                 val handled=runCatching{scriptSession?.event("aftertouch",mapOf("key" to note,
-                    "velocity" to (pressure.coerceIn(0f,1f)*127).toInt(),"keyvelocity" to scriptVelocity)){result->
+                    "velocity" to (pressure.coerceIn(0f,1f)*127).toInt(),"keyvelocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
                     require(result.plays.isEmpty()){"Aftertouch audio commands are not supported yet"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported aftertouch effect slot"}
                 }?.also{result->
@@ -259,7 +260,6 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }
             }}
         }
-        private var scriptPedal=false
         fun scriptPedal(down:Boolean){
             alternate?.scriptPedal(down)
             if(scriptPedal==down)return
@@ -305,7 +305,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
             if(noteOff && ownsScriptEvents && !scriptReleased){
                 scriptReleased=true
-                runCatching{scriptSession?.event("release",mapOf("key" to note,"velocity" to scriptVelocity)){result->
+                runCatching{scriptSession?.event("release",mapOf("key" to note,"velocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
                     require(result.plays.isEmpty()){"Release audio commands are not supported yet"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported release effect slot"}
                 }?.also{result->
