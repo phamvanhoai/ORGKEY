@@ -5,6 +5,13 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun releaseUpdatesScriptStateOnlyOnceDuringTailRendering(){
+        val source=sound().withModeScript("main() { level = 100; } on(touch) { play(volume:level); return(true); } on(release) { level = level - 25; }")
+        val first=source.voice(60);first.next(false)
+        repeat(5){first.next(true)}
+        val second=source.voice(60);second.next(false)
+        assertEquals(.1875,second.left,1e-12)
+    }
     @Test fun repeatedTouchesUseStateInitializedByMain(){
         val source=sound().withModeScript("main() { level = 0; } on(touch) { level = level + 25; play(volume:level); return(true); }")
         val first=source.voice(60);first.next(false)

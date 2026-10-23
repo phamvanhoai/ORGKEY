@@ -50,6 +50,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity=scriptVelocity)
     inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap()){
+        private val ownsScriptEvents=scriptAllowed && scriptSession!=null
+        private var scriptReleased=false
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
@@ -186,6 +188,12 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         var finished=false;private set
         private var autoReleaseStarted=false
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
+            if(noteOff && ownsScriptEvents && !scriptReleased){
+                scriptReleased=true
+                runCatching{scriptSession?.event("release",mapOf("key" to note,"velocity" to scriptVelocity)){result->
+                    require(result.plays.isEmpty() && !result.handled){"Release audio commands are not supported yet"}
+                }}
+            }
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
             val released=noteOff || autoReleaseStarted
             if(connectionActive && (!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
