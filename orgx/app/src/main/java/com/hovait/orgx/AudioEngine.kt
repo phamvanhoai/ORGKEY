@@ -391,7 +391,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 }
             } catch(_:InterruptedException){} finally {
                 midiSessionGate.runIfCurrent(session){
-                    voices.values.filter{it.playback}.forEach{it.releasing=true};midiPlaybackThread=null;onComplete()
+                    voices.values.filter{it.playback}.forEach{it.sampledPlayback?.modulate(0);it.releasing=true};midiPlaybackThread=null;onComplete()
                 }
             }
         }
