@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalDynamicVelocityScriptGlidesFromPreviousTouch(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)
+            .withModeScript(original("Legato/Dynamic Legato (Velocity).Script"))
+        val first=source.voice(60,scriptVelocity=110);first.next(false)
+        assertTrue(source.keyConnectionEffect?.enabled==true)
+        val next=source.voice(72,scriptVelocity=80);next.next(false);next.next(false)
+        // Destination normally advances by 2 samples; connected voice starts near 1.
+        assertTrue(next.left>0.0 && next.left<200.0/32768)
+    }
     @Test fun originalLastKeyLegatoKeepsStateAndLimitsBothDirections(){
         val session=ImportedScriptSession(original("Legato/Legato from Last.Script"))
         fun connection(key:Int)=session.event("touch",mapOf("key" to key)).plays.single().parameters["connectkey"]

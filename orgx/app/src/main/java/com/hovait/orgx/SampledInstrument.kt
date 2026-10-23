@@ -60,7 +60,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
             scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity)){result->
-                require(result.effects.isEmpty()){"Script effect assignment playback is not supported yet"}
+                require(result.effects.all{it.slot in 0..3}){"Unsupported script effect slot"}
                 require(result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
                 result.plays.forEach{command->
                     val combinedTune=Math.addExact(tune,command.parameters["tune"] ?: 0)
@@ -68,6 +68,20 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                     val rate=pitchStep(target,combinedTune)
                     require(rate.isFinite() && rate>0){"Script pitch outside playback range"}
                 }
+            }?.also{result->
+                var updated=expressionEffects
+                result.effects.forEach{change->
+                    val old=updated.firstOrNull{it.slot==change.slot} ?: ImportedExpressionEffect(change.slot,false,0,false,false,0,0,0,0,emptyList())
+                    val next=when(change.property){
+                        "enable"->old.copy(enabled=change.value!=0)
+                        "mode"->old.copy(mode=change.value and 255)
+                        "speed"->old.copy(speed=change.value)
+                        "depth"->old.copy(depth=change.value)
+                        else->old.copy(gain=change.value)
+                    }
+                    updated=updated.filterNot{it.slot==change.slot}+next
+                }
+                expressionEffects=updated
             }
         }.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
