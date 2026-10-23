@@ -190,7 +190,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
             }
             playback.scriptPitchMove(command.parameters["pitchmove"] ?: 0)
-            val velocityRatio=command.parameters["velocity"]?.let{it.coerceAtLeast(0).toDouble()/scriptVelocity.coerceAtLeast(1)} ?: 1.0
+            val velocityRatio=(command.parameters["velocity"] ?: 100).coerceAtLeast(0).toDouble()/scriptVelocity.coerceAtLeast(1)
             return playback to ((command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0*velocityRatio)
         }
         private val scriptChildren=scriptPlan?.plays.orEmpty().map(::createScriptChild).toMutableList()

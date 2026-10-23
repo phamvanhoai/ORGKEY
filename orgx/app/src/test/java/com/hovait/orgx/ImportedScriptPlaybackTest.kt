@@ -342,7 +342,7 @@ class ImportedScriptPlaybackTest {
         assertEquals(200.0/32768,voice.left,1e-12)
     }
     @Test fun touchScriptReceivesPedalBeforeSelectingBranch(){
-        val source=sound().withModeScript("on(touch) { if(pedal) { play(volume:25); } else { play(volume:75); } return(true); }")
+        val source=sound().withModeScript("on(touch) { if(pedal) { play(volume:25,velocity:velocity); } else { play(volume:75,velocity:velocity); } return(true); }")
         val held=source.voice(60,initialScriptPedal=true);held.next(false)
         val normal=source.voice(60);normal.next(false)
         assertEquals(.0625,held.left,1e-12);assertEquals(.1875,normal.left,1e-12)
@@ -601,7 +601,7 @@ class ImportedScriptPlaybackTest {
         assertTrue(voice.left>0.0 && voice.left<100.0/32768)
     }
     @Test fun velocityConditionSelectsDifferentVoiceGainThroughPlayback(){
-        val source=sound().withModeScript("on(touch) { if (velocity < 100) { play(volume:25); } else { play(volume:75); } return(true); }")
+        val source=sound().withModeScript("on(touch) { if (velocity < 100) { play(volume:25,velocity:velocity); } else { play(volume:75,velocity:velocity); } return(true); }")
         val soft=source.voice(60,scriptVelocity=50);soft.next(false)
         val hard=source.voice(60,scriptVelocity=110);hard.next(false)
         assertEquals(.0625,soft.left,1e-12)
@@ -610,7 +610,7 @@ class ImportedScriptPlaybackTest {
     @Test fun handledAftertouchKeepsPrimaryAndStoresOriginalKeyVelocity(){
         val source=sound().withAftertouch(SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(16){16384}),0,16)),1000))
-            .withModeScript("main() { level = 100; } on(touch) { play(volume:level); return(true); } on(aftertouch) { level = keyvelocity; return(true); }")
+            .withModeScript("main() { level = 100; } on(touch) { play(volume:level,velocity:velocity); return(true); } on(aftertouch) { level = keyvelocity; return(true); }")
         val first=source.voice(60,scriptVelocity=50)
         first.aftertouch(1f);first.next(false)
         assertEquals(.25,first.left,1e-12)
@@ -688,6 +688,8 @@ class ImportedScriptPlaybackTest {
         assertEquals(.25,preserved.left,1e-12)
         val overridden=sound().withModeScript("on(touch) { play(velocity:100); return(true); }").voice(60,scriptVelocity=50)
         overridden.next(false);assertEquals(.5,overridden.left,1e-12)
+        val default=sound().withModeScript("on(touch){play();return(true);}").voice(60,scriptVelocity=50)
+        default.next(false);assertEquals(overridden.left,default.left,1e-12)
     }
     @Test fun scriptPitchMoveSurvivesExternalPitchBend(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)

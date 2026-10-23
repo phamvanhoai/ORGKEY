@@ -20,7 +20,7 @@ class ReferenceRhythmPlayerTest {
     @Test fun styleDncReceivesNoteVelocityInsteadOfDefaultHundred(){
         fun render(velocity:Int):Double {
             val source=SampledInstrument(listOf(InstrumentRegion(36,SamplePcm(1000,1,ShortArray(16){8192}),0,16)),1000)
-                .withModeScript("on(touch){if(velocity<100){play(volume:50);}else{play(volume:100);}return(true);}")
+                .withModeScript("on(touch){if(velocity<100){play(volume:50,velocity:velocity);}else{play(volume:100,velocity:velocity);}return(true);}")
             val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,36,velocity,0,100)))),
                 source::durationFrames,{n,a,c->source.sample(n,a.toLong(),c)},1000,sampled=source)
             try{player.next(0,120);return player.left}finally{player.close()}
