@@ -291,11 +291,30 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             connectionDelta=if(effect.playbackSpeed==0)connectionTarget-step else
                 (connectionTarget-step)*effect.playbackSpeed/(8.192*outputRate)
         }
+        private fun applyOrderedAudio(result:ImportedSimpleScript.Result){
+                children.removeAll{it.finished};scriptChildren.removeAll{it.first.finished}
+                result.audio.forEach{command->when(command){
+                    is ImportedSimpleScript.StopAll->children.forEach{if(command.cut)it.cut() else it.forceRelease()}
+                    is ImportedSimpleScript.Stop->children.filter{it.scriptId==command.id}.forEach{if(command.cut)it.cut() else it.forceRelease()}
+                    is ImportedSimpleScript.Play->if((command.parameters["id"] ?: scriptId)==scriptId){
+                        val child=createScriptChild(command)
+                        child.first.pitchBend(bendSemitones,bendScriptLevel);child.first.channelBalance(balance)
+                        heldModulation?.let{child.first.modulate(it)}
+                        children.add(child.first);scriptChildren.add(child)
+                    }
+                }}
+        }
         fun aftertouch(pressure:Float){
             if(ownsScriptEvents){
                 val handled=runCatching{scriptSession?.event("aftertouch",mapOf("id" to scriptId,"key" to currentKey,
                     "velocity" to (pressure.coerceIn(0f,1f)*127).toInt(),"keyvelocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
-                    require(result.plays.isEmpty()){"Aftertouch audio commands are not supported yet"}
+                    validateScriptAudio(result)
+                    require(result.audio.all{command->when(command){
+                        is ImportedSimpleScript.Play->(command.parameters["id"] ?: scriptId)==scriptId
+                        is ImportedSimpleScript.Stop->command.id==scriptId
+                        is ImportedSimpleScript.StopAll->false
+                    }}){"Aftertouch audio must target its own note ID"}
+                    require(children.count{!it.finished}+result.plays.size<=128){"Aftertouch exceeds voice limit"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported aftertouch effect slot"}
                 }?.also{result->
                     applyScriptEffects(result.effects)
@@ -303,7 +322,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                         val effect=expressionEffects.first{it.slot==slot}
                         if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
                     }
-                }?.handled==true}.getOrDefault(false)
+                    applyOrderedAudio(result)
+                    if(result.audio.isNotEmpty())scriptStatus="Aftertouch script active"
+                }?.handled==true}.onFailure{scriptStatus="Aftertouch fallback: ${it.message}"}.getOrDefault(false)
                 if(handled)return
             }
             if(scriptPlan!=null && children.isNotEmpty()){
@@ -338,17 +359,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                     val effect=expressionEffects.first{it.slot==slot}
                     if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
                 }
-                children.removeAll{it.finished};scriptChildren.removeAll{it.first.finished}
-                result.audio.forEach{command->when(command){
-                    is ImportedSimpleScript.StopAll->children.forEach{if(command.cut)it.cut() else it.forceRelease()}
-                    is ImportedSimpleScript.Stop->children.filter{it.scriptId==command.id}.forEach{if(command.cut)it.cut() else it.forceRelease()}
-                    is ImportedSimpleScript.Play->if((command.parameters["id"] ?: scriptId)==scriptId){
-                        val child=createScriptChild(command)
-                        child.first.pitchBend(bendSemitones,bendScriptLevel);child.first.channelBalance(balance)
-                        heldModulation?.let{child.first.modulate(it)}
-                        children.add(child.first);scriptChildren.add(child)
-                    }
-                }}
+                applyOrderedAudio(result)
                 scriptStatus="Modulation script active"
             }}.onFailure{scriptStatus="Modulation fallback: ${it.message}"}
         }

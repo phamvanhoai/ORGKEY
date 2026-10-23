@@ -5,6 +5,36 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun aftertouchScriptReplacesOwnSoundAndSuppressesStoredAlternate(){
+        fun constant(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){value}),0,128)),1000)
+        val source=constant(8192).withAftertouch(constant(24576))
+            .withScriptSounds(mapOf(0 to constant(8192),1 to constant(16384)),0)
+            .withModeScript("""
+                on(touch){play();return(true);}
+                on(aftertouch){stop(id:id,cut);play(id:id,sound:1,velocity:keyvelocity);return(true);}
+            """.trimIndent())
+        val selected=source.voice(60,scriptId=37)
+        val other=source.voice(64,scriptId=38)
+        selected.next(false);other.next(false)
+        selected.aftertouch(1f);selected.next(false);other.next(false)
+        assertEquals(.5,selected.left,1e-12)
+        assertEquals(.25,other.left,1e-12)
+        assertEquals("Aftertouch script active",source.scriptStatus)
+        selected.forceRelease();selected.next(false);assertTrue(selected.finished)
+    }
+    @Test fun aftertouchCrossNoteCommandFallsBackWithoutCommittingVariables(){
+        val source=sound().withModeScript("""
+            main(){level=100;}
+            on(touch){play(volume:level);return(true);}
+            on(aftertouch){level=25;stop(id:99,cut);return(true);}
+        """.trimIndent())
+        val first=source.voice(60,scriptId=37);first.next(false)
+        first.aftertouch(1f);first.next(false)
+        assertEquals(.25,first.left,1e-12)
+        assertTrue(source.scriptStatus,source.scriptStatus.startsWith("Aftertouch fallback"))
+        val next=source.voice(60);next.next(false)
+        assertEquals(.25,next.left,1e-12)
+    }
     @Test fun releaseStopCutsOwnNoteEvenWhenScriptSuppressesDefaultRelease(){
         val source=sound().withModeScript("on(touch){play();return(true);} on(release){stop(id:id,cut);return(true);}")
         val first=source.voice(60,scriptId=37)
