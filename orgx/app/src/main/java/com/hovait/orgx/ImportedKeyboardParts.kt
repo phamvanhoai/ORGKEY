@@ -49,6 +49,10 @@ class ImportedKeyboardParts {
         require(value.isFinite() && value in 0f..1f)
         notes.filter{it.key==key && !it.released}.forEach{it.playback.aftertouch(value)}
     }
+    fun channelPressure(value:Float){
+        require(value.isFinite() && value in 0f..1f)
+        notes.filter{!it.released}.forEach{it.playback.aftertouch(value)}
+    }
     /** Caller begins/finishes the shared mixer once, including all other voices. */
     fun renderInto(mixer:ImportedKeyboardMixer){
         val iterator=notes.iterator()

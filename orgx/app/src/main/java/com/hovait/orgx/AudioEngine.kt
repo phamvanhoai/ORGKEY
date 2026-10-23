@@ -161,12 +161,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
     /** MIDI poly/channel pressure hook; applies only to imported SET voices. */
     fun midiNotePressure(note:Int,pressure:Float,channel:Int=0,playback:Boolean=false){
+        if(stsPartsEnabled && !playback && channel==0)stsParts.pressure(note,pressure.coerceIn(0f,1f))
         val key=MidiVoiceKey.key(note,channel,playback)
         if(!playback)captureMidi(0xa0 or channel,note,(pressure.coerceIn(0f,1f)*127).toInt())
         voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
     }
     fun midiChannelPressure(pressure:Float,channel:Int=0,playback:Boolean=false){
         require(channel in 0..15)
+        if(stsPartsEnabled && !playback && channel==0)stsParts.channelPressure(pressure.coerceIn(0f,1f))
         if(!playback)captureMidi(0xd0 or channel,(pressure.coerceIn(0f,1f)*127).toInt(),0)
         val gain=VoiceVelocity.gain(pressure,false)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{

@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun polyPressureSwitchesOnlyMatchingKeyAndChannelPressureSwitchesRemainingParts(){
+        fun constant(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,shortArrayOf(value,value)),0,2)),1000)
+        val sound=constant(8192).withAftertouch(constant(16384))
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound)))
+            parts.noteOn(60,1.0);parts.noteOn(72,1.0)
+            assertEquals(.5,frame(parts,mixer),0.0)
+            parts.pressure(60,1f)
+            assertEquals(.75,frame(parts,mixer),0.0)
+            parts.channelPressure(1f)
+            assertEquals(1.0,frame(parts,mixer),0.0)
+            parts.noteOff(60);parts.noteOff(72)
+            assertEquals(0.0,frame(parts,mixer),0.0)
+        }finally{mixer.close()}
+    }
     @Test fun musicKeyboardBalanceIsLatchedOnceAndDoesNotApplyMasterVolumeTwice(){
         val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
         try{

@@ -33,6 +33,10 @@ class ImportedKeyboardPartQueue {
         require(value.isFinite() && value in 0f..1f)
         commands.add{parts.pressure(note,value)}
     }
+    fun channelPressure(value:Float){
+        require(value.isFinite() && value in 0f..1f)
+        commands.add{parts.channelPressure(value)}
+    }
     fun clear(afterClear:()->Unit = {}){commands.add{parts.reset();parts.replace(emptyList());afterClear()}}
     fun drain(){
         while(true){val command=commands.poll() ?: break;command()}

@@ -119,3 +119,9 @@ Test shutdown gồm nhiều yêu cầu pending, register sau close, callback com
 Prepared.keyboardParts lấy keyboardGain từ Music settings hiệu lực (Master sau merge nếu có). Mỗi Part giữ inputGain; note-on nhân velocity với hệ số này đúng một lần và giữ gain cho voice đang ngân. Đây là phân bổ Music balance cho bàn phím, không phải pan stereo và không nhân Music volume: Music volume vẫn ở output engine. Trước đây đường một voice đã có hệ số này nhưng đường multi-part bỏ sót, làm tiếng to hơn khi Music.pan âm.
 
 Queue kiểm tra inputGain trước enqueue để dữ liệu lỗi không chờ tới audio thread. Test PCM xác nhận pan -50 giảm gain bàn phím một nửa, Music volume 40% nhân riêng ở cuối và thay part không đổi gain nốt cũ; test batch xác nhận lấy Music balance vào mọi part. Không sửa SET.
+
+## Pressure MIDI đa part
+
+Live poly pressure và channel pressure kênh 0 nay chuyển vào queue của nhóm STS. Poly pressure tác động các voice cùng phím, channel pressure tác động mọi voice chưa release; gọi Playback.aftertouch theo mode tiếng đã nạp. Không áp event MIDI playback hay kênh khác lên nhóm bàn phím. Hook ghi MIDI hiện có vẫn ghi pressure một lần. Không thay gain velocity bằng pressure trong module đa part.
+
+Test PCM alternate: hai phím ban đầu cộng 0.5, poly pressure chỉ một phím thành 0.75, channel pressure chuyển phím còn lại thành 1.0, nhả hết về 0. Cơ chế threshold 0.5/switch một chiều là giới hạn Aftertouch hiện có của ORGX, chưa phải điều kiện gốc đầy đủ. Pedal gốc có nhánh release dài/ngắn theo PedalMode; cơ chế sustain hiện tại chưa tái tạo toàn bộ envelope đó.
