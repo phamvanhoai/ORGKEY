@@ -390,13 +390,22 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
     private data class SectionPress(val id:Int,val running:Boolean,val autoFill:Boolean,val repeatToLoop:Boolean)
-    private data class StyleSelection(val session:ImportedStyleSession?,val bank:ImportedSetIndex?=null,val presses:MutableList<SectionPress> = mutableListOf())
+    private data class StyleSelection(val session:ImportedStyleSession?,val bank:ImportedSetIndex?=null,val presses:MutableList<SectionPress> = mutableListOf(),val mutes:MutableList<Boolean> = mutableListOf())
     private val pendingStyle=java.util.concurrent.atomic.AtomicReference<StyleSelection?>(null)
     private val styleSelectionLock=Any()
     private val styleTempoMemory=ImportedStyleTempoMemory()
     private var playingStyleBank:ImportedSetIndex?=null
     @Volatile var styleChangeMethod=0;private set
     @Volatile var styleTempoLock=false;private set
+    @Volatile private var rememberedChordMute=false
+    @Volatile private var rememberedDrumMute=false
+    val styleChordMuted get()=importedStyleSession?.chordMuted ?: rememberedChordMute
+    val styleDrumMuted get()=importedStyleSession?.drumMuted ?: rememberedDrumMute
+    fun toggleStyleMute(chord:Boolean)=synchronized(styleSelectionLock){
+        val selection=pendingStyle.get()
+        val session=if(selection!=null)selection.session else importedStyleSession
+        if(selection!=null)selection.mutes.add(chord) else session?.togglePerformanceMute(chord,rhythmPlaying)
+    }
     fun configureStyleTiming(method:Int,locked:Boolean)=synchronized(styleSelectionLock){
         require(method in 0..3)
         styleChangeMethod=method;styleTempoLock=locked
@@ -566,6 +575,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
           pendingStyle.getAndSet(null)?.also{selection->
             naturalStyleTail=false
             val session=selection.session
+            importedStyleSession?.let{rememberedChordMute=it.chordMuted;rememberedDrumMute=it.drumMuted}
+            session?.restorePerformanceMute(rememberedChordMute,rememberedDrumMute)
+            selection.mutes.forEach{session?.togglePerformanceMute(it,rhythmPlaying)}
             session?.configureTiming(styleChangeMethod,styleTempoLock)
             if(session!=null && rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
             importedStyleSession?.close()

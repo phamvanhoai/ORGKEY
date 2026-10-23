@@ -205,6 +205,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var styleAutoFill by remember{mutableStateOf(preferences.getBoolean("styleAutoFill",false))}
     var syncStart by remember{mutableStateOf(engine.synchroStart)}
     var syncStop by remember{mutableStateOf(engine.synchroStop)}
+    var chordMuted by remember{mutableStateOf(engine.styleChordMuted)}
+    var drumMuted by remember{mutableStateOf(engine.styleDrumMuted)}
     LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     var linkSts by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
@@ -252,6 +254,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     LaunchedEffect(engine){while(true){
         playing=engine.rhythmPlaying
         syncStart=engine.synchroStart;syncStop=engine.synchroStop
+        chordMuted=engine.styleChordMuted;drumMuted=engine.styleDrumMuted
         restoredSetName=engine.importedInstrumentName
         bankIndex=engine.activeSetIndex
         setSession=engine.importedStyleSession
@@ -362,6 +365,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         playing,sustain,styleAutoFill,setSession,sectionState.first,sectionState.second,
                         temporaryLoop=temporaryLoop,
                         syncStart=syncStart,syncStop=syncStop,
+                        chordMuted=chordMuted,drumMuted=drumMuted,
+                        onChordMute={engine.toggleStyleMute(true)},onDrumMute={engine.toggleStyleMute(false)},
                         onSyncStart={
                             engine.configureChordSynchro(!engine.synchroStart,engine.synchroStop,preferences.getInt("chord_synchro",0))
                             syncStart=engine.synchroStart;preferences.edit().putBoolean("sync_start",syncStart).apply()

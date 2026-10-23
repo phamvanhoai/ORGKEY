@@ -15,7 +15,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     private val groups=style.sections.associateBy{it.id}
     private val main=style.sections.first{it.section in 32..35 && it.id in players}
     private val clock=ReferenceStyleClock(sampleRate)
-    private data class Request(val id:Int,val immediate:Boolean)
+    private data class Request(val id:Int,val immediate:Boolean,val mute:Int=0)
     private val queue=ArrayDeque<Request>()
     private var jumpId:Int?=null
     private val temporaryLoops=HashSet<Int>()
@@ -43,7 +43,17 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     @Volatile var transitionError:String?=null;private set
     var finished=false;private set
     val player get()=players.getValue(currentId)
-    val pendingId get()=synchronized(this){queue.firstOrNull()?.id}
+    val pendingId get()=synchronized(this){queue.firstOrNull{it.mute==0}?.id}
+    @Volatile var chordMuted=false;private set
+    @Volatile var drumMuted=false;private set
+    @Synchronized fun restorePerformanceMute(chord:Boolean,drum:Boolean){
+        chordMuted=chord;drumMuted=drum
+        players.values.forEach{it.setPerformanceMute(chord,drum)}
+    }
+    @Synchronized fun togglePerformanceMute(chord:Boolean,running:Boolean){
+        if(running){if(queue.size<=8)queue.addLast(Request(0,false,if(chord)1 else 2))}
+        else restorePerformanceMute(if(chord)!chordMuted else chordMuted,if(chord)drumMuted else !drumMuted)
+    }
     fun available(id:Int)=id in players
     fun close(){players.values.forEach{it.close()}}
     @Synchronized fun renderTail(){if(finished)player.renderTail()}
@@ -66,7 +76,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         if(id !in players)return
         temporaryLoops.remove(id)
         if(immediate){queue.clear();queue.addLast(Request(id,true));return}
-        val previous=queue.lastOrNull()?.id ?: currentId
+        val previous=queue.lastOrNull{it.mute==0}?.id ?: currentId
         if(previous==id && groups.getValue(id).loop)return
         if(queue.size<=8)queue.addLast(Request(id,false))
     }
@@ -140,7 +150,12 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
             val loop=section.loop || currentId in temporaryLoops
             // Tracks.PlayNext dispatches a queued Rhythm at the next scale window
             // even while a one-shot Intro/Fill/Ending still has events remaining.
-            if(queue.isNotEmpty())select(queue.removeFirst().id)
+            if(queue.isNotEmpty()){
+                val request=queue.removeFirst()
+                if(request.mute!=0){
+                    restorePerformanceMute(if(request.mute==1)!chordMuted else chordMuted,if(request.mute==2)!drumMuted else drumMuted)
+                }else select(request.id)
+            }
             else if(completed && !loop){
                 val target=jumpId ?: when {
                     section.jumpGroup<0->lastLoop

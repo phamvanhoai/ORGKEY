@@ -58,6 +58,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     internal val activeVoices:Int get()=voices.size+children.sumOf{it.activeVoices}
     private var voiceSequence=0L
     private var eventMuted=initiallyMuted
+    private var performanceMuted=false
+    fun setPerformanceMute(chord:Boolean,drum:Boolean){
+        children.forEach{it.setPerformanceMute(chord,drum)}
+        performanceMuted=if(accompaniment)chord else drum
+    }
     private var pedalDown=initialPedal
     private var pitchMove=1000
     private var keyBalance=0
@@ -252,7 +257,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==44){channelVolume=event.note;return@advance}
             if(event.type==45){channelPan=event.note;return@advance}
             val note=if(event.type==2)mapNote(event.note) else event.note
-            if(event.type==2 && !eventMuted && drumLength(note)>0){
+            if(event.type==2 && !eventMuted && !performanceMuted && drumLength(note)>0){
                 if(voices.size>=128)voices.remove(voices.keys.first())
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 val connection=keyConnectionEffect?.takeIf{expressionAllowed && it.enabled}

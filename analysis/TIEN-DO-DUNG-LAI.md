@@ -2,7 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — Synchro Start/Stop, 24-10-2026
+## Kết quả mới nhất — Chord/Drum Mute, 24-10-2026
+
+- Đối chiếu Tracks.GroupPlayAddChordMute/DrumMute và GroupPlayNext: lệnh toggle dùng hàng chờ group, thực thi ở cửa sổ rhythmScale. Thêm CHORD MUTE/DRUM MUTE trên console cho style SET; khi dừng toggle áp dụng ngay, khi chạy nằm trong cùng queue chuyển phần.
+- Bộ phát phân nhóm theo melodic/percussion, chặn note-on mới của nhóm đã mute, không thay volume và không hard-cut tiếng đang ngân. Trạng thái giữ qua đổi phần/session style; thao tác vào session đang chờ nạp được lưu để áp sau khi chuyển.
+- Kiểm tra queue chỉ toggle tại cửa sổ nhịp, không đổi current section; PCM xác nhận chord mute không chặn drum và existing voices vẫn ngân. ReferenceStyleTransitionTest/ReferenceRhythmPlayerTest và build đạt; APK đã cài. Không tạo file test mới.
+- Giới hạn: native bỏ qua Track.PlayNext khi mute trong khi ORGX vẫn tiến timeline và bỏ note-on; khi mở mute, các event điều khiển/nốt dài bị bỏ lỡ có thể khác APK. Nút hiện chỉ dùng với style SET; chưa áp factory rhythm, recording event và controller ngoài. Chưa nghe/so bản thu gốc cho nhánh này.
+
+## Synchro Start/Stop, 24-10-2026
 
 - Đối chiếu vòng điều khiển k92: Sync Start khi group trống, có hợp âm đang nhấn hợp lệ và đủ ngưỡng phím; Sync Stop chỉ dừng sau khi đã có hợp âm đang nhấn rồi mất hợp âm đó. Mặc định Start=true/Stop=false theo Music.
 - Thêm hai nút SYNC START/SYNC STOP trực tiếp trên console, lưu sync_start/sync_stop. Trang CHORD có ngưỡng Auto/2 keys/3 keys theo ChordSynchro gốc. Luồng này nhận phím tay trái, không dùng riêng tên hợp âm được nhớ làm tín hiệu start.

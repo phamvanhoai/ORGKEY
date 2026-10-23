@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun performanceMuteBlocksOnlySelectedGroupAndRetainsExistingNotes(){
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(2,2,60,100,20,1000))
+        fun player(melodic:Boolean)=ReferenceRhythmPlayer(listOf(track(events)),{10000},{_,_,_->1.0},1000,accompaniment=melodic)
+        val chord=player(true);val drum=player(false)
+        chord.setPerformanceMute(true,false);drum.setPerformanceMute(true,false)
+        repeat(25){chord.next(0,120);drum.next(0,120)}
+        assertEquals(0.0,chord.left,0.0);assertEquals(2.0,drum.left,0.0)
+        drum.setPerformanceMute(false,true);drum.next(0,120)
+        assertEquals(2.0,drum.left,0.0) // Existing voices are not a mixer hard mute.
+        chord.setPerformanceMute(false,false);chord.reset();chord.next(0,120)
+        assertEquals(1.0,chord.left,0.0)
+    }
     @Test fun styleDncReceivesEventIdAndSignedPackedBalance(){
         val source=SampledInstrument(listOf(InstrumentRegion(36,SamplePcm(1000,1,ShortArray(16){8192}),0,16)),1000)
             .withModeScript("on(touch){if(id==37 && balance==-20){play(volume:50,balance:balance);}else{play(volume:0);}return(true);}")

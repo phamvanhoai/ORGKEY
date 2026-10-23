@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun performanceMuteWaitsForRhythmWindowWithoutChangingSection(){
+        val session=session(lock=true)
+        repeat(100){session.next(120)}
+        session.togglePerformanceMute(true,true)
+        assertFalse(session.chordMuted);assertNull(session.pendingId)
+        repeat(900){session.next(120);assertFalse(session.chordMuted)}
+        session.next(120);assertTrue(session.chordMuted);assertEquals(1,session.currentId)
+        session.togglePerformanceMute(false,false);assertTrue(session.drumMuted)
+        session.request(2,true);session.next(120)
+        assertTrue(session.chordMuted);assertTrue(session.drumMuted)
+        session.togglePerformanceMute(true,false);assertFalse(session.chordMuted)
+    }
     @Test fun revisitingStyleRestoresEditedTempoEvenWhenSelectedWhileLocked(){
         val bank=Any();val memory=ImportedStyleTempoMemory()
         val first=session();first.setManualTempo(147)
