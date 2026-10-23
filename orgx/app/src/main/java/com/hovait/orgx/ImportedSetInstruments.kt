@@ -13,7 +13,7 @@ data class ImportedChannelSettings(val volume:Int=100,val pan:Int=0,val tune:Int
 data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix:List<Int>,val mixVolume:List<Int>,val mixPan:List<Int>,val settings:ImportedChannelSettings=ImportedChannelSettings(),val effects:List<ImportedExpressionEffect> = emptyList(),val script:String="",val scriptSettings:Map<String,String> = emptyMap()) {
     val parsedScript:ImportedModeScript get()=ImportedModeScript.parse(script)
 }
-data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList())
+data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList(),val sourceIdentity:String?=null)
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4,val settings:ImportedChannelSettings=ImportedChannelSettings(),
     val chordType:Int=0,val chordBase:Int=0,val stsIndices:List<Int> = emptyList())
@@ -66,7 +66,7 @@ object ImportedSetInstruments {
             waves[index]=ImportedWave(f.filePointer,length);skip(length.toLong())
         }
         val musicSettings=fx();val waveSettings=fx();val rhythmSettings=fx();common()
-        val instruments=List(count(10000)){
+        val instruments=List(count(10000)){instrumentIndex->
             val metadata=common();val version=metadata.getOrNull(1)
             require(version in listOf("1.2.8","1.4.6","1.4.2")){"Unsupported instrument version $version"}
             val legacy=version=="1.2.8"
@@ -110,7 +110,7 @@ object ImportedSetInstruments {
                 }
                 ImportedSound(name,envelope,sections)
             }
-            ImportedInstrument(metadata.firstOrNull().orEmpty(),volume,pan,type,sounds,modes)
+            ImportedInstrument(metadata.firstOrNull().orEmpty(),volume,pan,type,sounds,modes,sourceIdentity="instrument:$instrumentIndex")
         }
         if(!includeStyles)return@use ImportedSetIndex(instruments,emptyList(),musicSettings=musicSettings,waveSettings=waveSettings,rhythmSettings=rhythmSettings,sourceVersion=musicVersion!!)
         common();val systems=List(count(10000)){

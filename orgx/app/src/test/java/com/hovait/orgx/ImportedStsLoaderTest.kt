@@ -5,6 +5,29 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsLoaderTest {
+    @Test fun stsRestoresTheSameDncOverrideAsRenamedVoice(){
+        val file=File.createTempFile("sts-dnc",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val sample=ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,2,100,0,0,0,0,0,0,ImportedWave(0,4))))
+            val mode=ImportedMode("Mode",0,-1,List(8){-1},List(8){0},List(8){0},
+                script="""main(){setting(volume,name:"level",title:"Level",reset:80);} on(touch){play(volume:level);return(true);}""",
+                scriptSettings=mapOf("level" to "35"))
+            val source=ImportedInstrument("Voice",100,0,0,listOf(sample),listOf(mode),sourceIdentity="instrument:3")
+            val alias=ImportedInstrumentLoader.playableSounds(listOf(source)).last()
+            val expectedKey=ImportedDncPreferences.key(file,alias)
+            val snapshot=ImportedSts("STS",false,0,0,0,0,0,0,0,0,emptyList(),ImportedChannelSettings())
+            val index=ImportedSetIndex(listOf(source),emptyList())
+            val loaded=ImportedStsLoader.prepare(file,index,snapshot){bank,selected->
+                assertEquals(expectedKey,ImportedDncPreferences.key(bank,selected))
+                mapOf("level" to "42")
+            }.sound
+            assertEquals(expectedKey,loaded.scriptSettingsKey)
+            assertEquals(42,loaded.scriptSliderValues["level"])
+            assertEquals(80,loaded.scriptSliders.single().reset)
+        }finally{file.delete()}
+    }
     @Test fun selectedModeUsesItsSoundAndInvalidModeDoesNotFallBack(){
         val file=File.createTempFile("sts-mode",".pcm")
         try{

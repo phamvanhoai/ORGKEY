@@ -2,21 +2,21 @@ package com.hovait.orgx
 
 import java.io.File
 
-/** Optional manual chord mapping; DNC is not applied. */
+/** Prepare style samples and mode scripts; Track channel rules control expression effects. */
 object ImportedStylePlayer {
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
-        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,targetChord:(()->Int?)?=null):ImportedStyleSession {
+        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},targetChord:(()->Int?)?=null):ImportedStyleSession {
         val complete=ImportedSectionFallback.complete(index,style)
         val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
-        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord,keyConnectionMethod))
+        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides))
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
-        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
-        return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord,keyConnectionMethod).getValue(group.id)
+        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
+        return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides).getValue(group.id)
     }
     private fun loadSections(file:File,index:ImportedSetIndex,groups:List<ImportedStyleGroup>,includeAccompaniment:Boolean,
-        transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?,keyConnectionMethod:Int):Map<Int,ReferenceRhythmPlayer> {
+        transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?,keyConnectionMethod:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String>):Map<Int,ReferenceRhythmPlayer> {
         require(keyConnectionMethod in 0..1)
         val follow=targetChord!=null
         require(!follow || (includeAccompaniment && transposer!=null)){"Chord mapping requires accompaniment and chord table"}
@@ -40,7 +40,7 @@ object ImportedStylePlayer {
         require(selected.values.sumOf{source->ImportedInstrumentLoader.layers(source).sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}}<=64L*1024*1024){
             "Style exceeds 64 MB PCM budget"
         }
-        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings,index.musicSettings)}
+        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings,index.musicSettings,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,instrument))}
         return groups.associate{group->group.id to ReferenceRhythmPlayer.combine(byGroup.getValue(group.id).map{track->
             val sound=sounds.getValue(key(track))
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0

@@ -9,21 +9,24 @@ class ImportedDncPreferences(context:Context) {
     private val preferences=context.getSharedPreferences("orgx-dnc",Context.MODE_PRIVATE)
     fun read(file:File,instrument:ImportedInstrument):Map<String,String> {
         val key=key(file,instrument) ?: return emptyMap()
-        val prefix="$key:"
-        return preferences.all.entries.filter{it.key.startsWith(prefix)}.mapNotNull{entry->
+        val suffix=" / MODE ${instrument.modes.first().name}"
+        val alias=if(instrument.name.endsWith(suffix))instrument else instrument.copy(name=instrument.name+suffix)
+        val prefixes=listOfNotNull(key(file,alias,legacy=true),key(file,instrument,legacy=true),key).distinct().map{"$it:"}
+        val saved=preferences.all
+        return prefixes.flatMap{prefix->saved.entries.filter{it.key.startsWith(prefix)}.mapNotNull{entry->
             (entry.value as? String)?.let{entry.key.removePrefix(prefix) to it}
-        }.toMap()
+        }}.toMap()
     }
     fun save(key:String?,name:String,value:Int){
         if(key!=null)preferences.edit().putString("$key:${name.lowercase()}",value.toString()).apply()
     }
     companion object {
-        fun key(file:File,instrument:ImportedInstrument):String? {
+        fun key(file:File,instrument:ImportedInstrument,legacy:Boolean=false):String? {
             val mode=instrument.modes.firstOrNull() ?: return null
             if(mode.script.isBlank())return null
             val identity=buildString {
                 append(file.canonicalPath);append('\u0000');append(file.length());append(':');append(file.lastModified())
-                append('\u0000');append(instrument.name);append('\u0000');append(mode.name)
+                append('\u0000');append(if(legacy)instrument.name else instrument.sourceIdentity ?: instrument.name);append('\u0000');append(mode.name)
                 append(':');append(mode.sound);append(':');append(mode.mix)
                 instrument.sounds.forEach{sound->sound.sections.forEach{append(':');append(it.wave.offset)}}
                 append('\u0000');append(mode.script)

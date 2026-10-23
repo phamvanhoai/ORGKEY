@@ -119,7 +119,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
                 val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
-                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot,expectedGroup,changes)}
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
                 if(preferences.getString("selectedStsSet",null)==savedStsSet){
                     check(engine.awaitStsRequest(prepared,expectedSound)){"Saved STS selection changed while loading"}
                     restoredSts=true
@@ -139,7 +139,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 if(definition!=null){
                     val mode=preferences.getInt("bankMode",0).coerceIn(0,2)
                     val session=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
-                        engine.referenceChordTransposer,engine.keyConnectionMethod,if(mode==2)engine::selectedSetChord else null)}
+                        engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,targetChord=if(mode==2)engine::selectedSetChord else null)}
                     engine.selectImportedStyle(session)
                     engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240)
                 }
@@ -187,7 +187,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
                 val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
-                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,changes)}
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
                 if(engine.importedStyleSession===session && session.currentId==part.id &&
                     preferences.getString("selectedStsSet",null)==file.name &&
                     preferences.getInt("selectedStsTrack",-1)==trackIndex &&
@@ -319,7 +319,7 @@ private fun ORGXApp(engine: AudioEngine) {
                                     bankBusy=true;bankStatus="LOADING..."
                                     try{
                                         val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(checkNotNull(engine.activeSetFile),checkNotNull(bankIndex),bankStyles[chosen],bankMode>0,
-                                            engine.referenceChordTransposer,engine.keyConnectionMethod,if(bankMode==2)engine::selectedSetChord else null)}
+                                            engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,targetChord=if(bankMode==2)engine::selectedSetChord else null)}
                                         engine.selectImportedStyle(loaded)
                                         setSession=loaded;sectionState=loaded.currentId to null
                                         preferences.edit().putString("selectedStyleSet",engine.activeSetFile?.name).putInt("selectedSetStyleId",loaded.style.id).apply()
@@ -665,7 +665,7 @@ private fun ORGXApp(engine: AudioEngine) {
                         val index=checkNotNull(engine.activeSetIndex)
                         val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
-                        val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,stsChanges)}
+                        val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,stsChanges,ImportedDncPreferences(context)::read)}
                         val applied=engine.awaitStsRequest(prepared,expectedSound)
                         if(applied)preferences.edit().putString("selectedStsSet",setFile?.name)
                             .putInt("selectedStsTrack",trackIndex).putInt("selectedStsSlot",snapshot.slot)
@@ -711,7 +711,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     try{
                         val session=withContext(Dispatchers.IO){
                             ImportedStylePlayer.loadStyle(checkNotNull(setFile),checkNotNull(index),definition,previewAccompaniment,
-                                engine.referenceChordTransposer,engine.keyConnectionMethod,if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
+                                engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,targetChord=if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
                         engine.selectImportedStyle(session)
                         preferences.edit().putString("selectedStyleSet",setFile?.name).putInt("selectedSetStyleId",definition.id)

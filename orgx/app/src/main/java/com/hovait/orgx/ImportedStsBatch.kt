@@ -31,7 +31,7 @@ object ImportedStsBatch {
         return Selection(slot,master,members,actions)
     }
     /** Full voice snapshots only. Masked PCM preparation requires current Track state. */
-    fun prepareMasked(file:File,index:ImportedSetIndex,slot:Int,current:Map<Int,ImportedSts>,changes:List<Boolean>):Prepared {
+    fun prepareMasked(file:File,index:ImportedSetIndex,slot:Int,current:Map<Int,ImportedSts>,changes:List<Boolean>,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()}):Prepared {
         val resolved=resolve(index,slot,changes)
         val actions=ImportedStsPlan.create(slot,resolved.master,resolved.members.map{member->
             val track=index.tracks[member.trackIndex]
@@ -48,15 +48,15 @@ object ImportedStsBatch {
                 member.position to ImportedStsChanges.transition(index,member.position,prior,member.snapshot,selection.actions,changes)
             }
         ImportedStsMemory.check(loadIndex,effective.values)
-        val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot)}
+        val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot,scriptOverrides)}
         return Prepared(file,index,selection,voices,master)
     }
-    fun prepareFull(file:File,index:ImportedSetIndex,slot:Int):Prepared {
+    fun prepareFull(file:File,index:ImportedSetIndex,slot:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()}):Prepared {
         val selection=resolve(index,slot)
         // Resolve all slots first, so a missing later Track cannot cause partial apply.
         val members=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
         ImportedStsMemory.check(index,members.map{it.snapshot})
-        val voices=members.associate{it.position to ImportedStsLoader.prepare(file,index,it.snapshot)}
+        val voices=members.associate{it.position to ImportedStsLoader.prepare(file,index,it.snapshot,scriptOverrides)}
         return Prepared(file,index,selection,voices)
     }
 }

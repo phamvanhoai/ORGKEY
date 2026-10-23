@@ -5,6 +5,25 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStylePlayerTest {
+    @Test fun styleUsesPersistedDncLevelForItsMode(){
+        val file=File.createTempFile("style-dnc",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,32,0,32))
+            val mode=ImportedMode("Mode",0,-1,List(8){-1},List(8){0},List(8){0},
+                script="""main(){setting(volume,name:"level",title:"Level",reset:100);} on(touch){play(volume:level);return(true);}""")
+            val source=instrument(1).copy(modes=listOf(mode),sourceIdentity="instrument:0")
+            val bank=ImportedSetIndex(listOf(source),listOf(group),listOf(ImportedTrack("Drum",1,0,false,listOf(event))))
+            val expected=ImportedDncPreferences.key(file,ImportedInstrumentLoader.playableSounds(listOf(source)).last())
+            val plain=ImportedStylePlayer.load(file,bank,group)
+            val quiet=ImportedStylePlayer.load(file,bank,group,scriptOverrides={savedFile,selected->
+                assertEquals(expected,ImportedDncPreferences.key(savedFile,selected))
+                mapOf("level" to "50")
+            })
+            plain.next(0,120);quiet.next(0,120)
+            assertTrue(plain.left>0)
+            assertEquals(plain.left*.5,quiet.left,1e-9)
+        }finally{file.delete()}
+    }
     @Test fun noteOffKeyIsMetadataWhileNoteOnKeyMustBePlayable(){
         val source=index()
         val off=ReferenceDrumEvent(1,1,-1,0,10,0)
