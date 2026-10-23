@@ -227,6 +227,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
                 aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
                 heldModulation?.let{alternate?.modulate(it)}
+                if(scriptPedal)alternate?.scriptPedal(true)
             }
         }
         fun modulate(level:Int){
@@ -246,6 +247,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private var scriptPedal=false
         fun scriptPedal(down:Boolean){
+            alternate?.scriptPedal(down)
             if(scriptPedal==down)return
             scriptPedal=down
             if(!ownsScriptEvents)return

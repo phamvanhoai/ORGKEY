@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun aftertouchSoundReceivesHeldPedalAndPedalOffExactlyOnce(){
+        val alternate=sound().withModeScript("main() { gain=25; } on(pedalon) { gain=gain+25; } on(pedaloff) { gain=gain-25; } on(touch) { play(volume:gain); return(true); }")
+        val primary=sound().withAftertouch(alternate).voice(60)
+        primary.scriptPedal(true);primary.aftertouch(1f)
+        val held=alternate.voice(60);held.next(false);assertEquals(.125,held.left,1e-12)
+        primary.scriptPedal(false);primary.scriptPedal(false)
+        val released=alternate.voice(60);released.next(false);assertEquals(.0625,released.left,1e-12)
+    }
     @Test fun aftertouchSoundKeepsModulationAndReceivesLaterUpdates(){
         val alternate=sound().withModeScript("main() { gain=100; } on(modulate) { gain=level; } on(touch) { play(volume:gain); return(true); }")
         val primary=sound().withAftertouch(alternate).voice(60)
