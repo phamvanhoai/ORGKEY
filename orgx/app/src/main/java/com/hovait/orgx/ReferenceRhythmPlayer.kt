@@ -1,6 +1,6 @@
 package com.hovait.orgx
 
-/** Sample track playback; accompaniment is kept separate for mixer routing. DNC is not applied. */
+/** Sample track playback; accompaniment is kept separate for mixer routing. */
 class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int,
     private val accompaniment:Boolean=false,private val mapNote:(Int)->Int={it},private val envelope:ImportedEnvelope?=null,
@@ -208,8 +208,15 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             }
             if(event.type==13){eventMuted=true;releaseAll();return@advance}
             if(event.type==14){eventMuted=false;return@advance}
-            if(event.type==12){pedalDown=true;return@advance}
-            if(event.type==11){pedalDown=false;voices.values.forEach{if(it.pendingRelease && it.release<0){it.pendingRelease=false;it.release=0}};return@advance}
+            if(event.type==12){
+                pedalDown=true;sampled?.updateScriptPedal(true);voices.values.forEach{it.playback?.scriptPedal(true)}
+                return@advance
+            }
+            if(event.type==11){
+                pedalDown=false;sampled?.updateScriptPedal(false)
+                voices.values.forEach{it.playback?.scriptPedal(false);if(it.pendingRelease && it.release<0){it.pendingRelease=false;it.release=0}}
+                return@advance
+            }
             if(event.type==44){channelVolume=event.note;return@advance}
             if(event.type==45){channelPan=event.note;return@advance}
             val note=if(event.type==2)mapNote(event.note) else event.note
@@ -225,7 +232,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                     return@advance
                 }
                 val samplePan=ImportedNoteTouch.pan(event.touch)
-                val playback=sampled?.voice(note,event.tune,samplePan)?.also{playback->
+                val playback=sampled?.voice(note,event.tune,samplePan,scriptVelocity=event.touch and 65535,
+                    initialScriptPedal=pedalDown)?.also{playback->
+                    if(pedalDown)playback.scriptPedal(true)
                     if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || pedalDown))playback.connectFrom(previous.note,connection)
                     if(expressionAllowed){volumeShake?.let{playback.configureVolumeShake(it)};pitchShakeEffect?.let{playback.configurePitchShake(it)}}
                     playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0))

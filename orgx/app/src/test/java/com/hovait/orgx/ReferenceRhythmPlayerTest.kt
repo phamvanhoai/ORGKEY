@@ -4,6 +4,35 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun styleDncReceivesNoteVelocityInsteadOfDefaultHundred(){
+        fun render(velocity:Int):Double {
+            val source=SampledInstrument(listOf(InstrumentRegion(36,SamplePcm(1000,1,ShortArray(16){8192}),0,16)),1000)
+                .withModeScript("on(touch){if(velocity<100){play(volume:50);}else{play(volume:100);}return(true);}")
+            val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,36,velocity,0,100)))),
+                source::durationFrames,{n,a,c->source.sample(n,a.toLong(),c)},1000,sampled=source)
+            try{player.next(0,120);return player.left}finally{player.close()}
+        }
+        assertEquals(.0625,render(50),1e-12)
+        assertEquals(.3,render(120),1e-12)
+    }
+    @Test fun styleDncReceivesHeldPedalAndTimelinePedalCallbacks(){
+        val source=SampledInstrument(listOf(InstrumentRegion(36,SamplePcm(1000,1,ShortArray(16){8192}),0,16)),1000)
+            .withModeScript("""
+                main(){held=0;}
+                on(pedalon){held=held+1;}
+                on(pedaloff){held=0;}
+                on(touch){if(pedal && held==1){play(volume:25);}else{play(volume:100);}return(true);}
+            """.trimIndent())
+        val events=listOf(ReferenceDrumEvent(12,0,0,0,0,0),ReferenceDrumEvent(2,1,36,100,0,100),
+            ReferenceDrumEvent(11,0,0,0,1,0))
+        val player=ReferenceRhythmPlayer(listOf(track(events)),source::durationFrames,{n,a,c->source.sample(n,a.toLong(),c)},1000,sampled=source)
+        try{
+            player.next(0,120);assertEquals(.0625,player.left,1e-12)
+            player.next(0,120)
+            val voice=source.voice(36,initialScriptPedal=true)
+            voice.next(false);assertEquals(.25,voice.left,1e-12)
+        }finally{player.close()}
+    }
     @Test fun tailStateBecomesIdleAfterVoicesFinishAndIncludesChildPlayers(){
         val child=ReferenceRhythmPlayer(listOf(track(listOf(hit(0)))),{1000},{_,_,_->1.0},1000)
         val combined=ReferenceRhythmPlayer.combine(listOf(child))
