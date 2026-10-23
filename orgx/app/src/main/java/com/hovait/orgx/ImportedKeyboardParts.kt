@@ -7,7 +7,7 @@ class ImportedKeyboardParts {
         val pedalMode:Int=0)
     private data class Note(val part:Int,val channel:Int,var key:Int,val sound:SampledInstrument,
         val playback:SampledInstrument.Playback,val velocity:Double,var pedal:Boolean,
-        val pedalMode:Int,var released:Boolean=false)
+        val pedalMode:Int,var released:Boolean=false,val repeat:ImportedKeyRepeat?=null)
     private var parts:Map<Int,Part> = emptyMap()
     private val notes=ArrayList<Note>()
     private val bends=DoubleArray(16)
@@ -34,7 +34,8 @@ class ImportedKeyboardParts {
             if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || part.pedal))
                 playback.connectFrom(part.sound.keyboardNote(previous.key),connection)
             playback.pitchBend(bends[channel])
-            notes.add(Note(part.id,channel,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode))
+            notes.add(Note(part.id,channel,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode,
+                repeat=part.sound.keyRepeatEffect?.let{ImportedKeyRepeat(it,part.sound.outputSampleRate)}))
         }
     }
     fun noteOff(key:Int,channel:Int=0){
@@ -65,13 +66,20 @@ class ImportedKeyboardParts {
     /** Caller begins/finishes the shared mixer once, including all other voices. */
     fun renderInto(mixer:ImportedKeyboardMixer){
         val iterator=notes.iterator()
+        val repeated=ArrayList<Note>()
         while(iterator.hasNext()){
             val note=iterator.next()
             val pedalRelease=if(note.pedalMode==-1)note.pedal else note.pedalMode!=0
             note.playback.next(note.released,pedalRelease)
             mixer.add(note.sound,note.playback.left*note.velocity,note.playback.right*note.velocity)
+            if(note.repeat?.next(note.released,pedalRelease)==true){
+                val playback=note.sound.voice(note.sound.keyboardNote(note.key),autoRelease=true,effectsAllowed=false)
+                playback.pitchBend(bends[note.channel])
+                repeated.add(Note(note.part,note.channel,note.key,note.sound,playback,note.velocity,note.pedal,note.pedalMode))
+            }
             if(note.playback.finished)iterator.remove()
         }
+        notes.addAll(repeated)
     }
     fun reset(){notes.clear();bends.fill(0.0)}
 }

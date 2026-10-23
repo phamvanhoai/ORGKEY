@@ -19,6 +19,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var expressionEffects:List<ImportedExpressionEffect> = emptyList()
     fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{expressionEffects=effects.toList()}
     val keyConnectionEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==1 && it.enabled}
+    val keyRepeatEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==0 && it.enabled}
+    val outputSampleRate:Int get()=outputRate
     var keyboardSettings=ImportedChannelSettings();private set
     private var keyboardMelodic=true
     fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{keyboardSettings=settings;keyboardMelodic=melodic}
@@ -37,11 +39,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{it.layers=sounds}
         }
     }
-    fun voice(note:Int,tune:Int=0,pan:Int=0)=Playback(note,tune,pan)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int){
+    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true)=Playback(note,tune,pan,autoRelease,effectsAllowed)
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true){
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
-        private val children=layers.map{it.voice(note,tune,pan)}
+        private val children=layers.map{it.voice(note,tune,pan,autoRelease,effectsAllowed)}
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
         private var connectionDelta=0.0
@@ -93,17 +95,17 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             // positive pressure event. It closes the old key and opens the
             // alternate sound once; pressure is not a 50% cross-fade gate.
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
-                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
+                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
             }
         }
         private val state=envelope?.voice(outputRate)
         private var position=0.0
-        private var pitchShake=expressionEffects.firstOrNull{it.slot==2 && it.enabled}?.let{ImportedPitchShake(it,outputRate)}
+        private var pitchShake=expressionEffects.firstOrNull{effectsAllowed && it.slot==2 && it.enabled}?.let{ImportedPitchShake(it,outputRate)}
         fun configurePitchShake(effect:ImportedExpressionEffect){
             val current=pitchShake
             if(current==null)pitchShake=ImportedPitchShake(effect,outputRate) else current.configure(effect)
         }
-        private var volumeShake=expressionEffects.firstOrNull{it.slot==3}?.let{ImportedVolumeShake(it,outputRate)}
+        private var volumeShake=expressionEffects.firstOrNull{effectsAllowed && it.slot==3}?.let{ImportedVolumeShake(it,outputRate)}
         fun configureVolumeShake(effect:ImportedExpressionEffect){
             val current=volumeShake
             if(current==null)volumeShake=ImportedVolumeShake(effect,outputRate) else current.configure(effect)
@@ -111,27 +113,31 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         var left=0.0;private set
         var right=0.0;private set
         var finished=false;private set
+        private var autoReleaseStarted=false
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
-            if((!connectionByPedal || pedal) && (!connectionStopByRelease || !noteOff)){
+            if(autoRelease && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
+            val released=noteOff || autoReleaseStarted
+            if((!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
                     step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
                     bentStep=step*2.0.pow(bendSemitones/12.0)
                 }
             }
-            pitchShake?.next(noteOff,pedal)
+            pitchShake?.next(released,pedal)
             val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)
             if(aftertouch){alternate?.next(noteOff,pedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
             }else if(children.isNotEmpty()){
                 children.forEach{it.next(noteOff,pedal,pitchOffset)}
                 left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
             }else{
-                val gain=state?.next(noteOff,pedal) ?: if(noteOff)0.0 else 1.0
+                val gain=state?.next(released,pedal) ?: if(released)0.0 else 1.0
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
                 position+=(bentStep+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
                     (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && noteOff)
             }
-            volumeShake?.let{it.next(noteOff,pedal);left*=it.left;right*=it.right}
+            if(children.isEmpty() && state==null && autoReleaseStarted)finished=true
+            volumeShake?.let{it.next(released,pedal);left*=it.left;right*=it.right}
         }
     }
     private val mapped=Array(128){note->when(pitchMode){
