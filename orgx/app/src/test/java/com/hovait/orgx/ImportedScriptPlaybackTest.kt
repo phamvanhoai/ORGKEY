@@ -5,6 +5,23 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun directSliderQueueCommitsAudioValueAndRejectsStaleOrInvalidChanges(){
+        val source=sound().withModeScript("main() { setting(slider, name:\"level\", title:\"Level\", reset:25, from:0, to:100); } on(touch) { play(volume:level); return(true); }")
+        val queue=ImportedKeyboardPartQueue();var current=true;var accepted=false
+        queue.updateScriptSlider(source,"level",75,{current}){accepted=it}
+        assertEquals(25,source.scriptSliderValues["level"])
+        queue.drain();assertTrue(accepted)
+        val updated=source.voice(60);updated.next(false);assertEquals(.1875,updated.left,1e-12)
+        queue.updateScriptSlider(source,"level",100,{current}){accepted=it}
+        current=false;queue.drain();assertFalse(accepted)
+        assertEquals(75,source.scriptSliderValues["level"])
+        current=true
+        queue.updateScriptSlider(source,"level",101,{current}){accepted=it};queue.drain()
+        assertFalse(accepted);assertEquals(75,source.scriptSliderValues["level"])
+        queue.updateScriptSlider(source,"level",source.scriptSliders.single().reset,{current}){accepted=it};queue.drain()
+        assertTrue(accepted)
+        val reset=source.voice(60);reset.next(false);assertEquals(.0625,reset.left,1e-12)
+    }
     @Test fun queuedSliderChangeCannotModifyReplacementSound(){
         fun configured()=sound().withModeScript("main() { setting(slider, name:\"level\", title:\"Level\", reset:25, from:0, to:100); } on(touch) { play(volume:level); return(true); }")
         val old=configured();val replacement=configured();val queue=ImportedKeyboardPartQueue()
