@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun aftertouchSoundKeepsModulationAndReceivesLaterUpdates(){
+        val alternate=sound().withModeScript("main() { gain=100; } on(modulate) { gain=level; } on(touch) { play(volume:gain); return(true); }")
+        val primary=sound().withAftertouch(alternate).voice(60)
+        primary.modulate(50);primary.aftertouch(1f)
+        val first=alternate.voice(60);first.next(false);assertEquals(.125,first.left,1e-12)
+        primary.modulate(75)
+        val second=alternate.voice(60);second.next(false);assertEquals(.1875,second.left,1e-12)
+        primary.modulate(0)
+        val reset=alternate.voice(60);reset.next(false);assertEquals(0.0,reset.left,0.0)
+    }
     @Test fun aftertouchAlternateReceivesHeldRawPitchContext(){
         val alternate=sound().withModeScript("main() { gain=100; } on(pitchbend) { gain=level; return(true); } on(touch) { play(volume:gain); return(true); }")
         val primary=sound().withAftertouch(alternate).voice(60)

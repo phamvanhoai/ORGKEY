@@ -136,6 +136,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var bentStep=step
         private var aftertouch=false
         private var alternate:Playback?=null
+        private var heldModulation:Int?=null
         fun pitchBend(semitones:Double,scriptLevel:Int?=null){
             require(semitones.isFinite()){"Pitch bend must be finite"}
             require(scriptLevel==null || scriptLevel in -8192..8191)
@@ -225,10 +226,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             // alternate sound once; pressure is not a 50% cross-fade gate.
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
                 aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
+                heldModulation?.let{alternate?.modulate(it)}
             }
         }
         fun modulate(level:Int){
             require(level in -127..127)
+            heldModulation=level
+            alternate?.modulate(level)
             if(!ownsScriptEvents)return
             runCatching{scriptSession?.modulation(level){result->
                 require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
