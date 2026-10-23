@@ -47,19 +47,19 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity=scriptVelocity)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null){
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap()){
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
             modeScript?.let{ImportedSimpleScript.evaluate(it,"touch",mapOf("key" to note,"velocity" to scriptVelocity))}
-                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","connectkey","connectspeed")}}}
+                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}}}
         }.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
             val playback=Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
                 (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),
                 command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity,
-                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0})
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters)
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
@@ -70,7 +70,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private val children=if(scriptPlan!=null)scriptChildren.map{it.first}+
             (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity)))
-            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,true,scriptVelocity,envelopeAutoRelease)}
+            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,true,scriptVelocity,envelopeAutoRelease,envelopeOverrides)}
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
         private var connectionDelta=0.0
@@ -149,7 +149,12 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
             }
         }
-        private val effectiveEnvelope=envelope?.let{if(envelopeAutoRelease==null)it else it.copy(autoRelease=envelopeAutoRelease)}
+        private val effectiveEnvelope=envelope?.let{original->
+            fun value(name:String,fallback:Int)=envelopeOverrides[name]?.takeIf{it>=0}?.coerceAtMost(if(name=="sustain")100 else 127) ?: fallback
+            original.copy(attack=value("attack",original.attack),decay=value("decay",original.decay),
+                sustain=value("sustain",original.sustain),release=value("release",original.release),
+                autoRelease=envelopeAutoRelease ?: original.autoRelease)
+        }
         private var state=effectiveEnvelope?.voice(outputRate)
         private var position=0.0
         private fun restartConnectionSample(){

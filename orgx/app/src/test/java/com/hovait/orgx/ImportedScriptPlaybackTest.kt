@@ -5,6 +5,13 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun scriptEnvelopeOverridesAttackAndRelease(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
+            envelope=ImportedEnvelope(10,0,100,20,false))
+        val voice=source.withModeScript("on(touch) { play(attack:0,release:1); return(true); }").voice(60)
+        voice.next(false);assertEquals(.25,voice.left,1e-12)
+        repeat(20){voice.next(true)};assertTrue(voice.finished)
+    }
     @Test fun scriptAutoReleaseOverridesSoundEnvelopeInBothDirections(){
         fun voice(stored:Boolean,requested:Boolean)=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
