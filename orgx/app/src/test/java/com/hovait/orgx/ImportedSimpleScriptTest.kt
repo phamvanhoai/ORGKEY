@@ -168,7 +168,10 @@ class ImportedSimpleScriptTest {
         assertTrue(result.plays.all{it.parameters["volume"]==50})
         assertEquals(ImportedSimpleScript.Result(emptyList(),false),ImportedSimpleScript.evaluate(script,"release"))
     }
-    @Test(expected=IllegalArgumentException::class) fun timerScriptCannotBeMistakenForAnExecutedEvent(){
-        ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch) { play(); timer(30) { play(); } }"),"touch")
+    @Test fun timerRegistersBodyWithoutExecutingItDuringTouch(){
+        val result=ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch) { play(); timer(30) { play(volume:50); } }"),"touch")
+        assertEquals(1,result.plays.size)
+        assertEquals(30,result.timers.single().interval)
+        assertTrue(result.timers.single().body.contains("play(volume:50)"))
     }
 }

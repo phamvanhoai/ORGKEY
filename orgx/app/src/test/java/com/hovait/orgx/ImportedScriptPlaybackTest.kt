@@ -5,6 +5,48 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalMoveFromUpperProducesItsThreeDelayedNotes(){
+        val source=sound().withScriptSounds(mapOf(0 to sound()),0)
+            .withModeScript(original("Move/Move from Upper.Script"))
+        val voice=source.voice(60)
+        repeat(25){voice.next(false);assertEquals(0.0,voice.left,0.0);assertFalse(voice.finished)}
+        voice.next(false);assertTrue(voice.left>0)
+        repeat(24){voice.next(false)}
+        voice.next(false);assertTrue(voice.left>0)
+        repeat(24){voice.next(false)}
+        voice.next(false);assertTrue(voice.left>0)
+        repeat(50){voice.next(false)}
+        assertTrue(voice.left>0);assertFalse(voice.finished)
+        voice.forceRelease();voice.next(false);assertTrue(voice.finished)
+    }
+    @Test fun timerProducesDelayedAudioAndBreaksWhileNewTouchReplacesOldTimer(){
+        val source=sound().withModeScript("""
+            main(){count=0;}
+            on(touch){count=0;timer(10){count=count+1;if(count>1)break;play(volume:50);}return(true);}
+        """.trimIndent())
+        val old=source.voice(60)
+        repeat(5){old.next(false);assertEquals(0.0,old.left,0.0);assertFalse(old.finished)}
+        val current=source.voice(64)
+        old.next(false);assertTrue(old.finished)
+        repeat(10){current.next(false);assertEquals(0.0,current.left,0.0);assertFalse(current.finished)}
+        current.next(false);assertEquals(.125,current.left,1e-12)
+        repeat(10){current.next(false)} // next timer iteration executes break
+        current.next(true);assertTrue(current.finished)
+    }
+    @Test fun timerRetainsTouchParametersAndDoesNotBurstAfterDelayedPoll(){
+        val session=ImportedScriptSession("""
+            main(){count=0;}
+            on(touch){timer(25){count=count+1;if(count>2)break;play(key:key-count);}return(true);}
+        """.trimIndent())
+        session.event("touch",mapOf("key" to 60))
+        val token=session.timerToken
+        assertNull(session.advanceTimer(token,24))
+        assertEquals(59,session.advanceTimer(token,25)!!.plays.single().parameters["key"])
+        assertEquals(58,session.advanceTimer(token,1000)!!.plays.single().parameters["key"])
+        assertNull(session.advanceTimer(token,1000))
+        assertTrue(session.advanceTimer(token,1025)!!.timerStopped)
+        assertFalse(session.hasTimer(token))
+    }
     @Test fun modeScriptSelectsSoundAndDefaultsToPrimaryWithoutMix(){
         val file=File.createTempFile("script-sound",".pcm")
         try{
@@ -125,7 +167,7 @@ class ImportedScriptPlaybackTest {
         assertEquals(.0625,held.left,1e-12);assertEquals(.1875,normal.left,1e-12)
     }
     @Test fun unsupportedTouchShowsFallbackReasonWithoutStoppingAudio(){
-        val source=sound().withModeScript("on(touch) { timer(10) { play(); } }")
+        val source=sound().withModeScript("on(touch) { unknown_command(); }")
         val voice=source.voice(60);voice.next(false)
         assertTrue(source.scriptStatus.startsWith("Touch fallback:"))
         assertEquals(.25,voice.left,1e-12)

@@ -99,20 +99,22 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),initialScriptPedal:Boolean=false){
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false){
         private var scriptPedal=false
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
         private var scriptReleased=false
         private var releaseHandled=false
         private var forcedRelease=false
+        private var timerOwner:Long?=null
+        private var timerFrames=0L
         fun forceRelease(){
             forcedRelease=true;scriptReleased=true;releaseHandled=false
+            timerOwner?.let{scriptSession?.cancelTimer(it)}
             children.forEach{it.forceRelease()};alternate?.forceRelease()
         }
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
-        private val scriptPlan=if(scriptAllowed)runCatching{
-            scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity,"pedal" to if(initialScriptPedal)1 else 0)){result->
+        private fun validateScriptAudio(result:ImportedSimpleScript.Result){
                 require(result.effects.all{it.slot in 0..3}){"Unsupported script effect slot"}
                 require(result.plays.all{play->play.parameters.keys.all{it in setOf("sound","key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
                 result.plays.forEach{command->
@@ -124,12 +126,17 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                     val rate=source.pitchStep(target,combinedTune)
                     require(rate.isFinite() && rate>0){"Script pitch outside playback range"}
                 }
+        }
+        private val scriptPlan=if(scriptAllowed)runCatching{
+            scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity,"pedal" to if(initialScriptPedal)1 else 0)){result->
+                validateScriptAudio(result)
             }?.also{result->
                 applyScriptEffects(result.effects)
+                if(result.timers.isNotEmpty())timerOwner=scriptSession?.timerToken
             }
         }.onSuccess{if(modeScript?.source?.isNotBlank()==true && it!=null)scriptStatus="Touch script active"}
             .onFailure{scriptStatus="Touch fallback: ${it.message}"}.getOrNull() else null
-        private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
+        private fun createScriptChild(command:ImportedSimpleScript.Play):Pair<Playback,Double>{
             val source=scriptSounds[command.parameters["sound"] ?: scriptDefaultSound] ?: this@SampledInstrument
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
             val playback=source.Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
@@ -142,11 +149,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }
             playback.scriptPitchMove(command.parameters["pitchmove"] ?: 0)
             val velocityRatio=command.parameters["velocity"]?.let{it.coerceAtLeast(0).toDouble()/scriptVelocity.coerceAtLeast(1)} ?: 1.0
-            playback to ((command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0*velocityRatio)
+            return playback to ((command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0*velocityRatio)
         }
-        private val children=if(scriptPlan!=null)scriptChildren.map{it.first}+
+        private val scriptChildren=scriptPlan?.plays.orEmpty().map(::createScriptChild).toMutableList()
+        private val initialChildren=if(scriptPlan!=null)scriptChildren.map{it.first}+
             (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity,initialScriptPedal=initialScriptPedal)))
             else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal)}
+        private val children=initialChildren.toMutableList()
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
         private var connectionDelta=0.0
@@ -326,6 +335,33 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         var right=0.0;private set
         var finished=false;private set
         private var autoReleaseStarted=false
+        private fun advanceScriptTimer(){
+            val owner=timerOwner ?: return
+            val session=scriptSession ?: return
+            if(!session.hasTimer(owner))return
+            runCatching{
+                session.advanceTimer(owner,timerFrames*1000/outputRate){result->
+                    validateScriptAudio(result)
+                    require(children.count{!it.finished}+result.plays.size<=128){"Script timer exceeds voice limit"}
+                }?.let{result->
+                    children.removeAll{it.finished}
+                    scriptChildren.removeAll{it.first.finished}
+                    applyScriptEffects(result.effects)
+                    result.effects.map{it.slot}.distinct().forEach{slot->
+                        val effect=expressionEffects.first{it.slot==slot}
+                        if(slot==2)configurePitchShake(effect) else if(slot==3)configureVolumeShake(effect)
+                    }
+                    result.plays.forEach{command->
+                        val child=createScriptChild(command)
+                        child.first.pitchBend(bendSemitones,bendScriptLevel)
+                        child.first.channelBalance(balance)
+                        children.add(child.first);scriptChildren.add(child)
+                    }
+                    if(result.timers.isNotEmpty())timerOwner=session.timerToken
+                    scriptStatus="Timer script active"
+                }
+            }.onFailure{scriptStatus="Timer stopped: ${it.message}"}
+        }
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
             if(noteOff && ownsScriptEvents && !scriptReleased){
                 scriptReleased=true
@@ -339,8 +375,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                         val effect=expressionEffects.first{it.slot==slot}
                         if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
                     }
-                }}
+                }}.onFailure{timerOwner?.let{scriptSession?.cancelTimer(it)};scriptStatus="Release fallback: ${it.message}"}
             }
+            advanceScriptTimer()
+            timerFrames++
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
             val effectiveNoteOff=forcedRelease || (noteOff && !releaseHandled)
             val released=effectiveNoteOff || autoReleaseStarted
@@ -354,11 +392,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)
             if(aftertouch){alternate?.next(effectiveNoteOff,pedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
             }else if(scriptPlan!=null && children.isEmpty()){
-                left=0.0;right=0.0;finished=true
+                left=0.0;right=0.0;finished=timerOwner?.let{scriptSession?.hasTimer(it)}!=true
             }else if(children.isNotEmpty()){
                 children.forEach{it.next(effectiveNoteOff,pedal,pitchOffset)}
                 fun gain(child:Playback)=scriptChildren.firstOrNull{it.first===child}?.second ?: 1.0
-                left=children.sumOf{it.left*gain(it)};right=children.sumOf{it.right*gain(it)};finished=children.all{it.finished}
+                left=children.sumOf{it.left*gain(it)};right=children.sumOf{it.right*gain(it)};finished=children.all{it.finished} && timerOwner?.let{scriptSession?.hasTimer(it)}!=true
             }else{
                 val gain=state?.next(released,pedal) ?: if(released)0.0 else 1.0
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain

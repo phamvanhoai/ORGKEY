@@ -12,6 +12,31 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
     var initialEffects:List<ImportedSimpleScript.EffectChange> = emptyList();private set
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
+    private data class Scheduled(val token:Long,val timer:ImportedSimpleScript.Timer,val parameters:Map<String,Int>,var due:Long)
+    private var scheduled:Scheduled?=null
+    var timerToken=0L;private set
+    fun hasTimer(token:Long)=scheduled?.token==token
+    fun cancelTimer(token:Long){if(hasTimer(token))scheduled=null}
+    /** Audio-frame time supplied by the owning Playback; at most one callback per poll. */
+    fun advanceTimer(token:Long,elapsedMillis:Long,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result? {
+        val current=scheduled?.takeIf{it.token==token && elapsedMillis>=it.due} ?: return null
+        val pending=state.toMutableMap()
+        try{
+            val callback=ImportedModeScript.parse("on(__timer){${current.timer.body}}")
+            val elapsed=(clockMillis()-timeOrigin).coerceIn(0,Int.MAX_VALUE.toLong()).toInt()
+            val result=ImportedSimpleScript.evaluate(callback,"__timer",current.parameters+("time" to elapsed),pending)
+            validate(result)
+            state.clear();state.putAll(pending)
+            if(result.timerStopped)scheduled=null
+            else if(result.timers.isNotEmpty())schedule(result.timers.last(),current.parameters,elapsedMillis)
+            else current.due=elapsedMillis+current.timer.interval.coerceAtLeast(1)
+            return result
+        }catch(error:Exception){scheduled=null;throw error}
+    }
+    private fun schedule(timer:ImportedSimpleScript.Timer,parameters:Map<String,Int>,now:Long=0){
+        timerToken++
+        scheduled=Scheduled(timerToken,timer,parameters.toMap(),now+timer.interval.coerceAtLeast(1))
+    }
     private var pedalDown=false
     private var modulationLevel:Int?=null
     private var modulationResult=ImportedSimpleScript.Result(emptyList(),false)
@@ -73,6 +98,7 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
         synchronizeEffects(storedEffects)
         val initialized=ImportedSimpleScript.evaluate(script,"main",state=state)
         require(initialized.plays.isEmpty()){"Audio commands in main are not supported"}
+        require(initialized.timers.isEmpty()){"Timers in main are not supported"}
         require(initialized.effects.all{it.slot in 0..3}){"Unsupported main effect slot"}
         initialEffects=initialized.effects
     }
@@ -80,8 +106,10 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
         val pending=state.toMutableMap()
         val elapsed=(clockMillis()-timeOrigin).coerceIn(0,Int.MAX_VALUE.toLong()).toInt()
         val result=ImportedSimpleScript.evaluate(script,name,parameters+("time" to elapsed),pending)
+        require(result.timers.isEmpty() || name.equals("touch",true)){"Timers in $name are not supported"}
         validate(result)
         state.clear();state.putAll(pending)
+        result.timers.lastOrNull()?.let{schedule(it,parameters)}
         return result
     }
 }

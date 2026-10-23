@@ -5,10 +5,12 @@ package com.hovait.orgx
 object ImportedSimpleScript {
     data class Play(val parameters:Map<String,Int>)
     data class EffectChange(val slot:Int,val property:String,val value:Int)
-    data class Result(val plays:List<Play>,val handled:Boolean,val effects:List<EffectChange> = emptyList())
+    data class Timer(val interval:Int,val body:String)
+    data class Result(val plays:List<Play>,val handled:Boolean,val effects:List<EffectChange> = emptyList(),val timers:List<Timer> = emptyList(),val timerStopped:Boolean=false)
     fun evaluate(script:ImportedModeScript,event:String,variables:Map<String,Int> = emptyMap(),state:MutableMap<String,Int>?=null):Result {
         val plays=ArrayList<Play>()
         val effects=ArrayList<EffectChange>()
+        val timers=ArrayList<Timer>()
         val pending=state?.toMutableMap() ?: mutableMapOf()
         fun context():Map<String,Int> {
             val values=(pending+variables).toMutableMap()
@@ -18,14 +20,23 @@ object ImportedSimpleScript {
             }
             return values
         }
-        fun result(handled:Boolean):Result {
+        fun result(handled:Boolean,timerStopped:Boolean=false):Result {
             state?.let{it.clear();it.putAll(pending)}
-            return Result(plays.toList(),handled,effects.toList())
+            return Result(plays.toList(),handled,effects.toList(),timers.toList(),timerStopped)
         }
         var handled=false
         for(body in script.eventBodies(event)) {
             for(rawStatement in statements(body,::context)) {
                 var statement=rawStatement
+                if(statement.equals("break",true)){
+                    require(event=="__timer"){"break outside timer"}
+                    return result(false,true)
+                }
+                val timer=Regex("(?s)^__timer\\((.*?)\\)\\s*\\{(.*)}$").matchEntire(statement)
+                if(timer!=null){
+                    timers.add(Timer(expression(timer.groupValues[1],context()).coerceIn(0,5000),timer.groupValues[2]))
+                    continue
+                }
                 if(Regex("(?i)^if\\s*\\(").containsMatchIn(statement)){
                     val open=statement.indexOf('(');var depth=1;var end=open+1
                     while(end<statement.length && depth>0){when(statement[end]){'('->depth++;')'->depth--};end++}
@@ -166,6 +177,7 @@ object ImportedSimpleScript {
         data class Command(val text:String):Statement
         data class Branch(val condition:String,val yes:Statement,val no:Statement?):Statement
         data class Block(val items:List<Statement>):Statement
+        data class Timed(val interval:String,val body:String):Statement
     }
     private class StatementReader(private val source:String) {
         private var position=0
@@ -179,6 +191,20 @@ object ImportedSimpleScript {
         }
         private fun read():Statement {
             space();require(position<source.length){"Missing statement"}
+            if(word("timer")){
+                position+=5;space();require(position<source.length && source[position]=='(')
+                val start=++position;var depth=1
+                while(position<source.length && depth>0){when(source[position]){'('->depth++;')'->depth--};position++}
+                require(depth==0){"Unclosed timer interval"}
+                val interval=source.substring(start,position-1)
+                space();require(position<source.length && source[position]=='{'){"Timer requires a block"}
+                val bodyStart=++position;depth=1
+                while(position<source.length && depth>0){when(source[position]){'{'->depth++;'}'->depth--};position++}
+                require(depth==0){"Unclosed timer body"}
+                val body=source.substring(bodyStart,position-1)
+                StatementReader(body).all()
+                return Statement.Timed(interval,body)
+            }
             if(source[position]=='{'){
                 position++;val items=ArrayList<Statement>();space()
                 while(position<source.length && source[position]!='}'){items.add(read());space()}
@@ -209,6 +235,7 @@ object ImportedSimpleScript {
         fun execute(statement:Statement):Sequence<String> = sequence {
             when(statement){
                 is Statement.Command->yield(statement.text)
+                is Statement.Timed->yield("__timer(${statement.interval}) {${statement.body}}")
                 is Statement.Block->statement.items.forEach{yieldAll(execute(it))}
                 is Statement.Branch->{val selected=if(expression(statement.condition,context())!=0)statement.yes else statement.no
                     if(selected!=null)yieldAll(execute(selected))}
