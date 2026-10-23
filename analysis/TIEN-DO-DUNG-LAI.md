@@ -2,7 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — Chord Memory, 24-10-2026
+## Kết quả mới nhất — điều khiển biểu cảm cảm ứng, 24-10-2026
+
+- Thêm PerformanceWheels mã ứng dụng cạnh bàn phím: BEND và MOD kéo dọc, giữ riêng pointer của mỗi điều khiển để không lấy thao tác phím đàn. Dùng midiPitchBend/midiModulation hiện có (channel0 live), đi qua đường voice/STS/script và MIDI recording của engine.
+- BEND gửi giá trị14bit quanh8192 và trả giữa khi nhả, khi cancel gesture, khi Activity không còn cho nhập bàn phím hoặc khi rời composition. MOD gửi CC1 0..127, giữ mức sau nhả; RESET đưa bend/CC1 về giữa/0. Không nạp sample trong gesture.
+- Bố trí cạnh trái keyboard, không dùng skill UI; build/cài APK đạt. Đã kéo hai điều khiển trên thiết bị và xem trạng thái BEND trả giữa, MOD giữ mức, RESET thao tác được. Không thêm test cho bố trí cảm ứng.
+- Đối chiếu gốc có pitchbend_range/lock/pitchspeed, b1 hiển thị raw pitchbend quanh8192 và gesture RecordMusic53 reset1000; ORGX hiện dùng MIDI bend range mặc định±2 semitone, chưa nối các tùy chọn range/lock/speed/shape của APK. Chưa có bản thu chứng minh âm thanh/độ nhạy tương đương, chưa kiểm chứng đa chạm hai tay cùng lúc hoặc controller ngoài. Không coi giao diện biểu cảm này giống100% gốc.
+
+## Chord Memory, 24-10-2026
 
 - Đối chiếu Tracks.RecordKey: khi không nhận ra hợp âm và !fChordMemory, RecordChordStop -> GroupPlayChord(0); GroupPlayChord đóng channel melodic, Tracks bỏ Track.PlayNext melodic khi chord mask0. Music mặc định memory=true.
 - Thêm Chord Memory trong trang CHORD và preference, phục hồi trước SET. Với bàn phím trái và memory=false, selectedSetChord trả trạng thái không hợp âm (-1) khi pressedChord rỗng thay vì dùng chord-memory/chordIndex cũ; AUTO và hợp âm chọn thủ công ngoài chế độ tay trái không đổi.

@@ -464,7 +464,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                             }
                         })
                 }
-                PianoKeyboard(octave, engine, Modifier.weight(.45f).fillMaxWidth(),leftChord,enabled=keyboardActive)
+                Row(Modifier.weight(.45f).fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(4.dp)){
+                    PerformanceWheels(engine,keyboardActive,Modifier.width(72.dp).fillMaxHeight())
+                    PianoKeyboard(octave, engine, Modifier.weight(1f).fillMaxHeight(),leftChord,enabled=keyboardActive)
+                }
             }
                         if(showTools) InstrumentPage(onDismissRequest={showTools=false},title={Text("MENU")},text={Column(Modifier.verticalScroll(rememberScrollState())){InstrumentMenu{
                             InstrumentMenuItem(text={Text("Import / Quản lý SET")},onClick={showTools=false;showSets=true})
