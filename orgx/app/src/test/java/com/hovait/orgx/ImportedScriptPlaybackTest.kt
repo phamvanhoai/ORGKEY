@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun silentModulationIsNotReexecutedForEveryVoice(){
+        val source=sound().withModeScript("main() { count=0; } on(modulate) { count=count+25; } on(touch) { play(volume:count); return(true); }")
+        source.updateScriptModulation(80)
+        val first=source.voice(60);first.modulate(80)
+        val second=source.voice(64);second.modulate(80)
+        val check=source.voice(60);check.next(false)
+        assertEquals(.0625,check.left,1e-12)
+        source.updateScriptModulation(0)
+        val reset=source.voice(60);reset.next(false);assertEquals(.125,reset.left,1e-12)
+    }
     @Test fun silentPedalTransitionsUpdateSessionBeforeNextTouch(){
         val source=sound().withModeScript("main() { level=0; } on(pedalon) { level=level+25; } on(pedaloff) { level=level+10; } on(touch) { play(volume:level); return(true); }")
         val parts=ImportedKeyboardParts()

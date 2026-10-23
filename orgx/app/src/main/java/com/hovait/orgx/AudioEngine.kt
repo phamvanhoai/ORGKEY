@@ -171,6 +171,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun midiModulation(value:Int,channel:Int=0,playback:Boolean=false){
         require(value in 0..127 && channel in 0..15)
         (if(playback)playbackModulation else liveModulation)[channel]=value
+        if(!playback)importedInstrument?.updateScriptModulation(value)
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.modulate(value,channel)
         else voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{it.sampledPlayback?.modulate(value)}
         if(!playback)captureMidi(0xb0 or channel,1,value)

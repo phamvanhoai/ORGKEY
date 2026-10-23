@@ -8,6 +8,14 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
     private var pedalDown=false
+    private var modulationLevel:Int?=null
+    private var modulationResult=ImportedSimpleScript.Result(emptyList(),false)
+    fun modulation(level:Int,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
+        if(modulationLevel==level)return modulationResult
+        val result=event("modulate",mapOf("level" to level),validate)
+        modulationLevel=level;modulationResult=result
+        return result
+    }
     private var pedalResult=ImportedSimpleScript.Result(emptyList(),false)
     fun pedal(down:Boolean,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
         if(pedalDown==down)return pedalResult

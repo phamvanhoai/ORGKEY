@@ -79,6 +79,7 @@ class ImportedKeyboardParts {
     fun modulate(level:Int,channel:Int=0){
         require(channel in 0..15 && level in -127..127)
         modulation[channel]=level
+        parts.values.map{it.sound}.distinct().forEach{it.updateScriptModulation(level)}
         notes.filter{it.channel==channel && !it.released}.forEach{it.playback.modulate(level)}
     }
     /** Caller begins/finishes the shared mixer once, including all other voices. */
