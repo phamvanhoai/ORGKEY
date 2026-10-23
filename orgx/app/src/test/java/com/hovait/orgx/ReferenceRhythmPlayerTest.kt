@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun stoppingPadsRejectsAPlayerThatFinishedLoadingAfterStop(){
+        val group=ImportedStyleGroup(9,100,"Pad",96,true,0,1000,120)
+        fun pad()=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),
+            {10000},{_,_,_->1.0},1000)
+        val bank=ImportedPadBank(1000)
+        try{
+            val old=bank.beginLoad(0)
+            bank.stopAll()
+            assertFalse(bank.playPrepared(0,old,pad(),group))
+            bank.next(120,1f,1f);assertEquals(0,bank.runningMask);assertEquals(0.0,bank.left,0.0)
+            val current=bank.beginLoad(0)
+            assertTrue(bank.playPrepared(0,current,pad(),group))
+            bank.next(120,1f,1f);assertEquals(1,bank.runningMask);assertEquals(1.0,bank.left,0.0)
+        }finally{bank.close()}
+    }
     @Test fun setPadWaitsForStyleWindowAndStartsAtGroupPhase(){
         val group=ImportedStyleGroup(9,100,"Pad",96,true,0,2000,120)
         val data=ReferenceDrumTrack("Pad",9,100,96,120,true,0,2000,false,listOf(

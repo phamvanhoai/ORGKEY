@@ -21,7 +21,7 @@ import androidx.compose.ui.input.pointer.pointerInput
     page:Int=0,status:String="",onChoose:(Int)->Unit={},onPage:(Int)->Unit={},onExit:()->Unit={},
     modeLabel:String="",onMode:()->Unit={},selectionTitle:String="STYLE SELECT",selectedChoice:Int=-1,onMixer:()->Unit=onVoice,temporaryLoop:Boolean=false,
     syncStart:Boolean=false,syncStop:Boolean=false,onSyncStart:()->Unit={},onSyncStop:()->Unit={},
-    chordMuted:Boolean=false,drumMuted:Boolean=false,onChordMute:()->Unit={},onDrumMute:()->Unit={}){
+    chordMuted:Boolean=false,drumMuted:Boolean=false,onChordMute:()->Unit={},onDrumMute:()->Unit={},padsActive:Boolean=false){
     data class Key(val x:Float,val y:Float,val w:Float,val h:Float,val label:String,val active:Boolean=false,val enabled:Boolean=true,val action:()->Unit)
     val keys=mutableListOf<Key>()
     keys+=Key(8f,12f,110f,26f,"ORGX / hovait",action=onMenu)
@@ -29,7 +29,7 @@ import androidx.compose.ui.input.pointer.pointerInput
     keys+=Key(145f,48f,70f,26f,"SET",action=onStyle)
     keys+=Key(145f,84f,70f,26f,"MIXER",action=onMixer)
     keys+=Key(8f,155f,75f,26f,"AUTO FILL",autoFill,action=onAutoFill)
-    keys+=Key(90f,155f,55f,26f,if(playing)"STOP" else "START",playing,action=onPlay)
+    keys+=Key(90f,155f,55f,26f,if(playing || padsActive)"STOP" else "START",playing || padsActive,action=onPlay)
     keys+=Key(790f,12f,88f,26f,"SUSTAIN",sustain,action=onSustain)
     keys+=Key(888f,12f,102f,26f,"CHORD",action=onChord)
     keys+=Key(790f,155f,88f,26f,"SYNC START",syncStart,action=onSyncStart)

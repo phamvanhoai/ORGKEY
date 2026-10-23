@@ -1,11 +1,20 @@
 package com.hovait.orgx
 
 import java.util.concurrent.atomic.AtomicReferenceArray
+import java.util.concurrent.atomic.AtomicLongArray
 
 /** Prepared players cross into the audio thread; PCM decoding stays with the caller. */
 class ImportedPadBank(sampleRate:Int=48000) {
     private data class Change(val player:ReferenceRhythmPlayer?,val group:ImportedStyleGroup?=null)
     private val pending=AtomicReferenceArray<Change?>(4)
+    private val generations=AtomicLongArray(4)
+    private val commandLock=Any()
+    fun beginLoad(slot:Int):Long{require(slot in 0..3);return synchronized(commandLock){generations.incrementAndGet(slot)}}
+    fun playPrepared(slot:Int,token:Long,player:ReferenceRhythmPlayer,group:ImportedStyleGroup):Boolean=synchronized(commandLock){
+        require(slot in 0..3)
+        if(generations.get(slot)!=token){player.close();false}
+        else{pending.getAndSet(slot,Change(player,group))?.player?.close();true}
+    }
     private val players=arrayOfNulls<ReferenceRhythmPlayer>(4)
     private val tails=BooleanArray(4)
     private val waiting=arrayOfNulls<Change>(4)
@@ -18,7 +27,7 @@ class ImportedPadBank(sampleRate:Int=48000) {
         require(slot in 0..3)
         pending.getAndSet(slot,Change(player,group))?.player?.close()
     }
-    fun stop(slot:Int){require(slot in 0..3);pending.getAndSet(slot,Change(null))?.player?.close()}
+    fun stop(slot:Int){require(slot in 0..3);synchronized(commandLock){generations.incrementAndGet(slot);pending.getAndSet(slot,Change(null))?.player?.close()}}
     fun stopAll(){repeat(4,::stop)}
     fun next(tempo:Int,drumGain:Float,chordGain:Float,styleTiming:Pair<Long,Int>?=null,method:Int=0){
         val time=styleTiming?.first ?: clock.time

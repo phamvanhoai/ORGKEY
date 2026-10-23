@@ -119,6 +119,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         engine.configureStyleTiming(preferences.getInt("styleChangeMethod",0).coerceIn(0,3),preferences.getBoolean("styleTempoLock",false))
         engine.configureChordSynchro(preferences.getBoolean("sync_start",true),preferences.getBoolean("sync_stop",false),
             preferences.getInt("chord_synchro",0).takeIf{it in listOf(0,2,3)} ?: 0)
+        engine.synchroStopPads=preferences.getBoolean("chord_synchro_stop_pads",false)
         engine.setChordDualMappings(ChordDualSettings.decode(preferences.getString("chordDualMappings","").orEmpty()))
         val fileName=preferences.getString("importedSetFile",null)
         val soundName=preferences.getString("importedSetSound",null)
@@ -207,6 +208,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var syncStop by remember{mutableStateOf(engine.synchroStop)}
     var chordMuted by remember{mutableStateOf(engine.styleChordMuted)}
     var drumMuted by remember{mutableStateOf(engine.styleDrumMuted)}
+    var padsActive by remember{mutableStateOf(false)}
     LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     var linkSts by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
@@ -255,6 +257,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         playing=engine.rhythmPlaying
         syncStart=engine.synchroStart;syncStop=engine.synchroStop
         chordMuted=engine.styleChordMuted;drumMuted=engine.styleDrumMuted
+        padsActive=engine.importedPads.runningMask!=0 || engine.importedPads.pendingMask!=0
         restoredSetName=engine.importedInstrumentName
         bankIndex=engine.activeSetIndex
         setSession=engine.importedStyleSession
@@ -366,6 +369,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         temporaryLoop=temporaryLoop,
                         syncStart=syncStart,syncStop=syncStop,
                         chordMuted=chordMuted,drumMuted=drumMuted,
+                        padsActive=padsActive,
                         onChordMute={engine.toggleStyleMute(true)},onDrumMute={engine.toggleStyleMute(false)},
                         onSyncStart={
                             engine.configureChordSynchro(!engine.synchroStart,engine.synchroStop,preferences.getInt("chord_synchro",0))
@@ -377,7 +381,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         },
                         onMenu={closePages();showTools=true},onStyle={closePages();browseVoices=false;browseStyles=true;bankPage=0;bankStatus=""},
                         onVoice={closePages();browseStyles=false;browseVoices=true;bankPage=0;bankStatus=""},onMixer={closePages();showMixer=true},onChord={closePages();showChords=true},
-                        onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null))engine.setRhythmEnabled(!engine.rhythmPlaying)},
+                        onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null)){
+                            if(engine.rhythmPlaying || engine.importedPads.runningMask!=0 || engine.importedPads.pendingMask!=0)engine.stopPerformance()
+                            else engine.setRhythmEnabled(true)
+                        }},
                         onTempo={
                             val tempo=(engine.bpm+it).coerceIn(40,240)
                             engine.setManualTempo(tempo,preferences.getBoolean("styleAutoTempoLock",false));bpm=tempo
@@ -850,6 +857,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var inputMode by remember{mutableIntStateOf(engine.chordInputMode)}
     var chordControl by remember{mutableIntStateOf(engine.chordControl)}
     var synchroMinimum by remember{mutableIntStateOf(preferences.getInt("chord_synchro",0).takeIf{it in listOf(0,2,3)} ?: 0)}
+    var stopPads by remember{mutableStateOf(engine.synchroStopPads)}
     var editingDual by remember{mutableStateOf(false)}
     var firstKey by remember{mutableIntStateOf(0)}
     var secondKey by remember{mutableIntStateOf(4)}
@@ -866,6 +874,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             }
         }
         Text("CHORD CONTROL",fontWeight=FontWeight.Bold)
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+            Checkbox(checked=stopPads,onCheckedChange={stopPads=it;engine.synchroStopPads=it;preferences.edit().putBoolean("chord_synchro_stop_pads",it).apply()})
+            Text("Synchro Stop: stop PADs")
+        }
         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
             listOf(0 to "Synchro: Auto",2 to "2 keys",3 to "3 keys").forEach{(minimum,label)->
                 FilterChip(selected=synchroMinimum==minimum,onClick={
@@ -939,13 +951,14 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 val active=running and (1 shl slot)!=0
                 OutlinedButton(enabled=!busy,onClick={
                     if(active)engine.importedPads.stop(slot) else{
+                        val token=engine.importedPads.beginLoad(slot)
                         busy=true;status="LOADING ${group.name}"
                         scope.launch{
                             try{
                                 val player=withContext(Dispatchers.IO){ImportedStylePlayer.load(file,index,group,true,
                                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
                                     chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
-                                if(engine.activeSetIndex!==index)player.close() else engine.importedPads.play(slot,player,group)
+                                if(engine.activeSetIndex!==index)player.close() else engine.importedPads.playPrepared(slot,token,player,group)
                                 status=""
                             }catch(error:Exception){
                                 if(error is kotlinx.coroutines.CancellationException)throw error

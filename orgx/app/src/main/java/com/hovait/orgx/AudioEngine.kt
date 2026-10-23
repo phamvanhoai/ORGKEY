@@ -68,6 +68,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var synchroStart=true;private set
     @Volatile var synchroStop=false;private set
     @Volatile private var synchroMinimum=0
+    @Volatile var synchroStopPads=false
     fun configureChordSynchro(start:Boolean,stop:Boolean,minimum:Int=0){
         require(minimum in listOf(0,2,3))
         synchroStart=start;synchroStop=stop;synchroMinimum=minimum
@@ -76,7 +77,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private fun updateChordSynchro(){
         val request=chordSynchro.update(synchroStart,synchroStop,leftChordEnabled && keyboardChordInput.pressedChord!=null,
             keyboardChordInput.heldKeyCount,synchroMinimum,rhythmPlaying) ?: return
-        if(!request){setRhythmEnabled(false);return}
+        if(!request){setRhythmEnabled(false);if(synchroStopPads)importedPads.stopAll();return}
         val selection=pendingStyle.get()
         val session=if(selection!=null)selection.session else importedStyleSession
         if(session!=null)requestStyleSection(session.currentId)
@@ -390,6 +391,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         rhythmPlaying = enabled
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
+    fun stopPerformance(){setRhythmEnabled(false);importedPads.stopAll()}
     private data class SectionPress(val id:Int,val running:Boolean,val autoFill:Boolean,val repeatToLoop:Boolean)
     private data class StyleSelection(val session:ImportedStyleSession?,val bank:ImportedSetIndex?=null,val presses:MutableList<SectionPress> = mutableListOf(),val mutes:MutableList<Boolean> = mutableListOf())
     private val pendingStyle=java.util.concurrent.atomic.AtomicReference<StyleSelection?>(null)

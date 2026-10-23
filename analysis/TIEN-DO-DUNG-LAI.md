@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — đồng bộ PAD/style, 24-10-2026
+## Kết quả mới nhất — dừng PAD, 24-10-2026
+
+- Đối chiếu MainActivity.D1 -> RecordRhythmStop và k92 SyncStop gọi D1(v1?-1:0), v1 lưu chord_synchro_stop_pads, mặc định false. Thêm tùy chọn Synchro Stop: stop PADs trong CHORD; Sync Stop dừng PAD chỉ khi bật tùy chọn.
+- Nút STOP biểu diễn trên console khi style hoặc PAD chạy/chờ; thao tác dừng performance đóng style và dừng tất cả PAD, chạy release tails thay vì cắt mixer. PAD chờ cửa sổ cũng bị hủy.
+- Thêm token nạp theo slot: bắt đầu nạp lấy generation, stop/stop-all/đổi SET tăng generation. Player chuẩn bị xong sau STOP bị đóng và từ chối, không tự phát lại muộn. UI nạp IO chỉ chuyển player nếu token còn đúng.
+- Kiểm tra token cũ sau stop-all bị từ chối và im lặng, token mới phát bình thường đạt cùng nhóm ReferenceRhythmPlayerTest/KeyboardChordInputTest; build/cài APK thành công. Không tạo file test mới.
+- Chưa đối chiếu thao tác PAD SET thực hoặc toàn bộ RecordRhythmStop/playmode/pad tail với APK. Chưa có synchro trigger sound và recording PAD; không kết luận transport/PAD tương đương100%.
+
+## Đồng bộ PAD/style, 24-10-2026
 
 - Nối PAD SET vào clock/rhythmScale của session style đang chạy. Prepared PAD chờ cửa sổ ReferenceSectionTiming.inWindow, bắt đầu theo startOffset của GroupPlayStart và Rhythm Change Method hiện hành; không còn luôn phát từ đầu ngay lúc chọn.
 - Khi không có style đang chạy, PAD dùng clock chung của bank; clock reset sau khi không còn slot chạy/chờ. Mỗi slot giữ riêng lệnh chờ; thay lệnh/dừng/đổi SET/đóng bank thu hồi cả player chờ, tránh phát muộn sau Cancel.
