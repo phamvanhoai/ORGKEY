@@ -81,7 +81,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 children.forEach{it.next(noteOff,pedal,pitchOffset)}
                 left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
             }else{
-                val gain=state?.next(noteOff) ?: if(noteOff)0.0 else 1.0
+                val gain=state?.next(noteOff,pedal) ?: if(noteOff)0.0 else 1.0
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
                 position+=(bentStep+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||

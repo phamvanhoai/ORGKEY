@@ -489,3 +489,7 @@ Engine đã có đường áp dụng snapshot `applySts`: nạp instrument/syste
 
 Snapshot khôi phục mode được lưu. Đối chiếu `track-play-dispatch.java` cho thấy STS.ChordType điều khiển Music.ChordSingles, không phải chỉ số thư viện hợp âm ORGX; đã bỏ ánh xạ sai và việc tự tắt AUTO. Chưa hoàn thiện thực thi ChordSingles và mặt nạ fSTSChanges. STS giữ nguyên chỉ số slot dù các slot trước bị tắt. Channel settings được gắn vào voice bàn phím để bộ trộn nhận volume/pan/FX/transpose; tắt pedal qua STS nhả cả nốt sustain đang giữ.
 
+# Cập nhật pedal STS theo APK gốc (2026-10-23)
+
+ORGX đã nối `pedalMode` của từng Track trong SET vào engine nhiều voice. Note-off không còn bị giữ nguyên cho tới lúc nhả pedal: nó bắt đầu release ngay; mode 0 dùng đuôi nhanh, mode khác 0 dùng đuôi dài, và mode -1 theo trạng thái pedal động. Khi nhả pedal ở mode -1, đuôi đang chạy chuyển từ release dài sang release nhanh như `Channels.Process` của APK gốc. Kiểm thử bao phủ thời lượng hai kiểu release, chuyển mode giữa đuôi, nhiều part, key area và đường nạp STS.
+

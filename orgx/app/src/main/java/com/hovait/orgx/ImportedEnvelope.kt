@@ -14,11 +14,20 @@ data class ImportedEnvelope(val attack:Int,val decay:Int,val sustain:Int,val rel
         private var releaseFrames=0.0
         private var releasing=false
         private var manualRelease=false
+        private var manualFastRelease=false
         var gain=if(attackFrames==0L)1.0 else 0.0;private set
         var finished=false;private set
-        fun next(noteOff:Boolean):Double {
+        fun next(noteOff:Boolean,pedalRelease:Boolean=false):Double {
             if(finished)return 0.0
-            if(noteOff && !manualRelease){releasing=true;manualRelease=true;releaseAge=0;releaseGain=gain;releaseFrames=manualReleaseFrames}
+            if(noteOff && !manualRelease){
+                releasing=true;manualRelease=true;releaseAge=0;releaseGain=gain
+                releaseFrames=if(pedalRelease)autoReleaseFrames else manualReleaseFrames
+                manualFastRelease=!pedalRelease
+            }else if(noteOff && manualRelease && !pedalRelease && !manualFastRelease){
+                // Native envelope 4 changes to envelope 5 when a dynamic pedal is lifted.
+                releaseAge=0;releaseGain=gain;releaseFrames=manualReleaseFrames
+                manualFastRelease=true
+            }
             if(!releasing && settings.autoRelease && age>=attackFrames+decayFrames){
                 releasing=true;releaseGain=gain;releaseFrames=autoReleaseFrames
             }

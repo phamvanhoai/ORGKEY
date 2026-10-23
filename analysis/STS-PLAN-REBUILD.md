@@ -131,3 +131,10 @@ Test PCM alternate: hai phím ban đầu cộng 0.5, poly pressure chỉ một p
 Live noteOn kênh 0 nay chuyển vào queue multi-part khi nhóm bật, cùng đích với bend/pressure. Trước đó chỉ phím cảm ứng đi vào nhóm, MIDI note-on vẫn tạo single voice nên biểu cảm không cùng đối tượng. Keyboard surface cũng dùng noteOn chung để tránh hai đường ghi MIDI. NoteOff nhả nhóm và voice đơn cũ nếu còn; velocity 0 ở đường nhóm chuyển note-off, không mở nốt mới. Capture note-on chỉ một lần trên kênh 0. MIDI playback và kênh 1..15 giữ routing trước đây, không tự nhân thành bốn tiếng.
 
 StsMidiRoutingTest kiểm tra 64 tổ hợp enable/channel/playback; kiểm thử queue/parts giữ trách nhiệm thực thi và PCM. Chưa thử MIDI controller thật, chưa có cấu hình MIDI input channel từng part theo SET, chưa xuất track MIDI riêng cho từng part.
+# Cập nhật pedal theo Track gốc (2026-10-23)
+
+- Voice của từng part STS nhận `Track.fPedalMode` cùng trạng thái pedal trong snapshot, thay vì chỉ giữ một cờ sustain chung.
+- Nhả phím luôn gửi `Close` vào envelope. Mode `0` dùng release nhanh 10 ms/đơn vị; mode khác `0` dùng release dài 100 ms/đơn vị; mode `-1` lấy trạng thái pedal động giống `Channels.Process` của APK gốc.
+- Khi mode `-1` đang chạy đuôi dài và pedal được nhả, envelope chuyển sang đuôi nhanh từ mức âm lượng hiện tại (nhánh envelope 4 sang 5 của mã gốc).
+- Pedal mode được giữ riêng cho từng part và cho cả voice cũ sau khi đổi STS.
+

@@ -3,10 +3,11 @@ package com.hovait.orgx
 /** Audio-thread owned STS parts. Replacements affect future notes, not live tails. */
 class ImportedKeyboardParts {
     data class Part(val id:Int,val sound:SampledInstrument,val pedal:Boolean=false,
-        val enabled:Boolean=true,val fromKey:Int=0,val toKey:Int=127,val inputGain:Double=1.0)
+        val enabled:Boolean=true,val fromKey:Int=0,val toKey:Int=127,val inputGain:Double=1.0,
+        val pedalMode:Int=0)
     private data class Note(val part:Int,val key:Int,val sound:SampledInstrument,
         val playback:SampledInstrument.Playback,val velocity:Double,var pedal:Boolean,
-        var released:Boolean=false,var waiting:Boolean=false)
+        val pedalMode:Int,var released:Boolean=false)
     private var parts:Map<Int,Part> = emptyMap()
     private val notes=ArrayList<Note>()
     private var bend=0.0
@@ -23,19 +24,16 @@ class ImportedKeyboardParts {
             if(notes.size>=512)notes.removeAt(0)
             val playback=part.sound.voice(part.sound.keyboardNote(key))
             playback.pitchBend(bend)
-            notes.add(Note(part.id,key,part.sound,playback,velocity*part.inputGain,part.pedal))
+            notes.add(Note(part.id,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode))
         }
     }
     fun noteOff(key:Int){
-        notes.filter{it.key==key && !it.released}.forEach{
-            if(it.pedal)it.waiting=true else it.released=true
-        }
+        notes.filter{it.key==key && !it.released}.forEach{it.released=true}
     }
     fun pedal(part:Int,down:Boolean){
         parts[part]?.let{parts=parts+(part to it.copy(pedal=down))}
         notes.filter{it.part==part}.forEach{
             it.pedal=down
-            if(!down && it.waiting){it.waiting=false;it.released=true}
         }
     }
     fun pedalAll(down:Boolean){
@@ -58,7 +56,8 @@ class ImportedKeyboardParts {
         val iterator=notes.iterator()
         while(iterator.hasNext()){
             val note=iterator.next()
-            note.playback.next(note.released,note.pedal)
+            val pedalRelease=if(note.pedalMode==-1)note.pedal else note.pedalMode!=0
+            note.playback.next(note.released,pedalRelease)
             mixer.add(note.sound,note.playback.left*note.velocity,note.playback.right*note.velocity)
             if(note.playback.finished)iterator.remove()
         }

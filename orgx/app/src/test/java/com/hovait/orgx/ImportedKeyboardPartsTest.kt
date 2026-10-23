@@ -67,17 +67,33 @@ class ImportedKeyboardPartsTest {
     private fun frame(parts:ImportedKeyboardParts,mixer:ImportedKeyboardMixer):Double {
         mixer.beginFrame();parts.renderInto(mixer);mixer.finishFrame();return mixer.left
     }
-    @Test fun mixesIndependentPartGainsAndSustainWithoutMultiplyingMasterBus(){
+    @Test fun pedalModeIsAppliedPerPartWithoutMultiplyingMasterBus(){
         val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
         try{
-            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound(100),true),ImportedKeyboardParts.Part(2,sound(50))))
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound(100),true,pedalMode=-1),ImportedKeyboardParts.Part(2,sound(50))))
             parts.noteOn(60,1.0)
             assertEquals(.375,frame(parts,mixer),1e-9)
             parts.noteOff(60)
-            assertEquals(.25,frame(parts,mixer),1e-9)
+            // These fixtures have no envelope, so both released voices close immediately.
+            assertEquals(0.0,frame(parts,mixer),0.0)
+            assertEquals(0,parts.activeNotes)
+        }finally{mixer.close()}
+    }
+    @Test fun dynamicPedalChoosesLongReleaseAtNoteOffAndDoesNotFreezeTheNote(){
+        fun enveloped()=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
+            envelope=ImportedEnvelope(0,0,100,10,false))
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,enveloped(),true,pedalMode=-1)))
+            parts.noteOn(60,1.0);frame(parts,mixer);parts.noteOff(60)
+            val first=frame(parts,mixer)
+            assertTrue(first in 0.24..0.25)
+            repeat(120){frame(parts,mixer)}
             assertEquals(1,parts.activeNotes)
             parts.pedal(1,false)
-            assertEquals(0.0,frame(parts,mixer),0.0)
+            // Native envelope 4 changes to the fast envelope 5 when pedal goes up.
+            repeat(100){frame(parts,mixer)}
             assertEquals(0,parts.activeNotes)
         }finally{mixer.close()}
     }
