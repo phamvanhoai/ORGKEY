@@ -17,6 +17,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var layers:List<SampledInstrument> = emptyList()
     private var aftertouchInstrument:SampledInstrument?=null
     private var expressionEffects:List<ImportedExpressionEffect> = emptyList()
+    var touchScript:ImportedSimpleScript.Result?=null;private set
+    fun withModeScript(source:String)=also{
+        touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
+            ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
+    }
     fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{expressionEffects=effects.toList()}
     val keyConnectionEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==1 && it.enabled}
     val keyRepeatEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==0 && it.enabled}

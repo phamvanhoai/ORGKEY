@@ -21,6 +21,17 @@ class ImportedKeyboardParts {
         require(channel in 0..15 && key in 0..127 && velocity.isFinite() && velocity in 0.0..1.0)
         if(velocity==0.0){noteOff(key,channel);return}
         parts.values.filter{it.enabled && key>=it.fromKey && key<=it.toKey}.forEach{part->
+            part.sound.touchScript?.let{script->
+                script.plays.forEach{command->
+                    val target=(part.sound.keyboardNote(key).toLong()+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
+                    if(notes.size>=512)notes.removeAt(0)
+                    val playback=part.sound.voice(target)
+                    playback.pitchBend(bends[channel])
+                    notes.add(Note(part.id,channel,key,part.sound,playback,
+                        velocity*part.inputGain*(command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0,part.pedal,part.pedalMode))
+                }
+                if(script.handled)return@forEach
+            }
             val connection=part.sound.keyConnectionEffect
             val previous=notes.lastOrNull{it.part==part.id && it.channel==channel && !it.released}
             if(connection!=null && connection.mode>15 && previous!=null && (!connection.byPedal || part.pedal)){

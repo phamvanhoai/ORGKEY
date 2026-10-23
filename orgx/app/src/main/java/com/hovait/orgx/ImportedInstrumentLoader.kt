@@ -67,6 +67,7 @@ object ImportedInstrumentLoader {
             val modeSettings=settings ?: ImportedMusicParameters.pitch(instrument.modes.first().settings,musicSettings,musicSettings.octave)
             val decoded=uniqueLayers.associateWith{load(file,it,system,modeSettings,musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=sourceVersion)}
             val loaded=SampledInstrument.combine(layers.map{decoded.getValue(it).copySampleSource()})
+                .withModeScript(instrument.modes.first().script)
                 .withExpressionEffects(if(settings==null)ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(instrument.modes.first().effects,sourceVersion,keyConnectionMethod) else emptyList())
             if(alternateLayers.isNotEmpty()){
                 val alternate=SampledInstrument.combine(alternateLayers.map{decoded.getValue(it).copySampleSource()})

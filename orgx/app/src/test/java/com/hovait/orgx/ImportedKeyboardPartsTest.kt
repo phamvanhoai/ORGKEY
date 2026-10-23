@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun octaveScriptCreatesVoicesAndReleasesThemByOriginalKey(){
+        val source=sound(100).withModeScript("on(touch) { play(volume:50); play(octavemove:1,volume:50); play(octavemove:-1,volume:50); return(true); }")
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
+            parts.noteOn(60,1.0)
+            assertEquals(3,parts.activeNotes)
+            assertEquals(.375,frame(parts,mixer),1e-12)
+            parts.noteOff(60);frame(parts,mixer);assertEquals(0,parts.activeNotes)
+        }finally{mixer.close()}
+    }
     @Test fun keyRepeatAddsAutoReleaseVoicesWithoutRecursiveRepeat(){
         val repeat=ImportedExpressionEffect(0,true,0,false,false,0,500,0,0,emptyList())
         val repeated=sound(100).withExpressionEffects(listOf(repeat))
