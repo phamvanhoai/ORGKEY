@@ -40,7 +40,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var bpm = 120
     @Volatile var instrument = 0
     @Volatile var importedInstrument:SampledInstrument?=null
-        set(value){if(field!==value)clearStsParts();field=value}
+        set(value){if(field!==value){clearStsParts();currentStsSingle=null};field=value}
+    @Volatile var currentStsSingle:ImportedStsLoader.Prepared?=null;private set
     @Volatile var importedInstrumentName:String?=null
     @Volatile var activeSetFile:File?=null
     @Volatile var activeSetIndex:ImportedSetIndex?=null
@@ -69,6 +70,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile private var stsMusic:ImportedChannelSettings?=null
     @Volatile var currentStsGroup:ImportedStsBatch.Prepared?=null;private set
     private fun clearStsParts(){
+        currentStsSingle=null
         stsGeneration.incrementAndGet();stsPartsEnabled=false
         currentStsGroup=null
         stsParts.clear{stsMusic=null}
@@ -117,6 +119,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     master.tempo?.let{bpm=it}
                 }
                 currentStsGroup=prepared
+                currentStsSingle=null
                 importedInstrumentName=prepared.selection.master.name.ifBlank{"STS ${prepared.selection.slot+1}"}+" / ${parts.size} PARTS"
                 true
             }
@@ -212,6 +215,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         chordSingles=nextSingles
         chordInputMode=snapshot.chordType
         importedInstrument=prepared.sound
+        currentStsSingle=prepared
         importedInstrumentName=snapshot.name.ifBlank{prepared.index.instruments[snapshot.instrument].name}
         setSustainEnabled(snapshot.pedal!=0)
         return true

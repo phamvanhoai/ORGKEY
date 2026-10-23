@@ -5,6 +5,14 @@ import java.io.File
 /** Session restore data, separate from the imported SET and STS definitions. */
 object ImportedStsModeState {
     const val preferenceKey="stsPartModes"
+    const val singlePreferenceKey="stsSingleMode"
+    fun encodeSingle(file:File,track:Int,snapshot:ImportedSts):String =
+        "$track:${snapshot.instrument}|"+encode(file,snapshot.slot,mapOf(1 to snapshot.mode))
+    fun restoreSingle(value:String,file:File,track:Int,index:ImportedSetIndex,snapshot:ImportedSts):ImportedSts {
+        val prefix="$track:${snapshot.instrument}|"
+        if(!value.startsWith(prefix))return snapshot
+        return restore(index,snapshot,decode(value.removePrefix(prefix),file,snapshot.slot)[1])
+    }
     fun encode(file:File,slot:Int,modes:Map<Int,Int>):String =
         "${file.name}:${file.length()}:${file.lastModified()}:$slot|"+
             modes.toSortedMap().entries.joinToString(","){"${it.key}=${it.value}"}

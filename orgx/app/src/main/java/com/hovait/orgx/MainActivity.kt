@@ -87,6 +87,16 @@ private fun ORGXApp(engine: AudioEngine) {
                 val changed=ImportedSoundSelection.changedMode(engine.importedInstrument,engine.activeSetFile,
                     preferences.getString("importedSetFile",null),preferences.getString("importedSetSound",null))
                 val group=engine.currentStsGroup
+                val single=engine.currentStsSingle
+                val savedTrack=preferences.getInt("selectedStsTrack",-1)
+                if(single!=null && engine.importedInstrument===single.sound && savedTrack>0 &&
+                    preferences.getString("selectedStsSet",null)==single.file.name &&
+                    preferences.getInt("selectedStsSlot",-1)==single.snapshot.slot &&
+                    single.index.tracks.getOrNull(savedTrack)?.sts?.any{it.slot==single.snapshot.slot && it.instrument==single.snapshot.instrument}==true){
+                    val state=ImportedStsModeState.encodeSingle(single.file,savedTrack,single.currentSnapshot())
+                    if(preferences.getString(ImportedStsModeState.singlePreferenceKey,null)!=state)
+                        preferences.edit().putString(ImportedStsModeState.singlePreferenceKey,state).apply()
+                }
                 if(group!=null && preferences.getString("selectedStsSet",null)==group.file.name &&
                     preferences.getInt("selectedStsTrack",-1)==0 && preferences.getInt("selectedStsSlot",-1)==group.selection.slot){
                     val state=ImportedStsModeState.encode(group.file,group.selection.slot,group.currentSnapshots().mapValues{it.value.mode})
@@ -137,13 +147,15 @@ private fun ORGXApp(engine: AudioEngine) {
                 val file=checkNotNull(engine.activeSetFile)
                 val index=checkNotNull(engine.activeSetIndex)
                 val expectedSound=engine.importedInstrument
-                val expectedGroup=engine.currentStsGroup
-                val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
                 val prepared=withContext(Dispatchers.IO){
                     if(preferences.getInt("selectedStsTrack",-1)==0){
                         val modes=ImportedStsModeState.decode(preferences.getString(ImportedStsModeState.preferenceKey,"").orEmpty(),file,snapshot.slot)
                         ImportedStsRequest.Prepared.Group(ImportedStsBatch.prepareFull(file,index,snapshot.slot,ImportedDncPreferences(context)::read,modes))
-                    }else ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot,expectedGroup,changes,ImportedDncPreferences(context)::read)
+                    }else {
+                        val restored=ImportedStsModeState.restoreSingle(preferences.getString(ImportedStsModeState.singlePreferenceKey,"").orEmpty(),
+                            file,preferences.getInt("selectedStsTrack",-1),index,snapshot)
+                        ImportedStsRequest.Prepared.Single(ImportedStsLoader.prepare(file,index,restored,ImportedDncPreferences(context)::read))
+                    }
                 }
                 if(preferences.getString("selectedStsSet",null)==savedStsSet){
                     check(engine.awaitStsRequest(prepared,expectedSound)){"Saved STS selection changed while loading"}

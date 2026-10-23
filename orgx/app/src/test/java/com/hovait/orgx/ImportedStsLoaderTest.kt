@@ -5,6 +5,32 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsLoaderTest {
+    @Test fun singleStsRestoresExitedModeOnlyForSameTrackInstrumentAndSlot(){
+        val file=File.createTempFile("sts-single-restore",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val sample=ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))))
+            fun mode(name:String,script:String="",volume:Int=100)=ImportedMode(name,0,-1,List(8){-1},List(8){0},List(8){0},
+                settings=ImportedChannelSettings(volume=volume),script=script)
+            val source=ImportedInstrument("Voice",100,0,0,listOf(sample),listOf(mode("Default",volume=45),
+                mode("Move","on(touch){play();return(true);} on(release){exit;}")))
+            val index=ImportedSetIndex(listOf(source),emptyList())
+            val original=ImportedSts("STS",true,0,0,0,0,1,0,0,0,emptyList(),ImportedChannelSettings(),slot=2)
+            val selected=ImportedStsLoader.prepare(file,index,original)
+            val voice=selected.sound.voice(60);voice.next(false);voice.next(true)
+            val encoded=ImportedStsModeState.encodeSingle(file,3,selected.currentSnapshot())
+            val snapshot=ImportedStsModeState.restoreSingle(encoded,file,3,index,original)
+            val restored=ImportedStsLoader.prepare(file,index,snapshot)
+            assertEquals(0,snapshot.mode)
+            assertEquals(45,restored.sound.keyboardSettings.volume)
+            assertEquals(1,ImportedStsModeState.restoreSingle(encoded,file,4,index,original).mode)
+            assertEquals(1,ImportedStsModeState.restoreSingle(encoded,file,3,index,original.copy(slot=1)).mode)
+            assertEquals(1,ImportedStsModeState.restoreSingle(encoded,file,3,index,original.copy(instrument=1)).mode)
+            file.appendBytes(byteArrayOf(0,0))
+            assertEquals(1,ImportedStsModeState.restoreSingle(encoded,file,3,index,original).mode)
+        }finally{file.delete()}
+    }
     @Test fun stsRestoresTheSameDncOverrideAsRenamedVoice(){
         val file=File.createTempFile("sts-dnc",".pcm")
         try{
