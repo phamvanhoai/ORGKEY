@@ -87,7 +87,7 @@ object ImportedSimpleScript {
                 }
                 val stopAll=call.groupValues[1].equals("stopall",true)
                 val stop=stopAll || call.groupValues[1].equals("stop",true)
-                require(!stop || event.equals("modulate",true)){"Stop audio commands in $event are not supported"}
+                require(!stop || event.lowercase() in setOf("modulate","release")){"Stop audio commands in $event are not supported"}
                 val parameters=linkedMapOf<String,Int>()
                 if(arguments.isNotEmpty())for(argument in splitArguments(arguments)) {
                     val pair=argument.split(':',limit=2)

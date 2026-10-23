@@ -5,6 +5,36 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun releaseStopCutsOwnNoteEvenWhenScriptSuppressesDefaultRelease(){
+        val source=sound().withModeScript("on(touch){play();return(true);} on(release){stop(id:id,cut);return(true);}")
+        val first=source.voice(60,scriptId=37)
+        val other=source.voice(64,scriptId=38)
+        first.next(false);other.next(false)
+        first.next(true);other.next(false)
+        assertEquals(0.0,first.left,0.0);assertTrue(first.finished)
+        assertTrue(other.left>0);assertFalse(other.finished)
+        assertEquals("Release script active",source.scriptStatus)
+    }
+    @Test fun releaseStopWithoutCutUsesEnvelopeTail(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,10,false))
+            .withModeScript("on(touch){play(pedal:0);return(true);} on(release){stop(id:id);return(true);}")
+        val voice=source.voice(60,scriptId=37);voice.next(false);voice.next(true)
+        assertTrue(voice.left>0);assertFalse(voice.finished)
+        repeat(101){voice.next(true)}
+        assertTrue(voice.finished)
+    }
+    @Test fun unsupportedCrossNoteReleaseStopDoesNotCommitScriptState(){
+        val source=sound().withModeScript("""
+            main(){level=100;}
+            on(touch){play(volume:level);return(true);}
+            on(release){level=25;stop(id:99);return(true);}
+        """.trimIndent())
+        val voice=source.voice(60,scriptId=37);voice.next(false);voice.next(true)
+        assertTrue(source.scriptStatus,source.scriptStatus.startsWith("Release fallback"))
+        val next=source.voice(60,scriptId=38);next.next(false)
+        assertEquals(.25,next.left,1e-12)
+    }
     @Test fun keyToPitchExpressionChangesActualSamplePosition(){
         fun source()=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){(it*100).toShort()}),0,128)),1000)
         val voice=source().withModeScript("on(touch){play(pitchmove:KeyToPitch(key:12));return(true);}").voice(60)
