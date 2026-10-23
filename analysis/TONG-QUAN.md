@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã xử lý yêu cầu STS đang chờ khi engine/backend đóng: trả false mà không cần frame audio tiếp theo, giữ nguyên kết quả đã thành công và chặn callback muộn. 2 test shutdown và 7 test queue đạt, build đạt; bản mới được cài lên thiết bị. Chưa mô phỏng lỗi AudioTrack thật; xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
+
 Giao diện chọn/restore/Main-link STS nay chờ xác nhận thay part từ audio trước khi lưu lựa chọn hoặc báo thành công. Yêu cầu bị hủy được kiểm tra trước commit; commit bị từ chối trả false. 9 test queue/batch đạt, assembleDebug đạt và đã cài/mở bản mới. Chưa kiểm chứng UI cancellation hoặc xử lý backend dừng; xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
 
 Đã hoàn tất nối đổi STS nhóm theo mặt nạ mặc định và sửa race khi hai yêu cầu cùng xuất phát từ chưa có nhóm: kiểm tra previous identity kể cả null trước gửi và tại audio commit. Test queue tái hiện race, batch/changes và build đạt; đã cài/mở bản mới. Render nối tiếp 4 nhóm từ hai SET thật đã đạt; chưa thử nghe/UI chuyển nhóm hoặc thông báo kết quả commit bất đồng bộ đầy đủ. Xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).

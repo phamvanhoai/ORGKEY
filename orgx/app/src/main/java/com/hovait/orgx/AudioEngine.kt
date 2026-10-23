@@ -60,6 +60,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
     private val stsParts=ImportedKeyboardPartQueue()
+    private val stsWaiters=StsCommitWaiters()
     @Volatile private var stsPartsEnabled=false
     private val stsGeneration=java.util.concurrent.atomic.AtomicLong()
     @Volatile private var stsMusic:ImportedChannelSettings?=null
@@ -82,8 +83,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(prepared is ImportedStsRequest.Prepared.Single)return applyStsRequest(prepared,expectedSound)
         prepared as ImportedStsRequest.Prepared.Group
         if(importedInstrument!==expectedSound || currentStsGroup!==prepared.previous)return false
-        val result=kotlinx.coroutines.CompletableDeferred<Boolean>()
-        if(!applyPreparedStsBatch(prepared.value,prepared.previous,{result.complete(it)},{!result.isCancelled}))return false
+        val result=stsWaiters.register()
+        if(result.isCompleted)return false
+        if(!applyPreparedStsBatch(prepared.value,prepared.previous,{result.complete(it)},{!result.isCompleted})){
+            result.complete(false);return false
+        }
         return try{result.await()}finally{if(!result.isCompleted)result.cancel()}
     }
     fun applyPreparedStsBatch(prepared:ImportedStsBatch.Prepared,previous:ImportedStsBatch.Prepared?=null,
@@ -282,7 +286,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         else AudioTrackBackend(track,sampleRate)
         outputLoop = AudioOutputLoop(start={backend.start();if(!preferNativeOutput)outputStatus="AudioTrack"},
             render=::renderBlock,write={samples,offset,count->backend.write(samples,offset,count)},release={
-                try{backend.close()}finally{importedKeyboardMixer.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close()}
+                try{backend.close()}finally{stsWaiters.close();importedKeyboardMixer.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close()}
             },
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
@@ -648,6 +652,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     fun close() {
+        stsWaiters.close()
         stopMidi()
         outputLoop.close()
         outputStatus="Stopping"

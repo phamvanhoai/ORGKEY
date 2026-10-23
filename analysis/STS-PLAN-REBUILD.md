@@ -107,3 +107,9 @@ ImportedKeyboardPartQueue.commit báo accepted sau khi thay part. AudioEngine.aw
 Test queue bổ sung kiểm tra chưa có kết quả trước render và kết quả true/false sau xử lý. Không xử lý rollback nếu callback trước-replace ném lỗi; lỗi nghiêm trọng/audio backend dừng vẫn cần luồng đóng engine hủy yêu cầu chờ. Đây là xác nhận thay state ở biên frame, không xác nhận thiết bị đã phát/đã nghe tiếng.
 
 Kiểm chứng bản này: 7 test ImportedKeyboardPartQueueTest và 2 test ImportedStsBatchTest đạt, không failure/error/skip; assembleDebug đạt sau khi chạy Kotlin compiler in-process để tránh daemon kẹt. Đã cài và mở bản mới trên 88d75c04. Chưa kiểm chứng thao tác UI hủy màn hình/restore trên thiết bị hoặc lỗi backend dừng.
+
+## Kết thúc yêu cầu chờ khi audio đóng
+
+StsCommitWaiters quản lý deferred độc lập với vòng render: engine.close và cleanup backend đều đóng registry, hoàn tất mọi yêu cầu còn chờ bằng false. Register sau close nhận false ngay, close lặp an toàn; yêu cầu đã thành công hoặc bị cancellation không bị ghi đè. stillWanted kiểm tra isCompleted để nhóm bị shutdown từ chối commit kể cả còn lệnh trong queue. Không chờ một frame âm thanh mới để giải phóng coroutine UI.
+
+Test shutdown gồm nhiều yêu cầu pending, register sau close, callback complete muộn, kết quả thành công trước shutdown và cancellation. Chưa mô phỏng lỗi AudioTrack thực trên điện thoại; không hủy hoặc rollback nhóm đã commit trước close.
