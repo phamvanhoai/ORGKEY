@@ -56,7 +56,7 @@ object ImportedInstrumentLoader {
             }
     }
     fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings?=null,
-        musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false):SampledInstrument {
+        musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false,keyConnectionMethod:Int=0,sourceVersion:String="1.4.6"):SampledInstrument {
         if(instrument.modes.isNotEmpty()){
             require(modeReferenceError(instrument)==null){modeReferenceError(instrument).orEmpty()}
             val layers=layers(instrument,aftertouch)
@@ -65,9 +65,9 @@ object ImportedInstrumentLoader {
             val uniqueLayers=(layers+alternateLayers).distinct()
             require(uniqueLayers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
             val modeSettings=settings ?: ImportedMusicParameters.pitch(instrument.modes.first().settings,musicSettings,musicSettings.octave)
-            val decoded=uniqueLayers.associateWith{load(file,it,system,modeSettings,musicSettings)}
+            val decoded=uniqueLayers.associateWith{load(file,it,system,modeSettings,musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=sourceVersion)}
             val loaded=SampledInstrument.combine(layers.map{decoded.getValue(it).copySampleSource()})
-                .withExpressionEffects(if(settings==null)instrument.modes.first().effects else emptyList())
+                .withExpressionEffects(if(settings==null)ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(instrument.modes.first().effects,sourceVersion,keyConnectionMethod) else emptyList())
             if(alternateLayers.isNotEmpty()){
                 val alternate=SampledInstrument.combine(alternateLayers.map{decoded.getValue(it).copySampleSource()})
                 loaded.withAftertouch(alternate)

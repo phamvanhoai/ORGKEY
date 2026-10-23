@@ -20,6 +20,6 @@ Automation event 65 parameter 7 đã được mở cho Pitch Shake và Volume Sh
 
 Automation slot 0/1 đã được nối vào style player. Event thay đổi Key Repeat giữ nguyên bộ đếm 10 ms của voice hiện hành; event Key Connection cập nhật chuyển pitch đang chạy và cấu hình dùng khi nốt kế tiếp mở. Mode cao có thể chuyển quyền điều khiển sang voice hiện hành, mode thấp mở voice mới từ cao độ phím trước.
 
-Đã nối cấu hình toàn cục `fKeyConnectionMethod` theo APK gốc: Method 1 là 0, Method 2 là 1, lưu bằng khóa `key_connection`. Event 65 parameter 7 của slot 1 ghép phương thức vào bit cao (`lowMode | method * 16`); các slot khác không bị ghép. Giá trị được chuyển vào mọi style load/preview/restore và có thể đổi trong trang Cài đặt.
+Đã nối cấu hình toàn cục `fKeyConnectionMethod` theo APK gốc: Method 1 là 0, Method 2 là 1, lưu bằng khóa `key_connection`. Event 65 parameter 7 của slot 1 ghép phương thức vào bit cao (`lowMode | method * 16`); các slot khác không bị ghép. Giá trị được chuyển vào mọi style load/preview/restore và có thể đổi trong trang Cài đặt. Loader giữ phiên bản nguồn; với SET trước `1.4.3`, nó cũng ghép Method vào Key Connection tĩnh của channel và mode nhạc cụ như `Channels.ReadFromStream` và `Instrument.ReadFromStream`, chỉ trong bộ nhớ và không sửa file SET.
 
 Các ngoại lệ AutoRelease/restart theo từng low nibble và chuyển ngay session đang phát khi đổi phương thức vẫn cần dựng tiếp trước khi coi Key Connection/Legato/Mono hoàn chỉnh.

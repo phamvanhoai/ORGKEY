@@ -20,6 +20,14 @@ class ImportedExpressionModeTest {
         val pitch=ImportedExpressionAutomation.update(effect(2,0),ReferenceDrumEvent(65,2,7,3,0,0),1)
         assertEquals(3,pitch.mode)
     }
+
+    @Test fun legacySetAppliesGlobalMethodOnlyToStaticKeyConnectionEffect(){
+        val effects=listOf(effect(0,3),effect(1,3),effect(2,3))
+        val legacy=ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(effects,"1.2.8",1)
+        assertEquals(listOf(3,19,3),legacy.map{it.mode})
+        assertEquals(effects,ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(effects,"1.4.3",1))
+        assertEquals(effects,ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(effects,"1.4.6",1))
+    }
     private fun effect(slot:Int,mode:Int)=ImportedExpressionEffect(
         slot,true,0,false,false,mode,125,51,7,emptyList())
 

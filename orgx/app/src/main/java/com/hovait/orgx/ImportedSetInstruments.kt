@@ -25,7 +25,8 @@ data class ImportedSts(val name:String,val record:Boolean,val midiChannel:Int,va
     val pedal:Int,val mode:Int,val data1:Int,val data2:Int,val chordType:Int,val chordSingle:List<Int>,
     val settings:ImportedChannelSettings,val slot:Int=-1,val effects:List<ImportedExpressionEffect> = emptyList())
 data class ImportedSetIndex(val instruments:List<ImportedInstrument>,val styles:List<ImportedStyleGroup>,val tracks:List<ImportedTrack> = emptyList(),val systems:List<ImportedSystem> = emptyList(),
-    val musicSettings:ImportedChannelSettings=ImportedChannelSettings(),val waveSettings:ImportedChannelSettings=ImportedChannelSettings(),val rhythmSettings:ImportedChannelSettings=ImportedChannelSettings())
+    val musicSettings:ImportedChannelSettings=ImportedChannelSettings(),val waveSettings:ImportedChannelSettings=ImportedChannelSettings(),val rhythmSettings:ImportedChannelSettings=ImportedChannelSettings(),
+    val sourceVersion:String="1.4.6")
 
 /** Bounded, lazy PCM indexing for Music Studio 1.4.6; sample bytes stay on disk. */
 object ImportedSetInstruments {
@@ -107,7 +108,7 @@ object ImportedSetInstruments {
             }
             ImportedInstrument(metadata.firstOrNull().orEmpty(),volume,pan,type,sounds,modes)
         }
-        if(!includeStyles)return@use ImportedSetIndex(instruments,emptyList(),musicSettings=musicSettings,waveSettings=waveSettings,rhythmSettings=rhythmSettings)
+        if(!includeStyles)return@use ImportedSetIndex(instruments,emptyList(),musicSettings=musicSettings,waveSettings=waveSettings,rhythmSettings=rhythmSettings,sourceVersion=musicVersion!!)
         common();val systems=List(count(10000)){
             val metadata=common();val startKey=f.readByte().toInt();val selectedKeys=int();skip(28)
             val table=List(24){java.lang.Double.longBitsToDouble(java.lang.Long.reverseBytes(f.readLong()))}
@@ -179,6 +180,6 @@ object ImportedSetInstruments {
             val settings=if(musicVersion>="1.4.2")fx() else ImportedChannelSettings()
             ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo,type,limit,jump,meterX,meterY,settings,chordType,chordBase,stsIndices)
         }
-        ImportedSetIndex(instruments,styles,tracks,systems,musicSettings,waveSettings,rhythmSettings)
+        ImportedSetIndex(instruments,styles,tracks,systems,musicSettings,waveSettings,rhythmSettings,musicVersion!!)
     }
 }

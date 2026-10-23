@@ -71,6 +71,7 @@ class MainActivity : ComponentActivity() {
 private fun ORGXApp(engine: AudioEngine) {
     val context = LocalContext.current
     val preferences = remember { context.getSharedPreferences("orgx-settings", 0) }
+    remember(preferences){engine.keyConnectionMethod=preferences.getInt("key_connection",0).coerceIn(0,1);true}
     // Older builds defaulted to drum-only preview, omitting the SET accompaniment.
     remember(preferences){
         if(!preferences.getBoolean("fullStyleDefaultV1",false))preferences.edit()
@@ -89,7 +90,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 val loaded=withContext(Dispatchers.IO){
                     val (file,sound)=ImportedSoundSelection.resolve(File(context.filesDir,"ReferenceSets"),fileName,soundName)
                     val index=ImportedSetInstruments.index(file)
-                    Triple(ImportedInstrumentLoader.load(file,sound,index.systems.firstOrNull(),musicSettings=index.musicSettings),file,index)
+                    Triple(ImportedInstrumentLoader.load(file,sound,index.systems.firstOrNull(),musicSettings=index.musicSettings,keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=index.sourceVersion),file,index)
                 }
                 // A user may have changed voices while the file was loading.
                 if(preferences.getString("importedSetFile",null)==fileName && preferences.getString("importedSetSound",null)==soundName){
@@ -301,7 +302,7 @@ private fun ORGXApp(engine: AudioEngine) {
                                         bankBusy=true;bankStatus="LOADING VOICE..."
                                         try{
                                             val sound=voiceSounds[chosen];val file=checkNotNull(engine.activeSetFile)
-                                            val loaded=withContext(Dispatchers.IO){val bank=engine.activeSetIndex;ImportedInstrumentLoader.load(file,sound,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings())}
+                                            val loaded=withContext(Dispatchers.IO){val bank=engine.activeSetIndex;ImportedInstrumentLoader.load(file,sound,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=bank?.sourceVersion ?: "1.4.6")}
                                             engine.importedInstrument=loaded;engine.importedInstrumentName=sound.name;restoredSetName=sound.name
                                             preferences.edit().remove("selectedStsSet").putString("importedSetFile",file.name).putString("importedSetSound",sound.name).apply()
                                             bankStatus="SELECTED: ${sound.name}"
@@ -618,7 +619,7 @@ private fun ORGXApp(engine: AudioEngine) {
             OutlinedButton(enabled=!importing,onClick={scope.launch{
                 importing=true
                 try{
-                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item,setIndex?.systems?.firstOrNull(),musicSettings=setIndex?.musicSettings ?: ImportedChannelSettings())}
+                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item,setIndex?.systems?.firstOrNull(),musicSettings=setIndex?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=setIndex?.sourceVersion ?: "1.4.6")}
                     engine.importedInstrument=loaded;engine.importedInstrumentName=item.name
                     preferences.edit().remove("selectedStsSet").putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).apply()
                     importStatus="Keyboard: ${item.name}. Select a built-in voice in Mixer to switch back."
