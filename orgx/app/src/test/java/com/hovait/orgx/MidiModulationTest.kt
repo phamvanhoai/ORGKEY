@@ -5,6 +5,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiModulationTest {
+    @Test fun captureIncludesModulationAlreadyHeldBeforeRecord(){
+        val levels=IntArray(16);levels[2]=70;levels[9]=45
+        val initial=MidiModulation.recordingStart(levels)
+        assertEquals(listOf(0xb2,0xb9),initial.map{it.status})
+        val output=ByteArrayOutputStream()
+        MidiRecording.write(output,initial+RecordedMidiEvent(0,0x92,60,100),120,1_000_000_000)
+        val controls=MidiFile.read(output.toByteArray().inputStream()).events.filter{it.controller==1}
+        assertEquals(listOf(70,45),controls.filter{it.tick==0L}.map{it.velocity})
+        assertEquals(listOf(2,9),controls.filter{it.tick>0}.map{it.channel})
+        assertTrue(controls.filter{it.tick>0}.all{it.velocity==0})
+    }
     @Test fun resetControllersClearsModulationOnOnlyItsOwnChannel(){
         val events=listOf(MidiNoteEvent(0,60,100,true,3),
             MidiNoteEvent(1,0,80,false,3,controller=1),

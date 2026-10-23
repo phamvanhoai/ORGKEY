@@ -413,6 +413,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         synchronized(recordingLock) {
             recordingData.reset()
             midiEvents.clear();midiStartNanos=System.nanoTime();midiRecordBpm=bpm
+            MidiModulation.recordingStart(liveModulation.copyOf()).forEach{event->
+                midiEvents.add(MidiEvent(0,event.status,event.note,event.velocity))
+            }
             if(sustain)MidiRecordingPedal.messages(true).forEach{message->
                 midiEvents.add(MidiEvent(0,message[0].toInt() and 255,64,127))
             }
