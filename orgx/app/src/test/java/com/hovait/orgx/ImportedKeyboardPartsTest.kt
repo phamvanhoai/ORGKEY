@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun musicKeyboardBalanceIsLatchedOnceAndDoesNotApplyMasterVolumeTwice(){
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            mixer.configureMusic(ImportedChannelSettings(volume=40,pan=-50))
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound(100),inputGain=.5)))
+            parts.noteOn(60,1.0)
+            assertEquals(.125,frame(parts,mixer),0.0)
+            assertEquals(.05,mixer.left*mixer.musicVolume,1e-12)
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound(100),inputGain=1.0)))
+            assertEquals(.125,frame(parts,mixer),0.0) // live note keeps old OpenKey gain
+        }finally{mixer.close()}
+    }
     @Test fun keyAreasAreInclusiveAndRecordDisabledPartsDoNotOpenNotes(){
         val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
         try{

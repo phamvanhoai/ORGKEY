@@ -44,6 +44,8 @@ class ImportedStsBatchTest {
             val masked=ImportedStsBatch.prepareMasked(file,index,1,current,List(21){false})
             assertEquals(listOf(40,60),masked.keyboardParts().map{it.sound.keyboardSettings.volume})
             assertTrue(masked.keyboardParts().all{it.enabled})
+            val balanced=ImportedStsBatch.prepareFull(file,index.copy(musicSettings=ImportedChannelSettings(pan=-50)),1)
+            assertTrue(balanced.keyboardParts().all{it.inputGain==.5})
             val instrumentIndex=index.copy(instruments=listOf(sound,sound),tracks=index.tracks.map{t->t.copy(sts=t.sts.map{it.copy(instrument=1)})})
             val latest=current.mapValues{it.value.copy(instrument=1)}
             val sameInstrument=ImportedStsBatch.prepareMasked(file,instrumentIndex,1,latest,ImportedStsPlan.defaultChanges)

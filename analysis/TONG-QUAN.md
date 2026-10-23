@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã sửa đường STS nhiều part bỏ sót Music keyboard balance: hệ số áp một lần ở note-on và giữ trên voice đang ngân; không nhân Music volume thêm lần nữa. 14 test parts/queue/batch đạt, assembleDebug đạt; đã cài/mở bản mới trên điện thoại. Chưa đối chiếu bản thu APK. Chi tiết [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
+
 Đã xử lý yêu cầu STS đang chờ khi engine/backend đóng: trả false mà không cần frame audio tiếp theo, giữ nguyên kết quả đã thành công và chặn callback muộn. 2 test shutdown và 7 test queue đạt, build đạt; bản mới được cài lên thiết bị. Chưa mô phỏng lỗi AudioTrack thật; xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
 
 Giao diện chọn/restore/Main-link STS nay chờ xác nhận thay part từ audio trước khi lưu lựa chọn hoặc báo thành công. Yêu cầu bị hủy được kiểm tra trước commit; commit bị từ chối trả false. 9 test queue/batch đạt, assembleDebug đạt và đã cài/mở bản mới. Chưa kiểm chứng UI cancellation hoặc xử lý backend dừng; xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).

@@ -12,7 +12,8 @@ object ImportedStsBatch {
             val member=selection.members.single{it.position==position}
             val track=index.tracks[member.trackIndex]
             ImportedKeyboardParts.Part(position,voice.sound,voice.snapshot.pedal!=0,
-                voice.snapshot.record,track.keyAreaFrom,track.keyAreaTo)
+                voice.snapshot.record,track.keyAreaFrom,track.keyAreaTo,
+                ImportedMusicParameters.keyboardGain(master?.music ?: index.musicSettings))
         }
     }
     fun resolve(index:ImportedSetIndex,slot:Int,changes:List<Boolean> = ImportedStsPlan.defaultChanges):Selection {

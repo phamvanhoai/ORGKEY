@@ -11,6 +11,7 @@ class ImportedKeyboardPartQueue {
     }
     fun commit(values:List<ImportedKeyboardParts.Part>,completed:(Boolean)->Unit = {},beforeReplace:()->Boolean){
         require(values.size<=4 && values.all{it.id in 1..4} && values.map{it.id}.distinct().size==values.size)
+        require(values.all{it.inputGain.isFinite() && it.inputGain in 0.0..1.0})
         val snapshot=values.toList()
         commands.add{
             val accepted=beforeReplace()

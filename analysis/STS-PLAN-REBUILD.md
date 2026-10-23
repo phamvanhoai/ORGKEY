@@ -113,3 +113,9 @@ Kiểm chứng bản này: 7 test ImportedKeyboardPartQueueTest và 2 test Impor
 StsCommitWaiters quản lý deferred độc lập với vòng render: engine.close và cleanup backend đều đóng registry, hoàn tất mọi yêu cầu còn chờ bằng false. Register sau close nhận false ngay, close lặp an toàn; yêu cầu đã thành công hoặc bị cancellation không bị ghi đè. stillWanted kiểm tra isCompleted để nhóm bị shutdown từ chối commit kể cả còn lệnh trong queue. Không chờ một frame âm thanh mới để giải phóng coroutine UI.
 
 Test shutdown gồm nhiều yêu cầu pending, register sau close, callback complete muộn, kết quả thành công trước shutdown và cancellation. Chưa mô phỏng lỗi AudioTrack thực trên điện thoại; không hủy hoặc rollback nhóm đã commit trước close.
+
+## Music balance trong nhóm tiếng
+
+Prepared.keyboardParts lấy keyboardGain từ Music settings hiệu lực (Master sau merge nếu có). Mỗi Part giữ inputGain; note-on nhân velocity với hệ số này đúng một lần và giữ gain cho voice đang ngân. Đây là phân bổ Music balance cho bàn phím, không phải pan stereo và không nhân Music volume: Music volume vẫn ở output engine. Trước đây đường một voice đã có hệ số này nhưng đường multi-part bỏ sót, làm tiếng to hơn khi Music.pan âm.
+
+Queue kiểm tra inputGain trước enqueue để dữ liệu lỗi không chờ tới audio thread. Test PCM xác nhận pan -50 giảm gain bàn phím một nửa, Music volume 40% nhân riêng ở cuối và thay part không đổi gain nốt cũ; test batch xác nhận lấy Music balance vào mọi part. Không sửa SET.
