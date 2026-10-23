@@ -30,6 +30,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var modeRoute:ModeRoute?=null
     val activeModeSound:SampledInstrument get()=modeRoute?.let{it.sounds[it.selected]} ?: this
     val activeMode:Int get()=modeRoute?.selected ?: 0
+    private var ownModeSelection:ImportedSoundSelection.Mode?=null
+    var modeSelection:ImportedSoundSelection.Mode?
+        get()=if(activeModeSound!==this)activeModeSound.modeSelection else ownModeSelection
+        internal set(value){ownModeSelection=value}
     fun withExitModes(modes:Map<Int,SampledInstrument>,selected:Int)=also{
         require(selected in modes)
         val route=ModeRoute(modes.toMap(),selected)

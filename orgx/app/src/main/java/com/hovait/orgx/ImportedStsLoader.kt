@@ -22,7 +22,7 @@ object ImportedStsLoader {
         val source=source(index,snapshot)
         require(index.systems.isEmpty() || snapshot.system in index.systems.indices){"STS system unavailable"}
         val settings=ImportedMusicParameters.pitch(snapshot.settings,index.musicSettings,index.musicSettings.octave)
-        return ImportedInstrumentLoader.load(file,source,index.systems.getOrNull(snapshot.system),settings,index.musicSettings,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,source))
+        return ImportedInstrumentLoader.load(file,source,index.systems.getOrNull(snapshot.system),settings,index.musicSettings,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,source),scriptOverridesForMode=scriptOverrides)
             .withKeyboardSettings(settings,source.type==0)
             .withExpressionEffects(snapshot.effects)
     }
