@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun originalLowerLegatoResolvesConnectionRelativeToInputKey(){
+        val script=ImportedModeScript.parse("on(touch) { play(connectkey:key-2, connectspeed:50); return(true); }")
+        val result=ImportedSimpleScript.evaluate(script,"touch",mapOf("key" to 60))
+        assertTrue(result.handled)
+        assertEquals(58,result.plays.single().parameters["connectkey"])
+        assertEquals(50,result.plays.single().parameters["connectspeed"])
+    }
     @Test fun additiveOctavesProduceThreePlaysAndSuppressFallback(){
         val script=ImportedModeScript.parse("on(touch) { play(volume:50); play(octavemove:1, volume:50); play(octavemove:-1, volume:50); return(true); }")
         val result=ImportedSimpleScript.evaluate(script,"touch")

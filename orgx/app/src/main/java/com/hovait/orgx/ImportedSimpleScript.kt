@@ -5,7 +5,7 @@ package com.hovait.orgx
 object ImportedSimpleScript {
     data class Play(val parameters:Map<String,Int>)
     data class Result(val plays:List<Play>,val handled:Boolean)
-    fun evaluate(script:ImportedModeScript,event:String):Result {
+    fun evaluate(script:ImportedModeScript,event:String,variables:Map<String,Int> = emptyMap()):Result {
         val plays=ArrayList<Play>()
         var handled=false
         for(body in script.eventBodies(event)) {
@@ -25,11 +25,21 @@ object ImportedSimpleScript {
                     val name=pair[0].trim().lowercase()
                     require(name in setOf("octavemove","volume","sound","key","velocity","pan","tune","pitchmove","connectkey","connectspeed","autorelease")){"Unsupported play parameter: $name"}
                     require(name !in parameters){"Duplicate play parameter: $name"}
-                    parameters[name]=pair[1].trim().toIntOrNull() ?: throw IllegalArgumentException("Unsupported play expression")
+                    parameters[name]=expression(pair[1],variables)
                 }
                 plays.add(Play(parameters.toMap()))
             }
         }
         return Result(plays.toList(),handled)
+    }
+    private fun expression(source:String,variables:Map<String,Int>):Int {
+        val value=source.trim().lowercase()
+        value.toIntOrNull()?.let{return it}
+        variables[value]?.let{return it}
+        val match=Regex("([a-z_][a-z_0-9]*)\\s*([+-])\\s*(\\d+)").matchEntire(value)
+            ?: throw IllegalArgumentException("Unsupported play expression: $source")
+        val base=variables[match.groupValues[1]] ?: throw IllegalArgumentException("Unknown script variable")
+        val offset=match.groupValues[3].toInt()
+        return if(match.groupValues[2]=="+")Math.addExact(base,offset) else Math.subtractExact(base,offset)
     }
 }
