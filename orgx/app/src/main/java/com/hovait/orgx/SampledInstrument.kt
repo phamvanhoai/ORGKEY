@@ -18,7 +18,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var aftertouchInstrument:SampledInstrument?=null
     private var expressionEffects:List<ImportedExpressionEffect> = emptyList()
     var touchScript:ImportedSimpleScript.Result?=null;private set
+    private var modeScript:ImportedModeScript?=null
     fun withModeScript(source:String)=also{
+        modeScript=ImportedModeScript.parse(source)
         touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
             ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
     }
@@ -48,10 +50,18 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true){
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
-        private val scriptPlan=touchScript.takeIf{scriptAllowed}
+        private val scriptPlan=if(scriptAllowed)runCatching{
+            modeScript?.let{ImportedSimpleScript.evaluate(it,"touch",mapOf("key" to note))}
+                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume","connectkey","connectspeed")}}}
+        }.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
             val key=(note.toLong()+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
-            Playback(key,tune,pan,autoRelease,effectsAllowed,false) to (command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0
+            val playback=Playback(key,tune,pan,autoRelease,effectsAllowed,false)
+            command.parameters["connectkey"]?.let{sourceKey->
+                playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
+                    command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
+            }
+            playback to (command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0
         }
         private val children=if(scriptPlan!=null)scriptChildren.map{it.first}+
             (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false)))
