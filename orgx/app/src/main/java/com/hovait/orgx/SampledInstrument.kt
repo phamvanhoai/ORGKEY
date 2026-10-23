@@ -20,6 +20,12 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     var touchScript:ImportedSimpleScript.Result?=null;private set
     private var modeScript:ImportedModeScript?=null
     private var scriptSession:ImportedScriptSession?=null
+    private var scriptSounds:Map<Int,SampledInstrument> = emptyMap()
+    private var scriptDefaultSound=0
+    private var scriptSoundRouting=false
+    fun withScriptSounds(sounds:Map<Int,SampledInstrument>,defaultSound:Int)=also{
+        scriptSounds=sounds.toMap();scriptDefaultSound=defaultSound.coerceAtLeast(0);scriptSoundRouting=true
+    }
     @Volatile var scriptStatus:String="No mode script";private set
     fun updateScriptModulation(level:Int){
         require(level in -127..127)
@@ -108,11 +114,14 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val scriptPlan=if(scriptAllowed)runCatching{
             scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity,"pedal" to if(initialScriptPedal)1 else 0)){result->
                 require(result.effects.all{it.slot in 0..3}){"Unsupported script effect slot"}
-                require(result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
+                require(result.plays.all{play->play.parameters.keys.all{it in setOf("sound","key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
                 result.plays.forEach{command->
+                    val sound=command.parameters["sound"]
+                    require(!scriptSoundRouting && sound==null || (sound ?: scriptDefaultSound) in scriptSounds){"Script sound unavailable: ${sound ?: scriptDefaultSound}"}
+                    val source=scriptSounds[sound ?: scriptDefaultSound] ?: this@SampledInstrument
                     val combinedTune=Math.addExact(tune,command.parameters["tune"] ?: 0)
                     val target=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
-                    val rate=pitchStep(target,combinedTune)
+                    val rate=source.pitchStep(target,combinedTune)
                     require(rate.isFinite() && rate>0){"Script pitch outside playback range"}
                 }
             }?.also{result->
@@ -121,8 +130,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }.onSuccess{if(modeScript?.source?.isNotBlank()==true && it!=null)scriptStatus="Touch script active"}
             .onFailure{scriptStatus="Touch fallback: ${it.message}"}.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
+            val source=scriptSounds[command.parameters["sound"] ?: scriptDefaultSound] ?: this@SampledInstrument
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
-            val playback=Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
+            val playback=source.Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
                 (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),
                 command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity,
                 command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal)

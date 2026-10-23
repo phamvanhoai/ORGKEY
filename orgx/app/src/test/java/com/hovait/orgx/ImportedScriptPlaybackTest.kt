@@ -5,6 +5,33 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun modeScriptSelectsSoundAndDefaultsToPrimaryWithoutMix(){
+        val file=File.createTempFile("script-sound",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,64,0,64))
+            fun sound(offset:Long)=ImportedSound("Sound $offset",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,2,100,0,0,0,0,0,0,ImportedWave(offset,4))))
+            fun load(script:String):SampledInstrument {
+                val mode=ImportedMode("DNC",0,-1,listOf(1)+List(7){-1},List(8){0},List(8){0},script=script)
+                return ImportedInstrumentLoader.load(file,ImportedInstrument("Voice",100,0,0,listOf(sound(0),sound(4)),listOf(mode)))
+            }
+            val selected=load("on(touch){play(sound:1);return(true);}")
+            val primary=load("on(touch){play();return(true);}")
+            val mixed=load("")
+            fun first(source:SampledInstrument)=source.voice(60).also{it.next(false)}.left
+            assertEquals(.5,first(selected),1e-9)
+            assertEquals(.25,first(primary),1e-9)
+            assertEquals(.75,first(mixed),1e-9)
+            val dynamic=load("""main(){setting(slider,name:"tone",title:"Sound",reset:1,from:0,to:1);} on(touch){play(sound:tone);return(true);}""")
+            assertEquals(.5,first(dynamic),1e-9)
+            dynamic.setScriptSlider("tone",0)
+            assertEquals(.25,first(dynamic),1e-9)
+            val invalid=load("main(){count=0;} on(touch){count=count+1;play(sound:99);return(true);}")
+            assertEquals(.75,first(invalid),1e-9)
+            assertTrue(invalid.scriptStatus,invalid.scriptStatus.startsWith("Touch fallback"))
+            assertTrue(invalid.scriptStatus,invalid.scriptStatus.contains("Script sound unavailable: 99"))
+        }finally{file.delete()}
+    }
     @Test fun originalVelocityLegatoSettingsCanDisableAndReenableConnection(){
         val session=ImportedScriptSession(original("Legato/Dynamic Legato (Velocity) + Setting.Script"))
         session.event("touch",mapOf("key" to 60,"velocity" to 110))

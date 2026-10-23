@@ -62,12 +62,23 @@ object ImportedInstrumentLoader {
             val layers=layers(instrument,aftertouch)
             require(layers.isNotEmpty()){"Instrument mode contains no playable sounds"}
             val alternateLayers=if(!aftertouch && instrument.modes.first().aftertouch>=0)layers(instrument,true) else emptyList()
-            val uniqueLayers=(layers+alternateLayers).distinct()
+            val mode=instrument.modes.first()
+            // Play defaults to InstMode.Sound, and an explicit sound bypasses the mode Mix.
+            // Decode before playback: script execution must never read PCM from disk.
+            val scriptIndices=if(mode.script.isBlank())emptyList() else
+                if(Regex("(?i)\\bsound\\s*:").containsMatchIn(mode.script))instrument.sounds.indices.toList()
+                else listOf(mode.sound.coerceAtLeast(0))
+            val scriptSources=scriptIndices.associateWith{sound->
+                require(sound in instrument.sounds.indices){"Script default sound unavailable: $sound"}
+                instrument.copy(sounds=listOf(instrument.sounds[sound]),modes=emptyList())
+            }.filterValues(::supported)
+            val uniqueLayers=(layers+alternateLayers+scriptSources.values).distinct()
             require(uniqueLayers.sumOf{it.sounds.single().sections.sumOf{section->section.wave.bytes.toLong()}}<=64L*1024*1024){"Instrument mode exceeds 64 MB PCM budget"}
             val modeSettings=settings ?: ImportedMusicParameters.pitch(instrument.modes.first().settings,musicSettings,musicSettings.octave)
             val decoded=uniqueLayers.associateWith{load(file,it,system,modeSettings,musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=sourceVersion)}
             val loaded=SampledInstrument.combine(layers.map{decoded.getValue(it).copySampleSource()})
                 .withExpressionEffects(if(settings==null)ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(instrument.modes.first().effects,sourceVersion,keyConnectionMethod) else emptyList())
+                .withScriptSounds(scriptSources.mapValues{decoded.getValue(it.value).copySampleSource()},mode.sound)
                 .withModeScript(instrument.modes.first().script,instrument.modes.first().scriptSettings+scriptOverrides)
             loaded.scriptSettingsKey=ImportedDncPreferences.key(file,instrument)
             if(alternateLayers.isNotEmpty()){
