@@ -3,7 +3,7 @@ package com.hovait.orgx
 /** One initialized variable store per mode execution context. Owned by caller. */
 class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionEffect> = emptyList(),private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
     private val timeOrigin=clockMillis()
-    data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int)
+    data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int,val toggle:Boolean=false)
     val sliders:List<Slider>
     val settingTitles:List<String>
     var initialEffects:List<ImportedSimpleScript.EffectChange> = emptyList();private set
@@ -48,7 +48,8 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
             if(match.value.startsWith("\""))match.value else " "
         }
         val declarations=Regex("(?i)setting\\s*\\(\\s*slider\\s*,\\s*name:\"([a-z_][a-z_0-9]*)\"\\s*,\\s*title:\"([^\"]*)\"\\s*,\\s*reset:(-?\\d+)\\s*,\\s*from:(-?\\d+)\\s*,\\s*to:(-?\\d+)\\s*\\)\\s*;")
-        sliders=declarations.findAll(code).map{match->
+        val toggles=Regex("(?i)setting\\s*\\(\\s*toggle\\s*,\\s*name:\"([a-z_][a-z_0-9]*)\"\\s*,\\s*title:\"([^\"]*)\"\\s*,\\s*reset:\\s*(true|false|0|1)\\s*\\)\\s*;")
+        sliders=toggles.findAll(code).map{Slider(it.groupValues[1].lowercase(),it.groupValues[2],if(it.groupValues[3].lowercase() in listOf("true","1"))1 else 0,0,1,true)}.toList()+declarations.findAll(code).map{match->
             Slider(match.groupValues[1].lowercase(),match.groupValues[2],match.groupValues[3].toInt(),match.groupValues[4].toInt(),match.groupValues[5].toInt()).also{
                 require(it.from<=it.to && it.reset in it.from..it.to){"Invalid script slider"}
             }
@@ -57,7 +58,7 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
         sliders.forEach{state[it.name]=it.reset}
         val textSettings=Regex("(?i)setting\\s*\\(\\s*text\\s*,\\s*title:\"([^\"]*)\"\\s*\\)\\s*;")
         settingTitles=textSettings.findAll(code).map{it.groupValues[1]}.toList()
-        script=ImportedModeScript.parse(textSettings.replace(declarations.replace(code,""),""))
+        script=ImportedModeScript.parse(toggles.replace(textSettings.replace(declarations.replace(code,""),""),""))
         synchronizeEffects(storedEffects)
         val initialized=ImportedSimpleScript.evaluate(script,"main",state=state)
         require(initialized.plays.isEmpty()){"Audio commands in main are not supported"}

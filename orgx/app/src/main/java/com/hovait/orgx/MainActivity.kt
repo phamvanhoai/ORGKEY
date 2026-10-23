@@ -868,12 +868,16 @@ private fun ORGXApp(engine: AudioEngine) {
         scriptSound?.scriptSliders?.forEach{setting->
             var value by remember(scriptSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
             Text(setting.title)
+            if(setting.toggle){
+                Switch(checked=value!=0,onCheckedChange={checked->val next=if(checked)1 else 0;engine.setScriptSlider(scriptSound,setting.name,next){accepted->if(accepted)scriptScope.launch{value=next}}})
+            }else{
             Row(verticalAlignment=Alignment.CenterVertically){
                 fun change(next:Int){engine.setScriptSlider(scriptSound,setting.name,next){accepted->if(accepted)scriptScope.launch{value=next}}}
                 TextButton(enabled=value>setting.from,onClick={change(value-1)}){Text("−")}
                 Text(value.toString())
                 TextButton(enabled=value<setting.to,onClick={change(value+1)}){Text("+")}
                 TextButton(onClick={change(setting.reset)}){Text("RESET")}
+            }
             }
         };Text("Applies after closing and reopening the app. AudioTrack is used if OpenSL initialization fails.",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
 

@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalVelocityLegatoSettingsCanDisableAndReenableConnection(){
+        val session=ImportedScriptSession(original("Legato/Dynamic Legato (Velocity) + Setting.Script"))
+        session.event("touch",mapOf("key" to 60,"velocity" to 110))
+        assertTrue(session.sliders.first{it.name=="velocity_enable"}.toggle)
+        session.setSlider("velocity_enable",0)
+        assertTrue(session.event("touch",mapOf("key" to 64,"velocity" to 80)).plays.isEmpty())
+        session.setSlider("velocity_enable",1)
+        val enabled=session.event("touch",mapOf("key" to 67,"velocity" to 80))
+        assertEquals(64,enabled.plays.single().parameters["connectkey"])
+    }
     @Test fun originalAftertouchSettingsInitializeAndControlShakeParameters(){
         val source=original("Shake/Aftertouch Shake + Setting.Script")
         val session=ImportedScriptSession(source)
