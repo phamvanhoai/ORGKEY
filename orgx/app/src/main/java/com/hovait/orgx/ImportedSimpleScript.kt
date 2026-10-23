@@ -5,18 +5,31 @@ package com.hovait.orgx
 object ImportedSimpleScript {
     data class Play(val parameters:Map<String,Int>)
     data class Result(val plays:List<Play>,val handled:Boolean)
-    fun evaluate(script:ImportedModeScript,event:String,variables:Map<String,Int> = emptyMap()):Result {
+    fun evaluate(script:ImportedModeScript,event:String,variables:Map<String,Int> = emptyMap(),state:MutableMap<String,Int>?=null):Result {
         val plays=ArrayList<Play>()
+        val pending=state?.toMutableMap() ?: mutableMapOf()
+        fun context()=pending+variables
+        fun result(handled:Boolean):Result {
+            state?.let{it.clear();it.putAll(pending)}
+            return Result(plays.toList(),handled)
+        }
         var handled=false
         for(body in script.eventBodies(event)) {
             for(statement in body.split(';').map{it.trim()}.filter{it.isNotEmpty()}) {
+                val assignment=Regex("([a-zA-Z_][a-zA-Z_0-9]*)\\s*=\\s*([^=].*)").matchEntire(statement)
+                if(assignment!=null){
+                    val name=assignment.groupValues[1].lowercase()
+                    require(name !in variables){"Cannot overwrite event parameter: $name"}
+                    pending[name]=expression(assignment.groupValues[2],context())
+                    continue
+                }
                 val call=Regex("(?is)(play|return)\\s*\\((.*?)\\)").matchEntire(statement)
                     ?: throw IllegalArgumentException("Unsupported script statement: $statement")
                 val arguments=call.groupValues[2].trim()
                 if(call.groupValues[1].equals("return",true)) {
                     val value=when(arguments.lowercase()){"true"->true;"false","0"->false;"1"->true;else->throw IllegalArgumentException("Unsupported script return")}
                     handled=value
-                    return Result(plays.toList(),handled)
+                    return result(handled)
                 }
                 val parameters=linkedMapOf<String,Int>()
                 if(arguments.isNotEmpty())for(argument in splitArguments(arguments)) {
@@ -25,12 +38,12 @@ object ImportedSimpleScript {
                     val name=pair[0].trim().lowercase()
                     require(name in setOf("octavemove","keymove","volume","sound","key","velocity","pan","tune","pitchmove","connectkey","connectspeed","autorelease","attack","decay","sustain","release")){"Unsupported play parameter: $name"}
                     require(name !in parameters){"Duplicate play parameter: $name"}
-                    parameters[name]=expression(pair[1],variables)
+                    parameters[name]=expression(pair[1],context())
                 }
                 plays.add(Play(parameters.toMap()))
             }
         }
-        return Result(plays.toList(),handled)
+        return result(handled)
     }
     private fun expression(source:String,variables:Map<String,Int>):Int {
         val value=source.trim().lowercase()

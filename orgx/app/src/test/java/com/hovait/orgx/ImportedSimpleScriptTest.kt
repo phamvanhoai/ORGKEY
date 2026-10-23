@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun scriptStatePersistsAcrossEventsButFailedEventDoesNotCommit(){
+        val state=mutableMapOf("touch_count" to 0)
+        val script=ImportedModeScript.parse("on(touch) { touch_count = touch_count + 1; play(volume:touch_count); return(true); }")
+        assertEquals(1,ImportedSimpleScript.evaluate(script,"touch",state=state).plays.single().parameters["volume"])
+        assertEquals(2,ImportedSimpleScript.evaluate(script,"touch",state=state).plays.single().parameters["volume"])
+        try{
+            ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch) { touch_count = 99; unsupported(); }"),"touch",state=state)
+            fail("Unsupported statement accepted")
+        }catch(expected:IllegalArgumentException){}
+        assertEquals(2,state["touch_count"])
+    }
     @Test fun originalMoveAutoReleaseExpressionResolvesBoolean(){
         val script=ImportedModeScript.parse("on(touch) { play(autorelease:move_key != 0); return(true); }")
         assertEquals(1,ImportedSimpleScript.evaluate(script,"touch",mapOf("move_key" to 6)).plays.single().parameters["autorelease"])
