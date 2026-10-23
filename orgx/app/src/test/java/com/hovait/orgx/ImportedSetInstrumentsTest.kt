@@ -5,6 +5,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun localSetPreservesTrackMidiHeaderWhenProvided(){
+        val path=System.getProperty("orgx.legacySet") ?: return
+        val tracks=ImportedSetInstruments.index(File(path)).tracks
+        assertTrue(tracks.isNotEmpty())
+        assertTrue(tracks.all{it.midiChannelIn in Short.MIN_VALUE..Short.MAX_VALUE})
+        assertTrue(tracks.all{it.midiChannelOut in Short.MIN_VALUE..Short.MAX_VALUE})
+        assertTrue(tracks.all{it.midiProgram in Byte.MIN_VALUE..Byte.MAX_VALUE})
+        assertTrue(tracks.all{it.midiBankMsb in Byte.MIN_VALUE..Byte.MAX_VALUE && it.midiBankLsb in Byte.MIN_VALUE..Byte.MAX_VALUE})
+        println("Track MIDI headers: "+tracks.groupingBy{
+            "in=${it.midiChannelIn}, out=${it.midiChannelOut}, program=${it.midiProgram}, bank=${it.midiBankMsb}:${it.midiBankLsb}, record=${it.record}"
+        }.eachCount())
+    }
     @Test fun allCompatibleLegacyDrumGroupsRenderTheirOwnSamples() {
         val path=System.getProperty("orgx.legacySet") ?: return
         val file=File(path);val index=ImportedSetInstruments.index(file)

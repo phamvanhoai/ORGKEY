@@ -17,7 +17,9 @@ data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val sect
     val chordType:Int=0,val chordBase:Int=0,val stsIndices:List<Int> = emptyList())
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
     val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList(),val effects:List<ImportedExpressionEffect> = emptyList(),
-    val pedalMode:Int=0,val pedal:Int=0,val keyAreaFrom:Int=0,val keyAreaTo:Int=127)
+    val pedalMode:Int=0,val pedal:Int=0,val keyAreaFrom:Int=0,val keyAreaTo:Int=127,
+    val midiChannelOut:Int=0,val midiProgram:Int=0,val record:Boolean=false,val midiChannelIn:Int=0,
+    val midiBankMsb:Int=0,val midiBankLsb:Int=0)
 data class ImportedSystem(val name:String,val startKey:Int,val selectedKeys:Int,val table:List<Double>)
 data class ImportedSts(val name:String,val record:Boolean,val midiChannel:Int,val instrument:Int,val system:Int,
     val pedal:Int,val mode:Int,val data1:Int,val data2:Int,val chordType:Int,val chordSingle:List<Int>,
@@ -137,8 +139,13 @@ object ImportedSetInstruments {
         }
         val tracks=List(count(100000)){
             val metadata=common();val trackGroup=lastGroup
-            f.readUnsignedByte();val kind=f.readByte().toInt();skip(2);val system=int();val instrument=int();skip(1);val solo=f.readBoolean();val muted=f.readBoolean()
-            skip(5);val chordRoot=f.readUnsignedByte();val chordType=f.readUnsignedByte();skip(106)
+            f.readUnsignedByte();val kind=f.readByte().toInt()
+            val midiChannelOut=java.lang.Short.reverseBytes(f.readShort()).toInt()
+            val system=int();val instrument=int();val midiProgram=f.readByte().toInt()
+            val solo=f.readBoolean();val muted=f.readBoolean();val record=f.readBoolean()
+            val midiChannelIn=java.lang.Short.reverseBytes(f.readShort()).toInt()
+            val midiBankMsb=f.readByte().toInt();val midiBankLsb=f.readByte().toInt()
+            val chordRoot=f.readUnsignedByte();val chordType=f.readUnsignedByte();skip(106)
             val stored=count(10000);val number=if(musicVersion!!<"1.2.9")13 else stored
             val sts=buildList{
                 if(trackGroup==0 || musicVersion<"1.2.8"){
@@ -155,7 +162,9 @@ object ImportedSetInstruments {
                 ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune)
             }
             ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts,effects=channelEffects,
-                pedalMode=pedalMode,pedal=pedal,keyAreaFrom=keyAreaFrom,keyAreaTo=keyAreaTo)
+                pedalMode=pedalMode,pedal=pedal,keyAreaFrom=keyAreaFrom,keyAreaTo=keyAreaTo,
+                midiChannelOut=midiChannelOut,midiProgram=midiProgram,record=record,midiChannelIn=midiChannelIn,
+                midiBankMsb=midiBankMsb,midiBankLsb=midiBankLsb)
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)

@@ -146,3 +146,9 @@ StsMidiRoutingTest kiểm tra 64 tổ hợp enable/channel/playback; kiểm th�
 - Pitch bend, polyphonic aftertouch và channel aftertouch giữ trạng thái riêng theo từng kênh. Pitch bend có trước note-on cũng được áp vào đúng voice mới.
 - Hai byte `STS.MIDIChOut` trong snapshot là cấu hình xuất MIDI, không được dùng nhầm làm bộ lọc input.
 
+# Cập nhật dữ liệu MIDI Track (2026-10-23)
+
+- Khôi phục đầy đủ header MIDI mà Track gốc lưu: channel out, program, Record, channel in, bank MSB và bank LSB.
+- Parser thay các đoạn bỏ qua byte bằng đọc trường có tên, giữ nguyên kích thước và vị trí nhị phân.
+- Dữ liệu được giữ ở `ImportedTrack`; MIDI output tới thiết bị ngoài chưa được bật khi chưa có kết nối/output lifecycle tương ứng.
+

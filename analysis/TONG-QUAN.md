@@ -497,3 +497,7 @@ ORGX đã nối `pedalMode` của từng Track trong SET vào engine nhiều voi
 
 Đường USB/Bluetooth của APK gốc truyền channel vào `a1(channel,key,velocity)` rồi phát tới các Track đang Record theo key area, không khóa ở channel 0. ORGX đã sửa nhóm STS nhận đủ 16 kênh live và định danh voice bằng channel + key. Note-off, pitch bend, poly aftertouch và channel aftertouch chỉ tác động đúng kênh; MIDI file playback tiếp tục dùng đường playback riêng. Trường hai byte trong STS được xác nhận là `MIDIChOut`, nên không bị dùng sai để lọc nốt vào.
 
+# Cập nhật header MIDI của Track SET (2026-10-23)
+
+Parser Track không còn bỏ qua các trường mà `Track.ReadFromStream` của APK gốc đọc: `fMIDIChOut`, `fMIDIInst`, `fRecord`, `fMIDIChIn`, `fMIDIBank0` và `fMIDIBank1`. Các giá trị này được giữ trong `ImportedTrack` cùng key area, pedal và FX để các bước MIDI output/program/bank sau không phải đoán hoặc đọc lại file. Layout vẫn đọc đúng kiểu little-endian signed của mã gốc.
+
