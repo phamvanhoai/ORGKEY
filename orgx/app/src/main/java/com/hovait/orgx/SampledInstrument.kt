@@ -147,6 +147,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private fun scriptPitchMove(value:Int){
             scriptPitchFactor=(1000L+value).coerceAtLeast(1)/1000.0
             children.forEach{it.scriptPitchMove(value)}
+            alternate?.scriptPitchMove(value)
         }
         private var bentStep=step
         private var aftertouch=false
@@ -241,11 +242,16 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }?.handled==true}.getOrDefault(false)
                 if(handled)return
             }
+            if(scriptPlan!=null && children.isNotEmpty()){
+                children.forEach{it.aftertouch(pressure)}
+                return
+            }
             // Original Track switches to InstMode.Aftertouch on the first
             // positive pressure event. It closes the old key and opens the
             // alternate sound once; pressure is not a 50% cross-fade gate.
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
                 aftertouch=true;alternate=aftertouchInstrument!!.voice(currentKey,tune,pan,autoRelease,effectsAllowed,scriptVelocity,scriptPedal);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
+                alternate?.scriptPitchMove(((scriptPitchFactor-1.0)*1000).toInt())
                 heldModulation?.let{alternate?.modulate(it)}
                 if(scriptPedal)alternate?.scriptPedal(true)
             }
