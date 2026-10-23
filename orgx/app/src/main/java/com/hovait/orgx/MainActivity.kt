@@ -53,6 +53,7 @@ private val Subtle = Color(0xFF94A3B8)
 
 class MainActivity : ComponentActivity() {
     private lateinit var engine: AudioEngine
+    private var keyboardActive by mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         NativeReferenceLoader.tryLoad()
@@ -62,13 +63,15 @@ class MainActivity : ComponentActivity() {
                 || ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
                 && intent.getBooleanExtra("orgx.testNativeOutput",false)),
             referenceDrumTracks=runCatching{ReferenceDrumStore.playableVariations(assets)}.getOrDefault(emptyList()))
-        setContent { ORGXApp(engine) }
+        setContent { ORGXApp(engine,keyboardActive) }
     }
+    override fun onResume(){super.onResume();keyboardActive=true}
+    override fun onPause(){keyboardActive=false;super.onPause()}
     override fun onDestroy() { engine.close(); super.onDestroy() }
 }
 
 @Composable
-private fun ORGXApp(engine: AudioEngine) {
+private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     val context = LocalContext.current
     val preferences = remember { context.getSharedPreferences("orgx-settings", 0) }
     remember(preferences){engine.keyConnectionMethod=preferences.getInt("key_connection",0).coerceIn(0,1);true}
@@ -369,7 +372,7 @@ private fun ORGXApp(engine: AudioEngine) {
                             }
                         })
                 }
-                PianoKeyboard(octave, engine, Modifier.weight(.45f).fillMaxWidth(),leftChord)
+                PianoKeyboard(octave, engine, Modifier.weight(.45f).fillMaxWidth(),leftChord,enabled=keyboardActive)
             }
                         if(showTools) InstrumentPage(onDismissRequest={showTools=false},title={Text("MENU")},text={Column(Modifier.verticalScroll(rememberScrollState())){InstrumentMenu{
                             InstrumentMenuItem(text={Text("Import / Quản lý SET")},onClick={showTools=false;showSets=true})
@@ -453,9 +456,10 @@ private fun ORGXApp(engine: AudioEngine) {
 @Composable private fun ControlButton(label:String,active:Boolean,onClick:()->Unit,modifier:Modifier=Modifier){Button(onClick=onClick,modifier=modifier.height(48.dp),contentPadding=PaddingValues(horizontal=4.dp),colors=ButtonDefaults.buttonColors(containerColor=if(active) Accent else Muted,contentColor=if(active) Bg else Text),shape=RoundedCornerShape(9.dp)){Text(label,fontWeight=FontWeight.Bold,fontSize=10.sp,maxLines=1)}}
 @Composable private fun Stepper(label:String,value:Int,onMinus:()->Unit,onPlus:()->Unit,modifier:Modifier){Row(modifier.height(48.dp).background(Muted,RoundedCornerShape(9.dp)),verticalAlignment=Alignment.CenterVertically){TextButton(onClick=onMinus,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(44.dp)){Text("-",color=Text,fontSize=18.sp)};Text("$label  $value",modifier=Modifier.weight(1f),color=Text,fontSize=11.sp,fontWeight=FontWeight.Bold);TextButton(onClick=onPlus,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(44.dp)){Text("+",color=Text,fontSize=18.sp)}}}
 
-@Composable private fun PianoKeyboard(octave:Int, engine:AudioEngine, modifier:Modifier,leftChord:Boolean=false) {
+@Composable private fun PianoKeyboard(octave:Int, engine:AudioEngine, modifier:Modifier,leftChord:Boolean=false,enabled:Boolean=true) {
     val active = remember { mutableStateMapOf<Int,Int>() }
-    Canvas(modifier.background(Color(0xFF080811), RoundedCornerShape(12.dp)).pointerInput(octave,leftChord) {
+    Canvas(modifier.background(Color(0xFF080811), RoundedCornerShape(12.dp)).pointerInput(octave,leftChord,enabled) {
+        if(!enabled)return@pointerInput
         fun noteAt(position: Offset): Int {
             val whites = 14
             val width = size.width / whites
