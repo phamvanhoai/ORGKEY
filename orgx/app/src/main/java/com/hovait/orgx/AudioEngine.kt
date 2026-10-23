@@ -63,6 +63,24 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         set(value){autoChordMap=AutoChordProgression(value);field=value}
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
+    private val chordSynchro=ChordSynchro()
+    @Volatile var synchroStart=true;private set
+    @Volatile var synchroStop=false;private set
+    @Volatile private var synchroMinimum=0
+    fun configureChordSynchro(start:Boolean,stop:Boolean,minimum:Int=0){
+        require(minimum in listOf(0,2,3))
+        synchroStart=start;synchroStop=stop;synchroMinimum=minimum
+        updateChordSynchro()
+    }
+    private fun updateChordSynchro(){
+        val request=chordSynchro.update(synchroStart,synchroStop,leftChordEnabled && keyboardChordInput.pressedChord!=null,
+            keyboardChordInput.heldKeyCount,synchroMinimum,rhythmPlaying) ?: return
+        if(!request){setRhythmEnabled(false);return}
+        val selection=pendingStyle.get()
+        val session=if(selection!=null)selection.session else importedStyleSession
+        if(session!=null)requestStyleSection(session.currentId)
+        else if(activeSetIndex==null)setRhythmEnabled(true)
+    }
     private val stsParts=ImportedKeyboardPartQueue()
     fun setScriptSlider(sound:SampledInstrument,name:String,value:Int,expectedMode:SampledInstrument=sound.activeModeSound,completed:(Boolean)->Unit={}){
         stsParts.updateScriptSlider(sound,name,value,{importedInstrument===sound && sound.activeModeSound===expectedMode},completed)
@@ -137,24 +155,28 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         require(mode in 0..2)
         keyboardChordInput.configureChordMode(mode,chordSingles,referenceChords,chordDualMappings)
         chordInputMode=mode
+        updateChordSynchro()
     }
     @Synchronized fun setChordDualMappings(values:Map<Int,Int>){
         require(values.all{(key,value)->ChordDualSettings.valid(key,value)})
         val snapshot=values.toMap()
         keyboardChordInput.configureChordMode(chordInputMode,chordSingles,referenceChords,snapshot)
         chordDualMappings=snapshot
+        updateChordSynchro()
     }
     @Volatile var leftChordEnabled=false;private set
     val detectedKeyboardChord:Int? get()=if(leftChordEnabled)keyboardChordInput.chord else null
-    fun setLeftChordEnabled(enabled:Boolean){keyboardChordInput.reset();leftChordEnabled=enabled}
+    fun setLeftChordEnabled(enabled:Boolean){keyboardChordInput.reset();leftChordEnabled=enabled;updateChordSynchro()}
     fun keyboardNoteOn(note:Int,velocity:Float,splitNote:Int){
         if(leftChordEnabled && note<splitNote){
             if(voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
             keyboardChordInput.press(note,referenceChords)
+            updateChordSynchro()
         } else noteOn(note,velocity)
     }
     fun keyboardNoteOff(note:Int){
         val chordKey=keyboardChordInput.release(note)
+        if(chordKey)updateChordSynchro()
         if(!chordKey || voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
     }
     /** Per-key aftertouch from the hardware piano surface; sound switching remains mode-dependent. */

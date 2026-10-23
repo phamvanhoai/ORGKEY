@@ -4,6 +4,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class KeyboardChordInputTest {
+    @Test fun synchroStartsAtThresholdAndStopsAfterLastRecognisedChordIsReleased(){
+        val input=KeyboardChordInput();val sync=ChordSynchro()
+        input.configureSingleFinger(true,List(12){145},library)
+        fun request(running:Boolean)=sync.update(true,true,input.pressedChord!=null,input.heldKeyCount,3,running)
+        input.press(60,library);assertNull(request(false))
+        input.press(64,library);assertNull(request(false))
+        input.press(67,library);assertEquals(true,request(false))
+        input.release(60);assertNull(request(true))
+        input.release(64);assertNull(request(true))
+        input.release(67);assertEquals(false,request(true))
+        assertNotNull(input.chord);assertNull(input.pressedChord)
+        assertNull(request(false)) // Remembered chord cannot restart the style.
+    }
+    @Test fun synchroStopDoesNotStopManualPlaybackBeforeAChordWasHeld(){
+        val sync=ChordSynchro()
+        assertNull(sync.update(false,true,false,0,0,true))
+        assertNull(sync.update(false,true,true,3,0,true))
+        assertEquals(false,sync.update(false,true,false,0,0,true))
+        assertNull(sync.update(true,false,true,3,0,true))
+        assertNull(sync.update(true,false,false,0,0,true))
+    }
     @Test fun singleFingerUsesOriginalContainedChordFallbackAndTableOrder(){
         val input=KeyboardChordInput()
         input.configureSingleFinger(true,List(12){145 or (1 shl 1)},library)

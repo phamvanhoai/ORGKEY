@@ -2,7 +2,16 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — nhớ tempo từng style, 24-10-2026
+## Kết quả mới nhất — Synchro Start/Stop, 24-10-2026
+
+- Đối chiếu vòng điều khiển k92: Sync Start khi group trống, có hợp âm đang nhấn hợp lệ và đủ ngưỡng phím; Sync Stop chỉ dừng sau khi đã có hợp âm đang nhấn rồi mất hợp âm đó. Mặc định Start=true/Stop=false theo Music.
+- Thêm hai nút SYNC START/SYNC STOP trực tiếp trên console, lưu sync_start/sync_stop. Trang CHORD có ngưỡng Auto/2 keys/3 keys theo ChordSynchro gốc. Luồng này nhận phím tay trái, không dùng riêng tên hợp âm được nhớ làm tín hiệu start.
+- KeyboardChordInput giữ pressedChord và heldKeyCount riêng với chord-memory. Engine nối note-on/off và thay đổi cấu hình nhận diện vào transport, chọn đúng session hiện tại hoặc đang chờ nạp; không phát factory rhythm khi có SET nhưng chưa chọn style.
+- Kiểm tra ngưỡng ba phím, nhả còn hợp âm hợp lệ không dừng, nhả hết dừng một lần, chord-memory không tự start và Sync Stop không dừng playback thủ công trước khi có hợp âm đều đạt cùng hồi quy chuyển phần/chord PCM. Build cuối/cài thành công, không tạo file test mới.
+- Đã thao tác trên thiết bị: đang READY, chạm phím tay trái ở ONE KEY với Sync Start bật -> RUNNING; bật Sync Stop rồi nhấn/nhả hợp âm -> READY, chord-memory vẫn hiện C M.
+- Giới hạn: xử lý theo sự kiện bàn phím ORGX, chưa tái tạo timer polling k92 hoặc kiểm chứng MIDI controller ngoài. Chưa có tiếng synchro u1, chế độ dừng pads, recording/playmode exceptions và toàn bộ tương tác sync với PAD như gốc.
+
+## Nhớ tempo từng style, 24-10-2026
 
 - Hoàn thiện giới hạn của lượt chỉnh tempo trước: bộ nhớ tempo gắn với đối tượng index của SET đang mở và ID style, không gắn riêng session. Rời style/chọn lại hoặc nạp lại session đổi chế độ nhạc đệm vẫn lấy tempo đã chỉnh; mở index SET khác xóa bộ nhớ này.
 - Chỉ ghi tempo style khi chưa khóa. Session mới phục hồi override kể cả lúc Tempo Lock bật, để khi mở khóa vẫn dùng tempo đã chỉnh trước đó. selectedTempo được dùng ở cả đường restore, LCD và trang SET, tránh UI ghi đè lại tempo gốc sau engine chọn session.

@@ -19,7 +19,8 @@ import androidx.compose.ui.input.pointer.pointerInput
     onTempo:(Int)->Unit,onOctave:(Int)->Unit,onSustain:()->Unit,onAutoFill:()->Unit,onPart:(Int)->Unit,
     stylePage:Boolean=false,styleChoices:List<String> = emptyList(),styleEnabled:List<Boolean> = emptyList(),
     page:Int=0,status:String="",onChoose:(Int)->Unit={},onPage:(Int)->Unit={},onExit:()->Unit={},
-    modeLabel:String="",onMode:()->Unit={},selectionTitle:String="STYLE SELECT",selectedChoice:Int=-1,onMixer:()->Unit=onVoice,temporaryLoop:Boolean=false){
+    modeLabel:String="",onMode:()->Unit={},selectionTitle:String="STYLE SELECT",selectedChoice:Int=-1,onMixer:()->Unit=onVoice,temporaryLoop:Boolean=false,
+    syncStart:Boolean=false,syncStop:Boolean=false,onSyncStart:()->Unit={},onSyncStop:()->Unit={}){
     data class Key(val x:Float,val y:Float,val w:Float,val h:Float,val label:String,val active:Boolean=false,val enabled:Boolean=true,val action:()->Unit)
     val keys=mutableListOf<Key>()
     keys+=Key(8f,12f,110f,26f,"ORGX / hovait",action=onMenu)
@@ -30,6 +31,8 @@ import androidx.compose.ui.input.pointer.pointerInput
     keys+=Key(90f,155f,55f,26f,if(playing)"STOP" else "START",playing,action=onPlay)
     keys+=Key(790f,12f,88f,26f,"SUSTAIN",sustain,action=onSustain)
     keys+=Key(888f,12f,102f,26f,"CHORD",action=onChord)
+    keys+=Key(790f,155f,88f,26f,"SYNC START",syncStart,action=onSyncStart)
+    keys+=Key(888f,155f,102f,26f,"SYNC STOP",syncStop,action=onSyncStop)
     keys+=Key(790f,110f,43f,26f,"−",action={onTempo(-1)})
     keys+=Key(837f,110f,43f,26f,"+",action={onTempo(1)})
     keys+=Key(888f,110f,49f,26f,"OCT −",action={onOctave(-1)})

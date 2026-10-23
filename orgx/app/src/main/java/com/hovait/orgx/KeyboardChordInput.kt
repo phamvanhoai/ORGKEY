@@ -1,5 +1,21 @@
 package com.hovait.orgx
 
+/** k92: arm stop only after a recognised held chord; memory alone cannot trigger start. */
+class ChordSynchro {
+    private var stopArmed=false
+    @Synchronized fun update(start:Boolean,stop:Boolean,recognised:Boolean,count:Int,minimum:Int,running:Boolean):Boolean?{
+        if(!stop)stopArmed=false
+        if(recognised){
+            if(stop)stopArmed=true
+            if(start && !running && count>=minimum)return true
+        }else if(stop && stopArmed){
+            stopArmed=false
+            if(running)return false
+        }
+        return null
+    }
+}
+
 /** Original ChordGet/ChordFind recognition and chord hold on release. */
 class KeyboardChordInput {
     private val held=sortedSetOf<Int>()
@@ -9,6 +25,8 @@ class KeyboardChordInput {
     private var lastLibrary:List<PlayableChord> = emptyList()
     @Volatile var chord:Int?=null;private set
     @Volatile var octaveMove=0;private set
+    @Volatile var pressedChord:Int?=null;private set
+    val heldKeyCount:Int get()=synchronized(this){held.size}
     @Synchronized fun configureSingleFinger(enabled:Boolean,masks:List<Int>,library:List<PlayableChord>){
         configureChordMode(if(enabled)1 else 0,masks,library)
     }
@@ -28,18 +46,19 @@ class KeyboardChordInput {
         detect(library)
     }
     private fun detect(library:List<PlayableChord>){
-        if(held.isEmpty())return
+        if(held.isEmpty()){pressedChord=null;return}
         var mask=if(mode==1)singles[held.first()%12] else ReferenceChordInput.mask(held)
         if(mode==2 && Integer.bitCount(mask)==2){
             val mapped=duals[mask]
             if(mapped!=null && ReferenceChordMatcher.find(mapped,library)!=null)mask=mapped
         }
-        ReferenceChordMatcher.find(mask,library)?.let{chord=it;octaveMove=held.last()/12}
+        pressedChord=ReferenceChordMatcher.find(mask,library)
+        pressedChord?.let{chord=it;octaveMove=held.last()/12}
     }
     @Synchronized fun release(note:Int):Boolean {
         val removed=held.remove(note)
         if(removed)detect(lastLibrary)
         return removed
     }
-    @Synchronized fun reset(){held.clear();chord=null;octaveMove=0}
+    @Synchronized fun reset(){held.clear();chord=null;pressedChord=null;octaveMove=0}
 }
