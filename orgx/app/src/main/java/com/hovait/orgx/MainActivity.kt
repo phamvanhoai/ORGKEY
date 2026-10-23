@@ -475,6 +475,7 @@ private fun ORGXApp(engine: AudioEngine) {
         }
         awaitEachGesture {
             val pointerNotes = mutableMapOf<Long, Int>()
+            try {
             do {
                 val event = awaitPointerEvent()
                     event.changes.forEach { change ->
@@ -508,7 +509,15 @@ private fun ORGXApp(engine: AudioEngine) {
                         change.consume()
                     }
             } while (event.changes.any { it.pressed })
-            pointerNotes.values.forEach { engine.keyboardNoteOff(it); active.remove(it) }
+            } finally {
+                // pointerInput is cancelled when octave/split changes or this keyboard leaves composition.
+                // Release only this gesture's remaining references, including two fingers on one key.
+                pointerNotes.values.groupingBy{it}.eachCount().forEach{(note,held)->
+                    val count=(active[note] ?: held)-held
+                    if(count<=0){active.remove(note);engine.keyboardNoteOff(note)}else active[note]=count
+                }
+                pointerNotes.clear()
+            }
         }
     }) {
         val whites=14; val w=size.width/whites
