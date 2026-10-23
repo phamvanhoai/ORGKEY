@@ -15,7 +15,17 @@ object ImportedSimpleScript {
         }
         var handled=false
         for(body in script.eventBodies(event)) {
-            for(statement in body.split(';').map{it.trim()}.filter{it.isNotEmpty()}) {
+            for(rawStatement in body.split(';').map{it.trim()}.filter{it.isNotEmpty()}) {
+                var statement=rawStatement
+                if(Regex("(?i)^if\\s*\\(").containsMatchIn(statement)){
+                    val open=statement.indexOf('(');var depth=1;var end=open+1
+                    while(end<statement.length && depth>0){when(statement[end]){'('->depth++;')'->depth--};end++}
+                    require(depth==0){"Unclosed if condition"}
+                    val condition=statement.substring(open+1,end-1)
+                    statement=statement.substring(end).trim()
+                    require(statement.isNotEmpty() && !statement.startsWith("{")){"Block conditions are not supported yet"}
+                    if(expression(condition,context())==0)continue
+                }
                 val assignment=Regex("([a-zA-Z_][a-zA-Z_0-9]*)\\s*=\\s*([^=].*)").matchEntire(statement)
                 if(assignment!=null){
                     val name=assignment.groupValues[1].lowercase()

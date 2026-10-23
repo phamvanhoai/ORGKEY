@@ -4,6 +4,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun conditionalPlayUsesEventVelocityAndSkipsFalseBranch(){
+        val script=ImportedModeScript.parse("on(touch) { if (velocity < 100) play(connectkey:key-2,connectspeed:50); return(true); }")
+        assertEquals(1,ImportedSimpleScript.evaluate(script,"touch",mapOf("key" to 60,"velocity" to 80)).plays.size)
+        assertTrue(ImportedSimpleScript.evaluate(script,"touch",mapOf("key" to 60,"velocity" to 110)).plays.isEmpty())
+    }
+    @Test fun conditionalAssignmentDoesNotChangeStateWhenFalse(){
+        val session=ImportedScriptSession("main() { count = 1; } on(touch) { if (velocity > 100) count = count + 1; play(volume:count); }")
+        assertEquals(1,session.event("touch",mapOf("velocity" to 80)).plays.single().parameters["volume"])
+        assertEquals(2,session.event("touch",mapOf("velocity" to 110)).plays.single().parameters["volume"])
+    }
     @Test fun rejectedAudioPlanDoesNotAdvanceSessionState(){
         val session=ImportedScriptSession("main() { count = 0; } on(touch) { count = count + 1; play(volume:count); }")
         try{session.event("touch"){throw IllegalArgumentException("Cannot play")};fail("Accepted rejected plan")}
