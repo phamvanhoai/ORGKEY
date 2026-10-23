@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun sessionTimeMeasuresMillisecondsBetweenTouches(){
+        var now=1_000_000_000_000L
+        val session=ImportedScriptSession("main() { previous = 0; } on(touch) { play(connectspeed:time-previous); previous = time; }"){now}
+        now+=120
+        assertEquals(120,session.event("touch").plays.single().parameters["connectspeed"])
+        now+=75
+        assertEquals(75,session.event("touch").plays.single().parameters["connectspeed"])
+    }
     @Test fun dynamicLegatoSpeedFormulaUsesArithmeticPrecedence(){
         val script=ImportedModeScript.parse("on(touch) { play(connectspeed:10000 / (time - touch_time) + 10,volume:2+3*4); }")
         val result=ImportedSimpleScript.evaluate(script,"touch",mapOf("time" to 300,"touch_time" to 100))

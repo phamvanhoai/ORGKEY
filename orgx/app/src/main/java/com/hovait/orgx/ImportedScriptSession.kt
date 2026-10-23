@@ -1,7 +1,8 @@
 package com.hovait.orgx
 
 /** One initialized variable store per mode execution context. Owned by caller. */
-class ImportedScriptSession(source:String) {
+class ImportedScriptSession(source:String,private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
+    private val timeOrigin=clockMillis()
     data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int)
     val sliders:List<Slider>
     private val script:ImportedModeScript
@@ -29,7 +30,8 @@ class ImportedScriptSession(source:String) {
     }
     fun event(name:String,parameters:Map<String,Int> = emptyMap(),validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
         val pending=state.toMutableMap()
-        val result=ImportedSimpleScript.evaluate(script,name,parameters,pending)
+        val elapsed=(clockMillis()-timeOrigin).coerceIn(0,Int.MAX_VALUE.toLong()).toInt()
+        val result=ImportedSimpleScript.evaluate(script,name,parameters+("time" to elapsed),pending)
         validate(result)
         state.clear();state.putAll(pending)
         return result
