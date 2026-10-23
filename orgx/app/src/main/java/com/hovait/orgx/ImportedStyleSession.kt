@@ -43,6 +43,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     @Volatile var transitionError:String?=null;private set
     var finished=false;private set
     val player get()=players.getValue(currentId)
+    val padTiming:Pair<Long,Int> get()=synchronized(this){clock.time to rhythmScale}
     val pendingId get()=synchronized(this){queue.firstOrNull{it.mute==0}?.id}
     @Volatile var chordMuted=false;private set
     @Volatile var drumMuted=false;private set

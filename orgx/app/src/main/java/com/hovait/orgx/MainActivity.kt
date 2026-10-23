@@ -929,7 +929,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var busy by remember{mutableStateOf(false)}
     var status by remember{mutableStateOf("")}
     var running by remember{mutableIntStateOf(engine.importedPads.runningMask)}
-    LaunchedEffect(engine){while(true){running=engine.importedPads.runningMask;kotlinx.coroutines.delay(100)}}
+    var pendingPads by remember{mutableIntStateOf(engine.importedPads.pendingMask)}
+    LaunchedEffect(engine){while(true){running=engine.importedPads.runningMask or engine.importedPads.pendingMask;pendingPads=engine.importedPads.pendingMask;kotlinx.coroutines.delay(100)}}
     val names=listOf("KICK","SNARE","HI-HAT","CLAP","LOW TOM","HIGH TOM","CRASH","PERC")
     InstrumentPage(onDismissRequest=onDismiss,title={Text("Performance pads")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)){
         if(groups.isNotEmpty() && file!=null && index!=null){
@@ -944,7 +945,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                                 val player=withContext(Dispatchers.IO){ImportedStylePlayer.load(file,index,group,true,
                                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
                                     chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
-                                if(engine.activeSetIndex!==index)player.close() else engine.importedPads.play(slot,player)
+                                if(engine.activeSetIndex!==index)player.close() else engine.importedPads.play(slot,player,group)
                                 status=""
                             }catch(error:Exception){
                                 if(error is kotlinx.coroutines.CancellationException)throw error
@@ -953,7 +954,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         }
                     }
                 },modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
-                    Text("PAD ${slot+1} · ${group.name} · ${if(active)"STOP" else "PLAY"}")
+                    Text("PAD ${slot+1} · ${group.name} · ${if(pendingPads and (1 shl slot)!=0)"WAIT / CANCEL" else if(active)"STOP" else "PLAY"}")
                 }
             }
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){

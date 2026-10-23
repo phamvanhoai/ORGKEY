@@ -4,6 +4,25 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun setPadWaitsForStyleWindowAndStartsAtGroupPhase(){
+        val group=ImportedStyleGroup(9,100,"Pad",96,true,0,2000,120)
+        val data=ReferenceDrumTrack("Pad",9,100,96,120,true,0,2000,false,listOf(
+            ReferenceDrumEvent(2,1,60,100,0,5),ReferenceDrumEvent(2,2,61,100,1000,1000)))
+        val pad=ReferenceRhythmPlayer(listOf(data),{10000},{note,_,_->note.toDouble()},1000)
+        val bank=ImportedPadBank(1000)
+        try{
+            bank.play(0,pad,group)
+            bank.next(120,1f,1f,250L to 1000,2)
+            assertEquals(0,bank.runningMask);assertEquals(1,bank.pendingMask);assertEquals(0.0,bank.left,0.0)
+            bank.next(120,1f,1f,1000L to 1000,2)
+            assertEquals(1,bank.runningMask);assertEquals(0,bank.pendingMask)
+            assertEquals(61.0,bank.left,0.0) // Phase1000; expired opening hit is not replayed.
+            bank.play(1,ReferenceRhythmPlayer(listOf(data),{10000},{_,_,_->1.0},1000),group)
+            bank.next(120,1f,1f,1250L to 1000,2);assertEquals(2,bank.pendingMask)
+            bank.stop(1);bank.next(120,1f,1f,2000L to 1000,2)
+            assertEquals(0,bank.pendingMask);assertEquals(1,bank.runningMask)
+        }finally{bank.close()}
+    }
     @Test fun importedPadsMixIndependentSlotsAndReleaseWithoutStoppingOtherPad(){
         fun pad(value:Double)=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),
             {10000},{_,_,_->value},1000)

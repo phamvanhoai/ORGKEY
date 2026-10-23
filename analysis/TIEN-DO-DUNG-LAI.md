@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — dữ liệu PAD của SET, 24-10-2026
+## Kết quả mới nhất — đồng bộ PAD/style, 24-10-2026
+
+- Nối PAD SET vào clock/rhythmScale của session style đang chạy. Prepared PAD chờ cửa sổ ReferenceSectionTiming.inWindow, bắt đầu theo startOffset của GroupPlayStart và Rhythm Change Method hiện hành; không còn luôn phát từ đầu ngay lúc chọn.
+- Khi không có style đang chạy, PAD dùng clock chung của bank; clock reset sau khi không còn slot chạy/chờ. Mỗi slot giữ riêng lệnh chờ; thay lệnh/dừng/đổi SET/đóng bank thu hồi cả player chờ, tránh phát muộn sau Cancel.
+- Trang PAD hiển thị WAIT / CANCEL khi đã nạp và chờ nhịp. Chạm hủy được PAD chưa phát, không dừng slot khác.
+- Kiểm tra timeline/PCM: request ở reference250 với scale1000 chưa phát; cửa sổ1000/method2 bắt đầu offset1000 của PAD dài2000, bỏ hit mở đầu đã hết hạn và phát đúng nốt61; cancel slot1 trước cửa sổ không phát muộn. Nhóm ReferenceRhythmPlayerTest/ReferenceSectionTimingTest/ReferenceStyleTransitionTest và build đạt; đã cài APK mới.
+- Chưa kiểm chứng PAD SET thực và bản thu với APK gốc. PAD vẫn chưa thay đổi rhythmScale toàn cục như GroupPlayNext trong mọi method, chưa chuyển biến thể chord group, chưa lưu assignment, chưa tái tạo mọi quy tắc stop/pad temp-loop/recording. Không coi PAD hoàn thành100%.
+
+## Dữ liệu PAD của SET, 24-10-2026
 
 - Trước đây trang PAD chỉ có factory drum hits/effects. Nay liệt kê các group Section96..99 của SET đang mở, theo cùng quy ước MainActivity.y1 (section high nibble6), và nạp bằng ImportedStylePlayer với sample, track/group FX, tuning, script mode và chord-follow.
 - Thêm ImportedPadBank mã ứng dụng: bốn slot player độc lập, chuyển player đã chuẩn bị qua atomic mailbox; nạp PCM trên IO, audio callback chỉ nhận player/render. Dừng PAD chạy release/FX tail, không dừng style chính hay slot khác; đổi SET dừng tất cả PAD. Đóng engine thu hồi cả player đang chạy lẫn đang chờ.
