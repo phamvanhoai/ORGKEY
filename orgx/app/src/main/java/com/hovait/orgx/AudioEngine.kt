@@ -33,6 +33,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     val pitchBendRange get()=pitchState.liveRange
     fun setPitchBendRange(range:Int){
         pitchState.liveRange=range
+        pitchState.sensitivityMessages().forEach{message->captureMidi(message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127)}
         for(channel in 0..15){
             val semitones=pitchState.semitones(channel)
             val level=pitchState.scriptLevel(channel)
@@ -458,6 +459,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     @Synchronized fun playMidi(song:MidiSong,onComplete:()->Unit){
         stopMidi()
+        pitchState.resetPlayback()
         val session=midiSessionGate.replace()
         val playback=thread(start=false,name="ORGX-MIDI"){
             try {
@@ -474,6 +476,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     if(!midiSessionGate.runIfCurrent(session){
                         when(event.controller){
+                            6,38,98,99,100,101->{
+                                if(pitchState.playbackController(event.channel,checkNotNull(event.controller),event.velocity))
+                                    midiPitchBend(pitchState.scriptLevel(event.channel,true)+8192,event.channel,true)
+                            }
                             1->midiModulation(event.velocity,event.channel,true)
                             -2->midiPitchBend(event.note or (event.velocity shl 7),event.channel,true)
                             -3->midiNotePressure(event.note,event.velocity/127f,event.channel,true)
@@ -508,7 +514,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             if(sustain)MidiRecordingPedal.messages(true).forEach{message->
                 midiEvents.add(MidiEvent(0,message[0].toInt() and 255,64,127))
             }
-            pitchState.recordingMessages().forEach{message->
+            (pitchState.sensitivityMessages()+pitchState.recordingMessages()).forEach{message->
                 midiEvents.add(MidiEvent(0,message[0].toInt() and 255,message[1].toInt() and 127,message[2].toInt() and 127))
             }
             voices.entries.filter{!it.value.playback && !it.value.releasing}.forEach{(key,voice)->

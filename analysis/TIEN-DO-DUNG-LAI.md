@@ -2,7 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — bend range và lock, 24-10-2026
+## Kết quả mới nhất — MIDI bend sensitivity, 24-10-2026
+
+- Khép giới hạn export bend range ở lượt trước: khi REC bắt đầu, ghi RPN0,0 + Data Entry MSB range/LSB cents0 cho16 kênh live, rồi null RPN và ghi raw bend đang giữ trước các nốt. Đổi range trong REC cũng capture bộ controller này.
+- MidiFile giữ CC6/38/100/101 và NRPN98/99 theo thứ tự sự kiện; MidiSustain chuyển tiếp các sự kiện expression này. Playback có sensitivity riêng từng kênh (semitone+cents), reset mặc định2 mỗi lần mở song. Data Entry chỉ đổi range khi RPN0,0 đang được chọn; null RPN/NRPN không làm đổi nhầm range. Đổi range playback áp lại raw bend cho tiếng đang ngân, không thay trạng thái live.
+- Kiểm tra export bằng MidiRecording rồi đọc MidiFile: RPN±7 được phục hồi trước note bent đầu tiên; kiểm tra range12.5, per-channel, null RPN và reset playback đạt cùng hồi quy MidiModulation/MidiIntegration/MidiSustain. Build/cài APK thành công; không tạo file test mới.
+- Chưa phát/so file trên thiết bị MIDI hoặc DAW ngoài; không triển khai mọi RPN, increment/decrement Data Entry hay NRPN tùy hãng. Chưa có chứng cứ exporter APK gốc ghi RPN theo cùng cách; đây là bảo toàn thông tin range của ORGX, không tuyên bố format/event export giống100% gốc.
+
+## Bend range và lock, 24-10-2026
 
 - Đối chiếu mảng PitchbendRange/Value gốc1..12 và MainActivity.v1 kiểm tra f1 khi nhả pointer. Thêm Pitch bend ±1..±12 và Pitch bend lock trong Cài đặt, dùng preference pitchbend_range/pitchbend_lock.
 - MidiPitchState giữ range live riêng; engine áp range mới cho channel live đang có tiếng và cho note-on sau đó. Raw scriptLevel vẫn là bend14bit-8192, trạng thái/range file playback giữ độc lập mặc định±2.
