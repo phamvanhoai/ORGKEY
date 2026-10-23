@@ -246,10 +246,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         var gain: Float = 0f,
         var velocity: Float = 1f,
         val recordingVelocity:Int=127,
+        val initialScriptPedal:Boolean=false,
         var ageFrames: Long = 0
     ) {
         val renderedNote=imported?.keyboardNote(note) ?: note
-        val sampledPlayback=imported?.voice(renderedNote,scriptVelocity=recordingVelocity)
+        val sampledPlayback=imported?.voice(renderedNote,scriptVelocity=recordingVelocity,initialScriptPedal=initialScriptPedal)
     }
 
     private val track by lazy { AudioTrack.Builder()
@@ -319,7 +320,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if (voices.size >= 24 && !voices.containsKey(key)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
-        val voice=Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
+        val voice=Voice(note=note,initialScriptPedal=!playback && sustain,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
         voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback),pitchState.scriptLevel(channel,playback))
         if(!playback && sustain)voice.sampledPlayback?.scriptPedal(true)
         val modulation=(if(playback)playbackModulation else liveModulation)[channel]
