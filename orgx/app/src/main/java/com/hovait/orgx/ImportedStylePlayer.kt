@@ -41,7 +41,8 @@ object ImportedStylePlayer {
             "Style exceeds 64 MB PCM budget"
         }
         val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings,index.musicSettings,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,instrument),scriptOverridesForMode=scriptOverrides)}
-        return groups.associate{group->group.id to ReferenceRhythmPlayer.combine(byGroup.getValue(group.id).map{track->
+        return groups.associate{group->
+          val parts=byGroup.getValue(group.id).map{track->
             val sound=sounds.getValue(key(track))
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0
             val settings=ImportedStyleSupport.channelSettings(index,track)
@@ -59,6 +60,13 @@ object ImportedStylePlayer {
                 // Tracks.ReadFromStream assigns channel type 1 to rhythm groups
                 // and Type 3 tracks. Channels.Process excludes that channel type.
                 expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track),keyConnectionMethod=keyConnectionMethod)
-        }).withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings,index.musicSettings)}
+          }
+          // An empty/muted section still owns its timing and JumpGroup (notably
+          // silent Endings). Keep transport semantics without inventing notes.
+          val player=if(parts.isEmpty())ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(group.name,group.id,group.parent,
+              group.section,group.tempo,group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,
+              emptyList(),bounded=group.limit)),{0},{_,_,_->0.0},48000) else ReferenceRhythmPlayer.combine(parts)
+          group.id to player.withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings,index.musicSettings)
+        }
     }
 }

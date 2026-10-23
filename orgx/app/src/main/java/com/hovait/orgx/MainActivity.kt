@@ -279,12 +279,44 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var bankPage by remember{mutableIntStateOf(0)}
     var bankBusy by remember{mutableStateOf(false)}
     var bankStatus by remember{mutableStateOf("")}
-    var bankMode by remember{mutableIntStateOf(preferences.getInt("bankMode",0).coerceIn(0,2))}
+    var bankMode by remember{mutableIntStateOf(preferences.getInt("bankMode",2).coerceIn(0,2))}
+    DisposableEffect(preferences){
+        val listener=SharedPreferences.OnSharedPreferenceChangeListener{prefs,key->
+            if(key=="bankMode")bankMode=prefs.getInt("bankMode",2).coerceIn(0,2)
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
+    }
     val bankScope=rememberCoroutineScope()
     val bankStyles=remember(bankIndex){bankIndex?.let{ImportedStyleCatalog.styles(it)}.orEmpty()}
     val voiceSounds=engine.activeSetSounds
     val useSetVoices=voiceSounds.isNotEmpty() && !factoryVoices
     val bankEnabled=remember(bankIndex,bankMode){bankStyles.map{definition->definition.sections.any{it.section in 32..35 && ImportedStyleSupport.reason(bankIndex,it,bankMode>0,bankMode==2)==null}}}
+    fun loadBankStyle(definition:ImportedStyleDefinition,mode:Int,closeBrowser:Boolean=true){
+        if(bankBusy || restoringSet)return
+        val file=engine.activeSetFile ?: return
+        val index=bankIndex ?: return
+        bankBusy=true;bankStatus="LOADING..."
+        bankScope.launch{
+            try{
+                val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
+                    engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                    targetChord=if(mode==2)engine::selectedSetChord else null)}
+                if(engine.activeSetFile!=file || engine.activeSetIndex!==index){loaded.close();return@launch}
+                engine.selectImportedStyle(loaded)
+                setSession=loaded;sectionState=loaded.currentId to null
+                preferences.edit().putString("selectedStyleSet",file.name).putInt("selectedSetStyleId",loaded.style.id).putInt("bankMode",mode).apply()
+                bankMode=mode
+                val tempo=loaded.style.sections.first{it.id==loaded.currentId}.tempo
+                if(tempo>0){bpm=tempo.coerceIn(40,240);engine.bpm=bpm}
+                if(closeBrowser)browseStyles=false
+                bankStatus=""
+            }catch(error:Exception){
+                if(error is kotlinx.coroutines.CancellationException)throw error
+                bankStatus=error.message ?: "Cannot load style"
+            }finally{bankBusy=false}
+        }
+    }
     fun closePages(){showTools=false;showMixer=false;showChords=false;showPads=false;showSets=false;showFiles=false;showProjects=false;showAbout=false;browseStyles=false;browseVoices=false}
     androidx.activity.compose.BackHandler(enabled=browseStyles || browseVoices){if(!bankBusy){browseStyles=false;browseVoices=false}}
     var midiPlaying by remember { mutableStateOf(false) }
@@ -329,12 +361,20 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         onPart={engine.requestStyleSection(it)},
                         stylePage=browseStyles || browseVoices,
                         selectionTitle=if(browseVoices)"VOICE SELECT" else "STYLE SELECT",
-                        selectedChoice=if(!browseVoices)-1 else if(useSetVoices)voiceSounds.indexOfFirst{it.name==engine.importedInstrumentName} else if(engine.importedInstrument==null)instrument else -1,
+                        selectedChoice=if(!browseVoices){if(bankIndex!=null)bankStyles.indexOfFirst{it.id==setSession?.style?.id} else style} else if(useSetVoices)voiceSounds.indexOfFirst{it.name==engine.importedInstrumentName} else if(engine.importedInstrument==null)instrument else -1,
                         styleChoices=if(browseVoices){if(useSetVoices)voiceSounds.map{it.name} else InstrumentCatalog.names} else if(bankIndex!=null)bankStyles.map{it.name} else engine.styleNames,
                         styleEnabled=if(bankBusy || restoringSet)List(if(browseVoices){if(useSetVoices)voiceSounds.size else InstrumentCatalog.names.size} else if(bankIndex!=null)bankStyles.size else engine.styleNames.size){false} else if(browseVoices)emptyList() else if(bankIndex!=null)bankEnabled else emptyList(),
                         page=bankPage,status=bankStatus,onPage={bankPage=(bankPage+it).coerceAtLeast(0)},onExit={if(!bankBusy){browseStyles=false;browseVoices=false}},
                         modeLabel=if(browseVoices)if(useSetVoices)"BANK: IMPORTED SET" else "BANK: FACTORY" else if(bankIndex==null)"" else listOf("MODE: DRUM","MODE: FULL / ORIGINAL NOTES","MODE: FULL / FOLLOW CHORD")[bankMode],
-                        onMode={if(!bankBusy){if(browseVoices){factoryVoices=!factoryVoices;bankPage=0}else{bankMode=(bankMode+1)%3;preferences.edit().putInt("bankMode",bankMode).apply()};bankStatus=""}},
+                        onMode={if(!bankBusy && !restoringSet){
+                            if(browseVoices){factoryVoices=!factoryVoices;bankPage=0;bankStatus=""}
+                            else{
+                                val mode=(bankMode+1)%3
+                                val selected=bankStyles.firstOrNull{it.id==setSession?.style?.id}
+                                if(selected!=null)loadBankStyle(selected,mode,closeBrowser=false)
+                                else{bankMode=mode;preferences.edit().putInt("bankMode",mode).apply();bankStatus=""}
+                            }
+                        }},
                         onChoose={chosen->
                             if(!bankBusy && !restoringSet){
                                 if(browseVoices){
@@ -355,20 +395,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                                 }else if(bankIndex==null){
                                     engine.setRhythmEnabled(false);engine.clearImportedStyle()
                                     preferences.edit().remove("selectedStyleSet").remove("selectedSetStyleId").apply();style=chosen;engine.rhythmStyle=chosen;bpm=engine.styleTempos[chosen];engine.bpm=bpm;browseStyles=false
-                                }else bankScope.launch{
-                                    bankBusy=true;bankStatus="LOADING..."
-                                    try{
-                                        val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(checkNotNull(engine.activeSetFile),checkNotNull(bankIndex),bankStyles[chosen],bankMode>0,
-                                            engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,targetChord=if(bankMode==2)engine::selectedSetChord else null)}
-                                        engine.selectImportedStyle(loaded)
-                                        setSession=loaded;sectionState=loaded.currentId to null
-                                        preferences.edit().putString("selectedStyleSet",engine.activeSetFile?.name).putInt("selectedSetStyleId",loaded.style.id).apply()
-                                        val tempo=loaded.style.sections.first{it.id==loaded.currentId}.tempo
-                                        if(tempo>0){bpm=tempo.coerceIn(40,240);engine.bpm=bpm}
-                                        browseStyles=false;bankStatus=""
-                                    }catch(error:Exception){bankStatus=error.message ?: "Cannot load style"}
-                                    finally{bankBusy=false}
-                                }
+                                }else loadBankStyle(bankStyles[chosen],bankMode)
                             }
                         })
                 }

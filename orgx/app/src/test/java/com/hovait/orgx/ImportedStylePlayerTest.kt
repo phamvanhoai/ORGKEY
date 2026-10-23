@@ -5,6 +5,29 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStylePlayerTest {
+    @Test fun emptyTrackSoundDoesNotDisableOtherTracksOrStyleSections(){
+        val file=File.createTempFile("style-empty-sound",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,32,0,32))
+            val bank=index().let{it.copy(instruments=listOf(it.instruments.first(),it.instruments.last().copy(
+                sounds=it.instruments.last().sounds.map{sound->sound.copy(sections=emptyList())})))}
+            assertNull(ImportedStyleSupport.reason(bank,group,true))
+            val mixed=ImportedStylePlayer.load(file,bank,group,true)
+            val drum=ImportedStylePlayer.load(file,bank,group,false)
+            mixed.next(0,120);drum.next(0,120)
+            assertTrue(drum.left>0);assertEquals(drum.left,mixed.left,1e-12)
+            val empty=ImportedInstrumentLoader.load(file,bank.instruments.last())
+            assertEquals(0,empty.durationFrames(60));assertEquals(0.0,empty.sample(60,0),0.0)
+            val voice=empty.voice(60);voice.next(false);assertTrue(voice.finished)
+            val ending=group.copy(id=2,section=80,loop=false,end=10,jumpGroup=0)
+            val withEnding=bank.copy(styles=listOf(group,ending))
+            val session=ImportedStylePlayer.loadStyle(file,withEnding,ImportedStyleDefinition(100,"Style",listOf(group,ending)),true)
+            assertTrue(session.available(ending.id))
+            session.press(ending.id,false,false)
+            repeat(481){session.next(120);assertEquals(0.0,session.player.left,0.0)}
+            assertTrue(session.finished)
+        }finally{file.delete()}
+    }
     @Test fun styleUsesPersistedDncLevelForItsMode(){
         val file=File.createTempFile("style-dnc",".pcm")
         try{

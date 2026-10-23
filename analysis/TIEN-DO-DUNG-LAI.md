@@ -2,6 +2,17 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Kết quả mới nhất — SET/style, 24-10-2026
+
+- Sửa lỗi khóa cả style khi một sound không có sample hoặc track không có vùng sample cho nốt yêu cầu. Đối chiếu `Channels.OpenKey`: i26=-1 không mở channel; các track khác vẫn phát. ORGX giữ sound rỗng ở trạng thái im lặng, không dùng sample mặc định thay thế. Loop/pitch/envelope không hợp lệ vẫn bị từ chối, nay có thông báo nêu track và tham số cụ thể.
+- Giữ phần style không có track phát nốt (kể cả Ending im lặng) cùng timing/JumpGroup; không loại bỏ nút chỉ vì không có note-on.
+- Đối chiếu `Tracks.PlayNext` và `GroupPlayNext`: lệnh chuyển phần đang chờ được nhận ở cửa sổ rhythmScale kế tiếp, kể cả Intro/Fill/Ending chưa hết. Không bắt chờ hết one-shot.
+- Thao tác phần ngay sau chọn style được giữ cho session mới và áp dụng sau chuyển session; tránh gửi ID vào style cũ hoặc mất lệnh khi continueFrom xóa queue.
+- Nút MODE trên LCD nạp lại style đang chọn, giữ trạng thái phát; chỉ lưu chế độ sau khi nạp thành công. Đồng bộ bankMode với trang SET và đánh dấu style được chọn trong danh sách.
+- Kiểm chứng SET đang lưu trên thiết bị, SHA-256/tên ngân hàng `9d61373254d69b86801d127ff0bede20fc1cb68779ca852022510b732db84740`: 16 style, 200 phần, toàn bộ nạp và render 4800 frame/phần ở chế độ full/follow chord qua kiểm tra có sẵn. Backend Reverb JVM chỉ là adapter, không phải đối chiếu âm thanh native.
+- Đã build/cài APK; thao tác trên thiết bị: chuyển DRUM → FULL → FOLLOW CHORD khi đang chạy, chọn DJ VIP KVT 2, chạy Fill 2, đổi sang DJ VIP KVT 1 vẫn RUNNING, Ending 1 kết thúc về READY. Các kiểm tra hồi quy chuyển phần, silent sound/Ending và sample mapping đạt. Không tạo file test mới.
+- Còn cần đối chiếu bản thu/độ trễ và hợp âm với APK gốc; không kết luận 200 phần có âm thanh giống 100%. Bản sao SET tạm và log của lượt sửa đã được dọn; SET gốc không bị sửa.
+
 | Cụm chức năng | Đã có trong ORGX | Còn thiếu / cần kiểm chứng |
 |---|---|---|
 | Đọc SET | Layout Music 1.2.8/1.4.6, instrument 1.2.8/1.4.2/1.4.6; PCM, group/track, mode/mix, system, header FX | Layout khác, STS thực thi, script/DNC; đọc đủ byte không đồng nghĩa dùng đủ dữ liệu |

@@ -42,7 +42,6 @@ object ImportedStyleSupport {
         if(group.type!=1)return "Unsupported style group type"
         val tracks=playbackTracks(index,group,includeAccompaniment)
         if(index.systems.isNotEmpty() && tracks.any{it.system !in index.systems.indices})return "Track references missing tuning system"
-        if(tracks.isEmpty())return "No supported tracks found"
         tracks.firstOrNull{it.instrument !in index.instruments.indices}?.let{
             return "Track '${it.name}' references missing instrument ${it.instrument}"
         }
@@ -58,9 +57,11 @@ object ImportedStyleSupport {
         if(followChord && tracks.any{track->instrument(index,track)?.let{
             it.type==0 && ImportedInstrumentLoader.layers(it).any{layer->layer.sounds.firstOrNull()?.envelope?.getOrNull(4)!=0}
         }==true})return "Chord following requires pitched sample mapping"
-        if(tracks.any{track->instrument(index,track)?.let{
-            ImportedInstrumentLoader.supported(if(followChord && it.type==0)it else ImportedInstrumentLoader.forTrack(it,sampleEvents(track.copy(settings=channelSettings(index,track)),it.type==0)))
-        }!=true})return "Used track samples contain unsupported parameters"
+        tracks.forEach{track->
+            val source=instrument(index,track) ?: return "Track '${track.name}' has no instrument"
+            val selected=if(followChord && source.type==0)source else ImportedInstrumentLoader.forTrack(source,sampleEvents(track.copy(settings=channelSettings(index,track)),source.type==0))
+            ImportedInstrumentLoader.unsupportedReason(selected)?.let{return "Track '${track.name}' (${source.name}): $it"}
+        }
         return null
     }
 }

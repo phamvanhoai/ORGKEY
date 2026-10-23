@@ -23,6 +23,20 @@ class ReferenceStyleTransitionTest {
         repeat(900){session.next(120);assertEquals(1,session.currentId)}
         session.next(120);assertEquals(2,session.currentId)
     }
+    @Test fun mainButtonInterruptsLongIntroOrEndingAtNextRhythmWindow(){
+        for(section in listOf(16,80)){
+            val groups=listOf(ImportedStyleGroup(1,100,"Main",32,true,0,4000,120),
+                ImportedStyleGroup(2,100,"One shot",section,false,0,4000,120,jumpGroup=0))
+            val players=groups.associate{g->g.id to ReferenceRhythmPlayer(listOf(
+                ReferenceDrumTrack(g.name,g.id,100,g.section,120,g.loop,0,4000,false,
+                    listOf(ReferenceDrumEvent(2,1,60,100,0,4000)))),{10000},{_,_,_->0.1},1000)}
+            val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",groups),players,1000)
+            session.press(2,false,false);repeat(100){session.next(120)}
+            session.press(1,true,false)
+            repeat(900){session.next(120);assertEquals(2,session.currentId)}
+            session.next(120);assertEquals(1,session.currentId);assertFalse(session.finished)
+        }
+    }
     @Test fun multipleRequestsAreQueuedAndRepeatedLoopRequestIsIgnored() {
         val session=session(lock=true)
         session.request(1);assertNull(session.pendingId)

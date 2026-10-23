@@ -104,7 +104,9 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         val completed=if(section.limit)clock.time-startedAt>=section.end.toLong()-section.start else player.finished
         if(section.type==1 && ReferenceSectionTiming.inWindow(clock.time,rhythmScale,tempo)){
             val loop=section.loop || currentId in temporaryLoops
-            if(queue.isNotEmpty() && (loop || completed))select(queue.removeFirst().id)
+            // Tracks.PlayNext dispatches a queued Rhythm at the next scale window
+            // even while a one-shot Intro/Fill/Ending still has events remaining.
+            if(queue.isNotEmpty())select(queue.removeFirst().id)
             else if(completed && !loop){
                 val target=jumpId ?: when {
                     section.jumpGroup<0->lastLoop

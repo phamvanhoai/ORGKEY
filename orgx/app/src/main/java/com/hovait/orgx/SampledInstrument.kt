@@ -7,7 +7,6 @@ data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,
 class SampledInstrument(private val regions:List<InstrumentRegion>,private val outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null,
     private val pitchMode:Int=if(exactNotes)2 else 0,private val tuning:List<Double> = emptyList(),private val tuningTranspose:Int=0) {
     init {
-        require(regions.isNotEmpty())
         regions.forEach {
             require(it.sample.frames.isNotEmpty() && it.gain.isFinite() && it.gain>=0 && it.pan in -100..100)
             if(it.looping)require(it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.sample.frames.size)
@@ -495,12 +494,15 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(finished)playbackRegistry.remove(this)
         }
     }
-    private val mapped=Array(128){note->when(pitchMode){
+    private val mapped=Array<Int?>(128){note->if(roots.isEmpty())null else when(pitchMode){
         1->SampleRegionMap.repeatedRoot(note,roots)
         2->note.takeIf{it in roots}
         else->SampleRegionMap.nearestRoot(note,roots)
     }}
-    private val selected=Array(128){note->regions.firstOrNull{it.root==mapped[note]} ?: regions.first()}
+    // Empty sound banks are valid in SETs. The placeholder is never mapped to
+    // a MIDI key; it only keeps interpolation/envelope setup allocation-free.
+    private val emptyRegion=InstrumentRegion(60,SamplePcm(outputRate,1,shortArrayOf(0)),0,1,looping=false)
+    private val selected=Array(128){note->regions.firstOrNull{it.root==mapped[note]} ?: regions.firstOrNull() ?: emptyRegion}
     private fun pitchStep(note:Int,tune:Int=0):Double {
         val key=if(pitchMode==1)mapped[note] ?: note else note
         val region=selected[note]

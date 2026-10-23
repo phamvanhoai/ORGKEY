@@ -39,21 +39,30 @@ object ImportedInstrumentLoader {
                 instrument.copy(name="${instrument.name} / MODE ${mode.name}",modes=listOf(mode),selectedMode=index).takeIf(::supported)
             }
         }
-    fun supported(instrument:ImportedInstrument):Boolean {
+    fun supported(instrument:ImportedInstrument)=unsupportedReason(instrument)==null
+    fun unsupportedReason(instrument:ImportedInstrument):String? {
         if(instrument.modes.isNotEmpty()){
-            if(modeReferenceError(instrument)!=null)return false
+            modeReferenceError(instrument)?.let{return it}
             val primary=layers(instrument)
             val alternate=if(instrument.modes.first().aftertouch>=0)layers(instrument,true) else emptyList()
-            return primary.isNotEmpty() && (primary+alternate).all(::supported)
+            if(primary.isEmpty())return "Mode has no playable sounds"
+            return (primary+alternate).firstNotNullOfOrNull(::unsupportedReason)
         }
-        val sound=instrument.sounds.firstOrNull() ?: return false
+        val sound=instrument.sounds.firstOrNull() ?: return "Instrument has no sound"
         val pitchMode=sound.envelope.getOrNull(4)
-        val supportedType=instrument.type in 0..2
-        return supportedType && runCatching{ImportedEnvelope.from(sound.envelope)}.isSuccess && pitchMode in 0..2 &&
-            sound.sections.isNotEmpty() && sound.sections.all{
-                it.frames>0 && instrument.pan.toLong()+it.pan in -100L..100L && it.loop in listOf(0,2,3) &&
-                    (it.loop==0 || (it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.frames))
-            }
+        if(instrument.type !in 0..2)return "Unsupported instrument type ${instrument.type}"
+        runCatching{ImportedEnvelope.from(sound.envelope)}.exceptionOrNull()?.let{return "Envelope: ${it.message}"}
+        if(pitchMode !in 0..2)return "Unsupported pitch mode $pitchMode"
+        // Channels.OpenKey leaves i26=-1 when no section exists: that note is
+        // silent, rather than making the entire rhythm group invalid.
+        sound.sections.forEach{region->
+            if(region.frames<=0)return "Sample ${region.note} has no frames"
+            if(instrument.pan.toLong()+region.pan !in -100L..100L)return "Sample ${region.note} balance outside range"
+            if(region.loop !in listOf(0,2,3))return "Sample ${region.note} uses loop mode ${region.loop}"
+            if(region.loop!=0 && (region.loopStart<0 || region.loopEnd<=region.loopStart || region.loopEnd>region.frames))
+                return "Sample ${region.note} loop ${region.loopStart}..${region.loopEnd} exceeds ${region.frames} frames"
+        }
+        return null
     }
     fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings?=null,
         musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false,keyConnectionMethod:Int=0,sourceVersion:String="1.4.6",scriptOverrides:Map<String,String> = emptyMap(),prepareExit:Boolean=true,scriptOverridesForMode:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()}):SampledInstrument {

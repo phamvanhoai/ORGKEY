@@ -364,15 +364,19 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         rhythmPlaying = enabled
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
     }
-    private data class StyleSelection(val session:ImportedStyleSession?)
+    private data class SectionPress(val id:Int,val running:Boolean,val autoFill:Boolean,val repeatToLoop:Boolean)
+    private data class StyleSelection(val session:ImportedStyleSession?,val presses:MutableList<SectionPress> = mutableListOf())
     private val pendingStyle=java.util.concurrent.atomic.AtomicReference<StyleSelection?>(null)
-    fun selectImportedStyle(session:ImportedStyleSession){pendingStyle.getAndSet(StyleSelection(session))?.session?.close()}
-    fun clearImportedStyle(){pendingStyle.getAndSet(StyleSelection(null))?.session?.close()}
-    fun requestStyleSection(id:Int){
-        val session=importedStyleSession ?: return
-        if(!session.available(id))return
+    private val styleSelectionLock=Any()
+    fun selectImportedStyle(session:ImportedStyleSession)=synchronized(styleSelectionLock){pendingStyle.getAndSet(StyleSelection(session))?.session?.close();Unit}
+    fun clearImportedStyle()=synchronized(styleSelectionLock){pendingStyle.getAndSet(StyleSelection(null))?.session?.close();Unit}
+    fun requestStyleSection(id:Int)=synchronized(styleSelectionLock){
+        val pending=pendingStyle.get()
+        val session=(if(pending!=null)pending.session else importedStyleSession) ?: return@synchronized
+        if(!session.available(id))return@synchronized
         val startNow=!rhythmPlaying
-        session.press(id,running=!startNow,autoFill=styleAutoFill,repeatToLoop=styleRepeatToLoop)
+        if(pending!=null)pending.presses.add(SectionPress(id,!startNow,styleAutoFill,styleRepeatToLoop))
+        else session.press(id,running=!startNow,autoFill=styleAutoFill,repeatToLoop=styleRepeatToLoop)
         if(startNow)setRhythmEnabled(true)
     }
     @Volatile var styleRepeatToLoop=false
@@ -508,14 +512,16 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val restartStyleOnPlay=java.util.concurrent.atomic.AtomicBoolean(false)
     @Volatile private var naturalStyleTail=false
     private fun rhythmSample(): Double {
-        val selected=pendingStyle.getAndSet(null)
-        selected?.let{selection->
+        val selected=synchronized(styleSelectionLock){
+          pendingStyle.getAndSet(null)?.also{selection->
             naturalStyleTail=false
             val session=selection.session
             if(session!=null && rhythmPlaying)importedStyleSession?.let{session.continueFrom(it)}
             importedStyleSession?.close()
             importedStyleSession=session;importedRhythm=session?.player;importedRhythmName=session?.displayName
+            selection.presses.forEach{press->session?.press(press.id,press.running,press.autoFill,press.repeatToLoop)}
             session?.takeTempoChange()?.let{bpm=it}
+          }
         }
         if(restartStyleOnPlay.getAndSet(false) && rhythmPlaying){
             importedStyleSession?.preparePlay()
