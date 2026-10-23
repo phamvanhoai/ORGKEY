@@ -61,3 +61,5 @@ Pedal cập nhật session khi im lặng và truyền hiệu ứng cho nốt m�
 Event pitchbend đã nối trước bend mặc định: script xử lý thành công và trả khác 0 thì chặn fallback. Giá trị MIDI gốc trừ 8192 truyền tới nốt đang ngân và nốt mới của STS/voice trực tiếp; trạng thái live và playback được giữ riêng theo kênh. Chưa kiểm chứng controller vật lý hoặc toàn bộ thứ tự event khi nhiều nốt dùng chung session.
 
 Script quá 262144 ký tự hoặc ngoặc lồng quá 64 cấp dùng fallback để tránh tràn stack; đây là giới hạn ORGX. Runtime vẫn dùng số nguyên và elapsed time, chưa tương đương double/epoch của APK. Timer, lịch thực thi, exit đổi mode và các lệnh phát âm trong aftertouch/release chưa hoàn chỉnh. Các bản build/test không chứng minh tương đương 100%.
+
+Chuyển sang sound Aftertouch đã truyền raw MIDI bend, modulation đang giữ và pedal đang giữ; các cập nhật modulation/pedal tiếp theo cũng đến voice thay thế. Test PCM/session kiểm tra giá trị giữ trước chuyển sound, reset sau chuyển và chống chạy lặp pedal. Chưa kiểm chứng controller vật lý hoặc so âm thanh với APK gốc; đây là hoàn thiện vòng đời điều khiển, không phải dựng xong toàn DNC.
