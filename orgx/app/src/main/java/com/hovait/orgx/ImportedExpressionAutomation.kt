@@ -1,9 +1,9 @@
 package com.hovait.orgx
 
-/** Track.Play(65, slot, parameter, value): only implemented slot 3 fields. */
+/** Track.Play(65, slot, parameter, value) for live expression processors. */
 object ImportedExpressionAutomation {
-    fun supported(event:ReferenceDrumEvent)=event.type==65 && event.id in 2..3 && event.note in 0..6
-    fun update(effect:ImportedExpressionEffect,event:ReferenceDrumEvent):ImportedExpressionEffect {
+    fun supported(event:ReferenceDrumEvent)=event.type==65 && event.id in 2..3 && event.note in 0..7
+    fun update(effect:ImportedExpressionEffect,event:ReferenceDrumEvent,keyConnectionMethod:Int=0):ImportedExpressionEffect {
         require(effect.slot==event.id && supported(event))
         return when(event.note){
             0->effect.copy(enabled=event.touch!=0)
@@ -12,7 +12,8 @@ object ImportedExpressionAutomation {
             3->effect.copy(stopByRelease=event.touch!=0)
             4->effect.copy(speed=event.touch)
             5->effect.copy(depth=event.touch)
-            else->effect.copy(gain=event.touch)
+            6->effect.copy(gain=event.touch)
+            else->effect.copy(mode=(event.touch or if(effect.slot==1)keyConnectionMethod*16 else 0) and 255)
         }
     }
 }

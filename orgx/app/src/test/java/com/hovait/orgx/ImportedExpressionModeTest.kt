@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedExpressionModeTest {
+    @Test fun automationParameterSevenChangesModeWithoutDestroyingStoredSpeed(){
+        val original=effect(2,0).copy(speed=321)
+        val stopped=ImportedExpressionAutomation.update(original,ReferenceDrumEvent(65,2,7,1,0,0))
+        assertEquals(1,stopped.mode)
+        assertEquals(321,stopped.speed)
+        assertEquals(0,stopped.playbackSpeed)
+        val resumed=ImportedExpressionAutomation.update(stopped,ReferenceDrumEvent(65,2,7,0,1,0))
+        assertEquals(321,resumed.playbackSpeed)
+    }
     private fun effect(slot:Int,mode:Int)=ImportedExpressionEffect(
         slot,true,0,false,false,mode,125,51,7,emptyList())
 

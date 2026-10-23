@@ -489,7 +489,9 @@ ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phá
 
 Đã dựng hai nhánh Key Connection cho MODE/STS. Mode lớn hơn 15 tái sử dụng voice gần nhất trong đúng part và MIDI channel, không khởi động lại sample; note-off cũ không đóng voice sau khi quyền điều khiển đã chuyển sang phím mới. Mode thấp mở voice đích riêng từ cao độ phím trước và mode lớn hơn 1 bắt đầu tại loop point. Cao độ chuyển theo StartDelay/Speed của Effect slot 1; ByPedal có thể tạm dừng delay/chuyển pitch và StopByRelease dừng chuyển pitch khi release. Ngoại lệ AutoRelease/restart chi tiết và automation Effect vẫn còn thiếu; xem [EXPRESSION-MODE-REBUILD.md](EXPRESSION-MODE-REBUILD.md).
 
-Key Repeat Effect slot 0 đã được nối cho MODE/STS: bộ đếm chạy theo tick 10 ms sau StartDelay, dùng đúng công thức chu kỳ Speed của `Channels.Process`, tôn trọng ByPedal và dừng sinh voice khi release. Mỗi lần lặp mở voice AutoRelease riêng; voice con không chạy lại chuỗi Effect nên không nhân lặp vô hạn. Automation Effect và các ngoại lệ AutoRelease chi tiết vẫn còn thiếu.
+Key Repeat Effect slot 0 đã được nối cho MODE/STS: bộ đếm chạy theo tick 10 ms sau StartDelay, dùng đúng công thức chu kỳ Speed của `Channels.Process`, tôn trọng ByPedal và dừng sinh voice khi release. Mỗi lần lặp mở voice AutoRelease riêng; voice con không chạy lại chuỗi Effect nên không nhân lặp vô hạn. Automation slot 0/1 và các ngoại lệ AutoRelease chi tiết vẫn còn thiếu.
+
+Automation event 65 parameter 7 đã hỗ trợ cho Pitch Shake/Volume Shake trong style: đổi Mode ngay trên voice đang ngân và state của voice tương lai, giữ Speed gốc để tiếp tục đúng phase khi thoát Mode 1/2. Slot 0/1 vẫn cần state automation riêng trước khi được chấp nhận.
 
 Nút Intro khi đang chạy hiện hủy các Intro/Fill đang chờ trước đó, phát đúng Intro vừa chọn một lần rồi quay về Main đang chọn; tránh tình trạng bấm Intro 1 nhưng chạy tiếp chuỗi Intro cũ.
 

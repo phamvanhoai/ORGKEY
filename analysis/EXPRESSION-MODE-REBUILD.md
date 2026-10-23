@@ -16,4 +16,6 @@ ORGX đã nối nhánh Key Connection có bit mode cao (`mode > 15`) của `Chan
 
 Đã dựng Key Repeat slot 0 theo nhịp điều khiển 10 ms và công thức chu kỳ `5000 / (Speed * 10) + 1` của `Channels.Process`. Sau StartDelay, voice gốc mở thêm voice lặp AutoRelease; voice lặp tắt EffectAllow nên không tự sinh lặp hoặc chạy lại Pitch/Volume Shake. ByPedal tạm dừng bộ đếm delay và StopByRelease/release ngăn mở voice mới.
 
-Chưa mở automation parameter 7. Các ngoại lệ AutoRelease/restart theo từng low nibble và cấu hình `fKeyConnectionMethod` vẫn cần dựng tiếp trước khi coi Key Connection/Legato/Mono hoàn chỉnh.
+Automation event 65 parameter 7 đã được mở cho Pitch Shake và Volume Shake. Nó thay `Mode` nhưng giữ nguyên `Speed` đã lưu; Mode 1/2 làm playback speed bằng 0, và khi trở về mode thường thì phase tiếp tục với Speed cũ. Thay đổi được cấu hình vào cả voice đang ngân và state dùng cho voice mở sau đó.
+
+Automation slot 0/1, các ngoại lệ AutoRelease/restart theo từng low nibble và cấu hình `fKeyConnectionMethod` vẫn cần dựng tiếp trước khi coi Key Connection/Legato/Mono hoàn chỉnh.
