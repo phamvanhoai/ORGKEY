@@ -385,6 +385,8 @@ Trong SET, bật `Preview Drum + accompaniment` rồi `Follow selected chord`, n
 
 # Cập nhật engine Aftertouch
 
+Đã sửa MIDI live kênh 0 phát vào cùng nhóm STS với bend/pressure; trước đây note-on còn đi voice đơn. Phím cảm ứng dùng chung routing, velocity 0 nhả nốt và capture MIDI không lặp. Test routing/parts/queue và build đạt, đã cài bản mới. MIDI playback/kênh khác giữ routing cũ; chưa thử controller thật hoặc MIDI channel từng part. Xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
+
 Đã nối MIDI poly/channel pressure live kênh 0 vào nhóm STS qua queue. Test PCM xác nhận poly chỉ chuyển phím đích sang alternate, channel chuyển các phím còn ngân; nhả hết im. Test parts/queue và build đạt, đã cài bản mới. Aftertouch/DNC gốc và pedal envelope vẫn chưa tương đương đầy đủ; xem [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).
 
 Đã sửa đường STS nhiều part bỏ sót Music keyboard balance: hệ số áp một lần ở note-on và giữ trên voice đang ngân; không nhân Music volume thêm lần nữa. 14 test parts/queue/batch đạt, assembleDebug đạt; đã cài/mở bản mới trên điện thoại. Chưa đối chiếu bản thu APK. Chi tiết [STS-PLAN-REBUILD.md](STS-PLAN-REBUILD.md).

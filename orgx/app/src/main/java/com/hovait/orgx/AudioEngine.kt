@@ -141,14 +141,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(leftChordEnabled && note<splitNote){
             if(voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
             keyboardChordInput.press(note,referenceChords)
-        } else if(stsPartsEnabled){
-            val amount=velocity.coerceIn(0f,1f)
-            stsParts.noteOn(note,amount.toDouble())
-            captureMidi(0x90,note,(amount*127).toInt().coerceIn(0,127))
-        }else noteOn(note,velocity)
+        } else noteOn(note,velocity)
     }
     fun keyboardNoteOff(note:Int){
-        stsParts.noteOff(note)
         val chordKey=keyboardChordInput.release(note)
         if(!chordKey || voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
     }
@@ -294,6 +289,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument,channel:Int=0,playback:Boolean=false) {
+        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback)){
+            require(velocity.isFinite())
+            val amount=velocity.coerceIn(0f,1f)
+            if(amount==0f){noteOff(note,channel,playback);return}
+            stsParts.noteOn(note,amount.toDouble())
+            captureMidi(0x90 or channel,note,(amount*127).toInt().coerceAtLeast(1))
+            return
+        }
         val key=MidiVoiceKey.key(note,channel,playback)
         val music=activeSetIndex?.musicSettings ?: ImportedChannelSettings()
         val setBalance=if(!playback && importedInstrument!=null && !MidiVoiceKey.percussion(channel))ImportedMusicParameters.keyboardGain(music).toFloat() else 1f
@@ -312,6 +315,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun triggerSoundEffect(effect: SoundEffect) { sampleBank?.trigger(effect.key) }
     fun stopSoundEffects() { sampleBank?.trigger("") }
     fun noteOff(note: Int,channel:Int=0,playback:Boolean=false) {
+        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.noteOff(note)
         voices[MidiVoiceKey.key(note,channel,playback)]?.let { voice ->
             if (sustain && !playback && !MidiVoiceKey.percussion(channel)) voice.pendingSustain = true else voice.releasing = true
         }

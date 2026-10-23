@@ -125,3 +125,9 @@ Queue kiểm tra inputGain trước enqueue để dữ liệu lỗi không chờ
 Live poly pressure và channel pressure kênh 0 nay chuyển vào queue của nhóm STS. Poly pressure tác động các voice cùng phím, channel pressure tác động mọi voice chưa release; gọi Playback.aftertouch theo mode tiếng đã nạp. Không áp event MIDI playback hay kênh khác lên nhóm bàn phím. Hook ghi MIDI hiện có vẫn ghi pressure một lần. Không thay gain velocity bằng pressure trong module đa part.
 
 Test PCM alternate: hai phím ban đầu cộng 0.5, poly pressure chỉ một phím thành 0.75, channel pressure chuyển phím còn lại thành 1.0, nhả hết về 0. Cơ chế threshold 0.5/switch một chiều là giới hạn Aftertouch hiện có của ORGX, chưa phải điều kiện gốc đầy đủ. Pedal gốc có nhánh release dài/ngắn theo PedalMode; cơ chế sustain hiện tại chưa tái tạo toàn bộ envelope đó.
+
+## MIDI note routing cùng nhóm STS
+
+Live noteOn kênh 0 nay chuyển vào queue multi-part khi nhóm bật, cùng đích với bend/pressure. Trước đó chỉ phím cảm ứng đi vào nhóm, MIDI note-on vẫn tạo single voice nên biểu cảm không cùng đối tượng. Keyboard surface cũng dùng noteOn chung để tránh hai đường ghi MIDI. NoteOff nhả nhóm và voice đơn cũ nếu còn; velocity 0 ở đường nhóm chuyển note-off, không mở nốt mới. Capture note-on chỉ một lần trên kênh 0. MIDI playback và kênh 1..15 giữ routing trước đây, không tự nhân thành bốn tiếng.
+
+StsMidiRoutingTest kiểm tra 64 tổ hợp enable/channel/playback; kiểm thử queue/parts giữ trách nhiệm thực thi và PCM. Chưa thử MIDI controller thật, chưa có cấu hình MIDI input channel từng part theo SET, chưa xuất track MIDI riêng cho từng part.
