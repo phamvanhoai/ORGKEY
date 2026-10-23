@@ -120,6 +120,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         engine.setPitchBendRange(preferences.getInt("pitchbend_range",2).coerceIn(1,12))
         engine.pitchBendLock=preferences.getBoolean("pitchbend_lock",false)
         SampledInstrument.pitchSpeed=preferences.getInt("pitchspeed",2).coerceIn(1,100)
+        SampledInstrument.loopTempo=preferences.getBoolean("rhythm_loop_tempo",true)
         engine.configureStyleTiming(preferences.getInt("styleChangeMethod",0).coerceIn(0,3),preferences.getBoolean("styleTempoLock",false))
         engine.configureChordSynchro(preferences.getBoolean("sync_start",true),preferences.getBoolean("sync_stop",false),
             preferences.getInt("chord_synchro",0).takeIf{it in listOf(0,2,3)} ?: 0)
@@ -1074,6 +1075,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var bendRange by remember{mutableIntStateOf(engine.pitchBendRange)}
     var bendLock by remember{mutableStateOf(engine.pitchBendLock)}
     var pitchSpeed by remember{mutableIntStateOf(SampledInstrument.pitchSpeed)}
+    var loopTempo by remember{mutableStateOf(SampledInstrument.loopTempo)}
     var changeMethod by remember{mutableIntStateOf(engine.styleChangeMethod)}
     var keyConnectionMethod by remember { mutableIntStateOf(preferences.getInt("key_connection",0).coerceIn(0,1)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
@@ -1092,6 +1094,11 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             })
         }
         Text("Rhythm Change Method",fontWeight=FontWeight.Bold)
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+            Text("Loop tempo",Modifier.weight(1f));Switch(checked=loopTempo,onCheckedChange={
+                loopTempo=it;SampledInstrument.loopTempo=it;preferences.edit().putBoolean("rhythm_loop_tempo",it).apply()
+            })
+        }
         val pitchSpeeds=listOf(1,2,3,4,5,7,10,15,20,30,40,60,100)
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
             Text("Pitch Speed: ${if(pitchSpeed==1)"Fast" else if(pitchSpeed==100)"Slow" else "${pitchSpeed*10} ms"}",Modifier.weight(1f))

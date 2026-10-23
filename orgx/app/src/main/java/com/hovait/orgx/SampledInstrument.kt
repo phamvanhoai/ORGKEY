@@ -2,7 +2,7 @@ package com.hovait.orgx
 
 import kotlin.math.pow
 
-data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true,val tune:Int=0)
+data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true,val tune:Int=0,val tempoSync:Boolean=false)
 
 class SampledInstrument(private val regions:List<InstrumentRegion>,private val outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null,
     private val pitchMode:Int=if(exactNotes)2 else 0,private val tuning:List<Double> = emptyList(),private val tuningTranspose:Int=0) {
@@ -127,6 +127,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun keyboardNote(note:Int):Int=if(activeModeSound!==this)activeModeSound.keyboardNote(note) else if(!keyboardMelodic)note else
         (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     companion object {
+        @Volatile var loopTempo=false
+        @Volatile var tempo=120
+            set(value){require(value in 40..240);field=value}
         /** Music.fPitchSpeed is shared by the original sampled output channels. */
         @Volatile var pitchSpeed=0
             set(value){require(value in 0..100);field=value}
@@ -222,7 +225,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var hasRendered=false
         private fun advanceBend(){
             val target=2.0.pow(bendSemitones/12.0)
-            if(pitchSpeed==0){bendFactor=target;bendFrames=0}
+            if(pitchSpeed==0 || (loopTempo && selected[note].tempoSync)){bendFactor=target;bendFrames=0}
             else{
                 if(bendFrames<=0){
                     bendFrames=(outputRate/100).coerceAtLeast(1)
@@ -508,7 +511,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }else{
                 val gain=state?.next(released,effectivePedal) ?: if(released)0.0 else 1.0
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
-                position+=(bentStep*scriptPitchFactor+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
+                val tempoFactor=if(loopTempo && selected[note].tempoSync)tempo/120.0 else 1.0
+                position+=(bentStep*scriptPitchFactor*tempoFactor+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
                     (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && effectiveNoteOff)
             }

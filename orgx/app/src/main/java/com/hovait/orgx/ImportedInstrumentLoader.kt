@@ -122,7 +122,7 @@ object ImportedInstrumentLoader {
                 }
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
                     section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,
-                    section.tune+if(instrument.type==0)channel.tune+musicSettings.tune else 0)
+                    section.tune+if(instrument.type==0)channel.tune+musicSettings.tune else 0,tempoSync=section.loop==3)
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
                 envelope=ImportedEnvelope.from(instrument.sounds.first().envelope).let{it.copy(release=ImportedMusicParameters.release(it.release,channel,musicSettings))},pitchMode=instrument.sounds.first().envelope[4],

@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — Pitch Speed, 24-10-2026
+## Kết quả mới nhất — sample Loop Tempo, 24-10-2026
+
+- Đối chiếu Channels.Process: fLoopTempo && InstSec.Loop==3 nhân pitch theo fTempo/120 và đặt _pitchSpeed0. ImportedInstrumentLoader nay giữ riêng tempoSync cho region Loop3, thay vì chỉ gộp chung cờ looping.
+- Playback nhân bước đọc sample Loop3 với tempo/120 khi bật Loop Tempo; đổi BPM hoặc bật/tắt hiệu lực ngay tại vị trí đang phát, không reset phase. Region khác không nhân tempo. Nhánh Loop3 bỏ bend slew khi sync bật, giữ pitch-speed của các region thường.
+- Engine đồng bộ tempo sample khi BPM thay đổi từ UI/style/MIDI/project; Cài đặt có Loop tempo và lưu rhythm_loop_tempo, mặc địnhtrue theo Music gốc. Global nội bộ mặc địnhfalse cho thư viện/tests không có Music context.
+- Kiểm tra PCM đổi120->240: Loop3 tiến sample gấp đôi, loop thường giữ bước1; tắt sync tiếp tục ở phase hiện có với bước1. Các nhóm SampledInstrumentTest/ReferenceRhythmPlayerTest và kiểm tra loader loop3 cũ khi sync tắt đạt; build/cài APK thành công, không tạo file test mới.
+- Chưa đối chiếu lượng tử pitch integer/tempo trên native hoặc bản thu SET thực; nhánh sample() đọc trực tiếp ngoài Playback không nhân tempo. Đây là thay đổi tốc độ/cao độ theo gốc, không phải time-stretch giữ pitch. Chưa kết luận toàn bộ Loop3 tương đương100%.
+
+## Pitch Speed, 24-10-2026
 
 - Đối chiếu Channels.Process: fPitchSpeed lấy từ Music, iPitch là đích, mỗi khối tính dPitchChangeValue=(target-current)/(size*speed). Mảng gốc có1/2/3/4/5/7/10/15/20/30/40/60/100 tương ứng Fast,20..600ms,Slow; Music mặc định2.
 - Sampled Playback nay giữ bendFactor hiện tại và đích riêng, nội suy theo khối10ms và speed trước bước đọc sample. Nốt mới nhận bend ban đầu ngay; nốt đang ngân đi dần khi đổi hoặc nhả bend. Connection cập nhật base step mà vẫn dùng bendFactor đang chuyển. Scope cấu hình dùng chung sample channels như Music.

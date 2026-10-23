@@ -50,6 +50,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         private set
     @Volatile var rhythmPlaying = false
     @Volatile var bpm = 120
+        set(value){field=value;SampledInstrument.tempo=value.coerceIn(40,240)}
     @Volatile var instrument = 0
     @Volatile var importedInstrument:SampledInstrument?=null
         set(value){if(field!==value){clearStsParts();currentStsSingle=null};field=value}

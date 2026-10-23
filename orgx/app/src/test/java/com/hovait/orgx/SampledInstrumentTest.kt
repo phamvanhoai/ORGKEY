@@ -4,6 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @org.junit.Test fun loopTempoScalesOnlyModeThreeAndTracksLiveBpmWithoutRestart(){
+        val oldEnabled=SampledInstrument.loopTempo;val oldTempo=SampledInstrument.tempo
+        try{
+            SampledInstrument.loopTempo=true;SampledInstrument.tempo=120
+            fun voice(sync:Boolean)=SampledInstrument(listOf(InstrumentRegion(60,
+                SamplePcm(1000,1,ShortArray(128){(it*100).toShort()}),0,128,tempoSync=sync)),1000).voice(60)
+            val synced=voice(true);val plain=voice(false)
+            synced.next(false);plain.next(false)
+            SampledInstrument.tempo=240
+            synced.next(false);plain.next(false)
+            synced.next(false);plain.next(false)
+            org.junit.Assert.assertEquals(300.0/32768,synced.left,1e-12)
+            org.junit.Assert.assertEquals(200.0/32768,plain.left,1e-12)
+            SampledInstrument.loopTempo=false
+            synced.next(false);synced.next(false)
+            org.junit.Assert.assertEquals(600.0/32768,synced.left,1e-12)
+        }finally{SampledInstrument.loopTempo=oldEnabled;SampledInstrument.tempo=oldTempo}
+    }
     @org.junit.Test fun pitchSpeedRampsHeldPcmButNewNotesStartAtCurrentBend(){
         val previous=SampledInstrument.pitchSpeed
         try{
