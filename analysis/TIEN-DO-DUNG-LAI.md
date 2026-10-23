@@ -39,3 +39,5 @@ Key Connection đã bổ sung điều kiện restart AutoRelease/loop theo low n
 Script play đã nối autorelease và attack/decay/sustain/release xuống envelope từng Mix layer; giá trị không chỉ định giữ envelope gốc. Test hai voice cùng instrument xác nhận release một voice không đổi state voice kia. Bộ kiểm thử đầy đủ 437 test đạt, build/cài APK thành công; chưa đối chiếu bản thu envelope APK gốc.
 
 Chưa có biến trạng thái/main, if/else, timer, script aftertouch/release và exit đổi mode. Lựa chọn sound tùy lệnh và fallback khi lỗi vẫn cần đối chiếu/hoàn thiện. Không coi toàn bộ DNC hoặc script Legato đã tương đương APK. Những script ngoài tập con hỗ trợ hiện dùng fallback.
+
+Cập nhật session: đã nối main khởi tạo một lần, biến trạng thái giữa các touch, phép gán, so sánh và điều kiện một lệnh với &&/||/!. Trạng thái chỉ commit khi kế hoạch âm thanh hợp lệ. Chưa có block if/else, timer, effect assignment hoặc release exit đổi mode; ghi chú trước về thiếu main/trạng thái đã được thay thế ở phạm vi này. Kiểm thử toàn bộ 447 test đạt; APK đã build, cài và mở thành công.
