@@ -209,6 +209,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var chordMuted by remember{mutableStateOf(engine.styleChordMuted)}
     var drumMuted by remember{mutableStateOf(engine.styleDrumMuted)}
     var padsActive by remember{mutableStateOf(false)}
+    var padRunning by remember{mutableIntStateOf(0)}
+    var padWaiting by remember{mutableIntStateOf(0)}
     LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     var linkSts by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
@@ -257,7 +259,9 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         playing=engine.rhythmPlaying
         syncStart=engine.synchroStart;syncStop=engine.synchroStop
         chordMuted=engine.styleChordMuted;drumMuted=engine.styleDrumMuted
-        padsActive=engine.importedPads.runningMask!=0 || engine.importedPads.pendingMask!=0
+        padRunning=engine.importedPads.runningMask
+        padWaiting=engine.importedPads.pendingMask or engine.importedPads.loadingMask
+        padsActive=padRunning!=0 || padWaiting!=0
         restoredSetName=engine.importedInstrumentName
         bankIndex=engine.activeSetIndex
         setSession=engine.importedStyleSession
@@ -302,6 +306,30 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
     }
     val bankScope=rememberCoroutineScope()
+    val performancePads=remember(bankIndex,setSession?.style?.id){List(4){slot->
+        bankIndex?.styles?.firstOrNull{it.parent==setSession?.style?.id && it.section==96+slot}
+            ?: bankIndex?.styles?.firstOrNull{it.parent==0 && it.section==96+slot}
+    }}
+    fun pressSetPad(slot:Int){
+        val bank=engine.importedPads
+        val bit=1 shl slot
+        if((bank.runningMask or bank.pendingMask or bank.loadingMask) and bit!=0){bank.stop(slot);return}
+        val group=performancePads[slot] ?: return
+        val file=engine.activeSetFile ?: return
+        val index=bankIndex ?: return
+        val token=bank.beginLoad(slot)
+        bankScope.launch{
+            try{
+                val player=withContext(Dispatchers.IO){ImportedStylePlayer.load(file,index,group,true,
+                    engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                    chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
+                if(engine.activeSetIndex!==index)player.close() else bank.playPrepared(slot,token,player,group)
+            }catch(error:Exception){
+                if(error is kotlinx.coroutines.CancellationException)throw error
+                Toast.makeText(context,"PAD ${slot+1}: ${error.message}",Toast.LENGTH_LONG).show()
+            }finally{bank.finishLoad(slot,token)}
+        }
+    }
     val bankStyles=remember(bankIndex){bankIndex?.let{ImportedStyleCatalog.styles(it)}.orEmpty()}
     val voiceSounds=engine.activeSetSounds
     val useSetVoices=voiceSounds.isNotEmpty() && !factoryVoices
@@ -370,6 +398,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         syncStart=syncStart,syncStop=syncStop,
                         chordMuted=chordMuted,drumMuted=drumMuted,
                         padsActive=padsActive,
+                        padEnabled=performancePads.map{it!=null && !restoringSet},padRunning=padRunning,padWaiting=padWaiting,onPad=::pressSetPad,
                         onChordMute={engine.toggleStyleMute(true)},onDrumMute={engine.toggleStyleMute(false)},
                         onSyncStart={
                             engine.configureChordSynchro(!engine.synchroStart,engine.synchroStop,preferences.getInt("chord_synchro",0))
@@ -382,7 +411,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         onMenu={closePages();showTools=true},onStyle={closePages();browseVoices=false;browseStyles=true;bankPage=0;bankStatus=""},
                         onVoice={closePages();browseStyles=false;browseVoices=true;bankPage=0;bankStatus=""},onMixer={closePages();showMixer=true},onChord={closePages();showChords=true},
                         onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null)){
-                            if(engine.rhythmPlaying || engine.importedPads.runningMask!=0 || engine.importedPads.pendingMask!=0)engine.stopPerformance()
+                            if(engine.rhythmPlaying || engine.importedPads.runningMask!=0 || engine.importedPads.pendingMask!=0 || engine.importedPads.loadingMask!=0)engine.stopPerformance()
                             else engine.setRhythmEnabled(true)
                         }},
                         onTempo={
@@ -963,7 +992,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                             }catch(error:Exception){
                                 if(error is kotlinx.coroutines.CancellationException)throw error
                                 status=error.message ?: "Cannot load PAD"
-                            }finally{busy=false}
+                            }finally{engine.importedPads.finishLoad(slot,token);busy=false}
                         }
                     }
                 },modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){

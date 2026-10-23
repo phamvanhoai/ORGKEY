@@ -21,7 +21,8 @@ import androidx.compose.ui.input.pointer.pointerInput
     page:Int=0,status:String="",onChoose:(Int)->Unit={},onPage:(Int)->Unit={},onExit:()->Unit={},
     modeLabel:String="",onMode:()->Unit={},selectionTitle:String="STYLE SELECT",selectedChoice:Int=-1,onMixer:()->Unit=onVoice,temporaryLoop:Boolean=false,
     syncStart:Boolean=false,syncStop:Boolean=false,onSyncStart:()->Unit={},onSyncStop:()->Unit={},
-    chordMuted:Boolean=false,drumMuted:Boolean=false,onChordMute:()->Unit={},onDrumMute:()->Unit={},padsActive:Boolean=false){
+    chordMuted:Boolean=false,drumMuted:Boolean=false,onChordMute:()->Unit={},onDrumMute:()->Unit={},padsActive:Boolean=false,
+    padEnabled:List<Boolean> = emptyList(),padRunning:Int=0,padWaiting:Int=0,onPad:(Int)->Unit={}){
     data class Key(val x:Float,val y:Float,val w:Float,val h:Float,val label:String,val active:Boolean=false,val enabled:Boolean=true,val action:()->Unit)
     val keys=mutableListOf<Key>()
     keys+=Key(8f,12f,110f,26f,"ORGX / hovait",action=onMenu)
@@ -40,6 +41,12 @@ import androidx.compose.ui.input.pointer.pointerInput
     keys+=Key(837f,110f,43f,26f,"+",action={onTempo(1)})
     keys+=Key(888f,110f,49f,26f,"OCT −",action={onOctave(-1)})
     keys+=Key(941f,110f,49f,26f,"OCT +",action={onOctave(1)})
+    if(!stylePage)repeat(4){slot->
+        val bit=1 shl slot
+        keys+=Key(490f+slot*68f,114f,63f,27f,"PAD ${slot+1}${if(padWaiting and bit!=0)"..." else ""}",
+            active=(padRunning or padWaiting) and bit!=0,enabled=padEnabled.getOrElse(slot){false} || (padRunning or padWaiting) and bit!=0,
+            action={onPad(slot)})
+    }
     if(stylePage){
         keys+=Key(680f,16f,80f,18f,"EXIT",action=onExit)
         repeat(6){slot->

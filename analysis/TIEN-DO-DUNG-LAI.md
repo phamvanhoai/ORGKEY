@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — dừng PAD, 24-10-2026
+## Kết quả mới nhất — PAD trên mặt đàn, 24-10-2026
+
+- Thêm PAD1..4 vào LCD màn hình chơi, giữ bàn phím và nút chuyển style truy cập được; không cần mở trang PAD để phát/dừng. Theo y1/GroupSection, chọn Section96+slot của parent style hiện tại trước, rồi parent0 nếu thiếu. Không tự lấy PAD của style khác làm mặc định.
+- Mỗi nút nạp sample bằng IO rồi gửi prepared player tới bank đã có; bấm lần nữa khi chạy/chờ/nạp sẽ stop/cancel. Hiển thị PAD... khi nạp/chờ, tắt nút khi SET/style không có PAD tương ứng; lỗi nạp hiện thông báo.
+- Bổ sung loadingMask dùng chung cho LCD/STOP: STOP có thể hủy cả nạp chưa tới mailbox. finishLoad chỉ xóa trạng thái nếu generation còn đúng, tránh completion cũ xóa trạng thái request mới. Trang PAD cũng gọi finishLoad cả khi nạp lỗi.
+- Build/ReferenceRhythmPlayerTest đạt, cài APK thành công; đã xem màn hình trên điện thoại xác nhận bốn nút nằm trong LCD và không che phím đàn. Chưa kiểm chứng tiếng PAD SET thực/so bản thu APK trong lượt này. Không tạo file test mới.
+- Assignment tùy chọn từ trang PAD chưa được giữ theo style hoặc lưu qua đóng app; chọn lại nút LCD vẫn dùng group của style/fallback. Các giới hạn đồng bộ/chord variants/recording đã ghi ở các mục trước vẫn còn.
+
+## Dừng PAD, 24-10-2026
 
 - Đối chiếu MainActivity.D1 -> RecordRhythmStop và k92 SyncStop gọi D1(v1?-1:0), v1 lưu chord_synchro_stop_pads, mặc định false. Thêm tùy chọn Synchro Stop: stop PADs trong CHORD; Sync Stop dừng PAD chỉ khi bật tùy chọn.
 - Nút STOP biểu diễn trên console khi style hoặc PAD chạy/chờ; thao tác dừng performance đóng style và dừng tất cả PAD, chạy release tails thay vì cắt mixer. PAD chờ cửa sổ cũng bị hủy.
