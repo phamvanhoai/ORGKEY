@@ -152,3 +152,10 @@ StsMidiRoutingTest kiểm tra 64 tổ hợp enable/channel/playback; kiểm th�
 - Parser thay các đoạn bỏ qua byte bằng đọc trường có tên, giữ nguyên kích thước và vị trí nhị phân.
 - Dữ liệu được giữ ở `ImportedTrack`; MIDI output tới thiết bị ngoài chưa được bật khi chưa có kết nối/output lifecycle tương ứng.
 
+# Cập nhật Set Control 21 cờ (2026-10-23)
+
+- Thêm codec bitmask và đúng 21 nhãn của hộp STS Changes trong APK gốc.
+- Giao diện đặt inline trong trang STS, có checkbox native 48dp, đóng/mở để không che danh sách tiếng.
+- Cùng mask được truyền vào `prepareMasked` cho chọn thủ công, liên kết Main và restore; thay đổi được lưu ngay.
+- Lần nạp Master đầu tiên vẫn nạp đủ nhóm vì ORGX chưa có bốn Track hiện hành để làm nền cho phép giữ chọn lọc. Từ lần chuyển tiếp theo, từng cờ quyết định dữ liệu được thay.
+

@@ -36,14 +36,21 @@ class ImportedStsBatchTest {
             assertEquals(setOf(1,2),prepared.voices.keys)
             assertEquals(listOf(1,2),prepared.keyboardParts().map{it.id})
             assertTrue(prepared.keyboardParts().none{it.enabled}) // snapshot Record=false
-            val ranged=index.copy(tracks=index.tracks.map{it.copy(keyAreaFrom=48,keyAreaTo=60,sts=it.sts.map{sts->sts.copy(record=true)})})
+            val ranged=index.copy(tracks=index.tracks.map{it.copy(pedalMode=-1,keyAreaFrom=48,keyAreaTo=60,sts=it.sts.map{sts->sts.copy(record=true)})})
             val routed=ImportedStsBatch.prepareFull(file,ranged,1).keyboardParts()
-            assertTrue(routed.all{it.enabled && it.fromKey==48 && it.toKey==60})
+            assertTrue(routed.all{it.enabled && it.pedalMode==-1 && it.fromKey==48 && it.toKey==60})
             val current=mapOf(1 to snapshot("Current").copy(record=true,settings=ImportedChannelSettings(volume=40)),
                 2 to snapshot("Current").copy(record=true,settings=ImportedChannelSettings(volume=60)))
             val masked=ImportedStsBatch.prepareMasked(file,index,1,current,List(21){false})
             assertEquals(listOf(40,60),masked.keyboardParts().map{it.sound.keyboardSettings.volume})
             assertTrue(masked.keyboardParts().all{it.enabled})
+            val customRequest=ImportedStsRequest.prepare(file,index,0,1,prepared,List(21){false}) as ImportedStsRequest.Prepared.Group
+            assertTrue(customRequest.value.keyboardParts().none{it.enabled}) // current prepared snapshot is Record=false
+            val currentEnabled=prepared.copy(voices=prepared.voices.mapValues{(_,voice)->voice.copy(snapshot=voice.snapshot.copy(record=true))})
+            val keepRecord=ImportedStsRequest.prepare(file,index,0,1,currentEnabled,List(21){false}) as ImportedStsRequest.Prepared.Group
+            assertTrue(keepRecord.value.keyboardParts().all{it.enabled})
+            val replaceRecord=ImportedStsRequest.prepare(file,index,0,1,currentEnabled,List(21){it==8}) as ImportedStsRequest.Prepared.Group
+            assertTrue(replaceRecord.value.keyboardParts().none{it.enabled})
             val balanced=ImportedStsBatch.prepareFull(file,index.copy(musicSettings=ImportedChannelSettings(pan=-50)),1)
             assertTrue(balanced.keyboardParts().all{it.inputGain==.5})
             val instrumentIndex=index.copy(instruments=listOf(sound,sound),tracks=index.tracks.map{t->t.copy(sts=t.sts.map{it.copy(instrument=1)})})

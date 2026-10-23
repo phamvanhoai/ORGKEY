@@ -501,3 +501,7 @@ ORGX đã nối `pedalMode` của từng Track trong SET vào engine nhiều voi
 
 Parser Track không còn bỏ qua các trường mà `Track.ReadFromStream` của APK gốc đọc: `fMIDIChOut`, `fMIDIInst`, `fRecord`, `fMIDIChIn`, `fMIDIBank0` và `fMIDIBank1`. Các giá trị này được giữ trong `ImportedTrack` cùng key area, pedal và FX để các bước MIDI output/program/bank sau không phải đoán hoặc đọc lại file. Layout vẫn đọc đúng kiểu little-endian signed của mã gốc.
 
+# Cập nhật Set Control cho STS (2026-10-23)
+
+Trang STS có bảng Set Control mở rộng ngay trong trang, không dùng modal. Bảng gồm đúng 21 cờ `fSTSChanges` và đúng thứ tự tên của APK gốc, có vùng chạm tối thiểu 48dp, hiển thị số cờ đang bật và lưu bitmask vào preferences. Mask này được dùng chung khi chọn STS, tự đổi STS theo Main 1–4 và khôi phục STS lúc mở ứng dụng. Lần nạp nhóm đầu tiên vẫn phải tạo đủ voice vì ORGX chưa có bốn Track sống trước đó; mask áp chính xác từ lần chuyển STS tiếp theo.
+

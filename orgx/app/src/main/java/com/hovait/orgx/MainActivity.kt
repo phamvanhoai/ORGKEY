@@ -117,7 +117,8 @@ private fun ORGXApp(engine: AudioEngine) {
                 val index=checkNotNull(engine.activeSetIndex)
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
-                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot,expectedGroup)}
+                val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot,expectedGroup,changes)}
                 if(preferences.getString("selectedStsSet",null)==savedStsSet){
                     check(engine.awaitStsRequest(prepared,expectedSound)){"Saved STS selection changed while loading"}
                     restoredSts=true
@@ -184,7 +185,8 @@ private fun ORGXApp(engine: AudioEngine) {
                 val snapshot=ImportedStsSelection.resolve(index,trackIndex,slot)
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
-                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup)}
+                val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,changes)}
                 if(engine.importedStyleSession===session && session.currentId==part.id &&
                     preferences.getString("selectedStsSet",null)==file.name &&
                     preferences.getInt("selectedStsTrack",-1)==trackIndex &&
@@ -625,11 +627,28 @@ private fun ORGXApp(engine: AudioEngine) {
         }
         if(showSetSts){
             var linked by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
+            var showStsChanges by remember{mutableStateOf(false)}
+            var stsChanges by remember{mutableStateOf(ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask)))}
             Row(verticalAlignment=Alignment.CenterVertically){
                 Checkbox(checked=linked,enabled=!importing,onCheckedChange={
                     linked=it;preferences.edit().putBoolean("linkMainSts",it).apply()
                 })
                 Text("Đổi STS theo Main 1–4 trên Track đã chọn",fontSize=12.sp)
+            }
+            TextButton(onClick={showStsChanges=!showStsChanges},modifier=Modifier.heightIn(min=48.dp)){
+                Text(if(showStsChanges)"ẨN SET CONTROL" else "SET CONTROL (${stsChanges.count{it}}/21)")
+            }
+            if(showStsChanges){
+                Text("Chọn dữ liệu được thay đổi khi chuyển sang STS kế tiếp.",fontSize=12.sp)
+                ImportedStsChangeSettings.labels.forEachIndexed{index,label->
+                    Row(verticalAlignment=Alignment.CenterVertically,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
+                        Checkbox(checked=stsChanges[index],enabled=!importing,onCheckedChange={checked->
+                            stsChanges=stsChanges.toMutableList().also{it[index]=checked}
+                            preferences.edit().putInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.encode(stsChanges)).apply()
+                        })
+                        Text(label,Modifier.weight(1f))
+                    }
+                }
             }
             Text("Chọn Master để nạp nhóm tiếng, hoặc chọn Track để nạp một tiếng. Thiếu slot sẽ giữ nguyên tiếng.",fontSize=12.sp)
             val snapshots=setIndex?.tracks.orEmpty().flatMapIndexed{trackIndex,track->track.sts.map{Triple(trackIndex,track.name,it)}}
@@ -644,7 +663,7 @@ private fun ORGXApp(engine: AudioEngine) {
                         val index=checkNotNull(engine.activeSetIndex)
                         val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
-                        val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup)}
+                        val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,stsChanges)}
                         val applied=engine.awaitStsRequest(prepared,expectedSound)
                         if(applied)preferences.edit().putString("selectedStsSet",setFile?.name)
                             .putInt("selectedStsTrack",trackIndex).putInt("selectedStsSlot",snapshot.slot)
