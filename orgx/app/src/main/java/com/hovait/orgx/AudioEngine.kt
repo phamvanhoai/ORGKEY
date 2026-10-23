@@ -184,6 +184,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var progression = 0
     @Volatile var rhythmStyle = 0
     @Volatile var effectType = 0
+    @Volatile var keyConnectionMethod = 0
     @Volatile var effectMix = 0.28f
     @Volatile var isRecording = false
 

@@ -13,6 +13,13 @@ class ImportedExpressionModeTest {
         val resumed=ImportedExpressionAutomation.update(stopped,ReferenceDrumEvent(65,2,7,0,1,0))
         assertEquals(321,resumed.playbackSpeed)
     }
+    @Test fun keyConnectionMethodIsStoredInTheHighModeNibbleOnlyForSlotOne(){
+        val key=effect(1,0).copy(speed=321)
+        val changed=ImportedExpressionAutomation.update(key,ReferenceDrumEvent(65,1,7,3,0,0),1)
+        assertEquals(19,changed.mode)
+        val pitch=ImportedExpressionAutomation.update(effect(2,0),ReferenceDrumEvent(65,2,7,3,0,0),1)
+        assertEquals(3,pitch.mode)
+    }
     private fun effect(slot:Int,mode:Int)=ImportedExpressionEffect(
         slot,true,0,false,false,mode,125,51,7,emptyList())
 

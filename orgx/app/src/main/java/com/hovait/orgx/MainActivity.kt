@@ -138,7 +138,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 if(definition!=null){
                     val mode=preferences.getInt("bankMode",0).coerceIn(0,2)
                     val session=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
-                        engine.referenceChordTransposer,if(mode==2)engine::selectedSetChord else null)}
+                        engine.referenceChordTransposer,engine.keyConnectionMethod,if(mode==2)engine::selectedSetChord else null)}
                     engine.selectImportedStyle(session)
                     engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240)
                 }
@@ -263,6 +263,7 @@ private fun ORGXApp(engine: AudioEngine) {
         engine.masterVolume=preferences.getFloat("masterVolume",0.65f);engine.keysVolume=preferences.getFloat("keysVolume",0.78f)
         engine.chordVolume=preferences.getFloat("chordVolume",0.22f);engine.drumsVolume=preferences.getFloat("drumsVolume",0.55f)
         engine.effectMix=preferences.getFloat("effectMix",0.28f)
+        engine.keyConnectionMethod=preferences.getInt("key_connection",0).coerceIn(0,1)
     }
     LaunchedEffect(octave, bpm, instrument, chord, style, effect, autoChord, progression) {
         preferences.edit().putInt("octave", octave).putInt("bpm", bpm)
@@ -317,7 +318,7 @@ private fun ORGXApp(engine: AudioEngine) {
                                     bankBusy=true;bankStatus="LOADING..."
                                     try{
                                         val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(checkNotNull(engine.activeSetFile),checkNotNull(bankIndex),bankStyles[chosen],bankMode>0,
-                                            engine.referenceChordTransposer,if(bankMode==2)engine::selectedSetChord else null)}
+                                            engine.referenceChordTransposer,engine.keyConnectionMethod,if(bankMode==2)engine::selectedSetChord else null)}
                                         engine.selectImportedStyle(loaded)
                                         setSession=loaded;sectionState=loaded.currentId to null
                                         preferences.edit().putString("selectedStyleSet",engine.activeSetFile?.name).putInt("selectedSetStyleId",loaded.style.id).apply()
@@ -709,7 +710,7 @@ private fun ORGXApp(engine: AudioEngine) {
                     try{
                         val session=withContext(Dispatchers.IO){
                             ImportedStylePlayer.loadStyle(checkNotNull(setFile),checkNotNull(index),definition,previewAccompaniment,
-                                engine.referenceChordTransposer,if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
+                                engine.referenceChordTransposer,engine.keyConnectionMethod,if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
                         engine.selectImportedStyle(session)
                         preferences.edit().putString("selectedStyleSet",setFile?.name).putInt("selectedSetStyleId",definition.id)
@@ -844,11 +845,15 @@ private fun ORGXApp(engine: AudioEngine) {
     val preferences=remember { context.getSharedPreferences("orgx-settings",0) }
     var nativeOutput by remember { mutableStateOf(preferences.getBoolean("nativeOutput",false)) }
     var repeatToLoop by remember { mutableStateOf(preferences.getBoolean("styleRepeatToLoop",false)) }
+    var keyConnectionMethod by remember { mutableIntStateOf(preferences.getInt("key_connection",0).coerceIn(0,1)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
     LaunchedEffect(engine) { while(true) { outputStatus=engine.outputStatus;kotlinx.coroutines.delay(300) } }
     InstrumentPage(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column(Modifier.verticalScroll(rememberScrollState())){Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle);
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Repeat section button to loop",Modifier.weight(1f));Switch(checked=repeatToLoop,onCheckedChange={repeatToLoop=it;engine.styleRepeatToLoop=it;preferences.edit().putBoolean("styleRepeatToLoop",it).apply()})
+        }
+        Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
+            Text("Portamento: Method ${keyConnectionMethod+1}",Modifier.weight(1f));TextButton(onClick={keyConnectionMethod=1-keyConnectionMethod;engine.keyConnectionMethod=keyConnectionMethod;preferences.edit().putInt("key_connection",keyConnectionMethod).apply()}){Text("CHANGE")}
         }
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Experimental NOpenSL",Modifier.weight(1f));Switch(checked=nativeOutput,onCheckedChange={nativeOutput=it;preferences.edit().putBoolean("nativeOutput",it).apply()})

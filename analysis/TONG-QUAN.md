@@ -491,7 +491,9 @@ ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phá
 
 Key Repeat Effect slot 0 đã được nối cho MODE/STS: bộ đếm chạy theo tick 10 ms sau StartDelay, dùng đúng công thức chu kỳ Speed của `Channels.Process`, tôn trọng ByPedal và dừng sinh voice khi release. Mỗi lần lặp mở voice AutoRelease riêng; voice con không chạy lại chuỗi Effect nên không nhân lặp vô hạn. Automation slot 0/1 và các ngoại lệ AutoRelease chi tiết vẫn còn thiếu.
 
-Automation event 65 đã hỗ trợ đủ bốn slot Effect đang thực thi. Slot 0 giữ bộ đếm Key Repeat khi đổi tham số; slot 1 cập nhật Key Connection đang chuyển pitch và hành vi nốt kế tiếp; slot 2/3 đổi Pitch/Volume Shake ngay trên voice đang ngân và state của voice tương lai. Parameter 7 giữ Speed gốc để tiếp tục đúng phase khi thoát Mode 1/2. Nguồn cấu hình toàn cục `fKeyConnectionMethod` vẫn chưa được dựng.
+Automation event 65 đã hỗ trợ đủ bốn slot Effect đang thực thi. Slot 0 giữ bộ đếm Key Repeat khi đổi tham số; slot 1 cập nhật Key Connection đang chuyển pitch và hành vi nốt kế tiếp; slot 2/3 đổi Pitch/Volume Shake ngay trên voice đang ngân và state của voice tương lai. Parameter 7 giữ Speed gốc để tiếp tục đúng phase khi thoát Mode 1/2.
+
+Đã thêm `Portamento: Method 1/2` theo đúng hai lựa chọn `key_connection` của APK gốc. Method được lưu bền vững, truyền vào mọi lần nạp/khôi phục/xem trước style, và chỉ ghép vào bit cao của Key Connection khi event 65 parameter 7 chạy. Style đang phát cần được chọn lại để áp dụng phương thức vừa đổi.
 
 Nút Intro khi đang chạy hiện hủy các Intro/Fill đang chờ trước đó, phát đúng Intro vừa chọn một lần rồi quay về Main đang chọn; tránh tình trạng bấm Intro 1 nhưng chạy tiếp chuỗi Intro cũ.
 

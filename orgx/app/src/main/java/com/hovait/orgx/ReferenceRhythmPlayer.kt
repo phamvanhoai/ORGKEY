@@ -7,7 +7,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0},private var fx:ImportedFxChain?=null,
     private val initiallyMuted:Boolean=false,private val initialChannel:ImportedChannelSettings?=null,
     private val expressionEffects:List<ImportedExpressionEffect> = emptyList(),private val initialPedal:Boolean=false,
-    private val expressionAllowed:Boolean=true) {
+    private val expressionAllowed:Boolean=true,private val keyConnectionMethod:Int=0) {
+    init{require(keyConnectionMethod in 0..1)}
     private var volumeShake=expressionEffects.firstOrNull{it.slot==3}
     private var pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2}
     private var keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0}
@@ -23,6 +24,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var initialTime=0L
     private data class Voice(var note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,var eventId:Int=0,var touchGain:Double=1.0,val tune:Int=0,val samplePan:Int=0,val repeat:ImportedKeyRepeat?=null)
     private val voices=LinkedHashMap<Long,Voice>()
+    internal val activeVoices:Int get()=voices.size+children.sumOf{it.activeVoices}
     private var voiceSequence=0L
     private var eventMuted=initiallyMuted
     private var pedalDown=initialPedal
@@ -187,7 +189,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 }
                 if(event.id==1){
                     val initial=keyConnectionEffect ?: ImportedExpressionEffect(1,false,0,false,false,0,0,0,0,emptyList())
-                    val updated=ImportedExpressionAutomation.update(initial,event)
+                    val updated=ImportedExpressionAutomation.update(initial,event,keyConnectionMethod)
                     keyConnectionEffect=updated
                     if(expressionAllowed)voices.values.forEach{it.playback?.configureConnection(updated)}
                     return@advance

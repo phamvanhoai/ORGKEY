@@ -5,18 +5,19 @@ import java.io.File
 /** Optional manual chord mapping; DNC is not applied. */
 object ImportedStylePlayer {
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
-        transposer:ReferenceChordTransposer?=null,targetChord:(()->Int?)?=null):ImportedStyleSession {
+        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,targetChord:(()->Int?)?=null):ImportedStyleSession {
         val complete=ImportedSectionFallback.complete(index,style)
         val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
-        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord))
+        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord,keyConnectionMethod))
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
-        transposer:ReferenceChordTransposer?=null,targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
-        return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord).getValue(group.id)
+        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
+        return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord,keyConnectionMethod).getValue(group.id)
     }
     private fun loadSections(file:File,index:ImportedSetIndex,groups:List<ImportedStyleGroup>,includeAccompaniment:Boolean,
-        transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?):Map<Int,ReferenceRhythmPlayer> {
+        transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?,keyConnectionMethod:Int):Map<Int,ReferenceRhythmPlayer> {
+        require(keyConnectionMethod in 0..1)
         val follow=targetChord!=null
         require(!follow || (includeAccompaniment && transposer!=null)){"Chord mapping requires accompaniment and chord table"}
         groups.forEach{group->require(ImportedStyleSupport.reason(index,group,includeAccompaniment,follow)==null){
@@ -56,7 +57,7 @@ object ImportedStylePlayer {
                 },sampled=sound,fx=ImportedFxChain(settings),initiallyMuted=track.muted,initialChannel=settings,expressionEffects=track.effects,initialPedal=track.pedal!=0,
                 // Tracks.ReadFromStream assigns channel type 1 to rhythm groups
                 // and Type 3 tracks. Channels.Process excludes that channel type.
-                expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track))
+                expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track),keyConnectionMethod=keyConnectionMethod)
         }).withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings,index.musicSettings)}
     }
 }
