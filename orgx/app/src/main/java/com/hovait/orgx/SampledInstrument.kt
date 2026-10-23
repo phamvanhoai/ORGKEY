@@ -19,8 +19,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var expressionEffects:List<ImportedExpressionEffect> = emptyList()
     var touchScript:ImportedSimpleScript.Result?=null;private set
     private var modeScript:ImportedModeScript?=null
+    private var scriptSession:ImportedScriptSession?=null
     fun withModeScript(source:String)=also{
         modeScript=ImportedModeScript.parse(source)
+        scriptSession=runCatching{ImportedScriptSession(source)}.getOrNull()
         touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
             ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
     }
@@ -51,7 +53,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
-            modeScript?.let{ImportedSimpleScript.evaluate(it,"touch",mapOf("key" to note,"velocity" to scriptVelocity))}
+            scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity))
                 ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}}}
                 ?.also{result->result.plays.forEach{command->
                     val combinedTune=Math.addExact(tune,command.parameters["tune"] ?: 0)

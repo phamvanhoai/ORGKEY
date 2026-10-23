@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun repeatedTouchesUseStateInitializedByMain(){
+        val source=sound().withModeScript("main() { level = 0; } on(touch) { level = level + 25; play(volume:level); return(true); }")
+        val first=source.voice(60);first.next(false)
+        val second=source.voice(60);second.next(false)
+        assertEquals(.0625,first.left,1e-12)
+        assertEquals(.125,second.left,1e-12)
+        first.next(false);assertEquals(.0625,first.left,1e-12)
+    }
     @Test fun overflowingScriptTuneFallsBackBeforeCreatingAnyScriptVoice(){
         val source=sound().withModeScript("on(touch) { play(volume:50); play(tune:2147483647); return(true); }")
         val voice=source.voice(60,tune=1)
