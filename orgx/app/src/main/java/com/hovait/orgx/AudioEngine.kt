@@ -46,7 +46,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var activeSetFile:File?=null
     @Volatile var activeSetIndex:ImportedSetIndex?=null
         set(value){
-            if(field!==value){clearStsParts();setChordInputMode(0);keyboardChordInput.reset()}
+            if(field!==value){clearStsParts();setChordInputMode(0);keyboardChordInput.reset();importedPads.stopAll()}
             field=value
         }
     @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
@@ -63,6 +63,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         set(value){autoChordMap=AutoChordProgression(value);field=value}
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
+    val importedPads=ImportedPadBank()
     private val chordSynchro=ChordSynchro()
     @Volatile var synchroStart=true;private set
     @Volatile var synchroStop=false;private set
@@ -329,7 +330,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         else AudioTrackBackend(track,sampleRate)
         outputLoop = AudioOutputLoop(start={backend.start();if(!preferNativeOutput)outputStatus="AudioTrack"},
             render=::renderBlock,write={samples,offset,count->backend.write(samples,offset,count)},release={
-                try{backend.close()}finally{stsWaiters.close();importedKeyboardMixer.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close()}
+                try{backend.close()}finally{stsWaiters.close();importedKeyboardMixer.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close();importedPads.close()}
             },
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
@@ -742,9 +743,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                 }
                 val setPlayer=importedRhythm.takeIf{rhythmPlaying || naturalStyleTail}
+                importedPads.next(bpm.coerceIn(40,240),drumsVolume,chordVolume)
                 setPlayer?.mixOutput(drumsVolume,chordVolume)
-                val styleLeft=setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0)
-                val styleRight=setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0)
+                val styleLeft=(setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0))+importedPads.left
+                val styleRight=(setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0))+importedPads.right
                 stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume+styleLeft,
                     mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume+styleRight,effectType,effectMix)
                 val setMasterGain=importedKeyboardMixer.musicVolume

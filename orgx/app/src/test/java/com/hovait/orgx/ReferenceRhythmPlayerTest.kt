@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun importedPadsMixIndependentSlotsAndReleaseWithoutStoppingOtherPad(){
+        fun pad(value:Double)=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),
+            {10000},{_,_,_->value},1000)
+        val bank=ImportedPadBank()
+        try{
+            bank.play(0,pad(1.0));bank.play(1,pad(2.0));bank.next(120,1f,1f)
+            assertEquals(3,bank.runningMask);assertEquals(3.0,bank.left,1e-12)
+            bank.stop(0);repeat(12){bank.next(120,1f,1f)}
+            assertEquals(2,bank.runningMask);assertEquals(2.0,bank.left,1e-12)
+            bank.stopAll();repeat(12){bank.next(120,1f,1f)}
+            assertEquals(0,bank.runningMask);assertEquals(0.0,bank.left,0.0)
+        }finally{bank.close()}
+    }
     @Test fun unmuteCatchesUpControlsAndLongNotesButSkipsExpiredHits(){
         val events=listOf(ReferenceDrumEvent(2,1,60,100,0,5),
             ReferenceDrumEvent(44,0,25,0,10,0),

@@ -920,8 +920,50 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
 @Composable private fun PadDialog(engine:AudioEngine,onDismiss:()->Unit){
+    val context=LocalContext.current
+    val scope=rememberCoroutineScope()
+    val file=engine.activeSetFile
+    val index=engine.activeSetIndex
+    val groups=remember(index){index?.styles?.filter{it.section in 96..99}?.distinctBy{it.id}.orEmpty()}
+    var page by remember(index){mutableIntStateOf(0)}
+    var busy by remember{mutableStateOf(false)}
+    var status by remember{mutableStateOf("")}
+    var running by remember{mutableIntStateOf(engine.importedPads.runningMask)}
+    LaunchedEffect(engine){while(true){running=engine.importedPads.runningMask;kotlinx.coroutines.delay(100)}}
     val names=listOf("KICK","SNARE","HI-HAT","CLAP","LOW TOM","HIGH TOM","CRASH","PERC")
     InstrumentPage(onDismissRequest=onDismiss,title={Text("Performance pads")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)){
+        if(groups.isNotEmpty() && file!=null && index!=null){
+            Text("SET PAD",fontWeight=FontWeight.Bold)
+            groups.drop(page*4).take(4).forEachIndexed{slot,group->
+                val active=running and (1 shl slot)!=0
+                OutlinedButton(enabled=!busy,onClick={
+                    if(active)engine.importedPads.stop(slot) else{
+                        busy=true;status="LOADING ${group.name}"
+                        scope.launch{
+                            try{
+                                val player=withContext(Dispatchers.IO){ImportedStylePlayer.load(file,index,group,true,
+                                    engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                                    chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
+                                if(engine.activeSetIndex!==index)player.close() else engine.importedPads.play(slot,player)
+                                status=""
+                            }catch(error:Exception){
+                                if(error is kotlinx.coroutines.CancellationException)throw error
+                                status=error.message ?: "Cannot load PAD"
+                            }finally{busy=false}
+                        }
+                    }
+                },modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){
+                    Text("PAD ${slot+1} · ${group.name} · ${if(active)"STOP" else "PLAY"}")
+                }
+            }
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){
+                TextButton(enabled=page>0 && !busy,onClick={engine.importedPads.stopAll();page--}){Text("PREV")}
+                TextButton(onClick={engine.importedPads.stopAll()}){Text("STOP ALL SET PADS")}
+                TextButton(enabled=(page+1)*4<groups.size && !busy,onClick={engine.importedPads.stopAll();page++}){Text("NEXT")}
+            }
+            if(status.isNotBlank())Text(status)
+        }
+        Text("DRUM HITS",fontWeight=FontWeight.Bold)
         names.chunked(4).forEachIndexed{row,items->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){items.forEachIndexed{column,name->val index=row*4+column;Button(onClick={engine.triggerPad(index)},modifier=Modifier.weight(1f).height(62.dp),contentPadding=PaddingValues(3.dp),shape=RoundedCornerShape(9.dp)){Text(name,fontSize=9.sp,fontWeight=FontWeight.Bold,maxLines=2)}}}}
         Text("SOUND EFFECTS",fontWeight=FontWeight.Bold)
         SoundEffectCatalog.entries.chunked(2).forEach{items->

@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — mở mute và sự kiện bị lỡ, 24-10-2026
+## Kết quả mới nhất — dữ liệu PAD của SET, 24-10-2026
+
+- Trước đây trang PAD chỉ có factory drum hits/effects. Nay liệt kê các group Section96..99 của SET đang mở, theo cùng quy ước MainActivity.y1 (section high nibble6), và nạp bằng ImportedStylePlayer với sample, track/group FX, tuning, script mode và chord-follow.
+- Thêm ImportedPadBank mã ứng dụng: bốn slot player độc lập, chuyển player đã chuẩn bị qua atomic mailbox; nạp PCM trên IO, audio callback chỉ nhận player/render. Dừng PAD chạy release/FX tail, không dừng style chính hay slot khác; đổi SET dừng tất cả PAD. Đóng engine thu hồi cả player đang chạy lẫn đang chờ.
+- Trang PAD có PLAY/STOP từng slot, STOP ALL và trang tiếp/trước khi nhiều group; factory hits/effects vẫn nằm dưới. Lỗi nạp hiện ở trang PAD. Chưa lưu assignment PAD qua mở app.
+- Kiểm tra PCM hai slot cùng chạy tổng gain3, dừng slot0 còn gain2, stop-all hết tail về0 đạt cùng ReferenceRhythmPlayerTest; build/cài APK thành công. Không tạo file test mới. Chưa xác minh PAD trên SET thực/so bản thu APK trong lượt này.
+- Giới hạn: chưa đồng bộ điểm bắt đầu với rhythmScale/style clock như GroupPlayAdd/Start; chưa dùng cơ chế GroupPlayChord chuyển biến thể PAD, temp-loop/stop pads/synchro sound và MIDI recording. Đây là đường phát PAD SET độc lập ban đầu, chưa tương đương toàn bộ PAD gốc.
+
+## Mở mute và sự kiện bị lỡ, 24-10-2026
 
 - Sửa giới hạn của lượt Chord/Drum Mute: đối chiếu Tracks điều kiện không gọi Track.PlayNext khi nhóm muted. ORGX nay giữ nguyên event cursor trong lúc performance mute, tiếp tục audio clock, tiếng đang ngân và FX.
 - Khi unmute, ReferenceDrumTimeline xử lý các event overdue: lệnh volume/pan/pedal/note-off được thực thi, note dài còn trong khoảng hiệu lực được mở, note ngắn đã quá Length+10 bị bỏ theo Track.PlayNext. Không tự reset pattern hoặc đổi volume mixer.
