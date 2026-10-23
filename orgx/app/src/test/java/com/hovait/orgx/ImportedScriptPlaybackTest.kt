@@ -5,6 +5,19 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun layeredVoiceKeepsIncomingVelocityInChildScript(){
+        val layer=sound().withModeScript("on(touch) { play(velocity:100); return(true); }")
+        val voice=SampledInstrument.combine(listOf(layer,sound())).voice(60,scriptVelocity=50)
+        voice.next(false)
+        assertEquals(.75,voice.left,1e-12)
+    }
+    @Test fun scriptVelocityOverridesWithoutMultiplyingInputTwice(){
+        val source=sound().withModeScript("on(touch) { play(velocity:velocity); return(true); }")
+        val preserved=source.voice(60,scriptVelocity=50);preserved.next(false)
+        assertEquals(.25,preserved.left,1e-12)
+        val overridden=sound().withModeScript("on(touch) { play(velocity:100); return(true); }").voice(60,scriptVelocity=50)
+        overridden.next(false);assertEquals(.5,overridden.left,1e-12)
+    }
     @Test fun scriptPitchMoveSurvivesExternalPitchBend(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)
         val voice=source.withModeScript("on(touch) { play(pitchmove:1000); return(true); }").voice(60)

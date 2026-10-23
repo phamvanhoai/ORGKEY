@@ -236,7 +236,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         var ageFrames: Long = 0
     ) {
         val renderedNote=imported?.keyboardNote(note) ?: note
-        val sampledPlayback=imported?.voice(renderedNote)
+        val sampledPlayback=imported?.voice(renderedNote,scriptVelocity=recordingVelocity)
     }
 
     private val track by lazy { AudioTrack.Builder()

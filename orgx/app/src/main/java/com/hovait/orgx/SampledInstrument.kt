@@ -46,28 +46,29 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{it.layers=sounds}
         }
     }
-    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true)=Playback(note,tune,pan,autoRelease,effectsAllowed)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true){
+    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity=scriptVelocity)
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100){
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
-            modeScript?.let{ImportedSimpleScript.evaluate(it,"touch",mapOf("key" to note))}
-                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","keymove","octavemove","volume","pan","tune","pitchmove","connectkey","connectspeed")}}}
+            modeScript?.let{ImportedSimpleScript.evaluate(it,"touch",mapOf("key" to note,"velocity" to scriptVelocity))}
+                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","connectkey","connectspeed")}}}
         }.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
             val playback=Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
-                (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),autoRelease,effectsAllowed,false)
+                (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),autoRelease,effectsAllowed,false,scriptVelocity)
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
             }
             playback.scriptPitchMove(command.parameters["pitchmove"] ?: 0)
-            playback to (command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0
+            val velocityRatio=command.parameters["velocity"]?.let{it.coerceAtLeast(0).toDouble()/scriptVelocity.coerceAtLeast(1)} ?: 1.0
+            playback to ((command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0*velocityRatio)
         }
         private val children=if(scriptPlan!=null)scriptChildren.map{it.first}+
-            (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false)))
-            else layers.map{it.voice(note,tune,pan,autoRelease,effectsAllowed)}
+            (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity)))
+            else layers.map{it.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity)}
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
         private var connectionDelta=0.0
@@ -143,7 +144,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             // positive pressure event. It closes the old key and opens the
             // alternate sound once; pressure is not a 50% cross-fade gate.
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
-                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
+                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
             }
         }
         private var state=envelope?.voice(outputRate)

@@ -30,7 +30,7 @@ class ImportedKeyboardParts {
                 return@forEach
             }
             if(notes.size>=512)notes.removeAt(0)
-            val playback=part.sound.voice(part.sound.keyboardNote(key))
+            val playback=part.sound.voice(part.sound.keyboardNote(key),scriptVelocity=(velocity*127).toInt().coerceAtLeast(1))
             if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || part.pedal))
                 playback.connectFrom(part.sound.keyboardNote(previous.key),connection)
             playback.pitchBend(bends[channel])
