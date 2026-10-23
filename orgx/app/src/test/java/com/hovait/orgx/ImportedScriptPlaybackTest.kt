@@ -5,6 +5,13 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun keyToPitchExpressionChangesActualSamplePosition(){
+        fun source()=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){(it*100).toShort()}),0,128)),1000)
+        val voice=source().withModeScript("on(touch){play(pitchmove:KeyToPitch(key:12));return(true);}").voice(60)
+        voice.next(false);voice.next(false)
+        assertEquals(199.9/32768,voice.left,1e-12)
+        assertFalse(voice.finished)
+    }
     @Test fun modulationStopAllCutsBothNoteIdsAndKeepsFollowingPlay(){
         val source=sound().withModeScript("""
             on(touch){play();return(true);}

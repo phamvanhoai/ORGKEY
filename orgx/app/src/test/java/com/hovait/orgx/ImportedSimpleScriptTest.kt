@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun keyToPitchUsesOriginalConstantAndNamedKeyExpression(){
+        val script=ImportedModeScript.parse("on(touch){play(pitchmove:KeyToPitch(key:key-60));return(true);}")
+        for((key,expected) in listOf(48 to -500,60 to 0,72 to 999,84 to 2999)){
+            val result=ImportedSimpleScript.evaluate(script,"touch",mapOf("key" to key))
+            assertEquals(expected,result.plays.single().parameters["pitchmove"])
+        }
+        val default=ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch){play(pitchmove:KeyToPitch());}"),"touch")
+        assertEquals(0,default.plays.single().parameters["pitchmove"])
+    }
+    @Test(expected=IllegalArgumentException::class) fun keyToPitchRejectsOverflowBeforeCommittingState(){
+        val state=mutableMapOf("count" to 0)
+        try{
+            ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch){count=99;play(pitchmove:KeyToPitch(key:2147483647));}"),"touch",state=state)
+        }finally{assertEquals(0,state["count"])}
+    }
     @Test fun octaveSwitchSupportsOpenRangesAndDottedVariables(){
         val session=ImportedScriptSession("""
             main(){touch.octave=0;}

@@ -145,6 +145,19 @@ object ImportedSimpleScript {
         variables[value]?.let{return it}
         val playing=Regex("playing\\s*\\(\\s*(released)?\\s*\\)").matchEntire(value)
         if(playing!=null)return variables[if(playing.groupValues[1].isEmpty())"__playing" else "__playingreleased"] ?: 0
+        val keyToPitch=Regex("keytopitch\\s*\\(\\s*(.*?)\\s*\\)").matchEntire(value)
+        if(keyToPitch!=null){
+            val arguments=keyToPitch.groupValues[1].trim()
+            val key=if(arguments.isEmpty())0 else {
+                val pair=arguments.split(':',limit=2)
+                require(pair.size==2 && pair[0].trim()=="key"){"KeyToPitch requires named key argument"}
+                expression(pair[1],variables)
+            }
+            // InstMode callback calls Music.KeyToPitch(key + 12, 500) - 1000.
+            val pitch=kotlin.math.exp(kotlin.math.ln(1.059463094)*(key.toDouble()+12))*500-1000
+            require(pitch.isFinite() && pitch>=Int.MIN_VALUE && pitch<=Int.MAX_VALUE){"KeyToPitch outside integer runtime range"}
+            return pitch.toInt()
+        }
         if(Regex("effect\\[[0-7]]\\.(enable|startdelay|bypedal|stopbyrelease|mode|speed|depth|gain)").matches(value))
             return variables[value] ?: throw IllegalArgumentException("Unknown effect property: $value")
         val function=Regex("(max|min|abs)\\s*\\((.*)\\)").matchEntire(value)
