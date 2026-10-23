@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun nestedIfBlocksRunInOrderAndReturnStopsOuterEvent(){
+        val script=ImportedModeScript.parse("on(touch) { if (velocity < 100) { value = 20; if (value == 20) { play(volume:value); return(true); } } play(volume:100); }")
+        val low=ImportedSimpleScript.evaluate(script,"touch",mapOf("velocity" to 50))
+        assertTrue(low.handled);assertEquals(listOf(20),low.plays.map{it.parameters["volume"]})
+        val high=ImportedSimpleScript.evaluate(script,"touch",mapOf("velocity" to 110))
+        assertFalse(high.handled);assertEquals(listOf(100),high.plays.map{it.parameters["volume"]})
+    }
     @Test fun returnExpressionTreatsEveryNonzeroResultAsHandled(){
         val condition=ImportedModeScript.parse("on(aftertouch) { return(velocity > 0); }")
         assertTrue(ImportedSimpleScript.evaluate(condition,"aftertouch",mapOf("velocity" to 60)).handled)

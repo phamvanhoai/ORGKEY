@@ -15,7 +15,7 @@ object ImportedSimpleScript {
         }
         var handled=false
         for(body in script.eventBodies(event)) {
-            for(rawStatement in body.split(';').map{it.trim()}.filter{it.isNotEmpty()}) {
+            for(rawStatement in statements(body,::context)) {
                 var statement=rawStatement
                 if(Regex("(?i)^if\\s*\\(").containsMatchIn(statement)){
                     val open=statement.indexOf('(');var depth=1;var end=open+1
@@ -109,5 +109,34 @@ object ImportedSimpleScript {
         }}
         require(depth==0){"Unbalanced expression"}
         result.add(source.substring(start));return result
+    }
+    private fun statements(body:String,context:()->Map<String,Int>):Sequence<String> = sequence {
+        var position=0
+        fun whitespace(){while(position<body.length && (body[position].isWhitespace() || body[position]==';'))position++}
+        while(true){
+            whitespace();if(position>=body.length)break
+            val start=position
+            val conditional=Regex("(?i)if\\s*\\(").find(body,position)?.takeIf{it.range.first==position}
+            if(conditional!=null){
+                val open=conditional.range.last;var end=open+1;var depth=1
+                while(end<body.length && depth>0){when(body[end]){'('->depth++;')'->depth--};end++}
+                require(depth==0){"Unclosed if condition"}
+                position=end;whitespace()
+                if(position<body.length && body[position]=='{'){
+                    val blockStart=++position;depth=1
+                    while(position<body.length && depth>0){when(body[position]){'{'->depth++;'}'->depth--};position++}
+                    require(depth==0){"Unclosed if block"}
+                    val block=body.substring(blockStart,position-1)
+                    if(expression(body.substring(open+1,end-1),context())!=0)yieldAll(statements(block,context))
+                    continue
+                }
+                position=start
+            }
+            val end=body.indexOf(';',position).let{if(it<0)body.length else it}
+            val statement=body.substring(position,end).trim()
+            require('{' !in statement && '}' !in statement){"Unsupported script block"}
+            if(statement.isNotEmpty())yield(statement)
+            position=end+1
+        }
     }
 }
