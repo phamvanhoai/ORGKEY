@@ -36,6 +36,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                     val old=updated.firstOrNull{it.slot==change.slot} ?: ImportedExpressionEffect(change.slot,false,0,false,false,0,0,0,0,emptyList())
                     val next=when(change.property){
                         "enable"->old.copy(enabled=change.value!=0)
+                        "startdelay"->old.copy(startDelay=change.value)
+                        "bypedal"->old.copy(byPedal=change.value!=0)
+                        "stopbyrelease"->old.copy(stopByRelease=change.value!=0)
                         "mode"->old.copy(mode=change.value and 255)
                         "speed"->old.copy(speed=change.value)
                         "depth"->old.copy(depth=change.value)

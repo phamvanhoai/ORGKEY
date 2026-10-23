@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun scriptedPitchShakeWaitsForPedalAndStartDelay(){
+        fun source()=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(4000){(it%100*200).toShort()}),0,4000)),1000)
+        val voice=source().withModeScript("on(touch) { effect[2].enable=true; effect[2].Depth=100; effect[2].Speed=25; effect[2].StartDelay=100; effect[2].ByPedal=true; effect[2].StopByRelease=true; }").voice(60)
+        val plain=source().voice(60)
+        repeat(150){voice.next(false,false);plain.next(false);assertEquals(plain.left,voice.left,1e-12)}
+        var difference=0.0
+        repeat(300){voice.next(false,true);plain.next(false);difference+=kotlin.math.abs(plain.left-voice.left)}
+        assertTrue(difference>0.0)
+    }
     @Test fun releaseEffectChangePersistsForNextVoiceWithoutDroppingRelease(){
         val source=sound().withModeScript("on(touch) { play(); return(true); } on(release) { effect[2].enable=true; effect[2].Depth=100; effect[2].Speed=25; }")
         val voice=source.voice(60);voice.next(false);voice.next(true)

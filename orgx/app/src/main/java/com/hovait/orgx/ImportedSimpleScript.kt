@@ -28,7 +28,7 @@ object ImportedSimpleScript {
                     require(statement.isNotEmpty() && !statement.startsWith("{")){"Block conditions are not supported yet"}
                     if(expression(condition,context())==0)continue
                 }
-                val effect=Regex("(?i)effect\\[(\\d+)]\\.(enable|mode|speed|depth|gain)\\s*=\\s*(.+)").matchEntire(statement)
+                val effect=Regex("(?i)effect\\[(\\d+)]\\.(enable|startdelay|bypedal|stopbyrelease|mode|speed|depth|gain)\\s*=\\s*(.+)").matchEntire(statement)
                 if(effect!=null){
                     val slot=effect.groupValues[1].toInt();require(slot in 0..7)
                     effects.add(EffectChange(slot,effect.groupValues[2].lowercase(),expression(effect.groupValues[3],context())))
