@@ -45,10 +45,17 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true)=Playback(note,tune,pan,autoRelease,effectsAllowed)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true){
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true){
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
-        private val children=layers.map{it.voice(note,tune,pan,autoRelease,effectsAllowed)}
+        private val scriptPlan=touchScript.takeIf{scriptAllowed}
+        private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
+            val key=(note.toLong()+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
+            Playback(key,tune,pan,autoRelease,effectsAllowed,false) to (command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0
+        }
+        private val children=if(scriptPlan!=null)scriptChildren.map{it.first}+
+            (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false)))
+            else layers.map{it.voice(note,tune,pan,autoRelease,effectsAllowed)}
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
         private var connectionDelta=0.0
@@ -155,9 +162,12 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             pitchShake?.next(released,pedal)
             val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)
             if(aftertouch){alternate?.next(noteOff,pedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
+            }else if(scriptPlan!=null && children.isEmpty()){
+                left=0.0;right=0.0;finished=true
             }else if(children.isNotEmpty()){
                 children.forEach{it.next(noteOff,pedal,pitchOffset)}
-                left=children.sumOf{it.left};right=children.sumOf{it.right};finished=children.all{it.finished}
+                fun gain(child:Playback)=scriptChildren.firstOrNull{it.first===child}?.second ?: 1.0
+                left=children.sumOf{it.left*gain(it)};right=children.sumOf{it.right*gain(it)};finished=children.all{it.finished}
             }else{
                 val gain=state?.next(released,pedal) ?: if(released)0.0 else 1.0
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain

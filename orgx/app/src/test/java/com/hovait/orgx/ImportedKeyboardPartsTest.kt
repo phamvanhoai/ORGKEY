@@ -10,7 +10,7 @@ class ImportedKeyboardPartsTest {
         try{
             parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
             parts.noteOn(60,1.0)
-            assertEquals(3,parts.activeNotes)
+            assertEquals(1,parts.activeNotes)
             assertEquals(.375,frame(parts,mixer),1e-12)
             parts.noteOff(60);frame(parts,mixer);assertEquals(0,parts.activeNotes)
         }finally{mixer.close()}
