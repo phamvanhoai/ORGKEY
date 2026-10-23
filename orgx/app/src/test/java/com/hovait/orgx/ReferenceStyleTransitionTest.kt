@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun manualTempoAppliesAcrossPartsWithoutMutatingImportedSet(){
+        val session=session()
+        session.setManualTempo(147)
+        session.request(2,true);session.next(120);assertEquals(147,session.takeTempoChange())
+        session.request(3,true);session.next(147);assertEquals(147,session.takeTempoChange())
+        session.reset();session.request(1,true);session.next(147);assertEquals(147,session.takeTempoChange())
+        assertEquals(160,session.style.sections.first{it.id==2}.tempo)
+    }
+    @Test fun lockedManualTempoDoesNotRewriteSectionTempos(){
+        val session=session(lock=true)
+        session.setManualTempo(147)
+        session.request(2,true);session.next(147);assertNull(session.takeTempoChange())
+        session.configureTiming(0,false)
+        session.request(2,true);session.next(147);assertEquals(160,session.takeTempoChange())
+    }
     @Test fun changingTimingWhileRunningPreservesPendingRequestUntilSectionBoundary(){
         val session=session(lock=true)
         repeat(100){session.next(120)}

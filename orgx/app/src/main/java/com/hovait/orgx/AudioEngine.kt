@@ -379,6 +379,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         importedStyleSession?.configureTiming(method,locked)
         pendingStyle.get()?.session?.configureTiming(method,locked)
     }
+    /** MainActivity.a2: manual tempo updates style parts unless auto-lock is enabled. */
+    fun setManualTempo(tempo:Int,autoLock:Boolean)=synchronized(styleSelectionLock){
+        require(tempo in 40..240)
+        if(autoLock)configureStyleTiming(styleChangeMethod,true)
+        importedStyleSession?.setManualTempo(tempo)
+        pendingStyle.get()?.session?.setManualTempo(tempo)
+        bpm=tempo
+    }
     fun selectImportedStyle(session:ImportedStyleSession)=synchronized(styleSelectionLock){pendingStyle.getAndSet(StyleSelection(session))?.session?.close();Unit}
     fun clearImportedStyle()=synchronized(styleSelectionLock){pendingStyle.getAndSet(StyleSelection(null))?.session?.close();Unit}
     fun requestStyleSection(id:Int)=synchronized(styleSelectionLock){
@@ -557,7 +565,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             return 0.0
         }
         importedStyleSession?.let{
-            it.next(bpm.coerceIn(40,240));it.takeTempoChange()?.let{tempo->bpm=tempo};importedRhythm=it.player;importedRhythmName=it.displayName
+            it.next(bpm.coerceIn(40,240))
+            synchronized(styleSelectionLock){it.takeTempoChange()?.let{tempo->bpm=tempo}}
+            importedRhythm=it.player;importedRhythmName=it.displayName
             if(it.finished){naturalStyleTail=true;rhythmPlaying=false;transportFrame=0}else transportFrame++
             return 0.0
         }

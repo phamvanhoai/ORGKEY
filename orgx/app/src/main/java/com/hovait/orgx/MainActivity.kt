@@ -359,7 +359,11 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         onMenu={closePages();showTools=true},onStyle={closePages();browseVoices=false;browseStyles=true;bankPage=0;bankStatus=""},
                         onVoice={closePages();browseStyles=false;browseVoices=true;bankPage=0;bankStatus=""},onMixer={closePages();showMixer=true},onChord={closePages();showChords=true},
                         onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null))engine.setRhythmEnabled(!engine.rhythmPlaying)},
-                        onTempo={bpm=(bpm+it).coerceIn(40,240);engine.bpm=bpm},onOctave={octave=(octave+it).coerceIn(1,7)},
+                        onTempo={
+                            val tempo=(engine.bpm+it).coerceIn(40,240)
+                            engine.setManualTempo(tempo,preferences.getBoolean("styleAutoTempoLock",false));bpm=tempo
+                            preferences.edit().putInt("bpm",tempo).putBoolean("styleTempoLock",engine.styleTempoLock).apply()
+                        },onOctave={octave=(octave+it).coerceIn(1,7)},
                         onSustain={engine.setSustainEnabled(!engine.sustain);sustain=engine.sustain},
                         onAutoFill={styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},
                         onPart={engine.requestStyleSection(it)},
@@ -941,6 +945,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var nativeOutput by remember { mutableStateOf(preferences.getBoolean("nativeOutput",false)) }
     var repeatToLoop by remember { mutableStateOf(preferences.getBoolean("styleRepeatToLoop",false)) }
     var tempoLock by remember{mutableStateOf(engine.styleTempoLock)}
+    var autoTempoLock by remember{mutableStateOf(preferences.getBoolean("styleAutoTempoLock",false))}
     var changeMethod by remember{mutableIntStateOf(engine.styleChangeMethod)}
     var keyConnectionMethod by remember { mutableIntStateOf(preferences.getInt("key_connection",0).coerceIn(0,1)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
@@ -959,6 +964,11 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             })
         }
         Text("Rhythm Change Method",fontWeight=FontWeight.Bold)
+        Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
+            Text("Auto tempo lock",Modifier.weight(1f));Switch(checked=autoTempoLock,onCheckedChange={
+                autoTempoLock=it;preferences.edit().putBoolean("styleAutoTempoLock",it).apply()
+            })
+        }
         listOf("Auto","Don't wait","Wait for a cycle","Wait for a section").forEachIndexed{index,label->
             FilterChip(selected=changeMethod==index,onClick={
                 changeMethod=index;engine.configureStyleTiming(index,tempoLock);preferences.edit().putInt("styleChangeMethod",index).apply()

@@ -15,6 +15,12 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     private var startedAt=0L
     private var rhythmScale=ReferenceSectionTiming.scale(main,changeMethod).takeIf{it>0} ?: 1000
     private var tempoChange:Int?=null
+    private var manualTempo:Int?=null
+    @Synchronized fun setManualTempo(tempo:Int){
+        require(tempo in 40..240)
+        tempoChange=null
+        if(!tempoLock)manualTempo=tempo
+    }
     @Volatile var currentId=main.id;private set
     @Volatile var displayName="${style.name} / ${ImportedStyleCatalog.label(main.section)}";private set
     @Volatile var transitionError:String?=null;private set
@@ -97,7 +103,8 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         player.continueGroupFxFrom(previous)
         player.releaseVoicesFrom(previous)
         if(newScale>0)rhythmScale=newScale
-        if(!tempoLock && section.tempo>0)tempoChange=section.tempo.coerceIn(40,240)
+        val tempo=if(section.parent==style.id)manualTempo ?: section.tempo else section.tempo
+        if(!tempoLock && tempo>0)tempoChange=tempo.coerceIn(40,240)
         displayName="${style.name} / ${ImportedStyleCatalog.label(section.section)}"
         finished=false;transitionError=null
     }

@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — tempo và chuyển phần, 24-10-2026
+## Kết quả mới nhất — chỉnh tempo thủ công, 24-10-2026
+
+- Đối chiếu MainActivity.a2: RecordMusic(Tempo), bật fTempoLock nếu rhythm_auto_tempolock, nếu chưa khóa thì cập nhật tempo các group Parent==style đang chọn.
+- Thêm Auto tempo lock (mặc định false như r1 gốc). Nút +/- dùng BPM hiện tại của engine, đi qua setManualTempo; tự khóa được áp dụng trước khi chỉnh session. Lưu BPM và trạng thái khóa vào preferences.
+- Session lưu tempo override trong bộ nhớ, chỉ áp dụng cho các phần thuộc style đang chọn (không đè group fallback Parent=0); giữ qua reset và chuyển Main/Fill. Khi khóa, chỉnh BPM không viết override lên tempo của phần. Không thay byte SET hoặc đối tượng ImportedStyleDefinition gốc.
+- Xóa tempo-change cũ khi chỉnh thủ công; audio nhận tempo-change dưới cùng khóa với thao tác chỉnh để tránh ghi đè BPM bằng kết quả đã lấy từ trước. Các kiểm tra ReferenceStyleTransitionTest/ImportedStyleSessionTest đạt; build cuối và cài APK thành công. Không tạo file test mới.
+- Giới hạn: tempo override thuộc session hiện tại, chưa giữ override riêng cho từng style khi bỏ chọn rồi nạp lại; cơ chế gốc sửa các group trong Music đang mở nên phạm vi lưu nhớ rộng hơn. Chưa đối chiếu thao tác/bản thu với APK gốc.
+
+## Tempo và chuyển phần, 24-10-2026
 
 - Nối Tempo Lock và Rhythm Change Method vào cài đặt, preference và engine. Bốn tên lựa chọn lấy từ mảng gốc: Auto/Don't wait/Wait for a cycle/Wait for a section; công thức ReferenceSectionTiming đã có trước nay được dùng theo lựa chọn thực.
 - Cấu hình cập nhật session đang phát lẫn session chờ chọn dưới cùng khóa chuyển style. Đổi method không xóa queue, không reset đồng hồ; scale được tính lại. Khóa tempo xóa tempo-change còn chờ để tránh BPM nhảy muộn.
