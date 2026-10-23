@@ -4,7 +4,14 @@ import java.io.File
 
 /** Prepare the keyboard sound completely before replacing the active snapshot. */
 object ImportedStsLoader {
-    data class Prepared(val file:File,val index:ImportedSetIndex,val snapshot:ImportedSts,val sound:SampledInstrument)
+    data class Prepared(val file:File,val index:ImportedSetIndex,val snapshot:ImportedSts,val sound:SampledInstrument){
+        fun currentSnapshot():ImportedSts {
+            val selected=sound.modeSelection?.instrument ?: return snapshot
+            if(selected.selectedMode==snapshot.mode)return snapshot
+            val mode=selected.modes.firstOrNull() ?: return snapshot
+            return snapshot.copy(mode=selected.selectedMode,settings=mode.settings,effects=mode.effects)
+        }
+    }
     fun prepare(file:File,index:ImportedSetIndex,snapshot:ImportedSts,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()})=Prepared(file,index,snapshot,load(file,index,snapshot,scriptOverrides))
     fun source(index:ImportedSetIndex,snapshot:ImportedSts):ImportedInstrument {
         ImportedStsChordSettings.validate(snapshot.chordType,snapshot.chordSingle)

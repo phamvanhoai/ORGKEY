@@ -15,7 +15,8 @@ object ImportedStsRequest {
         if(current==null || current.file!=file || current.index!==index)return Prepared.Group(ImportedStsBatch.prepareFull(file,index,slot,scriptOverrides))
         val basis=index.copy(musicSettings=current.master?.music ?: index.musicSettings,
             systems=current.master?.systems ?: index.systems)
-        val loaded=ImportedStsBatch.prepareMasked(file,basis,slot,current.voices.mapValues{it.value.snapshot},changes,scriptOverrides)
-        return Prepared.Group(loaded.copy(index=index),current)
+        val snapshots=current.currentSnapshots()
+        val loaded=ImportedStsBatch.prepareMasked(file,basis,slot,snapshots,changes,scriptOverrides)
+        return Prepared.Group(loaded.copy(index=index,basisSnapshots=snapshots),current)
     }
 }

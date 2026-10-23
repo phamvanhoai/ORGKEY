@@ -96,6 +96,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun applyPreparedStsBatch(prepared:ImportedStsBatch.Prepared,previous:ImportedStsBatch.Prepared?=null,
         completed:(Boolean)->Unit = {},stillWanted:()->Boolean = {true}):Boolean {
         if(activeSetFile!=prepared.file || activeSetIndex!==prepared.index)return false
+        if(!prepared.basisIsCurrent(previous))return false
         val parts=prepared.keyboardParts()
         if(parts.isEmpty())return false
         val generation=stsGeneration.get()
@@ -104,7 +105,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             completed(accepted)
         }){
             if(!stillWanted() || generation!=stsGeneration.get() || activeSetFile!=prepared.file || activeSetIndex!==prepared.index ||
-                currentStsGroup!==previous)false
+                currentStsGroup!==previous || !prepared.basisIsCurrent(previous))false
             else {
                 prepared.master?.let{master->
                     master.chord?.let{snapshot->

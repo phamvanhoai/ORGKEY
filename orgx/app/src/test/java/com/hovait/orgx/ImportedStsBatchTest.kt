@@ -5,6 +5,35 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsBatchTest {
+    @Test fun maskedStsKeepsExitedModeAndRejectsPreparationFromOlderMode(){
+        val file=File.createTempFile("sts-exit-state",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val sample=ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))))
+            fun mode(name:String,script:String="",volume:Int=100)=ImportedMode(name,0,-1,List(8){-1},List(8){0},List(8){0},
+                settings=ImportedChannelSettings(volume=volume),script=script)
+            val instrument=ImportedInstrument("Voice",100,0,0,listOf(sample),listOf(mode("Default",volume=45),
+                mode("Move","on(touch){play();return(true);} on(release){exit;}")))
+            val sts=snapshot("STS").copy(mode=1,record=true)
+            val master=ImportedTrack("Master",0,0,false,emptyList(),sts=listOf(sts))
+            val index=ImportedSetIndex(listOf(instrument),emptyList(),listOf(master,master.copy(name="Right"),master.copy(name="Left")))
+            val current=ImportedStsBatch.prepareFull(file,index,1)
+            val before=ImportedStsRequest.prepare(file,index,0,1,current,List(21){false}) as ImportedStsRequest.Prepared.Group
+            assertTrue(before.value.basisIsCurrent(current))
+            val right=current.voices.getValue(1).sound.voice(60)
+            right.next(false);right.next(true)
+            assertFalse(before.value.basisIsCurrent(current))
+            assertEquals(0,current.currentSnapshots().getValue(1).mode)
+            assertEquals(45,current.currentSnapshots().getValue(1).settings.volume)
+            assertEquals(1,current.currentSnapshots().getValue(2).mode)
+            val kept=ImportedStsRequest.prepare(file,index,0,1,current,List(21){false}) as ImportedStsRequest.Prepared.Group
+            assertTrue(kept.value.basisIsCurrent(current))
+            assertEquals(0,kept.value.voices.getValue(1).snapshot.mode)
+            assertEquals(45,kept.value.voices.getValue(1).sound.keyboardSettings.volume)
+            assertEquals(1,kept.value.voices.getValue(2).snapshot.mode)
+        }finally{file.delete()}
+    }
     private fun snapshot(name:String)=ImportedSts(name,false,0,0,0,0,0,0,0,0,emptyList(),ImportedChannelSettings(),slot=1)
     @Test fun mainPositionsExcludeRhythmTracksAndKeepOriginalTrackIdentity(){
         val master=ImportedTrack("Master",0,0,false,emptyList(),sts=listOf(snapshot("Master")))
