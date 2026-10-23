@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartQueueTest {
+    @Test fun invalidRawBendIsRejectedBeforeAudioDrain(){
+        val queue=ImportedKeyboardPartQueue()
+        try{queue.pitchBend(0.0,scriptLevel=8192);fail("Invalid raw bend queued")}
+        catch(expected:IllegalArgumentException){}
+        var completed=false
+        queue.clear{completed=true};queue.drain()
+        assertTrue(completed)
+    }
     @Test fun completionIsReportedAfterPartReplacementAndRejectIsReportedAsFalse(){
         val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
         val results=mutableListOf<Boolean>()
