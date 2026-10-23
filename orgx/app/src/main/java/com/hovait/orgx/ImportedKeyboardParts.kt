@@ -32,9 +32,11 @@ class ImportedKeyboardParts {
         if(velocity==0.0){noteOff(key,channel);return}
         parts.values.filter{it.enabled && key>=it.fromKey && key<=it.toKey}.forEach{part->
             val connection=part.sound.keyConnectionEffect
-            val previous=notes.lastOrNull{it.part==part.id && it.channel==channel && !it.released}
+            val previous=notes.lastOrNull{it.part==part.id && it.channel==channel && !it.playback.finished &&
+                (!it.released || connection?.stopByRelease==false)}
             if(connection!=null && connection.mode>15 && previous!=null && (!connection.byPedal || part.pedal)){
                 previous.key=key
+                previous.released=false
                 previous.pedal=part.pedal
                 previous.playback.connectTo(part.sound.keyboardNote(key),connection)
                 return@forEach

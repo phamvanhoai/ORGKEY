@@ -217,8 +217,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 if(voices.size>=128)voices.remove(voices.keys.first())
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 val connection=keyConnectionEffect?.takeIf{expressionAllowed && it.enabled}
-                val previous=voices.values.lastOrNull{it.release<0 && it.playback!=null}
+                val previous=voices.values.lastOrNull{it.playback!=null && !it.playback.finished &&
+                    (it.release<0 || connection?.stopByRelease==false)}
                 if(connection!=null && connection.mode>15 && previous!=null && (!connection.byPedal || pedalDown)){
+                    previous.release=-1;previous.pendingRelease=false
                     previous.note=note;previous.eventId=event.id;previous.playback?.connectTo(note,connection)
                     return@advance
                 }
