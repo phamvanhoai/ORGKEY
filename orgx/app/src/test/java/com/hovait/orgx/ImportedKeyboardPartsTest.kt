@@ -53,6 +53,37 @@ class ImportedKeyboardPartsTest {
             parts.noteOff(72);frame(parts,mixer);assertEquals(0,parts.activeNotes)
         }finally{mixer.close()}
     }
+    @Test fun highConnectionZeroSpeedRestartsOnlyOriginalLowModesOneAndThree(){
+        fun rendered(mode:Int,looping:Boolean):Double {
+            val effect=ImportedExpressionEffect(1,true,0,false,false,16+mode,0,0,0,emptyList())
+            val pcm=ShortArray(12){(it+1).toShort()}
+            val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,pcm),2,10,looping=looping)),1000)
+                .withExpressionEffects(listOf(effect))
+            val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+            return try{
+                parts.replace(listOf(ImportedKeyboardParts.Part(1,sound)))
+                parts.noteOn(60,1.0);repeat(3){frame(parts,mixer)};parts.noteOn(61,1.0)
+                frame(parts,mixer)
+            }finally{mixer.close()}
+        }
+        assertEquals(1.0/32768,rendered(1,true),1e-12)
+        assertEquals(4.0/32768,rendered(3,true),1e-12)
+        assertEquals(1.0/32768,rendered(3,false),1e-12)
+        assertEquals(4.0/32768,rendered(0,true),1e-12)
+    }
+
+    @Test fun lowConnectionZeroSpeedOverridesLoopPointWithSampleStart(){
+        val effect=ImportedExpressionEffect(1,true,0,false,false,2,99,0,0,emptyList())
+        val pcm=ShortArray(12){(it+1).toShort()}
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,pcm),5,10,looping=true)),1000)
+            .withExpressionEffects(listOf(effect))
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound)))
+            parts.noteOn(60,1.0);parts.noteOn(61,1.0)
+            assertEquals(2.0/32768,frame(parts,mixer),1e-12)
+        }finally{mixer.close()}
+    }
     @Test fun keyConnectionByPedalOnlyReusesVoiceWhilePedalIsDown(){
         val effect=ImportedExpressionEffect(1,true,0,true,false,16,0,0,0,emptyList())
         val connected=sound(100).withExpressionEffects(listOf(effect))

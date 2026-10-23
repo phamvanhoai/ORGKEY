@@ -75,6 +75,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             connectionActive=effect.enabled
             connectionDelta=if(effect.playbackSpeed==0)target-step else
                 (target-step)*effect.playbackSpeed/(8.192*outputRate)
+            if(effect.playbackSpeed==0){
+                val lowMode=effect.mode and 15
+                val restart=lowMode==1 || (lowMode==3 && (envelope?.autoRelease==true || !selected[note].looping))
+                if(restart)restartConnectionSample()
+            }
         }
         /** Low modes open a new target voice, but initialize pitch from the previous key. */
         fun connectFrom(sourceNote:Int,effect:ImportedExpressionEffect){
@@ -82,6 +87,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             children.forEach{it.connectFrom(sourceNote,effect)};alternate?.connectFrom(sourceNote,effect)
             if(children.isNotEmpty())return
             if(effect.mode>1 && selected[note].looping)position=selected[note].loopStart.toDouble()
+            if(effect.playbackSpeed==0)position=0.0
             val target=pitchStep(note,tune)
             step=if(effect.mode==1 && effect.playbackSpeed!=0)target else pitchStep(sourceNote,tune)
             bentStep=step*2.0.pow(bendSemitones/12.0)
@@ -111,8 +117,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
             }
         }
-        private val state=envelope?.voice(outputRate)
+        private var state=envelope?.voice(outputRate)
         private var position=0.0
+        private fun restartConnectionSample(){
+            position=0.0
+            autoReleaseStarted=false
+            if(envelope?.autoRelease==true)state=envelope.voice(outputRate)
+        }
         private var pitchShake=expressionEffects.firstOrNull{effectsAllowed && it.slot==2 && it.enabled}?.let{ImportedPitchShake(it,outputRate)}
         fun configurePitchShake(effect:ImportedExpressionEffect){
             val current=pitchShake
