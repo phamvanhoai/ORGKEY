@@ -228,7 +228,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 scriptReleased=true
                 runCatching{scriptSession?.event("release",mapOf("key" to note,"velocity" to scriptVelocity)){result->
                     require(result.plays.isEmpty() && !result.handled){"Release audio commands are not supported yet"}
-                    require(result.effects.isEmpty()){"Release effect commands are not supported yet"}
+                    require(result.effects.all{it.slot in 2..3}){"Unsupported release effect slot"}
+                }?.also{result->
+                    applyScriptEffects(result.effects)
+                    result.effects.map{it.slot}.distinct().forEach{slot->
+                        val effect=expressionEffects.first{it.slot==slot}
+                        if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
+                    }
                 }}
             }
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true

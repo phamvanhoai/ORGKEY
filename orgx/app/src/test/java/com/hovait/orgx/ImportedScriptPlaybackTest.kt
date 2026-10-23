@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun releaseEffectChangePersistsForNextVoiceWithoutDroppingRelease(){
+        val source=sound().withModeScript("on(touch) { play(); return(true); } on(release) { effect[2].enable=true; effect[2].Depth=100; effect[2].Speed=25; }")
+        val voice=source.voice(60);voice.next(false);voice.next(true)
+        assertTrue(voice.finished)
+        // The event remains valid and its state can be used on future touches.
+        val next=source.voice(60);repeat(30){next.next(false)}
+        assertTrue(next.left.isFinite());assertFalse(next.finished)
+    }
     @Test fun originalAftertouchShakeChangesCurrentlySoundingVoice(){
         fun instrument()=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(4000){(it%100*200).toShort()}),0,4000)),1000)
