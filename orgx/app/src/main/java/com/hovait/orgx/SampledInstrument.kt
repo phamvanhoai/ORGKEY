@@ -46,6 +46,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var connectionTarget=step
         private var connectionDelta=0.0
         private var connectionDelay=0
+        private var connectionByPedal=false
+        private var connectionStopByRelease=false
         private var bendSemitones=0.0
         private var bentStep=step
         private var aftertouch=false
@@ -65,6 +67,24 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val target=pitchStep(targetNote,tune)
             connectionTarget=target
             connectionDelay=(effect.startDelay.coerceAtLeast(0).toLong()*outputRate/1000).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+            connectionByPedal=effect.byPedal
+            connectionStopByRelease=effect.stopByRelease
+            connectionDelta=if(effect.playbackSpeed==0)target-step else
+                (target-step)*effect.playbackSpeed/(8.192*outputRate)
+        }
+        /** Low modes open a new target voice, but initialize pitch from the previous key. */
+        fun connectFrom(sourceNote:Int,effect:ImportedExpressionEffect){
+            require(sourceNote in 0..127 && effect.slot==1)
+            children.forEach{it.connectFrom(sourceNote,effect)};alternate?.connectFrom(sourceNote,effect)
+            if(children.isNotEmpty())return
+            if(effect.mode>1 && selected[note].looping)position=selected[note].loopStart.toDouble()
+            val target=pitchStep(note,tune)
+            step=if(effect.mode==1 && effect.playbackSpeed!=0)target else pitchStep(sourceNote,tune)
+            bentStep=step*2.0.pow(bendSemitones/12.0)
+            connectionTarget=target
+            connectionDelay=(effect.startDelay.coerceAtLeast(0).toLong()*outputRate/1000).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+            connectionByPedal=effect.byPedal
+            connectionStopByRelease=effect.stopByRelease
             connectionDelta=if(effect.playbackSpeed==0)target-step else
                 (target-step)*effect.playbackSpeed/(8.192*outputRate)
         }
@@ -92,9 +112,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         var right=0.0;private set
         var finished=false;private set
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
-            if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
-                step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
-                bentStep=step*2.0.pow(bendSemitones/12.0)
+            if((!connectionByPedal || pedal) && (!connectionStopByRelease || !noteOff)){
+                if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
+                    step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
+                    bentStep=step*2.0.pow(bendSemitones/12.0)
+                }
             }
             pitchShake?.next(noteOff,pedal)
             val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)

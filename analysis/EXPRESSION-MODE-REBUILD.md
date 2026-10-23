@@ -12,4 +12,6 @@ Chưa mở automation parameter 7: Track.Play gốc kết hợp Mode với `fKey
 
 ORGX đã nối nhánh Key Connection có bit mode cao (`mode > 15`) của `Channels._Connection` vào voice MODE/STS. Khi có voice cùng part và MIDI channel còn mở, phím mới tiếp quản voice đó, giữ vị trí sample, chuyển định danh note-off sang phím mới và đổi cao độ theo `StartDelay`/`Speed`. Điều kiện `ByPedal` được giữ; pedal chưa nhấn thì mở voice riêng như gốc.
 
-Chưa mở automation parameter 7. Nhánh mode thấp mở voice mới từ cao độ phím trước, các khác biệt restart theo low nibble, `StopByRelease`, Key Repeat và cấu hình `fKeyConnectionMethod` vẫn cần dựng tiếp trước khi coi Key Connection/Legato/Mono hoàn chỉnh.
+Đã nối tiếp nhánh mode thấp: voice đích được mở riêng nhưng bắt đầu từ cao độ phím trước; mode lớn hơn 1 bắt đầu tại loop point của section. Trong lúc phát, `ByPedal` điều khiển cả bộ đếm StartDelay lẫn bước chuyển pitch, còn `StopByRelease` ngừng chuyển pitch khi voice đã release.
+
+Chưa mở automation parameter 7. Key Repeat, các ngoại lệ AutoRelease/restart theo từng low nibble và cấu hình `fKeyConnectionMethod` vẫn cần dựng tiếp trước khi coi Key Connection/Legato/Mono hoàn chỉnh.

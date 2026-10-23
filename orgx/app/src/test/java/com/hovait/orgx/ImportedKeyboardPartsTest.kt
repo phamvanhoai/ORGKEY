@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun lowKeyConnectionModeOpensANewVoiceFromPreviousKey(){
+        val connection=ImportedExpressionEffect(1,true,0,false,false,0,819,0,0,emptyList())
+        val connected=sound(100).withExpressionEffects(listOf(connection))
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,connected)))
+            parts.noteOn(60,1.0);parts.noteOn(72,1.0)
+            assertEquals(2,parts.activeNotes)
+            parts.noteOff(60);frame(parts,mixer)
+            assertEquals(1,parts.activeNotes)
+            parts.noteOff(72);frame(parts,mixer)
+            assertEquals(0,parts.activeNotes)
+        }finally{mixer.close()}
+    }
     @Test fun highKeyConnectionModeReusesLastVoiceAndTransfersItsNoteIdentity(){
         val connection=ImportedExpressionEffect(1,true,0,false,false,16,0,0,0,emptyList())
         val connected=SampledInstrument(listOf(InstrumentRegion(60,

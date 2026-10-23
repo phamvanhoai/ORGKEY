@@ -4,6 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun keyConnectionByPedalPausesDelayAndPitchMovement(){
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(16){((it+1)*1000).toShort()}),0,0,looping=false)),1000)
+        val playback=instrument.voice(72)
+        playback.connectFrom(60,ImportedExpressionEffect(1,true,0,true,false,0,819,0,0,emptyList()))
+        playback.next(false,false);playback.next(false,false)
+        assertEquals(2000.0/32768,playback.left,1e-9)
+        playback.next(false,true);playback.next(false,true)
+        assertEquals(4100.0/32768,playback.left,2e-5)
+    }
+    @Test fun lowConnectionModeAboveOneStartsAtTargetLoopPoint(){
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(16){((it+1)*1000).toShort()}),5,16)),1000)
+        val playback=instrument.voice(72)
+        playback.connectFrom(60,ImportedExpressionEffect(1,true,0,false,false,3,819,0,0,emptyList()))
+        playback.next(false)
+        assertEquals(6000.0/32768,playback.left,1e-9)
+    }
     @Test fun keyConnectionRetargetsPitchWithoutRestartingSamplePosition(){
         val instrument=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(16){((it+1)*1000).toShort()}),0,0,looping=false)),1000)
