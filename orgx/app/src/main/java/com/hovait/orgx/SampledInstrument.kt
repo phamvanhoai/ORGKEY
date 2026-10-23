@@ -20,6 +20,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     var touchScript:ImportedSimpleScript.Result?=null;private set
     private var modeScript:ImportedModeScript?=null
     private var scriptSession:ImportedScriptSession?=null
+    val scriptSliders:List<ImportedScriptSession.Slider> get()=scriptSession?.sliders.orEmpty()
+    fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value)}
     fun withModeScript(source:String)=also{
         modeScript=ImportedModeScript.parse(source)
         scriptSession=runCatching{ImportedScriptSession(source)}.getOrNull()

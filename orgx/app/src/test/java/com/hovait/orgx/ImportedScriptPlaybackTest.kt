@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun sliderChangesOnlyFutureTouchesAndRejectsOutOfRangeValue(){
+        val source=sound().withModeScript("main() { setting(slider, name:\"level\", title:\"Level\", reset:25, from:0, to:100); } on(touch) { play(volume:level); return(true); }")
+        val first=source.voice(60);first.next(false)
+        source.setScriptSlider("level",75)
+        val second=source.voice(60);second.next(false);first.next(false)
+        assertEquals(.0625,first.left,1e-12);assertEquals(.1875,second.left,1e-12)
+        try{source.setScriptSlider("level",101);fail("Invalid slider accepted")}
+        catch(expected:IllegalArgumentException){}
+        val third=source.voice(60);third.next(false);assertEquals(.1875,third.left,1e-12)
+    }
     @Test fun originalLegatoWithSettingUsesDefaultLowerPitch(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)

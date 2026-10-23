@@ -6,6 +6,11 @@ class ImportedScriptSession(source:String) {
     val sliders:List<Slider>
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
+    fun setSlider(name:String,value:Int){
+        val slider=sliders.singleOrNull{it.name==name.lowercase()} ?: throw IllegalArgumentException("Unknown script slider: $name")
+        require(value in slider.from..slider.to){"Script slider value outside declared range"}
+        state[slider.name]=value
+    }
     init {
         val code=Regex("(?s)/\\*.*?\\*/|//[^\\r\\n]*|\"(?:\\\\.|[^\"\\\\])*\"").replace(source){match->
             if(match.value.startsWith("\""))match.value else " "
