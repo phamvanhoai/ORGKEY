@@ -19,7 +19,7 @@ object ImportedSimpleScript {
                     return Result(plays.toList(),handled)
                 }
                 val parameters=linkedMapOf<String,Int>()
-                if(arguments.isNotEmpty())for(argument in arguments.split(',')) {
+                if(arguments.isNotEmpty())for(argument in splitArguments(arguments)) {
                     val pair=argument.split(':',limit=2)
                     require(pair.size==2){"Invalid play parameter"}
                     val name=pair[0].trim().lowercase()
@@ -36,10 +36,29 @@ object ImportedSimpleScript {
         val value=source.trim().lowercase()
         value.toIntOrNull()?.let{return it}
         variables[value]?.let{return it}
+        val function=Regex("(max|min|abs)\\s*\\((.*)\\)").matchEntire(value)
+        if(function!=null){
+            val args=splitArguments(function.groupValues[2]).map{expression(it,variables)}
+            return when(function.groupValues[1]){
+                "abs"->{require(args.size==1 && args.single()!=Int.MIN_VALUE);kotlin.math.abs(args.single())}
+                "max"->{require(args.size==2);maxOf(args[0],args[1])}
+                else->{require(args.size==2);minOf(args[0],args[1])}
+            }
+        }
         val match=Regex("([a-z_][a-z_0-9]*)\\s*([+-])\\s*(\\d+)").matchEntire(value)
             ?: throw IllegalArgumentException("Unsupported play expression: $source")
         val base=variables[match.groupValues[1]] ?: throw IllegalArgumentException("Unknown script variable")
         val offset=match.groupValues[3].toInt()
         return if(match.groupValues[2]=="+")Math.addExact(base,offset) else Math.subtractExact(base,offset)
+    }
+    private fun splitArguments(source:String):List<String>{
+        val result=ArrayList<String>();var depth=0;var start=0
+        source.forEachIndexed{index,c->when(c){
+            '('->depth++
+            ')'->{depth--;require(depth>=0){"Unbalanced expression"}}
+            ','->if(depth==0){result.add(source.substring(start,index));start=index+1}
+        }}
+        require(depth==0){"Unbalanced expression"}
+        result.add(source.substring(start));return result
     }
 }
