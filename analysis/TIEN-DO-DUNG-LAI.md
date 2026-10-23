@@ -63,3 +63,5 @@ Event pitchbend đã nối trước bend mặc định: script xử lý thành c
 Script quá 262144 ký tự hoặc ngoặc lồng quá 64 cấp dùng fallback để tránh tràn stack; đây là giới hạn ORGX. Runtime vẫn dùng số nguyên và elapsed time, chưa tương đương double/epoch của APK. Timer, lịch thực thi, exit đổi mode và các lệnh phát âm trong aftertouch/release chưa hoàn chỉnh. Các bản build/test không chứng minh tương đương 100%.
 
 Chuyển sang sound Aftertouch đã truyền raw MIDI bend, modulation đang giữ và pedal đang giữ; các cập nhật modulation/pedal tiếp theo cũng đến voice thay thế. Test PCM/session kiểm tra giá trị giữ trước chuyển sound, reset sau chuyển và chống chạy lặp pedal. Chưa kiểm chứng controller vật lý hoặc so âm thanh với APK gốc; đây là hoàn thiện vòng đời điều khiển, không phải dựng xong toàn DNC.
+
+Khởi tạo script: loader nạp Effect trước khi tạo session để main đọc được thông số SET; các phép gán Effect trong main được giữ khi cấu hình mode được đồng bộ. Test kiểm tra đọc Speed 65 và gán lại 75 từ biểu thức, cùng trường hợp gán hằng số qua hai thứ tự cấu hình. Main chưa hỗ trợ các lệnh phát âm, timer hoặc đổi mode; không coi các nhánh đó đã dựng.
