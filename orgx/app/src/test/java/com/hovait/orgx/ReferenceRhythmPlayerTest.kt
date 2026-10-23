@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun unmuteCatchesUpControlsAndLongNotesButSkipsExpiredHits(){
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,5),
+            ReferenceDrumEvent(44,0,25,0,10,0),
+            ReferenceDrumEvent(2,2,60,100,20,1000),ReferenceDrumEvent(1,2,60,0,60,0))
+        val player=ReferenceRhythmPlayer(listOf(track(events)),{10000},{_,_,_->1.0},1000,
+            accompaniment=true,initialChannel=ImportedChannelSettings())
+        player.setPerformanceMute(true,false)
+        repeat(41){player.next(0,120);assertEquals(0.0,player.left,0.0)}
+        player.setPerformanceMute(false,false);player.next(0,120)
+        assertEquals(.25,player.left,1e-12) // One long note, with its overdue volume event.
+        player.setPerformanceMute(true,false)
+        repeat(30){player.next(0,120)} // Its note-off remains undispatched while muted.
+        assertEquals(.25,player.left,1e-12)
+        player.setPerformanceMute(false,false)
+        repeat(12){player.next(0,120)}
+        assertEquals(0.0,player.left,0.0)
+    }
     @Test fun performanceMuteBlocksOnlySelectedGroupAndRetainsExistingNotes(){
         val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(2,2,60,100,20,1000))
         fun player(melodic:Boolean)=ReferenceRhythmPlayer(listOf(track(events)),{10000},{_,_,_->1.0},1000,accompaniment=melodic)

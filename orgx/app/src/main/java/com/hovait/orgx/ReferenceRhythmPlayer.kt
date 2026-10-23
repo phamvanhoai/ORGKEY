@@ -199,7 +199,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             // Closing channels starts their release; it does not erase the sample/FX state.
             voices.values.forEach{if(it.release<0)it.release=0}
         }
-        timeline?.advance(local){event->
+        // Tracks skips Track.PlayNext for a performance-muted group. Keep the
+        // event cursor in place while the musical/audio clocks keep advancing.
+        // On unmute, Timeline dispatches overdue controls and still-live notes,
+        // skipping notes whose entire stored duration has already elapsed.
+        if(!performanceMuted)timeline?.advance(local){event->
             if(event.type==51 && event.note>=0){
                 keyTouch=event.note and 65535
                 voices.values.filter{event.id==0 || it.eventId==event.id}.forEach{it.touchGain=keyTouch/100.0}
