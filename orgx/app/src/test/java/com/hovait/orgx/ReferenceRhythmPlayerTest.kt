@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun styleDncReceivesEventIdAndSignedPackedBalance(){
+        val source=SampledInstrument(listOf(InstrumentRegion(36,SamplePcm(1000,1,ShortArray(16){8192}),0,16)),1000)
+            .withModeScript("on(touch){if(id==37 && balance==-20){play(volume:50);}else{play(volume:0);}return(true);}")
+        val packed=100 or (-20 shl 16)
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,37,36,packed,0,100)))),
+            source::durationFrames,{n,a,c->source.sample(n,a.toLong(),c)},1000,sampled=source)
+        try{
+            player.next(0,120)
+            assertEquals(.125,player.left,1e-12)
+            assertEquals(.1,player.right,1e-12)
+            assertFalse(source.scriptStatus,source.scriptStatus.contains("fallback"))
+        }finally{player.close()}
+    }
     @Test fun styleDncReceivesNoteVelocityInsteadOfDefaultHundred(){
         fun render(velocity:Int):Double {
             val source=SampledInstrument(listOf(InstrumentRegion(36,SamplePcm(1000,1,ShortArray(16){8192}),0,16)),1000)

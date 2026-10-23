@@ -5,6 +5,19 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun explicitNoteIdPersistsAcrossTimerAndRelease(){
+        val source=sound().withModeScript("""
+            on(touch){timer(2){play(volume:id);break;}return(true);}
+            on(release){return(id==37);}
+        """.trimIndent())
+        val voice=source.voice(60,scriptId=37)
+        repeat(3){voice.next(false)}
+        assertEquals(.0925,voice.left,1e-12)
+        voice.next(true)
+        assertFalse(voice.finished)
+        assertFalse(source.scriptStatus,source.scriptStatus.contains("fallback"))
+        voice.forceRelease();voice.next(false);assertTrue(voice.finished)
+    }
     @Test fun originalMoveReleaseReturnsFutureNotesToDefaultMode(){
         val file=File.createTempFile("move-exit",".pcm")
         try{

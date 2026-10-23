@@ -123,8 +123,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{it.layers=sounds}
         }
     }
-    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true):Playback=if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed) else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false){
+    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true,scriptId:Int=note):Playback=if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed,scriptId) else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false,private val scriptId:Int=note){
         private var scriptPedal=false
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
         private var scriptReleased=false
@@ -153,7 +153,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }
         }
         private val scriptPlan=if(scriptAllowed)runCatching{
-            scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity,"pedal" to if(initialScriptPedal)1 else 0)){result->
+            scriptSession?.event("touch",mapOf("id" to scriptId,"balance" to pan,"key" to note,"velocity" to scriptVelocity,"pedal" to if(initialScriptPedal)1 else 0)){result->
                 validateScriptAudio(result)
             }?.also{result->
                 applyScriptEffects(result.effects)
@@ -167,7 +167,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val playback=source.Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
                 (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),
                 command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity,
-                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal)
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,scriptId)
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
@@ -178,8 +178,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private val scriptChildren=scriptPlan?.plays.orEmpty().map(::createScriptChild).toMutableList()
         private val initialChildren=if(scriptPlan!=null)scriptChildren.map{it.first}+
-            (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity,initialScriptPedal=initialScriptPedal)))
-            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal)}
+            (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)))
+            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal,scriptId)}
         private val children=initialChildren.toMutableList()
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
@@ -276,7 +276,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         fun aftertouch(pressure:Float){
             if(ownsScriptEvents){
-                val handled=runCatching{scriptSession?.event("aftertouch",mapOf("key" to currentKey,
+                val handled=runCatching{scriptSession?.event("aftertouch",mapOf("id" to scriptId,"key" to currentKey,
                     "velocity" to (pressure.coerceIn(0f,1f)*127).toInt(),"keyvelocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
                     require(result.plays.isEmpty()){"Aftertouch audio commands are not supported yet"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported aftertouch effect slot"}
@@ -297,7 +297,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             // positive pressure event. It closes the old key and opens the
             // alternate sound once; pressure is not a 50% cross-fade gate.
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
-                aftertouch=true;alternate=aftertouchInstrument!!.voice(currentKey,tune,pan,autoRelease,effectsAllowed,scriptVelocity,scriptPedal);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
+                aftertouch=true;alternate=aftertouchInstrument!!.voice(currentKey,tune,pan,autoRelease,effectsAllowed,scriptVelocity,scriptPedal,scriptId=scriptId);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
                 alternate?.scriptPitchMove(((scriptPitchFactor-1.0)*1000).toInt())
                 heldModulation?.let{alternate?.modulate(it)}
                 if(scriptPedal)alternate?.scriptPedal(true)
@@ -390,7 +390,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
             if(noteOff && ownsScriptEvents && !scriptReleased){
                 scriptReleased=true
-                runCatching{scriptSession?.event("release",mapOf("key" to currentKey,"velocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
+                runCatching{scriptSession?.event("release",mapOf("id" to scriptId,"key" to currentKey,"velocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
                     require(result.plays.isEmpty()){"Release audio commands are not supported yet"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported release effect slot"}
                 }?.also{result->

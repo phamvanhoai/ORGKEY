@@ -22,7 +22,7 @@ data class ImportedModeScript(val source:String,val events:List<String>,val vari
     }
     companion object {
         private val eventPattern=Regex("(?i)\\bon\\s*\\(\\s*(aftertouch|release|touch|pedalon|pedaloff|pitchbend|modulate|__timer)\\s*\\)\\s*\\{")
-        private val variablePattern=Regex("(?i)\\b(sound|key|velocity|balance|instrument|system|volume|pan|tune|pitchmove|pedal|keymove|octavemove|connectkey|connectspeed)\\b")
+        private val variablePattern=Regex("(?i)\\b(id|sound|key|velocity|balance|instrument|system|volume|pan|tune|pitchmove|pedal|keymove|octavemove|connectkey|connectspeed)\\b")
         private fun mask(source:String)=Regex("(?s)/\\*.*?\\*/|//[^\\r\\n]*|\"(?:\\\\.|[^\"\\\\])*\"").replace(source){match->match.value.map{if(it=='\n' || it=='\r')it else ' '}.joinToString("")}
         fun parse(source:String):ImportedModeScript {
             require(source.length<=262144){"Mode script exceeds supported size"}

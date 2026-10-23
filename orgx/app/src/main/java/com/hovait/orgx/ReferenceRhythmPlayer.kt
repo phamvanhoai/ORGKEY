@@ -233,7 +233,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 }
                 val samplePan=ImportedNoteTouch.pan(event.touch)
                 val playback=sampled?.voice(note,event.tune,samplePan,scriptVelocity=event.touch and 65535,
-                    initialScriptPedal=pedalDown)?.also{playback->
+                    initialScriptPedal=pedalDown,scriptId=event.id)?.also{playback->
                     if(pedalDown)playback.scriptPedal(true)
                     if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || pedalDown))playback.connectFrom(previous.note,connection)
                     if(expressionAllowed){volumeShake?.let{playback.configureVolumeShake(it)};pitchShakeEffect?.let{playback.configurePitchShake(it)}}
