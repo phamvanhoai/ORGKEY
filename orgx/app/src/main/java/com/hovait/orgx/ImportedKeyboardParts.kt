@@ -12,6 +12,14 @@ class ImportedKeyboardParts {
     private val notes=ArrayList<Note>()
     private val bends=DoubleArray(16)
     val activeNotes:Int get()=notes.size
+    fun setScriptSlider(part:Int,expectedSound:SampledInstrument,name:String,value:Int):Boolean {
+        val current=parts[part] ?: return false
+        if(current.sound!==expectedSound)return false
+        val slider=current.sound.scriptSliders.singleOrNull{it.name==name.lowercase()} ?: return false
+        if(value !in slider.from..slider.to)return false
+        current.sound.setScriptSlider(name,value)
+        return true
+    }
     fun replace(values:List<Part>){
         require(values.size<=4 && values.all{it.id in 1..4} && values.map{it.id}.distinct().size==values.size)
         require(values.all{it.inputGain.isFinite() && it.inputGain in 0.0..1.0})

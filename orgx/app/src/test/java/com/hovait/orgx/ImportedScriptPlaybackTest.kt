@@ -5,6 +5,18 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun queuedSliderChangeCannotModifyReplacementSound(){
+        fun configured()=sound().withModeScript("main() { setting(slider, name:\"level\", title:\"Level\", reset:25, from:0, to:100); } on(touch) { play(volume:level); return(true); }")
+        val old=configured();val replacement=configured();val queue=ImportedKeyboardPartQueue()
+        queue.replace(listOf(ImportedKeyboardParts.Part(1,old)))
+        var accepted=false
+        queue.setScriptSlider(1,old,"level",75){accepted=it};queue.drain()
+        assertTrue(accepted)
+        queue.replace(listOf(ImportedKeyboardParts.Part(1,replacement)))
+        queue.setScriptSlider(1,old,"level",100){accepted=it};queue.drain()
+        assertFalse(accepted)
+        val voice=replacement.voice(60);voice.next(false);assertEquals(.0625,voice.left,1e-12)
+    }
     @Test fun sliderChangesOnlyFutureTouchesAndRejectsOutOfRangeValue(){
         val source=sound().withModeScript("main() { setting(slider, name:\"level\", title:\"Level\", reset:25, from:0, to:100); } on(touch) { play(volume:level); return(true); }")
         val first=source.voice(60);first.next(false)

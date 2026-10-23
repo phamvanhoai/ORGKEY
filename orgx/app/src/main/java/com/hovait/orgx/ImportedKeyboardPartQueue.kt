@@ -24,6 +24,9 @@ class ImportedKeyboardPartQueue {
         commands.add{parts.noteOn(note,velocity,channel)}
     }
     fun noteOff(note:Int,channel:Int=0){commands.add{parts.noteOff(note,channel)}}
+    fun setScriptSlider(part:Int,expectedSound:SampledInstrument,name:String,value:Int,completed:(Boolean)->Unit={}){
+        commands.add{completed(parts.setScriptSlider(part,expectedSound,name,value))}
+    }
     fun pedal(down:Boolean){commands.add{parts.pedalAll(down)}}
     fun pitchBend(semitones:Double,channel:Int=0){
         require(channel in 0..15 && semitones.isFinite() && kotlin.math.abs(semitones)<=48)
