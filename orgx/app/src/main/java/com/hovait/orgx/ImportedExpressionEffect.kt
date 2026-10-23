@@ -22,7 +22,7 @@ data class ImportedExpressionEffect(val slot:Int,val enabled:Boolean,val startDe
             val reader=ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
             fun flag(offset:Int)=bytes[offset]!=0.toByte()
             return ImportedExpressionEffect(slot,flag(0),reader.getInt(20),flag(24),flag(25),
-                bytes[26].toInt() and 255,reader.getInt(28),reader.getInt(32),reader.getInt(36),
+                bytes[26].toInt(),reader.getInt(28),reader.getInt(32),reader.getInt(36),
                 bytes.map{it.toInt() and 255})
         }
     }

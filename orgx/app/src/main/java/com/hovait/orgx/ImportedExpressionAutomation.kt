@@ -5,7 +5,7 @@ object ImportedExpressionAutomation {
     fun applyLegacyKeyConnectionMethod(effects:List<ImportedExpressionEffect>,sourceVersion:String,keyConnectionMethod:Int):List<ImportedExpressionEffect> {
         require(keyConnectionMethod in 0..1)
         if(compareVersions(sourceVersion,"1.4.3")>=0)return effects
-        return effects.map{effect->if(effect.slot==1)effect.copy(mode=(effect.mode or keyConnectionMethod*16) and 255) else effect}
+        return effects.map{effect->if(effect.slot==1)effect.copy(mode=(effect.mode or keyConnectionMethod*16).toByte().toInt()) else effect}
     }
 
     private fun compareVersions(left:String,right:String):Int {
@@ -28,7 +28,7 @@ object ImportedExpressionAutomation {
             4->effect.copy(speed=event.touch)
             5->effect.copy(depth=event.touch)
             6->effect.copy(gain=event.touch)
-            else->effect.copy(mode=(event.touch or if(effect.slot==1)keyConnectionMethod*16 else 0) and 255)
+            else->effect.copy(mode=(event.touch or if(effect.slot==1)keyConnectionMethod*16 else 0).toByte().toInt())
         }
     }
 }

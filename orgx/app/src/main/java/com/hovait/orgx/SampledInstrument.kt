@@ -55,7 +55,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                         "startdelay"->old.copy(startDelay=change.value)
                         "bypedal"->old.copy(byPedal=change.value!=0)
                         "stopbyrelease"->old.copy(stopByRelease=change.value!=0)
-                        "mode"->old.copy(mode=change.value and 255)
+                        "mode"->old.copy(mode=change.value.toByte().toInt())
                         "speed"->old.copy(speed=change.value)
                         "depth"->old.copy(depth=change.value)
                         else->old.copy(gain=change.value)

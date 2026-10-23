@@ -15,7 +15,7 @@ class ImportedExpressionEffectTest {
         val effect=ImportedExpressionEffect.decode(7,raw)
         assertEquals(7,effect.slot);assertTrue(effect.enabled)
         assertEquals(123456,effect.startDelay);assertTrue(effect.byPedal)
-        assertFalse(effect.stopByRelease);assertEquals(129,effect.mode)
+        assertFalse(effect.stopByRelease);assertEquals(-127,effect.mode)
         assertEquals(-1234,effect.speed);assertEquals(98765,effect.depth);assertEquals(42,effect.gain)
         assertEquals(raw.map{it.toInt() and 255},effect.raw)
         raw[4]=0;assertEquals(123,effect.raw[4])
