@@ -20,6 +20,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     var touchScript:ImportedSimpleScript.Result?=null;private set
     private var modeScript:ImportedModeScript?=null
     private var scriptSession:ImportedScriptSession?=null
+    fun updateScriptPedal(down:Boolean){
+        runCatching{scriptSession?.pedal(down){result->
+            require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
+        }?.also{applyScriptEffects(it.effects)}}
+    }
     val scriptSliders:List<ImportedScriptSession.Slider> get()=scriptSession?.sliders.orEmpty()
     @Volatile var scriptSliderValues:Map<String,Int> = emptyMap();private set
     fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value);scriptSliderValues=scriptSliderValues+(name.lowercase() to value)}

@@ -339,6 +339,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         captureMidi(0x80 or channel,note,0)
     }
     fun setSustainEnabled(enabled:Boolean) {
+        if(sustain!=enabled)importedInstrument?.updateScriptPedal(enabled)
         if(sustain!=enabled)voices.values.filter{!it.playback}.forEach{it.sampledPlayback?.scriptPedal(enabled)}
         if(stsPartsEnabled)stsParts.pedal(enabled)
         if(sustain!=enabled)MidiRecordingPedal.messages(enabled).forEach{message->

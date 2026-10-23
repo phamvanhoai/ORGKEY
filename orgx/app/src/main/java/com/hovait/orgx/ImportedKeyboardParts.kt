@@ -54,6 +54,7 @@ class ImportedKeyboardParts {
         notes.filter{it.channel==channel && it.key==key && !it.released}.forEach{it.released=true}
     }
     fun pedal(part:Int,down:Boolean){
+        parts[part]?.sound?.updateScriptPedal(down)
         parts[part]?.let{parts=parts+(part to it.copy(pedal=down))}
         notes.filter{it.part==part}.forEach{
             it.playback.scriptPedal(down)

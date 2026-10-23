@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun silentPedalTransitionsUpdateSessionBeforeNextTouch(){
+        val source=sound().withModeScript("main() { level=0; } on(pedalon) { level=level+25; } on(pedaloff) { level=level+10; } on(touch) { play(volume:level); return(true); }")
+        val parts=ImportedKeyboardParts()
+        parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
+        parts.pedal(1,true);parts.pedal(1,false);parts.pedal(1,true)
+        val voice=source.voice(60);voice.next(false)
+        assertEquals(.15,voice.left,1e-12)
+    }
     @Test fun noteOpenedUnderHeldPedalReceivesPedalScriptEffects(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(4000){(it%100*200).toShort()}),0,4000)),1000)
