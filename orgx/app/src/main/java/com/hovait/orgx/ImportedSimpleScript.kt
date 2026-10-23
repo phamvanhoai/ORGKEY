@@ -39,7 +39,12 @@ object ImportedSimpleScript {
                 if(effect!=null){
                     val slot=effect.groupValues[1].toInt();require(slot in 0..7)
                     val property=effect.groupValues[2].lowercase()
-                    val value=expression(effect.groupValues[3],context())
+                    val evaluated=expression(effect.groupValues[3],context())
+                    val value=when(property){
+                        "mode"->evaluated.toByte().toInt()
+                        "enable","bypedal","stopbyrelease"->if(evaluated!=0)1 else 0
+                        else->evaluated
+                    }
                     effects.add(EffectChange(slot,property,value))
                     pending["effect[$slot].$property"]=value
                     continue

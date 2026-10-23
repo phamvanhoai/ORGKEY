@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun effectSetterNormalizesValuesBeforeSubsequentReads(){
+        val session=ImportedScriptSession("on(touch) { effect[1].Mode=255; effect[2].Enable=-4; play(volume:effect[1].Mode+2,velocity:effect[2].Enable); }")
+        val result=session.event("touch")
+        assertEquals(-1,result.effects[0].value)
+        assertEquals(1,result.effects[1].value)
+        assertEquals(1,result.plays.single().parameters["volume"])
+        assertEquals(1,result.plays.single().parameters["velocity"])
+    }
     @Test fun scriptEffectSpeedReadUsesModeOverrideWithoutDestroyingStoredSpeed(){
         val session=ImportedScriptSession("on(touch) { effect[2].Mode=1; play(volume:effect[2].Speed); effect[2].Mode=0; play(volume:effect[2].Speed); }")
         session.synchronizeEffects(listOf(ImportedExpressionEffect(2,true,0,false,false,0,75,50,0,emptyList())))
