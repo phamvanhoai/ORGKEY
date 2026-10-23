@@ -140,6 +140,8 @@ object ImportedSimpleScript {
         if(value=="false")return 0
         value.toIntOrNull()?.let{return it}
         variables[value]?.let{return it}
+        val playing=Regex("playing\\s*\\(\\s*(released)?\\s*\\)").matchEntire(value)
+        if(playing!=null)return variables[if(playing.groupValues[1].isEmpty())"__playing" else "__playingreleased"] ?: 0
         if(Regex("effect\\[[0-7]]\\.(enable|startdelay|bypedal|stopbyrelease|mode|speed|depth|gain)").matches(value))
             return variables[value] ?: throw IllegalArgumentException("Unknown effect property: $value")
         val function=Regex("(max|min|abs)\\s*\\((.*)\\)").matchEntire(value)

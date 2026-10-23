@@ -1,7 +1,7 @@
 package com.hovait.orgx
 
 /** One initialized variable store per mode execution context. Owned by caller. */
-class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionEffect> = emptyList(),storedSettings:Map<String,String> = emptyMap(),private val modeAvailable:(Int)->Boolean={it==0},private val onModeExit:(Int)->Unit={},private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
+class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionEffect> = emptyList(),storedSettings:Map<String,String> = emptyMap(),private val modeAvailable:(Int)->Boolean={it==0},private val onModeExit:(Int)->Unit={},private val playingCount:(Boolean)->Int={0},private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
     private val timeOrigin=clockMillis()
     data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int,val toggle:Boolean=false)
     data class Setting(val title:String,val control:Slider?=null)
@@ -12,6 +12,7 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
     var initialEffects:List<ImportedSimpleScript.EffectChange> = emptyList();private set
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
+    private fun playingContext()=mapOf("__playing" to playingCount(false),"__playingreleased" to playingCount(true))
     private data class Scheduled(val token:Long,val timer:ImportedSimpleScript.Timer,val parameters:Map<String,Int>,var due:Long)
     private var scheduled:Scheduled?=null
     var timerToken=0L;private set
@@ -24,7 +25,7 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
         try{
             val callback=ImportedModeScript.parse("on(__timer){${current.timer.body}}")
             val elapsed=(clockMillis()-timeOrigin).coerceIn(0,Int.MAX_VALUE.toLong()).toInt()
-            val result=ImportedSimpleScript.evaluate(callback,"__timer",current.parameters+("time" to elapsed),pending)
+            val result=ImportedSimpleScript.evaluate(callback,"__timer",current.parameters+playingContext()+("time" to elapsed),pending)
             result.exitMode?.let{require(modeAvailable(it)){"Script exit mode unavailable: $it"}}
             validate(result)
             state.clear();state.putAll(pending)
@@ -108,7 +109,7 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
     fun event(name:String,parameters:Map<String,Int> = emptyMap(),validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
         val pending=state.toMutableMap()
         val elapsed=(clockMillis()-timeOrigin).coerceIn(0,Int.MAX_VALUE.toLong()).toInt()
-        val result=ImportedSimpleScript.evaluate(script,name,parameters+("time" to elapsed),pending)
+        val result=ImportedSimpleScript.evaluate(script,name,parameters+playingContext()+("time" to elapsed),pending)
         result.exitMode?.let{require(modeAvailable(it)){"Script exit mode unavailable: $it"}}
         require(result.timers.isEmpty() || name.equals("touch",true)){"Timers in $name are not supported"}
         validate(result)

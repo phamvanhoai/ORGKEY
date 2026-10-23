@@ -20,11 +20,22 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     var touchScript:ImportedSimpleScript.Result?=null;private set
     private var modeScript:ImportedModeScript?=null
     private var scriptSession:ImportedScriptSession?=null
+    private var playbackRegistry=java.util.Collections.synchronizedMap(java.util.WeakHashMap<Playback,Boolean>())
+    private fun sharePlaybackRegistry(other:SampledInstrument){
+        other.playbackRegistry=playbackRegistry
+        other.layers.forEach{sharePlaybackRegistry(it)}
+        other.scriptSounds.values.forEach{sharePlaybackRegistry(it)}
+        other.aftertouchInstrument?.let{sharePlaybackRegistry(it)}
+    }
+    private fun playingCount(includeReleased:Boolean):Int = synchronized(playbackRegistry){
+        playbackRegistry.keys.count{it.countsAsPlaying(includeReleased)}
+    }
     private var scriptSounds:Map<Int,SampledInstrument> = emptyMap()
     private var scriptDefaultSound=0
     private var scriptSoundRouting=false
     fun withScriptSounds(sounds:Map<Int,SampledInstrument>,defaultSound:Int)=also{
         scriptSounds=sounds.toMap();scriptDefaultSound=defaultSound.coerceAtLeast(0);scriptSoundRouting=true
+        scriptSounds.values.forEach{sharePlaybackRegistry(it)}
     }
     private class ModeRoute(val sounds:Map<Int,SampledInstrument>,@Volatile var selected:Int)
     private var modeRoute:ModeRoute?=null
@@ -37,7 +48,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun withExitModes(modes:Map<Int,SampledInstrument>,selected:Int)=also{
         require(selected in modes)
         val route=ModeRoute(modes.toMap(),selected)
-        modes.values.forEach{it.modeRoute=route}
+        modes.values.forEach{it.modeRoute=route;sharePlaybackRegistry(it)}
     }
     private fun modeAvailable(mode:Int)=modeRoute?.sounds?.containsKey(mode) ?: (mode==0)
     private fun exitMode(mode:Int){modeRoute?.let{if(mode in it.sounds)it.selected=mode}}
@@ -70,7 +81,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun setScriptSlider(name:String,value:Int){if(activeModeSound!==this)return activeModeSound.setScriptSlider(name,value);checkNotNull(scriptSession){"No script session"}.setSlider(name,value);ownScriptSliderValues=ownScriptSliderValues+(name.lowercase() to value)}
     fun withModeScript(source:String,storedSettings:Map<String,String> = emptyMap())=also{
         modeScript=runCatching{ImportedModeScript.parse(source)}.getOrNull()
-        val initialized=runCatching{ImportedScriptSession(source,expressionEffects,storedSettings=storedSettings,modeAvailable=::modeAvailable,onModeExit=::exitMode)}
+        val initialized=runCatching{ImportedScriptSession(source,expressionEffects,storedSettings=storedSettings,modeAvailable=::modeAvailable,onModeExit=::exitMode,playingCount=::playingCount)}
         scriptSession=initialized.getOrNull()
         scriptStatus=if(source.isBlank())"No mode script" else initialized.exceptionOrNull()?.let{"Script initialization failed: ${it.message}"} ?: "Mode script loaded; waiting for events"
         scriptSession?.synchronizeEffects(expressionEffects)
@@ -108,7 +119,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     val keyboardSettings:ImportedChannelSettings get()=if(activeModeSound!==this)activeModeSound.keyboardSettings else ownKeyboardSettings
     private var keyboardMelodic=true
     fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{ownKeyboardSettings=settings;keyboardMelodic=melodic}
-    fun withAftertouch(alternate:SampledInstrument)=also{aftertouchInstrument=alternate}
+    fun withAftertouch(alternate:SampledInstrument)=also{aftertouchInstrument=alternate;sharePlaybackRegistry(alternate)}
     /** Reuse immutable PCM while keeping mode/keyboard configuration isolated. */
     fun copySampleSource():SampledInstrument {
         require(layers.isEmpty()){"Copy each decoded source before composing mode layers"}
@@ -120,7 +131,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun combine(sounds:List<SampledInstrument>):SampledInstrument {
             require(sounds.isNotEmpty())
             if(sounds.size==1)return sounds.single()
-            return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{it.layers=sounds}
+            return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{combined->combined.layers=sounds;sounds.forEach{combined.sharePlaybackRegistry(it)}}
         }
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true,scriptId:Int=note):Playback=if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed,scriptId) else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)
@@ -130,11 +141,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var scriptReleased=false
         private var releaseHandled=false
         private var forcedRelease=false
+        private var countReleased=false
         private var forcedCut=false
         private fun cut(){forceRelease();forcedCut=true}
         private var timerOwner:Long?=null
         private var timerFrames=0L
         fun forceRelease(){
+            countReleased=true
             forcedRelease=true;scriptReleased=true;releaseHandled=false
             timerOwner?.let{scriptSession?.cancelTimer(it)}
             children.forEach{it.forceRelease()};alternate?.forceRelease()
@@ -378,7 +391,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         var left=0.0;private set
         var right=0.0;private set
         var finished=false;private set
+        internal fun countsAsPlaying(includeReleased:Boolean)=!finished && !forcedCut && !aftertouch && children.isEmpty() &&
+            (scriptPlan==null || !scriptPlan.handled) && (includeReleased || !countReleased) && note in 0..127 && !missing(note)
         private var autoReleaseStarted=false
+        init{playbackRegistry[this]=true}
         private fun advanceScriptTimer(){
             val owner=timerOwner ?: return
             val session=scriptSession ?: return
@@ -428,6 +444,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
             val effectiveNoteOff=forcedRelease || (noteOff && !releaseHandled)
             val released=effectiveNoteOff || autoReleaseStarted
+            countReleased=released
             if(connectionActive && (!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
                     step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
@@ -452,6 +469,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }
             if(children.isEmpty() && state==null && autoReleaseStarted)finished=true
             volumeShake?.let{it.next(released,pedal);left*=it.left;right*=it.right}
+            if(finished)playbackRegistry.remove(this)
         }
     }
     private val mapped=Array(128){note->when(pitchMode){

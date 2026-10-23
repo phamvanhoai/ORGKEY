@@ -5,6 +5,38 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun playingCountsActualScriptLayersAndReleasedTails(){
+        val envelope=ImportedEnvelope.from(listOf(0,0,100,100,0,0))
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,envelope=envelope)
+            .withModeScript("""
+                on(touch){play(volume:50);play(volume:50);return(true);}
+                on(aftertouch){effect[2].Depth=Playing();effect[2].Gain=Playing(released);}
+            """.trimIndent())
+        val voice=source.voice(60);voice.next(false)
+        // Observe the same live count via a touch event, without adding observer audio.
+        source.withModeScript("on(touch){play(volume:Playing(),velocity:Playing(released));return(true);}")
+        val observed=source.voice(60);observed.next(false)
+        assertEquals(.25*2/100.0*2/100.0,observed.left,1e-12)
+        observed.forceRelease();observed.next(true)
+        voice.next(true)
+        // Release tails remain in Playing(released), while Playing() excludes them.
+        source.withModeScript("on(touch){play(volume:Playing(released));return(true);}")
+        val tailObserver=source.voice(60);tailObserver.next(false)
+        assertTrue(tailObserver.left>0)
+        tailObserver.forceRelease();voice.forceRelease()
+    }
+    @Test fun originalNearLegatoUsesPlayingReleasedPredicate(){
+        var now=0L
+        var count=0
+        val session=ImportedScriptSession(original("Legato/Dynamic Legato (Near).Script"),playingCount={if(it)count else 0},clockMillis={now})
+        assertFalse(session.event("touch",mapOf("key" to 60)).handled)
+        count=1;now=600
+        val connected=session.event("touch",mapOf("key" to 64))
+        assertTrue(connected.handled)
+        assertEquals(60,connected.plays.single().parameters["connectkey"])
+        now=1200;count=0
+        assertFalse(session.event("touch",mapOf("key" to 65)).handled)
+    }
     @Test fun originalModulationOctaveStopsAndReplaysOnlyItsSelectedNote(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){(it*100).toShort()}),0,128)),1000)
             .withModeScript(original("Octave/Modulation Octave.Script"))
