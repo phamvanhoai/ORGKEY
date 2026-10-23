@@ -34,6 +34,16 @@ object ImportedSimpleScript {
     }
     private fun expression(source:String,variables:Map<String,Int>):Int {
         val value=source.trim().lowercase()
+        val comparison=Regex("(.+?)\\s*(==|!=|<=|>=|<|>)\\s*(.+)").matchEntire(value)
+        if(comparison!=null){
+            val left=expression(comparison.groupValues[1],variables)
+            val right=expression(comparison.groupValues[3],variables)
+            val result=when(comparison.groupValues[2]){
+                "=="->left==right;"!="->left!=right;"<="->left<=right
+                ">="->left>=right;"<"->left<right;else->left>right
+            }
+            return if(result)1 else 0
+        }
         if(value=="true")return 1
         if(value=="false")return 0
         value.toIntOrNull()?.let{return it}

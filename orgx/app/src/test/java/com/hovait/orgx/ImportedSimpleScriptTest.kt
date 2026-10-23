@@ -4,6 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun originalMoveAutoReleaseExpressionResolvesBoolean(){
+        val script=ImportedModeScript.parse("on(touch) { play(autorelease:move_key != 0); return(true); }")
+        assertEquals(1,ImportedSimpleScript.evaluate(script,"touch",mapOf("move_key" to 6)).plays.single().parameters["autorelease"])
+        assertEquals(0,ImportedSimpleScript.evaluate(script,"touch",mapOf("move_key" to 0)).plays.single().parameters["autorelease"])
+    }
     @Test fun dynamicLegatoSpeedUsesNestedNamedArgumentExpression(){
         val script=ImportedModeScript.parse("on(touch) { play(connectkey:key-2,connectspeed:Max(5, velocity)); return(true); }")
         val slow=ImportedSimpleScript.evaluate(script,"touch",mapOf("key" to 60,"velocity" to 2))
