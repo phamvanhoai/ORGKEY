@@ -864,20 +864,24 @@ private fun ORGXApp(engine: AudioEngine) {
             Text("Experimental NOpenSL",Modifier.weight(1f));Switch(checked=nativeOutput,onCheckedChange={nativeOutput=it;preferences.edit().putBoolean("nativeOutput",it).apply()})
         }
         if(scriptStatus.isNotEmpty())Text("DNC: $scriptStatus",color=Subtle)
-        scriptSound?.scriptSettingTitles?.forEach{Text(it,fontWeight=FontWeight.Bold)}
-        scriptSound?.scriptSliders?.forEach{setting->
-            var value by remember(scriptSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
-            Text(setting.title)
-            if(setting.toggle){
-                Switch(checked=value!=0,onCheckedChange={checked->val next=if(checked)1 else 0;engine.setScriptSlider(scriptSound,setting.name,next){accepted->if(accepted)scriptScope.launch{value=next}}})
+        scriptSound?.scriptSettings?.forEach{entry->
+            val setting=entry.control
+            if(setting==null){
+                Text(entry.title,Modifier.fillMaxWidth().background(Muted).padding(8.dp),fontWeight=FontWeight.Bold)
             }else{
-            Row(verticalAlignment=Alignment.CenterVertically){
+                var value by remember(scriptSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
                 fun change(next:Int){engine.setScriptSlider(scriptSound,setting.name,next){accepted->if(accepted)scriptScope.launch{value=next}}}
-                TextButton(enabled=value>setting.from,onClick={change(value-1)}){Text("−")}
-                Text(value.toString())
-                TextButton(enabled=value<setting.to,onClick={change(value+1)}){Text("+")}
-                TextButton(onClick={change(setting.reset)}){Text("RESET")}
-            }
+                Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+                    Text(setting.title,Modifier.weight(1f))
+                    if(setting.toggle){
+                        Checkbox(checked=value!=0,onCheckedChange={change(if(it)1 else 0)})
+                    }else Text(value.toString())
+                    TextButton(onClick={change(setting.reset)}){Text("RESET")}
+                }
+                if(!setting.toggle && setting.from<setting.to){
+                    Slider(value=value.toFloat(),onValueChange={change(it.toInt().coerceIn(setting.from,setting.to))},
+                        valueRange=setting.from.toFloat()..setting.to.toFloat())
+                }
             }
         };Text("Applies after closing and reopening the app. AudioTrack is used if OpenSL initialization fails.",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
 

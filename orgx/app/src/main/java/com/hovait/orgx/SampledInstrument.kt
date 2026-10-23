@@ -34,6 +34,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     }
     val scriptSliders:List<ImportedScriptSession.Slider> get()=scriptSession?.sliders.orEmpty()
     val scriptSettingTitles:List<String> get()=scriptSession?.settingTitles.orEmpty()
+    val scriptSettings:List<ImportedScriptSession.Setting> get()=scriptSession?.settings.orEmpty()
     @Volatile var scriptSliderValues:Map<String,Int> = emptyMap();private set
     fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value);scriptSliderValues=scriptSliderValues+(name.lowercase() to value)}
     fun withModeScript(source:String)=also{

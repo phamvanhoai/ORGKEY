@@ -4,6 +4,8 @@ package com.hovait.orgx
 class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionEffect> = emptyList(),private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
     private val timeOrigin=clockMillis()
     data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int,val toggle:Boolean=false)
+    data class Setting(val title:String,val control:Slider?=null)
+    val settings:List<Setting>
     val sliders:List<Slider>
     val settingTitles:List<String>
     var initialEffects:List<ImportedSimpleScript.EffectChange> = emptyList();private set
@@ -48,6 +50,7 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
             if(match.value.startsWith("\""))match.value else " "
         }
         val settings=ImportedScriptSettings.read(code)
+        this.settings=settings.entries
         sliders=settings.controls
         settingTitles=settings.titles
         require(sliders.map{it.name}.distinct().size==sliders.size){"Duplicate script slider"}
