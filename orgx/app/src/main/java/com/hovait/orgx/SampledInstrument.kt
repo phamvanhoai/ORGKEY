@@ -417,7 +417,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             runCatching{
                 session.advanceTimer(owner,timerFrames*1000/outputRate){result->
                     validateScriptAudio(result)
-                    require(result.plays.all{it.parameters["id"]==null || it.parameters["id"]==scriptId}){"Timer Play targets another note ID"}
+                    require(result.audio.all{command->when(command){
+                        is ImportedSimpleScript.Play->(command.parameters["id"] ?: scriptId)==scriptId
+                        is ImportedSimpleScript.Stop->command.id==scriptId
+                        is ImportedSimpleScript.StopAll->false
+                    }}){"Timer audio must target its own note ID"}
                     require(children.count{!it.finished}+result.plays.size<=128){"Script timer exceeds voice limit"}
                 }?.let{result->
                     children.removeAll{it.finished}
@@ -427,12 +431,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                         val effect=expressionEffects.first{it.slot==slot}
                         if(slot==2)configurePitchShake(effect) else if(slot==3)configureVolumeShake(effect)
                     }
-                    result.plays.forEach{command->
-                        val child=createScriptChild(command)
-                        child.first.pitchBend(bendSemitones,bendScriptLevel)
-                        child.first.channelBalance(balance)
-                        children.add(child.first);scriptChildren.add(child)
-                    }
+                    applyOrderedAudio(result)
                     if(result.timers.isNotEmpty())timerOwner=session.timerToken
                     scriptStatus="Timer script active"
                 }

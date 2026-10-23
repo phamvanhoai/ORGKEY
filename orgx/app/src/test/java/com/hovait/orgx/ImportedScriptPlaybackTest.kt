@@ -306,6 +306,22 @@ class ImportedScriptPlaybackTest {
         repeat(10){current.next(false)} // next timer iteration executes break
         current.next(true);assertTrue(current.finished)
     }
+    @Test fun timerStopsOldNoteBeforeReplacingItWithoutAccumulatingAudio(){
+        val source=sound().withModeScript("""
+            on(touch){timer(2){stop(id:id,cut);play(id:id,volume:50);}return(true);}
+        """.trimIndent())
+        val voice=source.voice(60)
+        repeat(2){voice.next(false);assertEquals(0.0,voice.left,0.0)}
+        repeat(20){voice.next(false);assertEquals(.125,voice.left,1e-12)}
+    }
+    @Test fun timerCanCutNotePlayedEarlierInSameCallback(){
+        val source=sound().withModeScript("""
+            on(touch){timer(2){play(id:id);stop(id:id,cut);break;}return(true);}
+        """.trimIndent())
+        val voice=source.voice(60)
+        repeat(4){voice.next(false);assertEquals(0.0,voice.left,0.0)}
+        assertTrue(voice.finished)
+    }
     @Test fun timerRetainsTouchParametersAndDoesNotBurstAfterDelayedPoll(){
         val session=ImportedScriptSession("""
             main(){count=0;}
