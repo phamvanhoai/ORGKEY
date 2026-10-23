@@ -5,6 +5,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedModeTest {
+    @Test fun modeScriptRetainsOriginalEventAndVariableNames(){
+        val parsed=ImportedModeScript.parse("aftertouch key velocity connectkey pitchmove")
+        assertEquals(listOf("aftertouch"),parsed.events)
+        assertTrue(parsed.variables.containsAll(listOf("key","velocity","connectkey","pitchmove")))
+    }
     @Test fun keyboardModeConfigurationIsNotAppliedAgainToStyleSamples(){
         val file=File.createTempFile("orgx-keyboard-mode",".pcm")
         try{
