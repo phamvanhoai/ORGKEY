@@ -29,3 +29,9 @@ Chạy `py -3 analysis/rebuild_status.py` để tạo [REBUILD-STATUS.json](REBU
 
 Aftertouch fallback đã được nối end-to-end theo `Track` gốc: áp lực dương đầu tiên chọn sound Aftertouch, giữ velocity ban đầu và không khởi động lại ở các pressure tiếp theo. ScriptText của mode nay được giữ lại khi đọc SET; DNC và runtime script tùy biến vẫn cần bộ thực thi lệnh.
 Key Connection đã bổ sung điều kiện restart AutoRelease/loop theo low nibble của `Channels._Connection`; test PCM kiểm tra mode 0/1/3 và low mode mở voice từ loop point.
+
+## Script mode: phạm vi thực thi hiện tại
+
+Đã trích 24 script tham chiếu từ `assets/data.zip`. Bộ thực thi hiện xử lý touch dạng chuỗi lệnh `play`/`return`, số nguyên và biến cộng/trừ hằng số. Playback dùng chung cho voice trực tiếp và STS, hỗ trợ `key`, `keymove`, `octavemove`, `volume`, `pan`, `tune`, `pitchmove`, `connectkey`, `connectspeed`. Bốn script Octave/Legato Lower/Upper gốc đã được đưa qua test PCM; pitchmove giữ hiệu lực khi bend live thay đổi.
+
+Chưa có biến trạng thái/main, if/else, timer, script aftertouch/release và exit đổi mode. `velocity`, lựa chọn sound tùy lệnh và fallback khi lỗi vẫn cần đối chiếu/hoàn thiện. Không coi toàn bộ DNC hoặc script Legato đã tương đương APK. Những script ngoài tập con hỗ trợ hiện dùng fallback.
