@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun lastKeyDistanceExpressionSelectsLegatoOnlyWithinSixSemitones(){
+        val script=ImportedModeScript.parse("on(touch) { if (abs(last_key - key) <= 6) { play(connectkey:last_key,connectspeed:75); return(true); } }")
+        assertEquals(60,ImportedSimpleScript.evaluate(script,"touch",mapOf("last_key" to 60,"key" to 65)).plays.single().parameters["connectkey"])
+        assertTrue(ImportedSimpleScript.evaluate(script,"touch",mapOf("last_key" to 60,"key" to 67)).plays.isEmpty())
+        assertEquals(65,ImportedSimpleScript.evaluate(script,"touch",mapOf("last_key" to 65,"key" to 60)).plays.single().parameters["connectkey"])
+    }
     @Test fun ifElseRunsOnlySelectedBranch(){
         val script=ImportedModeScript.parse("on(touch) { if (velocity < 100) { level = 25; } else { level = 75; } play(volume:level); return(true); }")
         assertEquals(25,ImportedSimpleScript.evaluate(script,"touch",mapOf("velocity" to 50)).plays.single().parameters["volume"])

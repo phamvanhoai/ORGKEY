@@ -94,10 +94,11 @@ object ImportedSimpleScript {
                 else->{require(args.size==2);minOf(args[0],args[1])}
             }
         }
-        val match=Regex("([a-z_][a-z_0-9]*)\\s*([+-])\\s*(\\d+)").matchEntire(value)
+        val match=Regex("([a-z_][a-z_0-9]*)\\s*([+-])\\s*([a-z_][a-z_0-9]*|\\d+)").matchEntire(value)
             ?: throw IllegalArgumentException("Unsupported play expression: $source")
         val base=variables[match.groupValues[1]] ?: throw IllegalArgumentException("Unknown script variable")
-        val offset=match.groupValues[3].toInt()
+        val offset=match.groupValues[3].toIntOrNull() ?: variables[match.groupValues[3]]
+            ?: throw IllegalArgumentException("Unknown script variable: ${match.groupValues[3]}")
         return if(match.groupValues[2]=="+")Math.addExact(base,offset) else Math.subtractExact(base,offset)
     }
     private fun splitArguments(source:String):List<String>{
