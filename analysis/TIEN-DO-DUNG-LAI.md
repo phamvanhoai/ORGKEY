@@ -53,3 +53,11 @@ Cập nhật điều kiện: đã có block if lồng nhau và if-block/else-blo
 Modulation Shake gốc đã chạy qua API modulate. MIDI file giữ CC1, engine gửi theo kênh; STS và voice mới nhận mức đã chọn. CC121 và kết thúc/STOP playback reset modulation. Ghi MIDI giữ mức CC1 trước REC và ghi reset ở cuối file. Bộ nhận controller MIDI phần cứng chưa được nối, chưa thử MIDI thật; không coi API là kết nối thiết bị hoàn chỉnh.
 
 Trang Cài đặt đã có điều khiển DNC từ khai báo slider của tập con script hỗ trợ. Thay đổi qua audio queue, kiểm tra sound hiện hành và giới hạn; chưa xác minh tương đương giao diện gốc hoặc đầy đủ nhóm tiếng STS. Các ghi chú lịch sử phía trên về thiếu gán effect/slider được thay thế trong phạm vi đã nêu ở đây.
+
+## Vòng đời điều khiển DNC
+
+Pedal cập nhật session khi im lặng và truyền hiệu ứng cho nốt mở dưới pedal đang giữ. Các voice dùng chung session không chạy lặp phép gán pedal/modulation cho cùng trạng thái; kết quả dùng lại đọc giá trị Effect hiện hành để tránh ghi đè thay đổi từ aftertouch. Việc chia sẻ session giữa part/kênh vẫn cần đối chiếu với Track/Mode của APK gốc.
+
+Event pitchbend đã nối trước bend mặc định: script xử lý thành công và trả khác 0 thì chặn fallback. Giá trị MIDI gốc trừ 8192 truyền tới nốt đang ngân và nốt mới của STS/voice trực tiếp; trạng thái live và playback được giữ riêng theo kênh. Chưa kiểm chứng controller vật lý hoặc toàn bộ thứ tự event khi nhiều nốt dùng chung session.
+
+Script quá 262144 ký tự hoặc ngoặc lồng quá 64 cấp dùng fallback để tránh tràn stack; đây là giới hạn ORGX. Runtime vẫn dùng số nguyên và elapsed time, chưa tương đương double/epoch của APK. Timer, lịch thực thi, exit đổi mode và các lệnh phát âm trong aftertouch/release chưa hoàn chỉnh. Các bản build/test không chứng minh tương đương 100%.
