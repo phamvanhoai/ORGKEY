@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun sharedSessionRunsPedalAssignmentOnceAcrossSimultaneousVoices(){
+        val source=sound().withModeScript("main() { level=25; } on(touch) { play(volume:level); return(true); } on(pedalon) { level=level+25; } on(pedaloff) { level=level-25; }")
+        val first=source.voice(60);val second=source.voice(64)
+        first.scriptPedal(true);second.scriptPedal(true)
+        val held=source.voice(60);held.next(false);assertEquals(.125,held.left,1e-12)
+        first.scriptPedal(false);second.scriptPedal(false)
+        val released=source.voice(60);released.next(false);assertEquals(.0625,released.left,1e-12)
+    }
     @Test fun pedalScriptDispatchesOnlyOnTransitions(){
         val source=sound().withModeScript("main() { level=25; } on(touch) { play(volume:level); return(true); } on(pedalon) { level=level+25; } on(pedaloff) { level=25; }")
         val voice=source.voice(60)

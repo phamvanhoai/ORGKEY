@@ -7,6 +7,14 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
     val sliders:List<Slider>
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
+    private var pedalDown=false
+    private var pedalResult=ImportedSimpleScript.Result(emptyList(),false)
+    fun pedal(down:Boolean,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
+        if(pedalDown==down)return pedalResult
+        val result=event(if(down)"pedalon" else "pedaloff",validate=validate)
+        pedalDown=down;pedalResult=result
+        return result
+    }
     fun synchronizeEffects(effects:List<ImportedExpressionEffect>){
         (0..7).forEach{slot->
             val effect=effects.firstOrNull{it.slot==slot} ?: ImportedExpressionEffect(slot,false,0,false,false,0,0,0,0,emptyList())

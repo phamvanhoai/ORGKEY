@@ -218,7 +218,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(scriptPedal==down)return
             scriptPedal=down
             if(!ownsScriptEvents)return
-            runCatching{scriptSession?.event(if(down)"pedalon" else "pedaloff"){result->
+            runCatching{scriptSession?.pedal(down){result->
                 require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
             }?.also{result->
                 applyScriptEffects(result.effects)
