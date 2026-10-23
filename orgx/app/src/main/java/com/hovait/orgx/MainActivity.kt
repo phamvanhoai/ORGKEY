@@ -86,6 +86,13 @@ private fun ORGXApp(engine: AudioEngine) {
             if(!restoringSet){
                 val changed=ImportedSoundSelection.changedMode(engine.importedInstrument,engine.activeSetFile,
                     preferences.getString("importedSetFile",null),preferences.getString("importedSetSound",null))
+                val group=engine.currentStsGroup
+                if(group!=null && preferences.getString("selectedStsSet",null)==group.file.name &&
+                    preferences.getInt("selectedStsTrack",-1)==0 && preferences.getInt("selectedStsSlot",-1)==group.selection.slot){
+                    val state=ImportedStsModeState.encode(group.file,group.selection.slot,group.currentSnapshots().mapValues{it.value.mode})
+                    if(preferences.getString(ImportedStsModeState.preferenceKey,null)!=state)
+                        preferences.edit().putString(ImportedStsModeState.preferenceKey,state).apply()
+                }
                 if(changed!=null){
                     engine.importedInstrumentName=changed;restoredSetName=changed
                     preferences.edit().putString("importedSetSound",changed).apply()
@@ -132,7 +139,12 @@ private fun ORGXApp(engine: AudioEngine) {
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
                 val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
-                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
+                val prepared=withContext(Dispatchers.IO){
+                    if(preferences.getInt("selectedStsTrack",-1)==0){
+                        val modes=ImportedStsModeState.decode(preferences.getString(ImportedStsModeState.preferenceKey,"").orEmpty(),file,snapshot.slot)
+                        ImportedStsRequest.Prepared.Group(ImportedStsBatch.prepareFull(file,index,snapshot.slot,ImportedDncPreferences(context)::read,modes))
+                    }else ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot,expectedGroup,changes,ImportedDncPreferences(context)::read)
+                }
                 if(preferences.getString("selectedStsSet",null)==savedStsSet){
                     check(engine.awaitStsRequest(prepared,expectedSound)){"Saved STS selection changed while loading"}
                     restoredSts=true

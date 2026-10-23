@@ -32,6 +32,19 @@ class ImportedStsBatchTest {
             assertEquals(0,kept.value.voices.getValue(1).snapshot.mode)
             assertEquals(45,kept.value.voices.getValue(1).sound.keyboardSettings.volume)
             assertEquals(1,kept.value.voices.getValue(2).snapshot.mode)
+            val saved=ImportedStsModeState.encode(file,1,current.currentSnapshots().mapValues{it.value.mode})
+            val restoredModes=ImportedStsModeState.decode(saved,file,1)
+            val restored=ImportedStsBatch.prepareFull(file,index,1,restoredModes=restoredModes)
+            assertEquals(0,restored.voices.getValue(1).snapshot.mode)
+            assertEquals(45,restored.voices.getValue(1).sound.keyboardSettings.volume)
+            assertEquals(1,restored.voices.getValue(2).snapshot.mode)
+            assertEquals(1,restored.selection.members.first().snapshot.mode) // imported STS remains intact
+            assertTrue(ImportedStsModeState.decode(saved,file,2).isEmpty())
+            assertTrue(ImportedStsModeState.decode(saved+",1=1",file,1).isEmpty())
+            val invalid=ImportedStsBatch.prepareFull(file,index,1,restoredModes=mapOf(1 to 99))
+            assertEquals(1,invalid.voices.getValue(1).snapshot.mode)
+            file.appendBytes(byteArrayOf(0,0))
+            assertTrue(ImportedStsModeState.decode(saved,file,1).isEmpty())
         }finally{file.delete()}
     }
     private fun snapshot(name:String)=ImportedSts(name,false,0,0,0,0,0,0,0,0,emptyList(),ImportedChannelSettings(),slot=1)
