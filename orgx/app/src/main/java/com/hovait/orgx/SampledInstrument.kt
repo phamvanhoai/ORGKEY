@@ -52,12 +52,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
             modeScript?.let{ImportedSimpleScript.evaluate(it,"touch",mapOf("key" to note,"velocity" to scriptVelocity))}
-                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","connectkey","connectspeed")}}}
+                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","connectkey","connectspeed")}}}
         }.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
             val playback=Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
-                (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),autoRelease,effectsAllowed,false,scriptVelocity)
+                (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity)
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))

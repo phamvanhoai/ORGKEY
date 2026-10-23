@@ -34,6 +34,8 @@ object ImportedSimpleScript {
     }
     private fun expression(source:String,variables:Map<String,Int>):Int {
         val value=source.trim().lowercase()
+        if(value=="true")return 1
+        if(value=="false")return 0
         value.toIntOrNull()?.let{return it}
         variables[value]?.let{return it}
         val function=Regex("(max|min|abs)\\s*\\((.*)\\)").matchEntire(value)

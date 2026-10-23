@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun scriptAutoReleaseClosesLoopWithoutPhysicalNoteOff(){
+        val automatic=sound().withModeScript("on(touch) { play(autorelease:true); return(true); }").voice(60)
+        val held=sound().withModeScript("on(touch) { play(autorelease:false); return(true); }").voice(60)
+        repeat(20){automatic.next(false);held.next(false)}
+        assertTrue(automatic.finished)
+        assertFalse(held.finished)
+        held.next(true);assertTrue(held.finished)
+    }
     @Test fun layeredVoiceKeepsIncomingVelocityInChildScript(){
         val layer=sound().withModeScript("on(touch) { play(velocity:100); return(true); }")
         val voice=SampledInstrument.combine(listOf(layer,sound())).voice(60,scriptVelocity=50)
