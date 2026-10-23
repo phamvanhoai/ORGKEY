@@ -5,6 +5,31 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun modulationStopAllCutsBothNoteIdsAndKeepsFollowingPlay(){
+        val source=sound().withModeScript("""
+            on(touch){play();return(true);}
+            on(modulate){stopall(cut);play(id:38,volume:25);}
+        """.trimIndent())
+        val first=source.voice(60,scriptId=37)
+        val second=source.voice(64,scriptId=38)
+        first.next(false);second.next(false)
+        first.modulate(20);second.modulate(20)
+        first.next(false);second.next(false)
+        assertEquals(0.0,first.left,0.0)
+        assertTrue(first.finished)
+        assertEquals(.0625,second.left,1e-12)
+        assertFalse(second.finished)
+    }
+    @Test fun modulationStopAllWithoutCutPreservesReleaseTail(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,10,false))
+            .withModeScript("on(touch){play(pedal:0);return(true);} on(modulate){stopall();}")
+        val voice=source.voice(60);voice.next(false)
+        voice.modulate(20);voice.next(false)
+        assertTrue(voice.left>0);assertFalse(voice.finished)
+        repeat(101){voice.next(false)}
+        assertTrue(voice.finished)
+    }
     @Test fun playPedalSelectsReleaseCurveAndTracksPedalOff(){
         fun source(pedal:Int?)=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
             envelope=ImportedEnvelope.from(listOf(0,0,100,10,0,0)))

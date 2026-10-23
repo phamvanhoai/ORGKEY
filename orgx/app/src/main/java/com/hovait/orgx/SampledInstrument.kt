@@ -340,6 +340,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }
                 children.removeAll{it.finished};scriptChildren.removeAll{it.first.finished}
                 result.audio.forEach{command->when(command){
+                    is ImportedSimpleScript.StopAll->children.forEach{if(command.cut)it.cut() else it.forceRelease()}
                     is ImportedSimpleScript.Stop->children.filter{it.scriptId==command.id}.forEach{if(command.cut)it.cut() else it.forceRelease()}
                     is ImportedSimpleScript.Play->if((command.parameters["id"] ?: scriptId)==scriptId){
                         val child=createScriptChild(command)
