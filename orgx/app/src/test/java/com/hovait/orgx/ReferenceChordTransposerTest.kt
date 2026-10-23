@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceChordTransposerTest {
+    @Test fun chordControlAndKeyboardOctaveAffectHeldPcmWithoutChangingChord(){
+        var control=0;var octave=4
+        val source=SampledInstrument(listOf(60 to 8192,72 to 16384).map{(key,value)->
+            InstrumentRegion(key,SamplePcm(1000,1,ShortArray(128){value.toShort()}),0,128)
+        },1000,exactNotes=true)
+        val track=ReferenceDrumTrack("Bass",1,0,32,120,true,0,4000,false,listOf(ReferenceDrumEvent(2,37,60,100,0,2000)))
+        val player=ReferenceRhythmPlayer(listOf(track),source::durationFrames,
+            {note,age,channel->source.sample(note,age.toLong(),channel)},1000,accompaniment=true,sampled=source,
+            mapNote={mapper.note(it,0,0,0,control,octave)})
+            .withChordFollowing(control={control},octaveMove={octave},target={0})
+        player.next(0,120);assertEquals(.25,player.left,1e-12)
+        control=2;player.next(0,120);assertEquals(.25,player.left,1e-12)
+        octave=5;player.next(0,120);assertEquals(.5,player.left,1e-12)
+        control=3;player.next(0,120);assertEquals(.25,player.left,1e-12)
+        octave=4;player.next(0,120);assertEquals(.5,player.left,1e-12)
+    }
     @Test fun liveChordRevoicesLongHeldNotesButLeavesShortNotesAndNoteOffIdsIntact(){
         var target=0
         val events=listOf(ReferenceDrumEvent(2,37,64,100,0,2000),ReferenceDrumEvent(2,38,64,100,0,500),

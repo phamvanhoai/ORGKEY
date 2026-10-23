@@ -5,18 +5,21 @@ import java.io.File
 /** Prepare style samples and mode scripts; Track channel rules control expression effects. */
 object ImportedStylePlayer {
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
-        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},targetChord:(()->Int?)?=null):ImportedStyleSession {
+        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null):ImportedStyleSession {
         val complete=ImportedSectionFallback.complete(index,style)
         val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
-        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides))
+        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove))
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
-        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
-        return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides).getValue(group.id)
+        transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
+        return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove).getValue(group.id)
     }
     private fun loadSections(file:File,index:ImportedSetIndex,groups:List<ImportedStyleGroup>,includeAccompaniment:Boolean,
-        transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?,keyConnectionMethod:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String>):Map<Int,ReferenceRhythmPlayer> {
+        transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?,keyConnectionMethod:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String>,
+        chordControl:()->Int,chordOctaveMove:()->Int):Map<Int,ReferenceRhythmPlayer> {
         require(keyConnectionMethod in 0..1)
         val follow=targetChord!=null
         require(!follow || (includeAccompaniment && transposer!=null)){"Chord mapping requires accompaniment and chord table"}
@@ -53,14 +56,15 @@ object ImportedStylePlayer {
                 accompaniment=melodic,
                 mapNote={note->
                     val target=if(follow && melodic)targetChord?.invoke() else null
-                    val mapped=if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target)
+                    val mapped=if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target,
+                        control=chordControl(),octaveMove=chordOctaveMove())
                     ImportedStyleSupport.shiftedNote(mapped,track.copy(settings=settings),melodic)
                 },sampled=sound,fx=ImportedFxChain(settings),initiallyMuted=track.muted,initialChannel=settings,
                 expressionEffects=ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(track.effects,index.sourceVersion,keyConnectionMethod),initialPedal=track.pedal!=0,
                 // Tracks.ReadFromStream assigns channel type 1 to rhythm groups
                 // and Type 3 tracks. Channels.Process excludes that channel type.
                 expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track),keyConnectionMethod=keyConnectionMethod)
-                .withChordFollowing(if(follow && melodic)targetChord else null)
+                .withChordFollowing(control=chordControl,octaveMove=chordOctaveMove,target=if(follow && melodic)targetChord else null)
           }
           // An empty/muted section still owns its timing and JumpGroup (notably
           // silent Endings). Keep transport semantics without inventing notes.

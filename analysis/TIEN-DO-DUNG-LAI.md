@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — hợp âm đang ngân, 24-10-2026
+## Kết quả mới nhất — Chord Control, 24-10-2026
+
+- Đối chiếu `Track.CalcChordKey`, `Tracks.RecordChord` và mảng `ChordControl`/`ChordControlValue` gốc. Nối bốn lựa chọn Manual/Auto/by Chord 1/by Chord 2 vào trang CHORD, lưu preference và phục hồi trước khi nạp SET/style. Giá trị nội bộ 4 vẫn được engine nhận theo nhánh mã gốc; giao diện chỉ hiện 0..3 như APK.
+- Đường nạp style khi restore, chọn ở LCD và chọn trong trang SET đều truyền live ChordControl và octave-move vào transposer. Các nốt dài được cập nhật cả khi chỉ đổi Control hoặc quãng tám tay trái mà tên hợp âm giữ nguyên; original-notes và percussion không áp dụng.
+- Octave-move lấy quãng tám của phím MIDI cao nhất trong bộ phím hợp âm đã nhận diện, theo RecordChord. Giữ cùng chord-memory sau nhả hết phím; reset xóa cả chord và octave. Với chọn hợp âm thủ công/AUTO hiện dùng octave-move 0.
+- Kiểm tra PCM sample C4/C5 xác nhận by Chord 1 dùng octave lẻ, by Chord 2 dùng octave chẵn; đổi Control không đổi tên hợp âm vẫn có hiệu lực. Kiểm tra single-finger giữ/cập nhật octave theo phím cao nhất đạt cùng các nhóm nhận diện chord/rhythm và silent SET regression. AssembleDebug/cài/khởi động đạt; trên thiết bị đã mở trang CHORD, thấy đủ bốn lựa chọn, chọn Auto lưu chordControl=1 rồi trả Manual.
+- ChordVars chỉ có trong layout >=1.4.9 theo TrackGroup.ReadFromStream; hai layout đang hỗ trợ 1.2.8/1.4.6 không chứa trường này. Chưa mở rộng parser cho layout mới hoặc tuyên bố đã dựng biến thể chord group. Chưa đối chiếu bản thu với APK gốc.
+
+## Hợp âm đang ngân, 24-10-2026
 
 - Đối chiếu `Tracks.GroupPlayChord`: khi hợp âm đổi, các channel melodic chưa nhả và Length >= 1000 được mở lại theo `Track.CalcChordKey`. Trước đó ORGX chỉ map note-on mới.
 - ReferenceRhythmPlayer giữ key/length/touch của note-on gốc; khi targetChord đổi ở chế độ FULL/FOLLOW CHORD, map lại nốt dài đang giữ, mở Playback với sample đúng cao độ và cùng ID, tune, balance, pitchMove, pedal, expression. Không chạy lại script touch vì đường gốc gọi Channels trực tiếp. Voice cũ bị cắt để tránh chồng tiếng; note-off vẫn tìm theo ID gốc. Key Repeat không được coi là note-on dài của pattern.

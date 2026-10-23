@@ -8,6 +8,7 @@ class KeyboardChordInput {
     private var singles:List<Int> = emptyList()
     private var lastLibrary:List<PlayableChord> = emptyList()
     @Volatile var chord:Int?=null;private set
+    @Volatile var octaveMove=0;private set
     @Synchronized fun configureSingleFinger(enabled:Boolean,masks:List<Int>,library:List<PlayableChord>){
         configureChordMode(if(enabled)1 else 0,masks,library)
     }
@@ -33,12 +34,12 @@ class KeyboardChordInput {
             val mapped=duals[mask]
             if(mapped!=null && ReferenceChordMatcher.find(mapped,library)!=null)mask=mapped
         }
-        ReferenceChordMatcher.find(mask,library)?.let{chord=it}
+        ReferenceChordMatcher.find(mask,library)?.let{chord=it;octaveMove=held.last()/12}
     }
     @Synchronized fun release(note:Int):Boolean {
         val removed=held.remove(note)
         if(removed)detect(lastLibrary)
         return removed
     }
-    @Synchronized fun reset(){held.clear();chord=null}
+    @Synchronized fun reset(){held.clear();chord=null;octaveMove=0}
 }

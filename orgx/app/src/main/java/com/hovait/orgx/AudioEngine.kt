@@ -55,6 +55,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var styleAutoFill=false
     @Volatile var importedRhythmName:String?=null
     @Volatile var chordIndex = 0
+    @Volatile var chordControl=0
+        set(value){require(value in 0..4);field=value}
+    fun selectedSetChordOctave():Int=if(leftChordEnabled && !autoChord)keyboardChordInput.octaveMove else 0
     @Volatile private var autoChordMap=AutoChordProgression(emptyList())
     @Volatile var referenceChords: List<PlayableChord> = emptyList()
         set(value){autoChordMap=AutoChordProgression(value);field=value}

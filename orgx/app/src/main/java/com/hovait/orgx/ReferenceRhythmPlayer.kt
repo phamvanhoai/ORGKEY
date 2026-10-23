@@ -25,12 +25,19 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private data class Voice(var note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,var eventId:Int=0,var touchGain:Double=1.0,val tune:Int=0,val samplePan:Int=0,val repeat:ImportedKeyRepeat?=null,var sourceNote:Int=note,var sourceLength:Long=0,var sourceTouch:Int=100)
     private var chordTarget:(()->Int?)?=null
     private var lastChordTarget:Int?=null
-    fun withChordFollowing(target:(()->Int?)?)=also{chordTarget=target;lastChordTarget=null}
+    private var chordControl:()->Int={0}
+    private var chordOctaveMove:()->Int={0}
+    private var lastChordControl=0
+    private var lastChordOctaveMove=0
+    fun withChordFollowing(control:()->Int={0},octaveMove:()->Int={0},target:(()->Int?)?)=also{
+        chordTarget=target;chordControl=control;chordOctaveMove=octaveMove;lastChordTarget=null
+    }
     /** Tracks.GroupPlayChord reopens only held melodic notes of length >=1000. */
     private fun refreshChord(){
         val target=chordTarget?.invoke() ?: return
-        if(lastChordTarget==target)return
-        lastChordTarget=target
+        val control=chordControl();val octave=chordOctaveMove()
+        if(lastChordTarget==target && lastChordControl==control && lastChordOctaveMove==octave)return
+        lastChordTarget=target;lastChordControl=control;lastChordOctaveMove=octave
         if(!accompaniment)return
         voices.entries.forEach{entry->
             val voice=entry.value

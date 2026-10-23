@@ -115,6 +115,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         }
     }
     LaunchedEffect(Unit){
+        engine.chordControl=preferences.getInt("chordControl",0).coerceIn(0,4)
         engine.setChordDualMappings(ChordDualSettings.decode(preferences.getString("chordDualMappings","").orEmpty()))
         val fileName=preferences.getString("importedSetFile",null)
         val soundName=preferences.getString("importedSetSound",null)
@@ -179,7 +180,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 if(definition!=null){
                     val mode=preferences.getInt("bankMode",0).coerceIn(0,2)
                     val session=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
-                        engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,targetChord=if(mode==2)engine::selectedSetChord else null)}
+                        engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                        chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(mode==2)engine::selectedSetChord else null)}
                     engine.selectImportedStyle(session)
                     engine.bpm=definition.sections.first{it.id==session.currentId}.tempo.coerceIn(40,240)
                 }
@@ -301,6 +303,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             try{
                 val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                    chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,
                     targetChord=if(mode==2)engine::selectedSetChord else null)}
                 if(engine.activeSetFile!=file || engine.activeSetIndex!==index){loaded.close();return@launch}
                 engine.selectImportedStyle(loaded)
@@ -789,7 +792,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                     try{
                         val session=withContext(Dispatchers.IO){
                             ImportedStylePlayer.loadStyle(checkNotNull(setFile),checkNotNull(index),definition,previewAccompaniment,
-                                engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,targetChord=if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
+                                engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                                chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
                         engine.selectImportedStyle(session)
                         preferences.edit().putString("selectedStyleSet",setFile?.name).putInt("selectedSetStyleId",definition.id)
@@ -818,6 +822,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var root by remember { mutableStateOf(names.getOrNull(selected)?.substringBefore(' ') ?: roots.firstOrNull().orEmpty()) }
     val choices=names.withIndex().filter{it.value.substringBefore(' ')==root}
     var inputMode by remember{mutableIntStateOf(engine.chordInputMode)}
+    var chordControl by remember{mutableIntStateOf(engine.chordControl)}
     var editingDual by remember{mutableStateOf(false)}
     var firstKey by remember{mutableIntStateOf(0)}
     var secondKey by remember{mutableIntStateOf(4)}
@@ -831,6 +836,14 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
             listOf("FINGERED","ONE KEY","TWO KEYS").forEachIndexed{index,label->
                 FilterChip(selected=inputMode==index,onClick={engine.setChordInputMode(index);inputMode=index;preferences.edit().putInt("chordInputMode",index).apply()},label={Text(label)},modifier=Modifier.weight(1f).heightIn(min=48.dp))
+            }
+        }
+        Text("CHORD CONTROL",fontWeight=FontWeight.Bold)
+        Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
+            listOf("Manual","Auto","by Chord 1","by Chord 2").forEachIndexed{index,label->
+                FilterChip(selected=chordControl==index,onClick={
+                    engine.chordControl=index;chordControl=index;preferences.edit().putInt("chordControl",index).apply()
+                },label={Text(label)},modifier=Modifier.weight(1f).heightIn(min=48.dp))
             }
         }
         FilterChip(selected=editingDual,onClick={editingDual=!editingDual},label={Text(if(editingDual)"DONE EDITING TWO-KEY CHORDS" else "EDIT TWO-KEY CHORDS")},modifier=Modifier.heightIn(min=48.dp))

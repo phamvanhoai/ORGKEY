@@ -21,14 +21,18 @@ class KeyboardChordInputTest {
         masks[2]=0 // Configuration must retain its own snapshot.
         input.press(62,library)
         assertEquals("D m",library[input.chord!!].name)
+        assertEquals(5,input.octaveMove)
         input.press(48,library)
         assertEquals("C M",library[input.chord!!].name)
         input.release(48)
         assertEquals("D m",library[input.chord!!].name)
         input.release(62)
         assertEquals("D m",library[input.chord!!].name)
+        assertEquals(5,input.octaveMove)
         input.press(74,library)
         assertEquals("D m",library[input.chord!!].name)
+        assertEquals(6,input.octaveMove)
+        input.reset();assertEquals(0,input.octaveMove)
     }
     @Test fun switchingStsReevaluatesHeldKeyAndCanReturnToFingeredInput(){
         val input=KeyboardChordInput()
