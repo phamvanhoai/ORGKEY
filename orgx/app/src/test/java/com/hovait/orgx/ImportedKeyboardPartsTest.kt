@@ -4,6 +4,35 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun highKeyConnectionModeReusesLastVoiceAndTransfersItsNoteIdentity(){
+        val connection=ImportedExpressionEffect(1,true,0,false,false,16,0,0,0,emptyList())
+        val connected=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(32){(it+1).toShort()}),0,32,looping=false)),1000)
+            .withExpressionEffects(listOf(connection))
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,connected)))
+            parts.noteOn(60,1.0);frame(parts,mixer)
+            parts.noteOn(72,0.5)
+            assertEquals(1,parts.activeNotes)
+            // Reused channel keeps its original sample position instead of restarting.
+            assertEquals(2.0/32768,frame(parts,mixer),1e-12)
+            parts.noteOff(60);assertEquals(1,parts.activeNotes)
+            parts.noteOff(72);frame(parts,mixer);assertEquals(0,parts.activeNotes)
+        }finally{mixer.close()}
+    }
+    @Test fun keyConnectionByPedalOnlyReusesVoiceWhilePedalIsDown(){
+        val effect=ImportedExpressionEffect(1,true,0,true,false,16,0,0,0,emptyList())
+        val connected=sound(100).withExpressionEffects(listOf(effect))
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,connected,pedal=false,pedalMode=-1)))
+            parts.noteOn(60,1.0);parts.noteOn(61,1.0)
+            assertEquals(2,parts.activeNotes)
+            parts.pedal(1,true);parts.noteOn(62,1.0)
+            assertEquals(2,parts.activeNotes)
+        }finally{mixer.close()}
+    }
     @Test fun polyPressureSwitchesOnlyMatchingKeyAndChannelPressureSwitchesRemainingParts(){
         fun constant(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,shortArrayOf(value,value)),0,2)),1000)

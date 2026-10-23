@@ -9,3 +9,7 @@ Pitch Shake dùng counter/product int32, phép chia số nguyên cho drift và g
 Kiểm chứng: các lớp ImportedExpressionModeTest, ImportedPitchShakeTest, ImportedVolumeShakeTest, StylePitchShakeIntegrationTest và StyleVolumeShakeTest đều đạt; assembleDebug thành công. Đã cài APK lên thiết bị 88d75c04. Chưa đối chiếu bản thu âm APK cho những Mode này.
 
 Chưa mở automation parameter 7: Track.Play gốc kết hợp Mode với `fKeyConnectionMethod * 16`; cần dựng cấu hình đó trước khi nhận sự kiện này. Key Connection và các chế độ Legato/Mono vẫn chưa được triển khai đầy đủ.
+
+ORGX đã nối nhánh Key Connection có bit mode cao (`mode > 15`) của `Channels._Connection` vào voice MODE/STS. Khi có voice cùng part và MIDI channel còn mở, phím mới tiếp quản voice đó, giữ vị trí sample, chuyển định danh note-off sang phím mới và đổi cao độ theo `StartDelay`/`Speed`. Điều kiện `ByPedal` được giữ; pedal chưa nhấn thì mở voice riêng như gốc.
+
+Chưa mở automation parameter 7. Nhánh mode thấp mở voice mới từ cao độ phím trước, các khác biệt restart theo low nibble, `StopByRelease`, Key Repeat và cấu hình `fKeyConnectionMethod` vẫn cần dựng tiếp trước khi coi Key Connection/Legato/Mono hoàn chỉnh.

@@ -5,7 +5,7 @@ class ImportedKeyboardParts {
     data class Part(val id:Int,val sound:SampledInstrument,val pedal:Boolean=false,
         val enabled:Boolean=true,val fromKey:Int=0,val toKey:Int=127,val inputGain:Double=1.0,
         val pedalMode:Int=0)
-    private data class Note(val part:Int,val channel:Int,val key:Int,val sound:SampledInstrument,
+    private data class Note(val part:Int,val channel:Int,var key:Int,val sound:SampledInstrument,
         val playback:SampledInstrument.Playback,val velocity:Double,var pedal:Boolean,
         val pedalMode:Int,var released:Boolean=false)
     private var parts:Map<Int,Part> = emptyMap()
@@ -21,6 +21,14 @@ class ImportedKeyboardParts {
         require(channel in 0..15 && key in 0..127 && velocity.isFinite() && velocity in 0.0..1.0)
         if(velocity==0.0){noteOff(key,channel);return}
         parts.values.filter{it.enabled && key>=it.fromKey && key<=it.toKey}.forEach{part->
+            val connection=part.sound.keyConnectionEffect
+            val previous=notes.lastOrNull{it.part==part.id && it.channel==channel && !it.released}
+            if(connection!=null && connection.mode>15 && previous!=null && (!connection.byPedal || part.pedal)){
+                previous.key=key
+                previous.pedal=part.pedal
+                previous.playback.connectTo(part.sound.keyboardNote(key),connection)
+                return@forEach
+            }
             if(notes.size>=512)notes.removeAt(0)
             val playback=part.sound.voice(part.sound.keyboardNote(key))
             playback.pitchBend(bends[channel])

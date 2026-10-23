@@ -485,6 +485,10 @@ ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phá
 
 Đã đối chiếu nhánh fallback trong `Track`: khi script không xử lý, áp lực dương đầu tiên đóng voice hiện tại rồi mở sound `InstMode.Aftertouch` bằng lực đánh phím đã lưu. ORGX đã bỏ ngưỡng 0.5, không còn lấy pressure thay cho velocity, đồng thời chỉ chuyển một lần cho mỗi nốt. Cả phím cảm ứng, MIDI Poly Pressure và MIDI Channel Pressure dùng chung quy tắc; channel/key vẫn được tách độc lập. Script `aftertouch` của mode chưa được thực thi nên nhánh script tùy biến vẫn là phần còn thiếu.
 
+## Key Connection mode cao
+
+Đã dựng nhánh `Channels._Connection` dùng mode lớn hơn 15 cho MODE/STS: phím legato mới tái sử dụng voice gần nhất trong đúng part và MIDI channel, không khởi động lại sample; note-off cũ không đóng voice sau khi quyền điều khiển đã chuyển sang phím mới. Cao độ chuyển theo StartDelay/Speed của Effect slot 1 và tôn trọng ByPedal. Nhánh mode thấp, Key Repeat, StopByRelease đầy đủ và automation Effect vẫn còn thiếu; xem [EXPRESSION-MODE-REBUILD.md](EXPRESSION-MODE-REBUILD.md).
+
 Nút Intro khi đang chạy hiện hủy các Intro/Fill đang chờ trước đó, phát đúng Intro vừa chọn một lần rồi quay về Main đang chọn; tránh tình trạng bấm Intro 1 nhưng chạy tiếp chuỗi Intro cũ.
 
 Parser SET hiện giữ lại STS bật trên từng Track: tên, MIDI channel, instrument/system, pedal/mode, chord data và FX block. Dữ liệu STS được lưu trong `ImportedTrack.sts` để bước áp dụng snapshot tiếp theo không phải đọc lại file.

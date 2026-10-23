@@ -18,6 +18,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var aftertouchInstrument:SampledInstrument?=null
     private var expressionEffects:List<ImportedExpressionEffect> = emptyList()
     fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{expressionEffects=effects.toList()}
+    val keyConnectionEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==1 && it.enabled}
     var keyboardSettings=ImportedChannelSettings();private set
     private var keyboardMelodic=true
     fun withKeyboardSettings(settings:ImportedChannelSettings,melodic:Boolean)=also{keyboardSettings=settings;keyboardMelodic=melodic}
@@ -41,7 +42,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val children=layers.map{it.voice(note,tune,pan)}
-        private val step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
+        private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
+        private var connectionTarget=step
+        private var connectionDelta=0.0
+        private var connectionDelay=0
         private var bendSemitones=0.0
         private var bentStep=step
         private var aftertouch=false
@@ -52,6 +56,17 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             require(nextStep.isFinite() && nextStep>0){"Pitch bend exceeds supported playback range"}
             bendSemitones=semitones;bentStep=nextStep
             children.forEach{it.pitchBend(semitones)};alternate?.pitchBend(semitones)
+        }
+        /** Channels._Connection: keep the current sample position and move its pitch to the new key. */
+        fun connectTo(targetNote:Int,effect:ImportedExpressionEffect){
+            require(targetNote in 0..127 && effect.slot==1)
+            children.forEach{it.connectTo(targetNote,effect)};alternate?.connectTo(targetNote,effect)
+            if(children.isNotEmpty())return
+            val target=pitchStep(targetNote,tune)
+            connectionTarget=target
+            connectionDelay=(effect.startDelay.coerceAtLeast(0).toLong()*outputRate/1000).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+            connectionDelta=if(effect.playbackSpeed==0)target-step else
+                (target-step)*effect.playbackSpeed/(8.192*outputRate)
         }
         fun aftertouch(pressure:Float){
             // Original Track switches to InstMode.Aftertouch on the first
@@ -77,6 +92,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         var right=0.0;private set
         var finished=false;private set
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
+            if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
+                step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
+                bentStep=step*2.0.pow(bendSemitones/12.0)
+            }
             pitchShake?.next(noteOff,pedal)
             val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)
             if(aftertouch){alternate?.next(noteOff,pedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true

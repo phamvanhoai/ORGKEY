@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun keyConnectionRetargetsPitchWithoutRestartingSamplePosition(){
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(16){((it+1)*1000).toShort()}),0,0,looping=false)),1000)
+        val playback=instrument.voice(60)
+        playback.next(false)
+        assertEquals(1000.0/32768,playback.left,1e-9)
+        playback.connectTo(72,ImportedExpressionEffect(1,true,0,false,false,16,0,0,0,emptyList()))
+        playback.next(false)
+        assertEquals(2000.0/32768,playback.left,1e-9)
+        playback.next(false)
+        assertEquals(4000.0/32768,playback.left,1e-9)
+    }
     @Test fun aftertouchCanOutlivePrimaryAndRepeatedPressureDoesNotRestartIt(){
         fun sound(samples:ShortArray)=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(48000,1,samples),0,0,looping=false)),48000)
