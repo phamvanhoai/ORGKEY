@@ -4,6 +4,10 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun commentedSliderDoesNotInitializeVariables(){
+        val session=ImportedScriptSession("// setting(slider, name:\"move\", title:\"Move\", reset:-2, from:-12, to:12);\nmain() { count=0; }")
+        assertTrue(session.sliders.isEmpty())
+    }
     @Test fun originalLegatoSliderInitializesConnectionOffset(){
         val source="main() { setting(slider, name:\"legato_move\", title:\"Legato from\", reset:-2, from:-12, to:12); } on(touch) { play(connectkey:key+legato_move,connectspeed:50); return(true); }"
         val session=ImportedScriptSession(source)

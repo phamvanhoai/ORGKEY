@@ -5,6 +5,13 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalLegatoWithSettingUsesDefaultLowerPitch(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)
+            .withModeScript(original("Legato/Legato from + Setting.Script"))
+        val voice=source.voice(60);voice.next(false);voice.next(false)
+        assertTrue(voice.left>0.0 && voice.left<100.0/32768)
+    }
     @Test fun velocityConditionSelectsDifferentVoiceGainThroughPlayback(){
         val source=sound().withModeScript("on(touch) { if (velocity < 100) { play(volume:25); } else { play(volume:75); } return(true); }")
         val soft=source.voice(60,scriptVelocity=50);soft.next(false)
