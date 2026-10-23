@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun stsNewNoteReceivesLatchedRawBendOnItsChannel(){
+        // Use raw level in an event whose value can be observed on the next touch.
+        val actual=sound().withModeScript("main() { gain=100; } on(pitchbend) { gain=level; return(true); } on(touch) { play(volume:gain); return(true); }")
+        val parts=ImportedKeyboardParts()
+        parts.replace(listOf(ImportedKeyboardParts.Part(1,actual)))
+        parts.pitchBend(12.0,3,50);parts.noteOn(60,1.0,3)
+        val next=actual.voice(60);next.next(false)
+        assertEquals(.125,next.left,1e-12)
+        parts.reset()
+    }
     @Test fun rawMidiBendLevelIsIndependentOfSemitoneRange(){
         val source=sound().withModeScript("main() { gain=0; } on(pitchbend) { gain=level; return(true); } on(touch) { play(volume:gain); return(true); }")
         val first=source.voice(60);first.pitchBend(12.0,scriptLevel=50)

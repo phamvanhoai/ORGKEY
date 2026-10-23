@@ -11,6 +11,7 @@ class ImportedKeyboardParts {
     private var parts:Map<Int,Part> = emptyMap()
     private val notes=ArrayList<Note>()
     private val bends=DoubleArray(16)
+    private val scriptBends=arrayOfNulls<Int>(16)
     private val modulation=IntArray(16)
     val activeNotes:Int get()=notes.size
     fun setScriptSlider(part:Int,expectedSound:SampledInstrument,name:String,value:Int):Boolean {
@@ -42,7 +43,7 @@ class ImportedKeyboardParts {
             val playback=part.sound.voice(part.sound.keyboardNote(key),scriptVelocity=(velocity*127).toInt().coerceAtLeast(1))
             if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || part.pedal))
                 playback.connectFrom(part.sound.keyboardNote(previous.key),connection)
-            playback.pitchBend(bends[channel])
+            playback.pitchBend(bends[channel],scriptBends[channel])
             if(part.pedal)playback.scriptPedal(true)
             if(modulation[channel]!=0)playback.modulate(modulation[channel])
             notes.add(Note(part.id,channel,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode,
@@ -66,6 +67,8 @@ class ImportedKeyboardParts {
     }
     fun pitchBend(semitones:Double,channel:Int=0,scriptLevel:Int?=null){
         require(channel in 0..15 && semitones.isFinite() && kotlin.math.abs(semitones)<=48)
+        require(scriptLevel==null || scriptLevel in -8192..8191)
+        scriptBends[channel]=scriptLevel
         bends[channel]=semitones;notes.filter{it.channel==channel}.forEach{it.playback.pitchBend(semitones,scriptLevel)}
     }
     fun pressure(key:Int,value:Float,channel:Int=0){
@@ -93,12 +96,12 @@ class ImportedKeyboardParts {
             mixer.add(note.sound,note.playback.left*note.velocity,note.playback.right*note.velocity)
             if(note.repeat?.next(note.released,pedalRelease)==true){
                 val playback=note.sound.voice(note.sound.keyboardNote(note.key),autoRelease=true,effectsAllowed=false)
-                playback.pitchBend(bends[note.channel])
+                playback.pitchBend(bends[note.channel],scriptBends[note.channel])
                 repeated.add(Note(note.part,note.channel,note.key,note.sound,playback,note.velocity,note.pedal,note.pedalMode))
             }
             if(note.playback.finished)iterator.remove()
         }
         notes.addAll(repeated)
     }
-    fun reset(){notes.clear();bends.fill(0.0);modulation.fill(0)}
+    fun reset(){notes.clear();bends.fill(0.0);scriptBends.fill(null);modulation.fill(0)}
 }
