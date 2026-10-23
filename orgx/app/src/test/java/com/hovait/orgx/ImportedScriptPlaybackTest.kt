@@ -5,6 +5,18 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalModulationShakeRunsBothSignedBranches(){
+        fun render(level:Int):Double {
+            val source=SampledInstrument(listOf(InstrumentRegion(60,
+                SamplePcm(1000,1,ShortArray(4000){(it%100*200).toShort()}),0,4000)),1000)
+                .withModeScript(original("Shake/Modulation Shake.Script"))
+            val voice=source.voice(60);voice.modulate(level)
+            var sum=0.0;repeat(500){voice.next(false);sum+=voice.left}
+            return sum
+        }
+        assertNotEquals(render(0),render(100),1e-9)
+        assertNotEquals(render(100),render(-100),1e-9)
+    }
     @Test fun effectReadsUseSetValuesRegardlessOfLoaderOrder(){
         val effect=ImportedExpressionEffect(2,false,0,false,false,0,25,20,0,emptyList())
         val script="on(touch) { play(volume:effect[2].Depth); return(true); }"

@@ -24,6 +24,10 @@ class ImportedKeyboardPartQueue {
         commands.add{parts.noteOn(note,velocity,channel)}
     }
     fun noteOff(note:Int,channel:Int=0){commands.add{parts.noteOff(note,channel)}}
+    fun modulate(level:Int,channel:Int=0){
+        require(channel in 0..15 && level in -127..127)
+        commands.add{parts.modulate(level,channel)}
+    }
     fun updateScriptSlider(sound:SampledInstrument,name:String,value:Int,isCurrent:()->Boolean,completed:(Boolean)->Unit){
         commands.add{
             val slider=sound.scriptSliders.singleOrNull{it.name==name.lowercase()}
