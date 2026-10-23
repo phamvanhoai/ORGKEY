@@ -49,7 +49,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private fun applyScriptEffects(changes:List<ImportedSimpleScript.EffectChange>){
                 var updated=expressionEffects
                 changes.forEach{change->
-                    val old=updated.firstOrNull{it.slot==change.slot} ?: ImportedExpressionEffect(change.slot,false,0,false,false,0,0,0,0,emptyList())
+                    val old=updated.firstOrNull{it.slot==change.slot} ?: ImportedExpressionEffect.default(change.slot)
                     val next=when(change.property){
                         "enable"->old.copy(enabled=change.value!=0)
                         "startdelay"->old.copy(startDelay=change.value)

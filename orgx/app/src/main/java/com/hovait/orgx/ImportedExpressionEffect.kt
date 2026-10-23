@@ -10,6 +10,13 @@ data class ImportedExpressionEffect(val slot:Int,val enabled:Boolean,val startDe
     /** Effect.getSpeed(): mode overrides playback without destroying saved Speed. */
     val playbackSpeed:Int get()=if(mode==1 || mode==2)0 else speed
     companion object {
+        fun default(slot:Int):ImportedExpressionEffect {
+            require(slot in 0..7)
+            val delay=when(slot){0->60;2->100;3->120;else->0}
+            val speed=when(slot){0->70;1->250;2->20;3->30;else->0}
+            val depth=when(slot){1->120;2,3->50;else->0}
+            return ImportedExpressionEffect(slot,false,delay,false,slot==1,0,speed,depth,if(slot==3)120 else 0,emptyList())
+        }
         fun decode(slot:Int,bytes:ByteArray):ImportedExpressionEffect {
             require(slot in 0..7 && bytes.size==40){"Invalid expression Effect record"}
             val reader=ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
