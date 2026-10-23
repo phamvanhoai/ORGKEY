@@ -7,7 +7,9 @@ data class ImportedModeScript(val source:String,val events:List<String>,val vari
     /** Bodies in declaration order; comments and string literals are masked. */
     fun eventBodies(event:String):List<String> {
         val code=mask(source)
-        return eventPattern.findAll(code).filter{it.groupValues[1].equals(event,true)}.map{declaration->
+        val declarations=if(event.equals("main",true))Regex("(?i)\\bmain\\s*\\(\\s*\\)\\s*\\{").findAll(code)
+            else eventPattern.findAll(code).filter{it.groupValues[1].equals(event,true)}
+        return declarations.map{declaration->
             val start=declaration.range.last+1
             var depth=1;var end=start
             while(end<code.length && depth>0){

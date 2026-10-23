@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun mainInitializesOnceAndSessionsHaveIndependentState(){
+        val source="main() { count = 0; } on(touch) { count = count + 1; play(volume:count); return(true); }"
+        val first=ImportedScriptSession(source);val second=ImportedScriptSession(source)
+        assertEquals(1,first.event("touch").plays.single().parameters["volume"])
+        assertEquals(2,first.event("touch").plays.single().parameters["volume"])
+        assertEquals(1,second.event("touch").plays.single().parameters["volume"])
+    }
     @Test fun scriptStatePersistsAcrossEventsButFailedEventDoesNotCommit(){
         val state=mutableMapOf("touch_count" to 0)
         val script=ImportedModeScript.parse("on(touch) { touch_count = touch_count + 1; play(volume:touch_count); return(true); }")
