@@ -37,7 +37,7 @@ object ImportedSimpleScript {
                     ?: throw IllegalArgumentException("Unsupported script statement: $statement")
                 val arguments=call.groupValues[2].trim()
                 if(call.groupValues[1].equals("return",true)) {
-                    val value=when(arguments.lowercase()){"true"->true;"false","0"->false;"1"->true;else->throw IllegalArgumentException("Unsupported script return")}
+                    val value=expression(arguments,context())!=0
                     handled=value
                     return result(handled)
                 }

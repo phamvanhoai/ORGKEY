@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun returnExpressionTreatsEveryNonzeroResultAsHandled(){
+        val condition=ImportedModeScript.parse("on(aftertouch) { return(velocity > 0); }")
+        assertTrue(ImportedSimpleScript.evaluate(condition,"aftertouch",mapOf("velocity" to 60)).handled)
+        assertFalse(ImportedSimpleScript.evaluate(condition,"aftertouch",mapOf("velocity" to 0)).handled)
+        assertTrue(ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch) { return(-2); }"),"touch").handled)
+    }
     @Test fun dynamicLegatoCompoundConditionUsesStoredKeyAndVelocity(){
         val script=ImportedModeScript.parse("on(touch) { if (touch_old != -1 && velocity < 100) play(connectkey:touch_old,connectspeed:Max(5,velocity)); }")
         assertTrue(ImportedSimpleScript.evaluate(script,"touch",mapOf("touch_old" to -1,"velocity" to 50)).plays.isEmpty())
