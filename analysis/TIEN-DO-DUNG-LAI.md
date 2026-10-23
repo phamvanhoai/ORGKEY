@@ -108,3 +108,9 @@ Lifecycle bàn phím: Activity onPause/onResume cập nhật keyboardActive vào
 - Stop(id:id,cut) rồi Play không cộng dồn tiếng cũ; Play rồi Stop(cut) trong cùng callback tạo im lặng. Nốt timer mới kế thừa bend, balance và modulation đang giữ.
 - Đã build assembleDebug và chạy ImportedScriptPlaybackTest, ImportedSimpleScriptTest, ReferenceRhythmPlayerTest thành công; thêm hai kiểm tra PCM cho thứ tự Stop/Play. Đã cài APK và mở MainActivity trên thiết bị thành công.
 - Giới hạn: timer chỉ điều khiển ID của nốt sở hữu; StopAll và Stop sang ID khác chưa hỗ trợ. Chưa xác nhận tương đương toàn bộ APK gốc.
+### 2026-10-24 — Phát tiếng từ sự kiện nhả phím DNC
+- Đối chiếu InstMode callback play -> Channels.OpenKey: callback không giới hạn Play ở touch. ORGX nay nhận Play trong release cho ID của nốt sở hữu, thay vì luôn báo unsupported.
+- Release xác thực sound/pitch, ID, giới hạn voice và effect trước commit state; áp dụng Stop/Play theo thứ tự qua applyOrderedAudio, kế thừa bend/balance/modulation. return(true) giữ quyền xử lý nhả phím cho script; release chỉ chạy một lần dù audio tiếp tục nhận noteOff.
+- Kiểm tra PCM: đổi sample khi nhả riêng ID37 trong khi ID38 tiếp tục, không nhân tiếng khi gọi next(true) nhiều lần; Play rồi Stop(cut) im lặng; sound99 không tồn tại rollback biến và dùng release mặc định.
+- assembleDebug thành công; 145 kiểm tra trong ImportedScriptPlaybackTest (85), ImportedSimpleScriptTest (31), ImportedKeyboardPartsTest (17), ReferenceRhythmPlayerTest (12) đạt. Đã cài và mở APK trên thiết bị 88d75c04.
+- Còn giới hạn: Play/Stop ở release chỉ dùng ID sở hữu, chưa có scheduler toàn Channels cho cross-ID/StopAll. Chưa kiểm chứng trên SET thực có release script tương ứng; không kết luận giống toàn bộ APK.

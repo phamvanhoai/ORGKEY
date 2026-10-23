@@ -442,8 +442,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(noteOff && ownsScriptEvents && !scriptReleased){
                 scriptReleased=true
                 runCatching{scriptSession?.event("release",mapOf("id" to scriptId,"key" to currentKey,"velocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->
-                    require(result.plays.isEmpty()){"Release audio commands are not supported yet"}
-                    require(result.audio.all{it is ImportedSimpleScript.Stop && it.id==scriptId}){"Release Stop must target its own note ID"}
+                    validateScriptAudio(result)
+                    require(result.audio.all{command->when(command){
+                        is ImportedSimpleScript.Play->(command.parameters["id"] ?: scriptId)==scriptId
+                        is ImportedSimpleScript.Stop->command.id==scriptId
+                        is ImportedSimpleScript.StopAll->false
+                    }}){"Release audio must target its own note ID"}
+                    require(children.count{!it.finished}+result.plays.size<=128){"Release script exceeds voice limit"}
                     require(result.effects.all{it.slot in 2..3}){"Unsupported release effect slot"}
                 }?.also{result->
                     releaseHandled=result.handled
@@ -452,9 +457,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                         val effect=expressionEffects.first{it.slot==slot}
                         if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
                     }
-                    result.audio.filterIsInstance<ImportedSimpleScript.Stop>().forEach{command->
-                        children.filter{it.scriptId==command.id}.forEach{if(command.cut)it.cut() else it.forceRelease()}
-                    }
+                    applyOrderedAudio(result)
                     if(result.audio.isNotEmpty())scriptStatus="Release script active"
                 }}.onFailure{timerOwner?.let{scriptSession?.cancelTimer(it)};scriptStatus="Release fallback: ${it.message}"}
             }

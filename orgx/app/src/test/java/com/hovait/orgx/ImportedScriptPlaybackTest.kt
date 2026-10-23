@@ -5,6 +5,40 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun releaseScriptReplacesOwnSoundAndRunsOnlyOnce(){
+        fun constant(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){value}),0,128)),1000)
+        val source=constant(8192).withScriptSounds(mapOf(0 to constant(8192),1 to constant(16384)),0)
+            .withModeScript("""
+                on(touch){play(id:id,key:key);return(true);}
+                on(release){stop(id:id,cut);play(id:id,key:key,sound:1,volume:50);return(true);}
+            """.trimIndent())
+        val selected=source.voice(60,scriptId=37)
+        val other=source.voice(64,scriptId=38)
+        selected.next(false);other.next(false)
+        repeat(8){selected.next(true);other.next(false);assertEquals(.25,selected.left,1e-12);assertEquals(.25,other.left,1e-12)}
+        assertEquals("Release script active",source.scriptStatus)
+        selected.forceRelease();selected.next(true);assertTrue(selected.finished)
+        assertFalse(other.finished)
+    }
+    @Test fun releaseScriptPreservesPlayThenCutOrder(){
+        val voice=sound().withModeScript("""
+            on(touch){play(id:id);return(true);}
+            on(release){stop(id:id,cut);play(id:id);stop(id:id,cut);return(true);}
+        """.trimIndent()).voice(60)
+        voice.next(false);assertEquals(.25,voice.left,1e-12)
+        voice.next(true);assertEquals(0.0,voice.left,0.0);assertTrue(voice.finished)
+    }
+    @Test fun releasePlayWithUnavailableSoundDoesNotCommitState(){
+        val source=sound().withScriptSounds(mapOf(0 to sound()),0).withModeScript("""
+            main(){level=100;}
+            on(touch){play(volume:level);return(true);}
+            on(release){level=25;play(id:id,sound:99);return(true);}
+        """.trimIndent())
+        val first=source.voice(60);first.next(false);first.next(true)
+        assertTrue(first.finished)
+        assertTrue(source.scriptStatus,source.scriptStatus.startsWith("Release fallback"))
+        val next=source.voice(60);next.next(false);assertEquals(.25,next.left,1e-12)
+    }
     @Test fun aftertouchScriptReplacesOwnSoundAndSuppressesStoredAlternate(){
         fun constant(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){value}),0,128)),1000)
         val source=constant(8192).withAftertouch(constant(24576))
