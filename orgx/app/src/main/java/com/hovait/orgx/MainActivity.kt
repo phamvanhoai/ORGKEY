@@ -90,7 +90,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 val loaded=withContext(Dispatchers.IO){
                     val (file,sound)=ImportedSoundSelection.resolve(File(context.filesDir,"ReferenceSets"),fileName,soundName)
                     val index=ImportedSetInstruments.index(file)
-                    Triple(ImportedInstrumentLoader.load(file,sound,index.systems.firstOrNull(),musicSettings=index.musicSettings,keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=index.sourceVersion),file,index)
+                    Triple(ImportedInstrumentLoader.load(file,sound,index.systems.firstOrNull(),musicSettings=index.musicSettings,keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=index.sourceVersion,scriptOverrides=ImportedDncPreferences(context).read(file,sound)),file,index)
                 }
                 // A user may have changed voices while the file was loading.
                 if(preferences.getString("importedSetFile",null)==fileName && preferences.getString("importedSetSound",null)==soundName){
@@ -302,7 +302,7 @@ private fun ORGXApp(engine: AudioEngine) {
                                         bankBusy=true;bankStatus="LOADING VOICE..."
                                         try{
                                             val sound=voiceSounds[chosen];val file=checkNotNull(engine.activeSetFile)
-                                            val loaded=withContext(Dispatchers.IO){val bank=engine.activeSetIndex;ImportedInstrumentLoader.load(file,sound,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=bank?.sourceVersion ?: "1.4.6")}
+                                            val loaded=withContext(Dispatchers.IO){val bank=engine.activeSetIndex;ImportedInstrumentLoader.load(file,sound,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=bank?.sourceVersion ?: "1.4.6",scriptOverrides=ImportedDncPreferences(context).read(file,sound))}
                                             engine.importedInstrument=loaded;engine.importedInstrumentName=sound.name;restoredSetName=sound.name
                                             preferences.edit().remove("selectedStsSet").putString("importedSetFile",file.name).putString("importedSetSound",sound.name).apply()
                                             bankStatus="SELECTED: ${sound.name}"
@@ -619,7 +619,7 @@ private fun ORGXApp(engine: AudioEngine) {
             OutlinedButton(enabled=!importing,onClick={scope.launch{
                 importing=true
                 try{
-                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item,setIndex?.systems?.firstOrNull(),musicSettings=setIndex?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=setIndex?.sourceVersion ?: "1.4.6")}
+                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item,setIndex?.systems?.firstOrNull(),musicSettings=setIndex?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=setIndex?.sourceVersion ?: "1.4.6",scriptOverrides=ImportedDncPreferences(context).read(checkNotNull(setFile),item))}
                     engine.importedInstrument=loaded;engine.importedInstrumentName=item.name
                     preferences.edit().remove("selectedStsSet").putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).apply()
                     importStatus="Keyboard: ${item.name}. Select a built-in voice in Mixer to switch back."
@@ -870,7 +870,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 Text(entry.title,Modifier.fillMaxWidth().background(Muted).padding(8.dp),fontWeight=FontWeight.Bold)
             }else{
                 var value by remember(scriptSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
-                fun change(next:Int){engine.setScriptSlider(scriptSound,setting.name,next){accepted->if(accepted)scriptScope.launch{value=next}}}
+                fun change(next:Int){engine.setScriptSlider(scriptSound,setting.name,next){accepted->if(accepted)scriptScope.launch{value=next;ImportedDncPreferences(context).save(scriptSound.scriptSettingsKey,setting.name,next)}}}
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
                     Text(setting.title,Modifier.weight(1f))
                     if(setting.toggle){

@@ -17,6 +17,13 @@ class ImportedModeTest {
             assertTrue(sound.scriptStatus,sound.scriptStatus.startsWith("Mode script loaded"))
             assertEquals(35,sound.scriptSliderValues["level"])
             assertEquals(80,sound.scriptSliders.single().reset)
+            val selected=original.copy(modes=listOf(mode))
+            val overridden=ImportedInstrumentLoader.load(file,selected,scriptOverrides=mapOf("level" to "42"))
+            assertEquals(42,overridden.scriptSliderValues["level"])
+            assertEquals(80,overridden.scriptSliders.single().reset)
+            assertNotNull(overridden.scriptSettingsKey)
+            assertEquals(sound.scriptSettingsKey,overridden.scriptSettingsKey)
+            assertNotEquals(overridden.scriptSettingsKey,ImportedDncPreferences.key(file,selected.copy(modes=listOf(mode.copy(name="Other mode")))))
             sound.setScriptSlider("level",80)
             assertEquals(80,sound.scriptSliderValues["level"])
         }finally{file.delete()}

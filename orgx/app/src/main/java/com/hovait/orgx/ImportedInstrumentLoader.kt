@@ -56,7 +56,7 @@ object ImportedInstrumentLoader {
             }
     }
     fun load(file:File,instrument:ImportedInstrument,system:ImportedSystem?=null,settings:ImportedChannelSettings?=null,
-        musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false,keyConnectionMethod:Int=0,sourceVersion:String="1.4.6"):SampledInstrument {
+        musicSettings:ImportedChannelSettings=ImportedChannelSettings(),aftertouch:Boolean=false,keyConnectionMethod:Int=0,sourceVersion:String="1.4.6",scriptOverrides:Map<String,String> = emptyMap()):SampledInstrument {
         if(instrument.modes.isNotEmpty()){
             require(modeReferenceError(instrument)==null){modeReferenceError(instrument).orEmpty()}
             val layers=layers(instrument,aftertouch)
@@ -68,7 +68,8 @@ object ImportedInstrumentLoader {
             val decoded=uniqueLayers.associateWith{load(file,it,system,modeSettings,musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=sourceVersion)}
             val loaded=SampledInstrument.combine(layers.map{decoded.getValue(it).copySampleSource()})
                 .withExpressionEffects(if(settings==null)ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(instrument.modes.first().effects,sourceVersion,keyConnectionMethod) else emptyList())
-                .withModeScript(instrument.modes.first().script,instrument.modes.first().scriptSettings)
+                .withModeScript(instrument.modes.first().script,instrument.modes.first().scriptSettings+scriptOverrides)
+            loaded.scriptSettingsKey=ImportedDncPreferences.key(file,instrument)
             if(alternateLayers.isNotEmpty()){
                 val alternate=SampledInstrument.combine(alternateLayers.map{decoded.getValue(it).copySampleSource()})
                 loaded.withAftertouch(alternate)
