@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun handledPitchBendSuppressesDefaultPitchChange(){
+        fun source()=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)
+        val handled=source().withModeScript("on(pitchbend) { return(true); }").voice(60)
+        val fallback=source().withModeScript("on(pitchbend) { return(false); }").voice(60)
+        handled.pitchBend(12.0);fallback.pitchBend(12.0)
+        handled.next(false);handled.next(false);fallback.next(false);fallback.next(false)
+        assertEquals(100.0/32768,handled.left,1e-12)
+        assertEquals(200.0/32768,fallback.left,1e-12)
+    }
     @Test fun excessiveScriptNestingFallsBackWithoutStackOverflow(){
         val source="on(touch) { return("+"(".repeat(200)+"1"+")".repeat(200)+"); }"
         val voice=sound().withModeScript(source).voice(60)

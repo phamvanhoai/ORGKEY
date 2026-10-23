@@ -137,6 +137,19 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var alternate:Playback?=null
         fun pitchBend(semitones:Double){
             require(semitones.isFinite()){"Pitch bend must be finite"}
+            if(ownsScriptEvents){
+                val handled=runCatching{scriptSession?.event("pitchbend",mapOf("level" to
+                    (semitones/2.0*8192).toInt().coerceIn(-8192,8191))){result->
+                    require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
+                }?.also{result->
+                    applyScriptEffects(result.effects)
+                    result.effects.map{it.slot}.distinct().forEach{slot->
+                        val effect=expressionEffects.first{it.slot==slot}
+                        if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
+                    }
+                }?.handled==true}.getOrDefault(false)
+                if(handled)return
+            }
             val nextStep=step*2.0.pow(semitones/12.0)
             require(nextStep.isFinite() && nextStep>0){"Pitch bend exceeds supported playback range"}
             bendSemitones=semitones;bentStep=nextStep
