@@ -5,6 +5,12 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun rawMidiBendLevelIsIndependentOfSemitoneRange(){
+        val source=sound().withModeScript("main() { gain=0; } on(pitchbend) { gain=level; return(true); } on(touch) { play(volume:gain); return(true); }")
+        val first=source.voice(60);first.pitchBend(12.0,scriptLevel=50)
+        val next=source.voice(60);next.next(false)
+        assertEquals(.125,next.left,1e-12)
+    }
     @Test fun handledPitchBendSuppressesDefaultPitchChange(){
         fun source()=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)

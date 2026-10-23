@@ -40,9 +40,9 @@ class ImportedKeyboardPartQueue {
         commands.add{completed(parts.setScriptSlider(part,expectedSound,name,value))}
     }
     fun pedal(down:Boolean){commands.add{parts.pedalAll(down)}}
-    fun pitchBend(semitones:Double,channel:Int=0){
+    fun pitchBend(semitones:Double,channel:Int=0,scriptLevel:Int?=null){
         require(channel in 0..15 && semitones.isFinite() && kotlin.math.abs(semitones)<=48)
-        commands.add{parts.pitchBend(semitones,channel)}
+        commands.add{parts.pitchBend(semitones,channel,scriptLevel)}
     }
     fun pressure(note:Int,value:Float,channel:Int=0){
         require(channel in 0..15 && value.isFinite() && value in 0f..1f)

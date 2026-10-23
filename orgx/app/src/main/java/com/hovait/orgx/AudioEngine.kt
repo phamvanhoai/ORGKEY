@@ -188,8 +188,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         pitchState.set(value,channel,playback)
         if(!playback){val bend=value.coerceIn(0,16383);captureMidi(0xe0 or channel,bend and 127,bend shr 7)}
         val semitones=MidiPitchBend.semitones(value)
-        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.pitchBend(semitones,channel)
-        voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
+        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.pitchBend(semitones,channel,value.coerceIn(0,16383)-8192)
+        voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones,value.coerceIn(0,16383)-8192)}
     }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
         autoChordMap.chord(progression,harmonyClock.time) else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)

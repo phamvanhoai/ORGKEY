@@ -64,9 +64,9 @@ class ImportedKeyboardParts {
     fun pedalAll(down:Boolean){
         (parts.keys+notes.map{it.part}).toSet().forEach{pedal(it,down)}
     }
-    fun pitchBend(semitones:Double,channel:Int=0){
+    fun pitchBend(semitones:Double,channel:Int=0,scriptLevel:Int?=null){
         require(channel in 0..15 && semitones.isFinite() && kotlin.math.abs(semitones)<=48)
-        bends[channel]=semitones;notes.filter{it.channel==channel}.forEach{it.playback.pitchBend(semitones)}
+        bends[channel]=semitones;notes.filter{it.channel==channel}.forEach{it.playback.pitchBend(semitones,scriptLevel)}
     }
     fun pressure(key:Int,value:Float,channel:Int=0){
         require(channel in 0..15 && value.isFinite() && value in 0f..1f)
