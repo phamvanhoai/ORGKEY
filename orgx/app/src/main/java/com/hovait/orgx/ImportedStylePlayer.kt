@@ -60,6 +60,7 @@ object ImportedStylePlayer {
                 // Tracks.ReadFromStream assigns channel type 1 to rhythm groups
                 // and Type 3 tracks. Channels.Process excludes that channel type.
                 expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track),keyConnectionMethod=keyConnectionMethod)
+                .withChordFollowing(if(follow && melodic)targetChord else null)
           }
           // An empty/muted section still owns its timing and JumpGroup (notably
           // silent Endings). Keep transport semantics without inventing notes.

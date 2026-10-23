@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — SET/style, 24-10-2026
+## Kết quả mới nhất — hợp âm đang ngân, 24-10-2026
+
+- Đối chiếu `Tracks.GroupPlayChord`: khi hợp âm đổi, các channel melodic chưa nhả và Length >= 1000 được mở lại theo `Track.CalcChordKey`. Trước đó ORGX chỉ map note-on mới.
+- ReferenceRhythmPlayer giữ key/length/touch của note-on gốc; khi targetChord đổi ở chế độ FULL/FOLLOW CHORD, map lại nốt dài đang giữ, mở Playback với sample đúng cao độ và cùng ID, tune, balance, pitchMove, pedal, expression. Không chạy lại script touch vì đường gốc gọi Channels trực tiếp. Voice cũ bị cắt để tránh chồng tiếng; note-off vẫn tìm theo ID gốc. Key Repeat không được coi là note-on dài của pattern.
+- Nốt ngắn, percussion, nốt đang nhả và release-tail của phần trước không được đổi theo đường này. Chế độ original-notes không cài callback đổi hợp âm.
+- Kiểm tra âm thanh mẫu xác nhận C major E chuyển thành C minor Eb (.75 -> .5 trên sample khác), chuyển về C major phục hồi sample, drum giữ nguyên; kiểm tra nốt dài + ngắn và note-off ID. Các nhóm ReferenceChordTransposerTest, ReferenceRhythmPlayerTest, ReferenceStyleTransitionTest đạt; assembleDebug/cài/khởi động thiết bị thành công. Không tạo file test mới.
+- Chưa so bản thu với APK gốc: reset phase/envelope khi mở lại, lựa chọn biến thể group theo chord và ChordControl/octave-move vẫn cần đối chiếu đầy đủ. Không coi đây là hoàn thành toàn bộ cơ chế hợp âm gốc.
+
+## SET/style, 24-10-2026
 
 - Sửa lỗi khóa cả style khi một sound không có sample hoặc track không có vùng sample cho nốt yêu cầu. Đối chiếu `Channels.OpenKey`: i26=-1 không mở channel; các track khác vẫn phát. ORGX giữ sound rỗng ở trạng thái im lặng, không dùng sample mặc định thay thế. Loop/pitch/envelope không hợp lệ vẫn bị từ chối, nay có thông báo nêu track và tham số cụ thể.
 - Giữ phần style không có track phát nốt (kể cả Ending im lặng) cùng timing/JumpGroup; không loại bỏ nút chỉ vì không có note-on.

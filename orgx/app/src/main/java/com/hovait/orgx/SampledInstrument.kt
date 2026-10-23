@@ -143,7 +143,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var forcedRelease=false
         private var countReleased=false
         private var forcedCut=false
-        private fun cut(){forceRelease();forcedCut=true}
+        internal fun cut(){forceRelease();forcedCut=true}
         private var timerOwner:Long?=null
         private var timerFrames=0L
         fun forceRelease(){

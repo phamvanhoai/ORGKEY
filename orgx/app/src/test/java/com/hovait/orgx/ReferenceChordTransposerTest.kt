@@ -4,7 +4,35 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceChordTransposerTest {
+    @Test fun liveChordRevoicesLongHeldNotesButLeavesShortNotesAndNoteOffIdsIntact(){
+        var target=0
+        val events=listOf(ReferenceDrumEvent(2,37,64,100,0,2000),ReferenceDrumEvent(2,38,64,100,0,500),
+            ReferenceDrumEvent(1,37,64,0,20,0),ReferenceDrumEvent(1,38,64,0,20,0))
+        val track=ReferenceDrumTrack("Bass",1,0,32,120,true,0,4000,false,events)
+        val player=ReferenceRhythmPlayer(listOf(track),{10000},{note,_,_->note.toDouble()},1000,true,
+            mapNote={mapper.note(it,0,0,target)}).withChordFollowing{target}
+        player.next(0,120);assertEquals(128.0,player.left,0.0)
+        target=12;player.next(0,120);assertEquals(127.0,player.left,0.0)
+        repeat(30){player.next(0,120)};assertEquals(0.0,player.left,0.0)
+    }
     private val mapper=ReferenceChordTransposer.fromTable("M 0 4 7\nm 0 3 7")
+    @Test fun sustainedChordChangeSelectsNewPcmWithoutChangingDrumTrack(){
+        var target=0
+        val sample=SampledInstrument(listOf(63 to 16384,64 to 24576).map{(key,value)->
+            InstrumentRegion(key,SamplePcm(1000,1,ShortArray(128){value.toShort()}),0,128)
+        },1000,exactNotes=true)
+        val track=ReferenceDrumTrack("Bass",1,0,32,120,true,0,4000,false,listOf(ReferenceDrumEvent(2,37,64,100,0,2000)))
+        fun player(melodic:Boolean)=ReferenceRhythmPlayer(listOf(track),sample::durationFrames,
+            {note,age,channel->sample.sample(note,age.toLong(),channel)},1000,accompaniment=melodic,
+            mapNote={if(melodic)mapper.note(it,0,0,target) else it},sampled=sample).withChordFollowing{target}
+        val bass=player(true);val drum=player(false)
+        bass.next(0,120);drum.next(0,120)
+        assertEquals(.75,bass.left,1e-12);assertEquals(.75,drum.left,1e-12)
+        target=12;bass.next(0,120);drum.next(0,120)
+        assertEquals(.5,bass.left,1e-12);assertEquals(.75,drum.left,1e-12)
+        target=0;bass.next(0,120);assertEquals(.75,bass.left,1e-12)
+        bass.releaseAll();repeat(15){bass.next(0,120)};assertEquals(0.0,bass.left,0.0)
+    }
     @Test fun convertsChordDegreesAndRoot() {
         assertEquals(63,mapper.note(64,0,0,12)) // C major E -> C minor Eb
         assertEquals(71,mapper.note(64,0,0,7)) // C major E -> G major B

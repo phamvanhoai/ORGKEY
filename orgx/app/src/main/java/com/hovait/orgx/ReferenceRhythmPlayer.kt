@@ -22,7 +22,31 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
-    private data class Voice(var note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,var eventId:Int=0,var touchGain:Double=1.0,val tune:Int=0,val samplePan:Int=0,val repeat:ImportedKeyRepeat?=null)
+    private data class Voice(var note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,var eventId:Int=0,var touchGain:Double=1.0,val tune:Int=0,val samplePan:Int=0,val repeat:ImportedKeyRepeat?=null,var sourceNote:Int=note,var sourceLength:Long=0,var sourceTouch:Int=100)
+    private var chordTarget:(()->Int?)?=null
+    private var lastChordTarget:Int?=null
+    fun withChordFollowing(target:(()->Int?)?)=also{chordTarget=target;lastChordTarget=null}
+    /** Tracks.GroupPlayChord reopens only held melodic notes of length >=1000. */
+    private fun refreshChord(){
+        val target=chordTarget?.invoke() ?: return
+        if(lastChordTarget==target)return
+        lastChordTarget=target
+        if(!accompaniment)return
+        voices.entries.forEach{entry->
+            val voice=entry.value
+            if(voice.release>=0 || voice.pendingRelease || voice.sourceLength<1000)return@forEach
+            val note=mapNote(voice.sourceNote)
+            if(note==voice.note)return@forEach
+            if(note !in 0..127){voice.playback?.cut();voice.release=0;return@forEach}
+            val playback=sampled?.voice(note,voice.tune,voice.samplePan,scriptVelocity=voice.sourceTouch and 65535,
+                initialScriptPedal=pedalDown,scriptAllowed=false,scriptId=voice.eventId)?.also{
+                it.channelBalance(keyBalance);it.pitchBend(12*kotlin.math.log2(pitchMove/1000.0))
+                if(expressionAllowed){volumeShake?.let(it::configureVolumeShake);pitchShakeEffect?.let(it::configurePitchShake)}
+            }
+            voice.playback?.cut()
+            entry.setValue(voice.copy(note=note,age=0,playback=playback,envelope=envelope?.voice(sampleRateForEnvelope)))
+        }
+    }
     private val voices=LinkedHashMap<Long,Voice>()
     internal val activeVoices:Int get()=voices.size+children.sumOf{it.activeVoices}
     private var voiceSequence=0L
@@ -152,6 +176,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             clock.seek(offset);current=selected;timeline=tracks[selected].timeline()
         }
         val track=tracks[selected]
+        refreshChord()
         val duration=track.end-track.start
         var local=clock.time-loopOrigin+track.start
         if(track.bounded && duration>0 && local>=track.end){
@@ -228,7 +253,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                     (it.release<0 || connection?.stopByRelease==false)}
                 if(connection!=null && connection.mode>15 && previous!=null && (!connection.byPedal || pedalDown)){
                     previous.release=-1;previous.pendingRelease=false
-                    previous.note=note;previous.eventId=event.id;previous.playback?.connectTo(note,connection)
+                    previous.note=note;previous.eventId=event.id;previous.sourceNote=event.note;previous.sourceLength=event.length;previous.sourceTouch=event.touch;previous.playback?.connectTo(note,connection)
                     return@advance
                 }
                 val samplePan=ImportedNoteTouch.pan(event.touch)
@@ -241,7 +266,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 }
                 voices[voiceSequence++]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=playback,
                     panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1),eventId=event.id,touchGain=keyTouch/100.0,
-                    tune=event.tune,samplePan=samplePan,repeat=if(playback!=null)keyRepeatEffect?.takeIf{expressionAllowed}?.let{ImportedKeyRepeat(it,sampleRateForEnvelope)} else null)
+                    tune=event.tune,samplePan=samplePan,repeat=if(playback!=null)keyRepeatEffect?.takeIf{expressionAllowed}?.let{ImportedKeyRepeat(it,sampleRateForEnvelope)} else null,
+                    sourceNote=event.note,sourceLength=event.length,sourceTouch=event.touch)
             } else if(event.type==1)voices.values.forEach{if(it.eventId==event.id && it.release<0){if(pedalDown)it.pendingRelease=true else it.release=0}}
         }
         renderVoices(track.outputGain)
@@ -259,7 +285,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 left+=voice.playback.left*voice.gain*voice.touchGain*currentChannelGain(0);right+=voice.playback.right*voice.gain*voice.touchGain*currentChannelGain(1)
                 if(voice.repeat?.next(voice.release>=0,pedalDown)==true){
                     val playback=sampled?.voice(voice.note,voice.tune,voice.samplePan,autoRelease=true,effectsAllowed=false,scriptAllowed=false)
-                    if(playback!=null){playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0));repeated.add(voice.copy(playback=playback,envelope=null,release=-1,pendingRelease=false,repeat=null))}
+                    if(playback!=null){playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0));repeated.add(voice.copy(playback=playback,envelope=null,release=-1,pendingRelease=false,repeat=null,sourceLength=0))}
                 }
                 if(voice.playback.finished)iterator.remove()
                 continue
