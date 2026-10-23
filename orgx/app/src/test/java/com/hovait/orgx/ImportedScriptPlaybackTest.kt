@@ -5,6 +5,12 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun mainReadsStoredEffectBeforeUpdatingIt(){
+        val stored=ImportedExpressionEffect(1,true,0,false,false,0,65,0,0,emptyList())
+        val source=sound().withExpressionEffects(listOf(stored))
+            .withModeScript("main() { effect[1].Speed=effect[1].Speed+10; }")
+        assertEquals(75,source.keyConnectionEffect?.speed)
+    }
     @Test fun mainEffectAssignmentsOverrideStoredSetValuesInEitherLoaderOrder(){
         val script="main() { effect[1].enable=true; effect[1].Speed=75; }"
         val stored=listOf(ImportedExpressionEffect(1,false,0,false,false,0,10,0,0,emptyList()))

@@ -36,7 +36,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value);scriptSliderValues=scriptSliderValues+(name.lowercase() to value)}
     fun withModeScript(source:String)=also{
         modeScript=runCatching{ImportedModeScript.parse(source)}.getOrNull()
-        scriptSession=runCatching{ImportedScriptSession(source)}.getOrNull()
+        scriptSession=runCatching{ImportedScriptSession(source,expressionEffects)}.getOrNull()
         scriptSession?.synchronizeEffects(expressionEffects)
         scriptSession?.let{applyScriptEffects(it.initialEffects)}
         scriptSliderValues=scriptSliders.associate{it.name to it.reset}

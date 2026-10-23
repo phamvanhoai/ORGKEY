@@ -1,11 +1,11 @@
 package com.hovait.orgx
 
 /** One initialized variable store per mode execution context. Owned by caller. */
-class ImportedScriptSession(source:String,private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
+class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionEffect> = emptyList(),private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
     private val timeOrigin=clockMillis()
     data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int)
     val sliders:List<Slider>
-    val initialEffects:List<ImportedSimpleScript.EffectChange>
+    var initialEffects:List<ImportedSimpleScript.EffectChange> = emptyList();private set
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
     private var pedalDown=false
@@ -55,6 +55,7 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
         require(sliders.map{it.name}.distinct().size==sliders.size){"Duplicate script slider"}
         sliders.forEach{state[it.name]=it.reset}
         script=ImportedModeScript.parse(declarations.replace(code,""))
+        synchronizeEffects(storedEffects)
         val initialized=ImportedSimpleScript.evaluate(script,"main",state=state)
         require(initialized.plays.isEmpty()){"Audio commands in main are not supported"}
         require(initialized.effects.all{it.slot in 0..3}){"Unsupported main effect slot"}
