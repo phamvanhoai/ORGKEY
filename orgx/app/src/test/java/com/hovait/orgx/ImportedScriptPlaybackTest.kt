@@ -5,6 +5,20 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun noteOpenedUnderHeldPedalReceivesPedalScriptEffects(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(4000){(it%100*200).toShort()}),0,4000)),1000)
+            .withModeScript("on(pedalon) { effect[2].enable=true; effect[2].Depth=100; effect[2].Speed=25; }")
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source,pedal=true)))
+            parts.noteOn(60,1.0)
+            var difference=0.0
+            repeat(500){i->mixer.beginFrame();parts.renderInto(mixer);mixer.finishFrame()
+                difference+=kotlin.math.abs(mixer.left-(i%100*200)/32768.0)}
+            assertTrue(difference>0.0)
+        }finally{mixer.close()}
+    }
     @Test fun sharedSessionRunsPedalAssignmentOnceAcrossSimultaneousVoices(){
         val source=sound().withModeScript("main() { level=25; } on(touch) { play(volume:level); return(true); } on(pedalon) { level=level+25; } on(pedaloff) { level=level-25; }")
         val first=source.voice(60);val second=source.voice(64)

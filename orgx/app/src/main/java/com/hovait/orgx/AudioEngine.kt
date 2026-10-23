@@ -320,6 +320,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
         val voice=Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
         voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback))
+        if(!playback && sustain)voice.sampledPlayback?.scriptPedal(true)
         val modulation=(if(playback)playbackModulation else liveModulation)[channel]
         if(modulation!=0)voice.sampledPlayback?.modulate(modulation)
         voices[key]=voice

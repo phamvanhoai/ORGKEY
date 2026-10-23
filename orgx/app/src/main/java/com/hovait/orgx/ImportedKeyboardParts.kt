@@ -43,6 +43,7 @@ class ImportedKeyboardParts {
             if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || part.pedal))
                 playback.connectFrom(part.sound.keyboardNote(previous.key),connection)
             playback.pitchBend(bends[channel])
+            if(part.pedal)playback.scriptPedal(true)
             if(modulation[channel]!=0)playback.modulate(modulation[channel])
             notes.add(Note(part.id,channel,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode,
                 repeat=part.sound.keyRepeatEffect?.let{ImportedKeyRepeat(it,part.sound.outputSampleRate)}))
