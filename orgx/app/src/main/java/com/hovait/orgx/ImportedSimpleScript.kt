@@ -3,12 +3,15 @@ package com.hovait.orgx
 /** Straight-line subset used by the bundled additive octave scripts.
  * Produces a complete plan before the caller changes any audio state. */
 object ImportedSimpleScript {
-    data class Play(val parameters:Map<String,Int>)
+    sealed interface AudioCommand
+    data class Play(val parameters:Map<String,Int>):AudioCommand
+    data class Stop(val id:Int,val cut:Boolean=false):AudioCommand
     data class EffectChange(val slot:Int,val property:String,val value:Int)
     data class Timer(val interval:Int,val body:String)
-    data class Result(val plays:List<Play>,val handled:Boolean,val effects:List<EffectChange> = emptyList(),val timers:List<Timer> = emptyList(),val timerStopped:Boolean=false,val exitMode:Int?=null)
+    data class Result(val plays:List<Play>,val handled:Boolean,val effects:List<EffectChange> = emptyList(),val timers:List<Timer> = emptyList(),val timerStopped:Boolean=false,val exitMode:Int?=null,val audio:List<AudioCommand> = plays)
     fun evaluate(script:ImportedModeScript,event:String,variables:Map<String,Int> = emptyMap(),state:MutableMap<String,Int>?=null):Result {
         val plays=ArrayList<Play>()
+        val audio=ArrayList<AudioCommand>()
         val effects=ArrayList<EffectChange>()
         val timers=ArrayList<Timer>()
         var exitMode:Int?=null
@@ -23,7 +26,7 @@ object ImportedSimpleScript {
         }
         fun result(handled:Boolean,timerStopped:Boolean=false):Result {
             state?.let{it.clear();it.putAll(pending)}
-            return Result(plays.toList(),handled,effects.toList(),timers.toList(),timerStopped,exitMode)
+            return Result(plays.toList(),handled,effects.toList(),timers.toList(),timerStopped,exitMode,audio.toList())
         }
         var handled=false
         for(body in script.eventBodies(event)) {
@@ -73,7 +76,7 @@ object ImportedSimpleScript {
                     pending[name]=expression(assignment.groupValues[2],context())
                     continue
                 }
-                val call=Regex("(?is)(play|return)\\s*\\((.*?)\\)").matchEntire(statement)
+                val call=Regex("(?is)(play|stop|return)\\s*\\((.*?)\\)").matchEntire(statement)
                     ?: throw IllegalArgumentException("Unsupported script statement: $statement")
                 val arguments=call.groupValues[2].trim()
                 if(call.groupValues[1].equals("return",true)) {
@@ -81,16 +84,20 @@ object ImportedSimpleScript {
                     handled=value
                     return result(handled)
                 }
+                val stop=call.groupValues[1].equals("stop",true)
+                require(!stop || event.equals("modulate",true)){"Stop audio commands in $event are not supported"}
                 val parameters=linkedMapOf<String,Int>()
                 if(arguments.isNotEmpty())for(argument in splitArguments(arguments)) {
                     val pair=argument.split(':',limit=2)
-                    require(pair.size==2){"Invalid play parameter"}
+                    if(stop && argument.trim().equals("cut",true)){parameters["cut"]=1;continue}
+                    require(pair.size==2){"Invalid audio parameter"}
                     val name=pair[0].trim().lowercase()
-                    require(name in setOf("octavemove","keymove","volume","sound","key","velocity","pan","tune","pitchmove","connectkey","connectspeed","autorelease","attack","decay","sustain","release")){"Unsupported play parameter: $name"}
+                    require(if(stop)name=="id" else name in setOf("id","octavemove","keymove","volume","sound","key","velocity","pan","tune","pitchmove","connectkey","connectspeed","autorelease","attack","decay","sustain","release")){"Unsupported audio parameter: $name"}
                     require(name !in parameters){"Duplicate play parameter: $name"}
                     parameters[name]=expression(pair[1],context())
                 }
-                plays.add(Play(parameters.toMap()))
+                if(stop)audio.add(Stop(parameters["id"] ?: 0,parameters["cut"]==1))
+                else Play(parameters.toMap()).let{plays.add(it);audio.add(it)}
             }
         }
         return result(handled)

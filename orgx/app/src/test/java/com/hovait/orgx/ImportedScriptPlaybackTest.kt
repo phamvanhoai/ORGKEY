@@ -5,6 +5,36 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalModulationOctaveStopsAndReplaysOnlyItsSelectedNote(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){(it*100).toShort()}),0,128)),1000)
+            .withModeScript(original("Octave/Modulation Octave.Script"))
+        val first=source.voice(60,scriptId=37)
+        val selected=source.voice(60,scriptId=38)
+        first.next(false);selected.next(false)
+        first.modulate(-20);selected.modulate(-20)
+        first.next(false);selected.next(false)
+        assertEquals(100.0/32768,first.left,1e-12)
+        assertEquals(0.0,selected.left,0.0)
+        selected.next(false);assertEquals(200.0/32768,selected.left,1e-12)
+        selected.modulate(-20) // repeated controller level must not restart/add another octave voice
+        selected.next(false);assertEquals(400.0/32768,selected.left,1e-12)
+        source.updateScriptModulation(0) // engine updates the session before per-voice callbacks
+        first.modulate(0);selected.modulate(0)
+        selected.next(false);assertEquals(0.0,selected.left,0.0)
+        selected.next(false);assertEquals(100.0/32768,selected.left,1e-12)
+        assertFalse(source.scriptStatus,source.scriptStatus.contains("fallback"))
+        first.forceRelease();selected.forceRelease()
+    }
+    @Test fun modulationHonorsPlayThenStopOrderAndCut(){
+        val source=sound().withModeScript("""
+            on(touch){play();return(true);}
+            on(modulate){play(id:37,volume:50);stop(id:37,cut);}
+        """.trimIndent())
+        val voice=source.voice(60,scriptId=37);voice.next(false)
+        voice.modulate(20);voice.next(false)
+        assertEquals(0.0,voice.left,0.0)
+        assertTrue(voice.finished)
+    }
     @Test fun originalModulationOctaveInitializesAndTracksTouchRelease(){
         val original=original("Octave/Modulation Octave.Script")
         val session=ImportedScriptSession(original+"\non(aftertouch){play(volume:touch.count, key:touch.key);}")

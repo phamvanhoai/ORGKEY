@@ -49,7 +49,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         if(activeModeSound!==this)return activeModeSound.updateScriptModulation(level)
         require(level in -127..127)
         runCatching{scriptSession?.modulation(level){result->
-            require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
+            require(result.audio.isEmpty() && result.effects.all{it.slot in 2..3})
         }?.also{applyScriptEffects(it.effects)}}
     }
     fun updateScriptPedal(down:Boolean){
@@ -130,6 +130,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var scriptReleased=false
         private var releaseHandled=false
         private var forcedRelease=false
+        private var forcedCut=false
+        private fun cut(){forceRelease();forcedCut=true}
         private var timerOwner:Long?=null
         private var timerFrames=0L
         fun forceRelease(){
@@ -141,7 +143,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private fun validateScriptAudio(result:ImportedSimpleScript.Result){
                 require(result.effects.all{it.slot in 0..3}){"Unsupported script effect slot"}
-                require(result.plays.all{play->play.parameters.keys.all{it in setOf("sound","key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
+                require(result.plays.all{play->play.parameters.keys.all{it in setOf("id","sound","key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
                 result.plays.forEach{command->
                     val sound=command.parameters["sound"]
                     require(!scriptSoundRouting && sound==null || (sound ?: scriptDefaultSound) in scriptSounds){"Script sound unavailable: ${sound ?: scriptDefaultSound}"}
@@ -155,6 +157,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val scriptPlan=if(scriptAllowed)runCatching{
             scriptSession?.event("touch",mapOf("id" to scriptId,"balance" to pan,"key" to note,"velocity" to scriptVelocity,"pedal" to if(initialScriptPedal)1 else 0)){result->
                 validateScriptAudio(result)
+                require(result.plays.all{it.parameters["id"]==null || it.parameters["id"]==scriptId}){"Touch Play targets another note ID"}
             }?.also{result->
                 applyScriptEffects(result.effects)
                 if(result.timers.isNotEmpty())timerOwner=scriptSession?.timerToken
@@ -167,7 +170,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val playback=source.Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
                 (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),
                 command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity,
-                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,scriptId)
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,command.parameters["id"] ?: scriptId)
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
@@ -303,20 +306,36 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 if(scriptPedal)alternate?.scriptPedal(true)
             }
         }
+        private var appliedModulation:Int?=null
         fun modulate(level:Int){
             require(level in -127..127)
             heldModulation=level
             alternate?.modulate(level)
             if(!ownsScriptEvents)return
+            if(appliedModulation==level)return
             runCatching{scriptSession?.modulation(level){result->
-                require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
+                validateScriptAudio(result)
+                require(result.effects.all{it.slot in 2..3})
+                require(children.count{!it.finished}+result.plays.count{(it.parameters["id"] ?: scriptId)==scriptId}<=128){"Modulation exceeds voice limit"}
             }?.also{result->
+                appliedModulation=level
                 applyScriptEffects(result.effects)
                 result.effects.map{it.slot}.distinct().forEach{slot->
                     val effect=expressionEffects.first{it.slot==slot}
                     if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
                 }
-            }}
+                children.removeAll{it.finished};scriptChildren.removeAll{it.first.finished}
+                result.audio.forEach{command->when(command){
+                    is ImportedSimpleScript.Stop->children.filter{it.scriptId==command.id}.forEach{if(command.cut)it.cut() else it.forceRelease()}
+                    is ImportedSimpleScript.Play->if((command.parameters["id"] ?: scriptId)==scriptId){
+                        val child=createScriptChild(command)
+                        child.first.pitchBend(bendSemitones,bendScriptLevel);child.first.channelBalance(balance)
+                        heldModulation?.let{child.first.modulate(it)}
+                        children.add(child.first);scriptChildren.add(child)
+                    }
+                }}
+                scriptStatus="Modulation script active"
+            }}.onFailure{scriptStatus="Modulation fallback: ${it.message}"}
         }
         fun scriptPedal(down:Boolean){
             alternate?.scriptPedal(down)
@@ -367,6 +386,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             runCatching{
                 session.advanceTimer(owner,timerFrames*1000/outputRate){result->
                     validateScriptAudio(result)
+                    require(result.plays.all{it.parameters["id"]==null || it.parameters["id"]==scriptId}){"Timer Play targets another note ID"}
                     require(children.count{!it.finished}+result.plays.size<=128){"Script timer exceeds voice limit"}
                 }?.let{result->
                     children.removeAll{it.finished}
@@ -388,6 +408,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }.onFailure{scriptStatus="Timer stopped: ${it.message}"}
         }
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
+            if(forcedCut){left=0.0;right=0.0;finished=true;return}
             if(noteOff && ownsScriptEvents && !scriptReleased){
                 scriptReleased=true
                 runCatching{scriptSession?.event("release",mapOf("id" to scriptId,"key" to currentKey,"velocity" to scriptVelocity,"pedal" to if(scriptPedal)1 else 0)){result->

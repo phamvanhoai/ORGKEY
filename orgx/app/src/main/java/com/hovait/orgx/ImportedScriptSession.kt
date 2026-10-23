@@ -43,7 +43,7 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
     private var modulationLevel:Int?=null
     private var modulationResult=ImportedSimpleScript.Result(emptyList(),false)
     fun modulation(level:Int,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
-        if(modulationLevel==level)return currentEffects(modulationResult)
+        if(modulationLevel==level)return currentEffects(modulationResult).also(validate)
         val result=event("modulate",mapOf("level" to level),validate)
         modulationLevel=level;modulationResult=result
         return result
