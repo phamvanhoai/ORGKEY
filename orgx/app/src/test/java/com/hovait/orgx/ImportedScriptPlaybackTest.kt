@@ -5,6 +5,22 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun aftertouchPreservesScriptOctaveLayersAndTheirGain(){
+        val alternate=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)
+        val voice=sound().withAftertouch(alternate).withModeScript(
+            "on(touch) { play(volume:50); play(octavemove:1,volume:50); return(true); }").voice(60)
+        voice.aftertouch(1f);voice.next(false);voice.next(false)
+        assertEquals(150.0/32768,voice.left,1e-12)
+    }
+    @Test fun aftertouchPreservesScriptPitchMove(){
+        val alternate=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)
+        val voice=sound().withAftertouch(alternate).withModeScript(
+            "on(touch) { play(pitchmove:1000); return(true); }").voice(60)
+        voice.aftertouch(1f);voice.next(false);voice.next(false)
+        assertEquals(200.0/32768,voice.left,1e-12)
+    }
     @Test fun legatoRevivesReleasedEnvelopeWithoutRestartingSample(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(2000){(it%100*100).toShort()}),0,2000)),1000,
