@@ -69,18 +69,26 @@ object ImportedSimpleScript {
         if(or>=0)return if(expression(value.substring(0,or),variables)!=0 || expression(value.substring(or+2),variables)!=0)1 else 0
         val and=operator("&&")
         if(and>=0)return if(expression(value.substring(0,and),variables)!=0 && expression(value.substring(and+2),variables)!=0)1 else 0
-        if(value.startsWith("(") && value.endsWith(")"))return expression(value.substring(1,value.length-1),variables)
-        if(value.startsWith("!") && !value.startsWith("!="))return if(expression(value.substring(1),variables)==0)1 else 0
-        val comparison=Regex("(.+?)\\s*(==|!=|<=|>=|<|>)\\s*(.+)").matchEntire(value)
+        if(value.startsWith("(")){
+            var depth=0;var closing=-1
+            for(index in value.indices){
+                when(value[index]){'('->depth++;')'->depth--}
+                if(depth==0){closing=index;break}
+            }
+            if(closing==value.lastIndex)return expression(value.substring(1,value.length-1),variables)
+        }
+        val comparison=listOf("==","!=","<=",">=","<",">").map{it to operator(it)}.firstOrNull{it.second>=0}
         if(comparison!=null){
-            val left=expression(comparison.groupValues[1],variables)
-            val right=expression(comparison.groupValues[3],variables)
-            val result=when(comparison.groupValues[2]){
+            val (token,index)=comparison
+            val left=expression(value.substring(0,index),variables)
+            val right=expression(value.substring(index+token.length),variables)
+            val result=when(token){
                 "=="->left==right;"!="->left!=right;"<="->left<=right
                 ">="->left>=right;"<"->left<right;else->left>right
             }
             return if(result)1 else 0
         }
+        if(value.startsWith("!"))return if(expression(value.substring(1),variables)==0)1 else 0
         if(value=="true")return 1
         if(value=="false")return 0
         value.toIntOrNull()?.let{return it}

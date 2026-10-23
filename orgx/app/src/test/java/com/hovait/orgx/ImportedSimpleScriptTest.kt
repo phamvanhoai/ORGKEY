@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun groupedComparisonsAndNegationRespectParentheses(){
+        fun handled(condition:String)=ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch) { return($condition); }"),"touch",mapOf("key" to 64)).handled
+        assertTrue(handled("(key > 60) == true"))
+        assertTrue(handled("(key > 60) == (key < 70)"))
+        assertFalse(handled("!(key > 60)"))
+        assertTrue(handled("Max(1, key > 60) == 1"))
+    }
     @Test fun commentedSliderDoesNotInitializeVariables(){
         val session=ImportedScriptSession("// setting(slider, name:\"move\", title:\"Move\", reset:-2, from:-12, to:12);\nmain() { count=0; }")
         assertTrue(session.sliders.isEmpty())
