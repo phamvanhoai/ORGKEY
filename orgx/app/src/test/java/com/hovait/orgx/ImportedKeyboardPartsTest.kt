@@ -4,6 +4,41 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun modulationStopAllCutsReleasedTailsWithoutAffectingAnotherMidiChannel(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,10,false))
+            .withModeScript("on(touch){play();return(true);} on(modulate){stopall(cut);}")
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
+            parts.noteOn(60,1.0,1);parts.noteOn(64,1.0,2)
+            frame(parts,mixer)
+            parts.noteOff(60,1);parts.noteOff(64,2)
+            assertTrue(frame(parts,mixer)>0)
+            assertEquals(2,parts.activeNotes)
+            parts.modulate(20,1)
+            assertTrue(frame(parts,mixer)>0)
+            assertEquals(1,parts.activeNotes)
+            parts.modulate(20,2)
+            assertEquals(0.0,frame(parts,mixer),0.0)
+            assertEquals(0,parts.activeNotes)
+        }finally{mixer.close()}
+    }
+    @Test fun modulationStopAllAlsoReachesRetiredPartReleaseTail(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,10,false))
+            .withModeScript("on(touch){play();return(true);} on(modulate){stopall(cut);}")
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
+            parts.noteOn(60,1.0);frame(parts,mixer)
+            parts.noteOff(60);frame(parts,mixer)
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound(100))))
+            parts.modulate(20)
+            assertEquals(0.0,frame(parts,mixer),0.0)
+            assertEquals(0,parts.activeNotes)
+        }finally{mixer.close()}
+    }
     @Test fun octaveScriptCreatesVoicesAndReleasesThemByOriginalKey(){
         val source=sound(100).withModeScript("on(touch) { play(volume:50); play(octavemove:1,volume:50); play(octavemove:-1,volume:50); return(true); }")
         val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()

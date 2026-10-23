@@ -85,7 +85,9 @@ class ImportedKeyboardParts {
         require(channel in 0..15 && level in -127..127)
         modulation[channel]=level
         parts.values.map{it.sound}.distinct().forEach{it.updateScriptModulation(level)}
-        notes.filter{it.channel==channel && !it.released}.forEach{it.playback.modulate(level)}
+        // Channels.CloseAll also reaches channels already in their release envelope.
+        // Retired part voices remain here until their PCM/envelope finishes.
+        notes.filter{it.channel==channel && !it.playback.finished}.forEach{it.playback.modulate(level)}
     }
     /** Caller begins/finishes the shared mixer once, including all other voices. */
     fun renderInto(mixer:ImportedKeyboardMixer){
