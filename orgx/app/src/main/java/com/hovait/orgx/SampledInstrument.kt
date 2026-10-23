@@ -20,6 +20,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     var touchScript:ImportedSimpleScript.Result?=null;private set
     private var modeScript:ImportedModeScript?=null
     private var scriptSession:ImportedScriptSession?=null
+    @Volatile var scriptStatus:String="No mode script";private set
     fun updateScriptModulation(level:Int){
         require(level in -127..127)
         runCatching{scriptSession?.modulation(level){result->
@@ -36,7 +37,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value);scriptSliderValues=scriptSliderValues+(name.lowercase() to value)}
     fun withModeScript(source:String)=also{
         modeScript=runCatching{ImportedModeScript.parse(source)}.getOrNull()
-        scriptSession=runCatching{ImportedScriptSession(source,expressionEffects)}.getOrNull()
+        val initialized=runCatching{ImportedScriptSession(source,expressionEffects)}
+        scriptSession=initialized.getOrNull()
+        scriptStatus=if(source.isBlank())"No mode script" else initialized.exceptionOrNull()?.let{"Script initialization failed: ${it.message}"} ?: "Mode script loaded; waiting for events"
         scriptSession?.synchronizeEffects(expressionEffects)
         scriptSession?.let{applyScriptEffects(it.initialEffects)}
         scriptSliderValues=scriptSliders.associate{it.name to it.reset}
@@ -111,7 +114,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }?.also{result->
                 applyScriptEffects(result.effects)
             }
-        }.getOrNull() else null
+        }.onSuccess{if(modeScript?.source?.isNotBlank()==true && it!=null)scriptStatus="Touch script active"}
+            .onFailure{scriptStatus="Touch fallback: ${it.message}"}.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
             val playback=Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),

@@ -5,6 +5,12 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun unsupportedTouchShowsFallbackReasonWithoutStoppingAudio(){
+        val source=sound().withModeScript("on(touch) { timer(10) { play(); } }")
+        val voice=source.voice(60);voice.next(false)
+        assertTrue(source.scriptStatus.startsWith("Touch fallback:"))
+        assertEquals(.25,voice.left,1e-12)
+    }
     @Test fun forcedStopEndsVoiceWhoseReleaseWasHandledByScript(){
         val voice=sound().withModeScript("on(touch) { play(); return(true); } on(release) { return(true); }").voice(60)
         voice.next(false);voice.next(true);assertFalse(voice.finished)

@@ -849,6 +849,8 @@ private fun ORGXApp(engine: AudioEngine) {
     var keyConnectionMethod by remember { mutableIntStateOf(preferences.getInt("key_connection",0).coerceIn(0,1)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
     val scriptSound=engine.importedInstrument
+    var scriptStatus by remember(scriptSound){mutableStateOf(scriptSound?.scriptStatus.orEmpty())}
+    LaunchedEffect(scriptSound){while(true){scriptStatus=scriptSound?.scriptStatus.orEmpty();kotlinx.coroutines.delay(300)}}
     val scriptScope=rememberCoroutineScope()
     LaunchedEffect(engine) { while(true) { outputStatus=engine.outputStatus;kotlinx.coroutines.delay(300) } }
     InstrumentPage(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column(Modifier.verticalScroll(rememberScrollState())){Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle);
@@ -861,6 +863,7 @@ private fun ORGXApp(engine: AudioEngine) {
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Experimental NOpenSL",Modifier.weight(1f));Switch(checked=nativeOutput,onCheckedChange={nativeOutput=it;preferences.edit().putBoolean("nativeOutput",it).apply()})
         }
+        if(scriptStatus.isNotEmpty())Text("DNC: $scriptStatus",color=Subtle)
         scriptSound?.scriptSliders?.forEach{setting->
             var value by remember(scriptSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
             Text(setting.title)
