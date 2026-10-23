@@ -45,3 +45,11 @@ Cập nhật session: đã nối main khởi tạo một lần, biến trạng t
 Cập nhật event: release cập nhật biến một lần khi note-off; aftertouch nhận velocity áp lực và keyvelocity ban đầu, xử lý script trước fallback. Return tính biểu thức và coi mọi kết quả khác 0 là handled. Release chưa hỗ trợ chặn nhả/phát nốt/exit; aftertouch chưa hỗ trợ play hoặc effect assignment. Toàn bộ 450 test đạt, APK mới đã build/cài và nhận lệnh mở MainActivity thành công. Chưa xác minh nghe/so bản thu APK gốc.
 
 Cập nhật điều kiện: đã có block if lồng nhau và if-block/else-block, return trong block kết thúc event. Test PCM xác nhận velocity chọn nhánh gain khác nhau trong voice thật. Chưa có đầy đủ if đơn lồng nhau/else-if, timer và effect assignment. Toàn bộ 453 test đạt; APK đã build/cài và mở thành công.
+
+## Modulation và script: cập nhật phạm vi
+
+Đã thay bộ tách câu lệnh để hỗ trợ điều kiện đơn lồng nhau và else; nhánh touch của Legato from Last gốc đã được kiểm tra. Dynamic Legato (Velocity) và Aftertouch Shake gốc đã chạy qua voice/PCM; script ghi và đọc thuộc tính effect 0..3 ở touch, cập nhật Pitch/Volume Shake trong aftertouch/release. Chưa có timer hoặc exit đổi mode. Time hiện là mili giây từ lúc tạo session, khác epoch double của APK.
+
+Modulation Shake gốc đã chạy qua API modulate. MIDI file giữ CC1, engine gửi theo kênh; STS và voice mới nhận mức đã chọn. CC121 và kết thúc/STOP playback reset modulation. Ghi MIDI giữ mức CC1 trước REC và ghi reset ở cuối file. Bộ nhận controller MIDI phần cứng chưa được nối, chưa thử MIDI thật; không coi API là kết nối thiết bị hoàn chỉnh.
+
+Trang Cài đặt đã có điều khiển DNC từ khai báo slider của tập con script hỗ trợ. Thay đổi qua audio queue, kiểm tra sound hiện hành và giới hạn; chưa xác minh tương đương giao diện gốc hoặc đầy đủ nhóm tiếng STS. Các ghi chú lịch sử phía trên về thiếu gán effect/slider được thay thế trong phạm vi đã nêu ở đây.
