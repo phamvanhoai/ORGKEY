@@ -21,10 +21,12 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var modeScript:ImportedModeScript?=null
     private var scriptSession:ImportedScriptSession?=null
     val scriptSliders:List<ImportedScriptSession.Slider> get()=scriptSession?.sliders.orEmpty()
-    fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value)}
+    @Volatile var scriptSliderValues:Map<String,Int> = emptyMap();private set
+    fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value);scriptSliderValues=scriptSliderValues+(name.lowercase() to value)}
     fun withModeScript(source:String)=also{
         modeScript=ImportedModeScript.parse(source)
         scriptSession=runCatching{ImportedScriptSession(source)}.getOrNull()
+        scriptSliderValues=scriptSliders.associate{it.name to it.reset}
         touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
             ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
     }

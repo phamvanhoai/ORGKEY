@@ -60,6 +60,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
     private val stsParts=ImportedKeyboardPartQueue()
+    fun setScriptSlider(sound:SampledInstrument,name:String,value:Int,completed:(Boolean)->Unit={}){
+        stsParts.updateScriptSlider(sound,name,value,{importedInstrument===sound},completed)
+    }
     private val stsWaiters=StsCommitWaiters()
     @Volatile private var stsPartsEnabled=false
     private val stsGeneration=java.util.concurrent.atomic.AtomicLong()

@@ -24,6 +24,14 @@ class ImportedKeyboardPartQueue {
         commands.add{parts.noteOn(note,velocity,channel)}
     }
     fun noteOff(note:Int,channel:Int=0){commands.add{parts.noteOff(note,channel)}}
+    fun updateScriptSlider(sound:SampledInstrument,name:String,value:Int,isCurrent:()->Boolean,completed:(Boolean)->Unit){
+        commands.add{
+            val slider=sound.scriptSliders.singleOrNull{it.name==name.lowercase()}
+            val accepted=isCurrent() && slider!=null && value in slider.from..slider.to
+            if(accepted)sound.setScriptSlider(name,value)
+            completed(accepted)
+        }
+    }
     fun setScriptSlider(part:Int,expectedSound:SampledInstrument,name:String,value:Int,completed:(Boolean)->Unit={}){
         commands.add{completed(parts.setScriptSlider(part,expectedSound,name,value))}
     }

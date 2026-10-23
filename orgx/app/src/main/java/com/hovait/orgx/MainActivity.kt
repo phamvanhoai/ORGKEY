@@ -848,6 +848,8 @@ private fun ORGXApp(engine: AudioEngine) {
     var repeatToLoop by remember { mutableStateOf(preferences.getBoolean("styleRepeatToLoop",false)) }
     var keyConnectionMethod by remember { mutableIntStateOf(preferences.getInt("key_connection",0).coerceIn(0,1)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
+    val scriptSound=engine.importedInstrument
+    val scriptScope=rememberCoroutineScope()
     LaunchedEffect(engine) { while(true) { outputStatus=engine.outputStatus;kotlinx.coroutines.delay(300) } }
     InstrumentPage(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column(Modifier.verticalScroll(rememberScrollState())){Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle);
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
@@ -858,6 +860,17 @@ private fun ORGXApp(engine: AudioEngine) {
         }
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Experimental NOpenSL",Modifier.weight(1f));Switch(checked=nativeOutput,onCheckedChange={nativeOutput=it;preferences.edit().putBoolean("nativeOutput",it).apply()})
+        }
+        scriptSound?.scriptSliders?.forEach{setting->
+            var value by remember(scriptSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
+            Text(setting.title)
+            Row(verticalAlignment=Alignment.CenterVertically){
+                fun change(next:Int){engine.setScriptSlider(scriptSound,setting.name,next){accepted->if(accepted)scriptScope.launch{value=next}}}
+                TextButton(enabled=value>setting.from,onClick={change(value-1)}){Text("−")}
+                Text(value.toString())
+                TextButton(enabled=value<setting.to,onClick={change(value+1)}){Text("+")}
+                TextButton(onClick={change(setting.reset)}){Text("RESET")}
+            }
         };Text("Applies after closing and reopening the app. AudioTrack is used if OpenSL initialization fails.",color=Subtle)}},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})}
 
 
