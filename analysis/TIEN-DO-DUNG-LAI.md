@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — PAD trên mặt đàn, 24-10-2026
+## Kết quả mới nhất — Chord Memory, 24-10-2026
+
+- Đối chiếu Tracks.RecordKey: khi không nhận ra hợp âm và !fChordMemory, RecordChordStop -> GroupPlayChord(0); GroupPlayChord đóng channel melodic, Tracks bỏ Track.PlayNext melodic khi chord mask0. Music mặc định memory=true.
+- Thêm Chord Memory trong trang CHORD và preference, phục hồi trước SET. Với bàn phím trái và memory=false, selectedSetChord trả trạng thái không hợp âm (-1) khi pressedChord rỗng thay vì dùng chord-memory/chordIndex cũ; AUTO và hợp âm chọn thủ công ngoài chế độ tay trái không đổi.
+- Nhánh chord-follow của style/PAD nhận trạng thái này: đưa voice melodic vào release (cả note ngắn), giữ timeline đến khi hợp âm trở lại; không ảnh hưởng percussion. Loader không đưa -1 vào transposer hoặc cộng transpose làm thành nốt khác.
+- Kiểm tra PCM: melodic tắt sau release, drums tiếp tục tới note thứ2, khi hợp âm trở lại timeline catch-up nốt dài còn hiệu lực; các nhóm ReferenceChordTransposerTest/ReferenceRhythmPlayerTest/KeyboardChordInputTest đạt. Build và cài APK thành công, không tạo file test mới.
+- Chưa có bản thu đối chiếu gốc hoặc kiểm chứng pedal/controller ngoài, chưa tái tạo mọi nhánh ChordQuality/standalone chord voice. Chord label hiện vẫn có thể giữ tên đã nhận dù melodic ngừng; không coi toàn bộ cơ chế hợp âm hoàn thành.
+
+## PAD trên mặt đàn, 24-10-2026
 
 - Thêm PAD1..4 vào LCD màn hình chơi, giữ bàn phím và nút chuyển style truy cập được; không cần mở trang PAD để phát/dừng. Theo y1/GroupSection, chọn Section96+slot của parent style hiện tại trước, rồi parent0 nếu thiếu. Không tự lấy PAD của style khác làm mặc định.
 - Mỗi nút nạp sample bằng IO rồi gửi prepared player tới bank đã có; bấm lần nữa khi chạy/chờ/nạp sẽ stop/cancel. Hiển thị PAD... khi nạp/chờ, tắt nút khi SET/style không có PAD tương ứng; lỗi nạp hiện thông báo.

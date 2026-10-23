@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceChordTransposerTest {
+    @Test fun releasingChordWithoutMemoryReleasesMelodyButKeepsDrumsAndTimeline(){
+        var target=0
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,2000),ReferenceDrumEvent(2,2,60,100,20,2000))
+        val track=ReferenceDrumTrack("Part",1,0,32,120,true,0,4000,false,events)
+        fun player(melodic:Boolean)=ReferenceRhythmPlayer(listOf(track),{10000},{_,_,_->1.0},1000,
+            accompaniment=melodic,mapNote={if(melodic && target<0)-1 else it}).withChordFollowing(target={target})
+        val melody=player(true);val drum=player(false)
+        melody.next(0,120);drum.next(0,120)
+        assertEquals(1.0,melody.left,0.0)
+        target=-1
+        repeat(30){melody.next(0,120);drum.next(0,120)}
+        assertEquals(0.0,melody.left,0.0);assertEquals(2.0,drum.left,0.0)
+        target=0;melody.next(0,120)
+        assertEquals(1.0,melody.left,0.0) // The still-live note at t20 is caught up.
+    }
     @Test fun chordControlAndKeyboardOctaveAffectHeldPcmWithoutChangingChord(){
         var control=0;var octave=4
         val source=SampledInstrument(listOf(60 to 8192,72 to 16384).map{(key,value)->

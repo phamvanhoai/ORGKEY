@@ -116,6 +116,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     }
     LaunchedEffect(Unit){
         engine.chordControl=preferences.getInt("chordControl",0).coerceIn(0,4)
+        engine.chordMemory=preferences.getBoolean("chordMemory",true)
         engine.configureStyleTiming(preferences.getInt("styleChangeMethod",0).coerceIn(0,3),preferences.getBoolean("styleTempoLock",false))
         engine.configureChordSynchro(preferences.getBoolean("sync_start",true),preferences.getBoolean("sync_stop",false),
             preferences.getInt("chord_synchro",0).takeIf{it in listOf(0,2,3)} ?: 0)
@@ -887,6 +888,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var chordControl by remember{mutableIntStateOf(engine.chordControl)}
     var synchroMinimum by remember{mutableIntStateOf(preferences.getInt("chord_synchro",0).takeIf{it in listOf(0,2,3)} ?: 0)}
     var stopPads by remember{mutableStateOf(engine.synchroStopPads)}
+    var chordMemory by remember{mutableStateOf(engine.chordMemory)}
     var editingDual by remember{mutableStateOf(false)}
     var firstKey by remember{mutableIntStateOf(0)}
     var secondKey by remember{mutableIntStateOf(4)}
@@ -896,6 +898,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     val assigned=ReferenceChordMatcher.find(duals[pair] ?: 0,engine.referenceChords)?.let{engine.referenceChords[it].name}
     InstrumentPage(onDismissRequest=onDismiss,title={Text("Chord library")},text={Column(modifier=Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(6.dp)){
         Row(verticalAlignment=Alignment.CenterVertically){Checkbox(checked=leftChord,onCheckedChange=onLeftChord);Text("Left keyboard chords")}
+        Row(verticalAlignment=Alignment.CenterVertically){
+            Checkbox(checked=chordMemory,onCheckedChange={chordMemory=it;engine.chordMemory=it;preferences.edit().putBoolean("chordMemory",it).apply()})
+            Text("Chord Memory")
+        }
         Text("Left octave follows the selected input mode. Last chord stays after release. SET styles require Follow selected chord.",fontSize=12.sp)
         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
             listOf("FINGERED","ONE KEY","TWO KEYS").forEachIndexed{index,label->

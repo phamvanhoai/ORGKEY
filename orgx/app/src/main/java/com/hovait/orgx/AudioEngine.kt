@@ -55,6 +55,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var styleAutoFill=false
     @Volatile var importedRhythmName:String?=null
     @Volatile var chordIndex = 0
+    @Volatile var chordMemory=true
     @Volatile var chordControl=0
         set(value){require(value in 0..4);field=value}
     fun selectedSetChordOctave():Int=if(leftChordEnabled && !autoChord)keyboardChordInput.octaveMove else 0
@@ -223,7 +224,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones,value.coerceIn(0,16383)-8192)}
     }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
-        autoChordMap.chord(progression,harmonyClock.time) else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
+        autoChordMap.chord(progression,harmonyClock.time) else if(leftChordEnabled && !chordMemory)
+        keyboardChordInput.pressedChord ?: -1 else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
     @Volatile var autoChord = false
     @Volatile var progression = 0
     @Volatile var rhythmStyle = 0

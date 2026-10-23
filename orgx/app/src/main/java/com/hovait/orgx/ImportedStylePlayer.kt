@@ -56,9 +56,11 @@ object ImportedStylePlayer {
                 accompaniment=melodic,
                 mapNote={note->
                     val target=if(follow && melodic)targetChord?.invoke() else null
+                    if(target!=null && target<0)-1 else{
                     val mapped=if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target,
                         control=chordControl(),octaveMove=chordOctaveMove())
                     ImportedStyleSupport.shiftedNote(mapped,track.copy(settings=settings),melodic)
+                    }
                 },sampled=sound,fx=ImportedFxChain(settings),initiallyMuted=track.muted,initialChannel=settings,
                 expressionEffects=ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(track.effects,index.sourceVersion,keyConnectionMethod),initialPedal=track.pedal!=0,
                 // Tracks.ReadFromStream assigns channel type 1 to rhythm groups

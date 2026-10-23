@@ -39,6 +39,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         if(lastChordTarget==target && lastChordControl==control && lastChordOctaveMove==octave)return
         lastChordTarget=target;lastChordControl=control;lastChordOctaveMove=octave
         if(!accompaniment)return
+        if(target<0){
+            voices.values.forEach{voice->if(voice.release<0){voice.pendingRelease=false;voice.release=0;voice.playback?.forceRelease()}}
+            return
+        }
         voices.entries.forEach{entry->
             val voice=entry.value
             if(voice.release>=0 || voice.pendingRelease || voice.sourceLength<1000)return@forEach
@@ -203,7 +207,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         // event cursor in place while the musical/audio clocks keep advancing.
         // On unmute, Timeline dispatches overdue controls and still-live notes,
         // skipping notes whose entire stored duration has already elapsed.
-        if(!performanceMuted)timeline?.advance(local){event->
+        if(!performanceMuted && !(accompaniment && lastChordTarget?.let{it<0}==true))timeline?.advance(local){event->
             if(event.type==51 && event.note>=0){
                 keyTouch=event.note and 65535
                 voices.values.filter{event.id==0 || it.eventId==event.id}.forEach{it.touchGain=keyTouch/100.0}
