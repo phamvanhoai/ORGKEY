@@ -5,6 +5,16 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun scriptAutoReleaseOverridesSoundEnvelopeInBothDirections(){
+        fun voice(stored:Boolean,requested:Boolean)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
+            envelope=ImportedEnvelope(0,0,100,1,stored))
+            .withModeScript("on(touch) { play(autorelease:$requested); return(true); }").voice(60)
+        val automatic=voice(false,true);val held=voice(true,false)
+        repeat(120){automatic.next(false);held.next(false)}
+        assertTrue(automatic.finished);assertFalse(held.finished)
+        repeat(20){held.next(true)};assertTrue(held.finished)
+    }
     @Test fun scriptAutoReleaseClosesLoopWithoutPhysicalNoteOff(){
         val automatic=sound().withModeScript("on(touch) { play(autorelease:true); return(true); }").voice(60)
         val held=sound().withModeScript("on(touch) { play(autorelease:false); return(true); }").voice(60)

@@ -47,7 +47,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity=scriptVelocity)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100){
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null){
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
@@ -58,7 +58,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
             val playback=Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
                 (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),
-                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity)
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity,
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0})
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
@@ -69,7 +70,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private val children=if(scriptPlan!=null)scriptChildren.map{it.first}+
             (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity)))
-            else layers.map{it.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity)}
+            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,true,scriptVelocity,envelopeAutoRelease)}
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
         private var connectionDelta=0.0
@@ -148,12 +149,13 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
             }
         }
-        private var state=envelope?.voice(outputRate)
+        private val effectiveEnvelope=envelope?.let{if(envelopeAutoRelease==null)it else it.copy(autoRelease=envelopeAutoRelease)}
+        private var state=effectiveEnvelope?.voice(outputRate)
         private var position=0.0
         private fun restartConnectionSample(){
             position=0.0
             autoReleaseStarted=false
-            if(envelope?.autoRelease==true)state=envelope.voice(outputRate)
+            if(effectiveEnvelope?.autoRelease==true)state=effectiveEnvelope.voice(outputRate)
         }
         private var pitchShake=expressionEffects.firstOrNull{effectsAllowed && it.slot==2 && it.enabled}?.let{ImportedPitchShake(it,outputRate)}
         fun configurePitchShake(effect:ImportedExpressionEffect){
@@ -170,7 +172,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         var finished=false;private set
         private var autoReleaseStarted=false
         fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
-            if(autoRelease && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
+            if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
             val released=noteOff || autoReleaseStarted
             if(connectionActive && (!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
