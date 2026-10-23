@@ -23,7 +23,7 @@ object ImportedSimpleScript {
                     val pair=argument.split(':',limit=2)
                     require(pair.size==2){"Invalid play parameter"}
                     val name=pair[0].trim().lowercase()
-                    require(name in setOf("octavemove","volume","sound","key","velocity","pan","tune","pitchmove","connectkey","connectspeed","autorelease")){"Unsupported play parameter: $name"}
+                    require(name in setOf("octavemove","keymove","volume","sound","key","velocity","pan","tune","pitchmove","connectkey","connectspeed","autorelease")){"Unsupported play parameter: $name"}
                     require(name !in parameters){"Duplicate play parameter: $name"}
                     parameters[name]=expression(pair[1],variables)
                 }

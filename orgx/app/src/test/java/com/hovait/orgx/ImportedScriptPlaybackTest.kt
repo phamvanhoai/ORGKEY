@@ -5,6 +5,13 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun scriptKeyMoveChangesPlaybackSpeedAndPanChangesStereo(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)
+        val voice=source.withModeScript("on(touch) { play(key:key,keymove:12,pan:100); return(true); }").voice(60)
+        voice.next(false);voice.next(false)
+        assertEquals(0.0,voice.left,0.0)
+        assertEquals(200.0/32768,voice.right,1e-12)
+    }
     private fun original(path:String)=File(requireNotNull(System.getProperty("orgx.referenceScripts")),path).readText()
     @Test fun bundledOctaveScriptsRenderTheirDeclaredMix(){
         val upper=sound().withModeScript(original("Octave/Add Upper Octave.Script")).voice(60)
