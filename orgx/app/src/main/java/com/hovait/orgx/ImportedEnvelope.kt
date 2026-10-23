@@ -17,6 +17,14 @@ data class ImportedEnvelope(val attack:Int,val decay:Int,val sustain:Int,val rel
         private var manualFastRelease=false
         var gain=if(attackFrames==0L)1.0 else 0.0;private set
         var finished=false;private set
+        /** Connection revives channel gain without replaying the sample attack. */
+        fun reconnect(){
+            if(settings.autoRelease)return
+            releasing=false;manualRelease=false;manualFastRelease=false
+            releaseAge=0;releaseGain=0.0;finished=false
+            gain=1.0
+            age=attackFrames+decayFrames
+        }
         fun next(noteOff:Boolean,pedalRelease:Boolean=false):Double {
             if(finished)return 0.0
             if(noteOff && !manualRelease){

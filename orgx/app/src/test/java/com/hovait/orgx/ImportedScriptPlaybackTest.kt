@@ -5,6 +5,17 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun legatoRevivesReleasedEnvelopeWithoutRestartingSample(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(2000){(it%100*100).toShort()}),0,2000)),1000,
+            envelope=ImportedEnvelope(0,0,100,20,false))
+        val voice=source.voice(60)
+        repeat(10){voice.next(false)};repeat(20){voice.next(true)}
+        voice.connectTo(60,ImportedExpressionEffect(1,true,0,false,false,16,0,0,0,emptyList()))
+        voice.next(false)
+        assertEquals(3000.0/32768,voice.left,1e-12)
+        repeat(250){voice.next(false)};assertFalse(voice.finished)
+    }
     @Test fun reconnectedVoiceReceivesReleaseForItsNewKey(){
         val source=sound().withModeScript("main() { count=0; } on(touch) { play(volume:count); return(true); } on(release) { count=count+25; return(true); }")
         val voice=source.voice(60);voice.next(true)

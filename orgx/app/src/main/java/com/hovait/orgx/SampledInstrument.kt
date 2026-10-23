@@ -181,6 +181,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             currentKey=targetNote
             scriptReleased=false
             releaseHandled=false
+            if(!effect.stopByRelease && effectiveEnvelope?.autoRelease==false)state?.reconnect()
             children.forEach{it.connectTo(targetNote,effect)};alternate?.connectTo(targetNote,effect)
             if(children.isNotEmpty())return
             val target=pitchStep(targetNote,tune)
