@@ -5,6 +5,7 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
     private val timeOrigin=clockMillis()
     data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int)
     val sliders:List<Slider>
+    val settingTitles:List<String>
     var initialEffects:List<ImportedSimpleScript.EffectChange> = emptyList();private set
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
@@ -54,7 +55,9 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
         }.toList()
         require(sliders.map{it.name}.distinct().size==sliders.size){"Duplicate script slider"}
         sliders.forEach{state[it.name]=it.reset}
-        script=ImportedModeScript.parse(declarations.replace(code,""))
+        val textSettings=Regex("(?i)setting\\s*\\(\\s*text\\s*,\\s*title:\"([^\"]*)\"\\s*\\)\\s*;")
+        settingTitles=textSettings.findAll(code).map{it.groupValues[1]}.toList()
+        script=ImportedModeScript.parse(textSettings.replace(declarations.replace(code,""),""))
         synchronizeEffects(storedEffects)
         val initialized=ImportedSimpleScript.evaluate(script,"main",state=state)
         require(initialized.plays.isEmpty()){"Audio commands in main are not supported"}

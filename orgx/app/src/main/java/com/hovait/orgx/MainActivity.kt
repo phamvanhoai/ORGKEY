@@ -864,6 +864,7 @@ private fun ORGXApp(engine: AudioEngine) {
             Text("Experimental NOpenSL",Modifier.weight(1f));Switch(checked=nativeOutput,onCheckedChange={nativeOutput=it;preferences.edit().putBoolean("nativeOutput",it).apply()})
         }
         if(scriptStatus.isNotEmpty())Text("DNC: $scriptStatus",color=Subtle)
+        scriptSound?.scriptSettingTitles?.forEach{Text(it,fontWeight=FontWeight.Bold)}
         scriptSound?.scriptSliders?.forEach{setting->
             var value by remember(scriptSound,setting.name){mutableIntStateOf(scriptSound.scriptSliderValues[setting.name] ?: setting.reset)}
             Text(setting.title)

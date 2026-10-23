@@ -5,6 +5,21 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalAftertouchSettingsInitializeAndControlShakeParameters(){
+        val source=original("Shake/Aftertouch Shake + Setting.Script")
+        val session=ImportedScriptSession(source)
+        assertEquals(listOf("Aftertouch"),session.settingTitles)
+        assertEquals(2,session.sliders.size)
+        session.setSlider("aftertouch_depth",10)
+        session.setSlider("aftertouch_speed",8)
+        val effect=session.event("aftertouch",mapOf("velocity" to 50)).effects
+        assertEquals(100,effect.single{it.property=="depth"}.value)
+        assertEquals(40,effect.single{it.property=="speed"}.value)
+        val instrument=sound().withModeScript(source)
+        assertEquals(2,instrument.scriptSliders.size)
+        val voice=instrument.voice(60);voice.aftertouch(1f);voice.next(false)
+        assertTrue(voice.left.isFinite())
+    }
     @Test fun repeatVoiceDoesNotExecuteTouchScriptAgain(){
         val source=sound().withModeScript("main() { count=0; } on(touch) { count=count+25; play(volume:count); return(true); }")
         source.voice(60)
