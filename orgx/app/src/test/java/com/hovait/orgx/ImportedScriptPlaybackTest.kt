@@ -5,6 +5,11 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun excessiveScriptNestingFallsBackWithoutStackOverflow(){
+        val source="on(touch) { return("+"(".repeat(200)+"1"+")".repeat(200)+"); }"
+        val voice=sound().withModeScript(source).voice(60)
+        voice.next(false);assertEquals(.25,voice.left,1e-12)
+    }
     @Test fun silentModulationIsNotReexecutedForEveryVoice(){
         val source=sound().withModeScript("main() { count=0; } on(modulate) { count=count+25; } on(touch) { play(volume:count); return(true); }")
         source.updateScriptModulation(80)
