@@ -127,7 +127,20 @@ object ImportedSimpleScript {
                     while(position<body.length && depth>0){when(body[position]){'{'->depth++;'}'->depth--};position++}
                     require(depth==0){"Unclosed if block"}
                     val block=body.substring(blockStart,position-1)
-                    if(expression(body.substring(open+1,end-1),context())!=0)yieldAll(statements(block,context))
+                    val condition=expression(body.substring(open+1,end-1),context())!=0
+                    whitespace()
+                    var alternative:String?=null
+                    val elseToken=Regex("(?i)else\\b").find(body,position)?.takeIf{it.range.first==position}
+                    if(elseToken!=null){
+                        position=elseToken.range.last+1;whitespace()
+                        require(position<body.length && body[position]=='{'){"Else requires a block"}
+                        val alternativeStart=++position;depth=1
+                        while(position<body.length && depth>0){when(body[position]){'{'->depth++;'}'->depth--};position++}
+                        require(depth==0){"Unclosed else block"}
+                        alternative=body.substring(alternativeStart,position-1)
+                    }
+                    if(condition)yieldAll(statements(block,context))
+                    else if(alternative!=null)yieldAll(statements(alternative,context))
                     continue
                 }
                 position=start

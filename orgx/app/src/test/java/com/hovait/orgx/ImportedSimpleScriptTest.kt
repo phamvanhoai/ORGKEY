@@ -4,6 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun ifElseRunsOnlySelectedBranch(){
+        val script=ImportedModeScript.parse("on(touch) { if (velocity < 100) { level = 25; } else { level = 75; } play(volume:level); return(true); }")
+        assertEquals(25,ImportedSimpleScript.evaluate(script,"touch",mapOf("velocity" to 50)).plays.single().parameters["volume"])
+        assertEquals(75,ImportedSimpleScript.evaluate(script,"touch",mapOf("velocity" to 110)).plays.single().parameters["volume"])
+    }
     @Test fun nestedIfBlocksRunInOrderAndReturnStopsOuterEvent(){
         val script=ImportedModeScript.parse("on(touch) { if (velocity < 100) { value = 20; if (value == 20) { play(volume:value); return(true); } } play(volume:100); }")
         val low=ImportedSimpleScript.evaluate(script,"touch",mapOf("velocity" to 50))
