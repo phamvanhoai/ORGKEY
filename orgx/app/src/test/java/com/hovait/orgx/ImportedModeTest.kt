@@ -10,6 +10,7 @@ class ImportedModeTest {
         val parsed=mode.parsedScript
         assertEquals(listOf("aftertouch"),parsed.events)
         assertTrue(parsed.variables.containsAll(listOf("key","velocity","connectkey","pitchmove")))
+        assertTrue(parsed.handles("AFTERTOUCH"));assertFalse(parsed.handles("release"))
     }
     @Test fun keyboardModeConfigurationIsNotAppliedAgainToStyleSamples(){
         val file=File.createTempFile("orgx-keyboard-mode",".pcm")
