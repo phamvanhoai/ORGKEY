@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartQueueTest {
+    @Test fun completionIsReportedAfterPartReplacementAndRejectIsReportedAsFalse(){
+        val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
+        val results=mutableListOf<Boolean>()
+        try{
+            queue.commit(listOf(part(100)),{results.add(it)}){true}
+            assertTrue(results.isEmpty())
+            queue.noteOn(60,1.0)
+            assertEquals(.25,frame(queue,mixer),0.0)
+            assertEquals(listOf(true),results)
+            queue.commit(listOf(part(50)),{results.add(it)}){false}
+            frame(queue,mixer)
+            assertEquals(listOf(true,false),results)
+        }finally{mixer.close()}
+    }
     @Test fun secondInitialGroupCannotOverwriteAGroupCommittedWhileItWasLoading(){
         val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
         try{

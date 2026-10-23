@@ -99,3 +99,11 @@ prepareMasked lập lại action dựa instrument/system hiện hành thay vì t
 Test request nối tiếp, index identity và instrument hiện hành không phát lệnh 62 thừa đạt; test batch/changes, assembleDebug/AndroidTest đạt. ImportedStsGroupSmoke đã đổi sang request nối tiếp: PASS 4 nhóm trên hai SET thật, peak/số part bật giữ như lượt trước. Đã cài bản và mở app. Đây là render offline; chưa thử nghe/chuyển STS trực tiếp qua UI. Chưa có UI sửa 21 cờ, callback script, runtime state đầy đủ hoặc export MIDI từng part; không tuyên bố STSPut tương đương hoàn toàn.
 
 Bổ sung kiểm tra previous=null: cả enqueue và audio commit nay so identity nhóm nguồn kể cả khi ban đầu chưa có nhóm. Hai kết quả chuẩn bị từ trạng thái rỗng không còn cùng được chấp nhận rồi ghi đè nhau. Yêu cầu stale bị từ chối, không tự rebase sang nhóm mới. Test queue tái hiện hai initial commit, cùng batch/changes và assembleDebug đạt. Đã cài/mở bản cuối trên thiết bị. Chưa có cơ chế báo kết quả commit bất đồng bộ về UI; thông báo hiện tại vẫn phản ánh việc gửi yêu cầu, không đảm bảo commit đã hoàn thành.
+
+## Xác nhận commit về giao diện
+
+ImportedKeyboardPartQueue.commit báo accepted sau khi thay part. AudioEngine.awaitStsRequest dùng CompletableDeferred để coroutine chờ kết quả audio mà không chặn UI; các luồng chọn STS/restore/Main-link chuyển sang await trước khi báo thành công hoặc lưu preferences. Hủy coroutine hủy deferred; callback stillWanted kiểm tra trước commit để tránh áp nhóm sau khi màn hình/lựa chọn bị hủy. Commit bị từ chối khi chưa có nhóm hiện hành tắt đường part để tránh để keyboard routing trống. Không đặt timeout giả thành công.
+
+Test queue bổ sung kiểm tra chưa có kết quả trước render và kết quả true/false sau xử lý. Không xử lý rollback nếu callback trước-replace ném lỗi; lỗi nghiêm trọng/audio backend dừng vẫn cần luồng đóng engine hủy yêu cầu chờ. Đây là xác nhận thay state ở biên frame, không xác nhận thiết bị đã phát/đã nghe tiếng.
+
+Kiểm chứng bản này: 7 test ImportedKeyboardPartQueueTest và 2 test ImportedStsBatchTest đạt, không failure/error/skip; assembleDebug đạt sau khi chạy Kotlin compiler in-process để tránh daemon kẹt. Đã cài và mở bản mới trên 88d75c04. Chưa kiểm chứng thao tác UI hủy màn hình/restore trên thiết bị hoặc lỗi backend dừng.

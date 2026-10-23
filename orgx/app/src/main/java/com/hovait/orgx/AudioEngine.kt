@@ -78,13 +78,25 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 else applyPreparedStsBatch(prepared.value,prepared.previous)
         }
     }
-    fun applyPreparedStsBatch(prepared:ImportedStsBatch.Prepared,previous:ImportedStsBatch.Prepared?=null):Boolean {
+    suspend fun awaitStsRequest(prepared:ImportedStsRequest.Prepared,expectedSound:SampledInstrument?):Boolean {
+        if(prepared is ImportedStsRequest.Prepared.Single)return applyStsRequest(prepared,expectedSound)
+        prepared as ImportedStsRequest.Prepared.Group
+        if(importedInstrument!==expectedSound || currentStsGroup!==prepared.previous)return false
+        val result=kotlinx.coroutines.CompletableDeferred<Boolean>()
+        if(!applyPreparedStsBatch(prepared.value,prepared.previous,{result.complete(it)},{!result.isCancelled}))return false
+        return try{result.await()}finally{if(!result.isCompleted)result.cancel()}
+    }
+    fun applyPreparedStsBatch(prepared:ImportedStsBatch.Prepared,previous:ImportedStsBatch.Prepared?=null,
+        completed:(Boolean)->Unit = {},stillWanted:()->Boolean = {true}):Boolean {
         if(activeSetFile!=prepared.file || activeSetIndex!==prepared.index)return false
         val parts=prepared.keyboardParts()
         if(parts.isEmpty())return false
         val generation=stsGeneration.get()
-        stsParts.commit(parts){
-            if(generation!=stsGeneration.get() || activeSetFile!=prepared.file || activeSetIndex!==prepared.index ||
+        stsParts.commit(parts,{accepted->
+            if(!accepted && currentStsGroup==null)stsPartsEnabled=false
+            completed(accepted)
+        }){
+            if(!stillWanted() || generation!=stsGeneration.get() || activeSetFile!=prepared.file || activeSetIndex!==prepared.index ||
                 currentStsGroup!==previous)false
             else {
                 prepared.master?.let{master->

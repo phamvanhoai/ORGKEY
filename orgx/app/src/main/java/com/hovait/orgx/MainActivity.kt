@@ -119,7 +119,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 val expectedGroup=engine.currentStsGroup
                 val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,preferences.getInt("selectedStsTrack",-1),snapshot.slot,expectedGroup)}
                 if(preferences.getString("selectedStsSet",null)==savedStsSet){
-                    check(engine.applyStsRequest(prepared,expectedSound)){"Saved STS selection changed while loading"}
+                    check(engine.awaitStsRequest(prepared,expectedSound)){"Saved STS selection changed while loading"}
                     restoredSts=true
                 }
                 restoredSetName=engine.importedInstrumentName
@@ -188,7 +188,7 @@ private fun ORGXApp(engine: AudioEngine) {
                 if(engine.importedStyleSession===session && session.currentId==part.id &&
                     preferences.getString("selectedStsSet",null)==file.name &&
                     preferences.getInt("selectedStsTrack",-1)==trackIndex &&
-                    preferences.getBoolean("linkMainSts",false) && engine.applyStsRequest(prepared,expectedSound)){
+                    preferences.getBoolean("linkMainSts",false) && engine.awaitStsRequest(prepared,expectedSound)){
                     preferences.edit().putInt("selectedStsSlot",slot).apply()
                     restoredSetName=engine.importedInstrumentName
                 }
@@ -645,7 +645,7 @@ private fun ORGXApp(engine: AudioEngine) {
                         val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
                         val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup)}
-                        val applied=engine.applyStsRequest(prepared,expectedSound)
+                        val applied=engine.awaitStsRequest(prepared,expectedSound)
                         if(applied)preferences.edit().putString("selectedStsSet",setFile?.name)
                             .putInt("selectedStsTrack",trackIndex).putInt("selectedStsSlot",snapshot.slot)
                             .remove("importedSetFile").remove("importedSetSound").apply()
