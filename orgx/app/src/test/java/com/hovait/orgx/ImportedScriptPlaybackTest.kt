@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun originalLastKeyLegatoKeepsStateAndLimitsBothDirections(){
+        val session=ImportedScriptSession(original("Legato/Legato from Last.Script"))
+        fun connection(key:Int)=session.event("touch",mapOf("key" to key)).plays.single().parameters["connectkey"]
+        assertEquals(60,connection(60))
+        assertEquals(66,connection(72))
+        assertEquals(66,connection(60))
+        assertEquals(60,connection(63))
+    }
     @Test fun directSliderQueueCommitsAudioValueAndRejectsStaleOrInvalidChanges(){
         val source=sound().withModeScript("main() { setting(slider, name:\"level\", title:\"Level\", reset:25, from:0, to:100); } on(touch) { play(volume:level); return(true); }")
         val queue=ImportedKeyboardPartQueue();var current=true;var accepted=false

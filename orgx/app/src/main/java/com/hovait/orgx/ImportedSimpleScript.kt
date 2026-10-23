@@ -137,46 +137,58 @@ object ImportedSimpleScript {
         require(depth==0){"Unbalanced expression"}
         result.add(source.substring(start));return result
     }
-    private fun statements(body:String,context:()->Map<String,Int>):Sequence<String> = sequence {
-        var position=0
-        fun whitespace(){while(position<body.length && (body[position].isWhitespace() || body[position]==';'))position++}
-        while(true){
-            whitespace();if(position>=body.length)break
-            val start=position
-            val conditional=Regex("(?i)if\\s*\\(").find(body,position)?.takeIf{it.range.first==position}
-            if(conditional!=null){
-                val open=conditional.range.last;var end=open+1;var depth=1
-                while(end<body.length && depth>0){when(body[end]){'('->depth++;')'->depth--};end++}
-                require(depth==0){"Unclosed if condition"}
-                position=end;whitespace()
-                if(position<body.length && body[position]=='{'){
-                    val blockStart=++position;depth=1
-                    while(position<body.length && depth>0){when(body[position]){'{'->depth++;'}'->depth--};position++}
-                    require(depth==0){"Unclosed if block"}
-                    val block=body.substring(blockStart,position-1)
-                    val condition=expression(body.substring(open+1,end-1),context())!=0
-                    whitespace()
-                    var alternative:String?=null
-                    val elseToken=Regex("(?i)else\\b").find(body,position)?.takeIf{it.range.first==position}
-                    if(elseToken!=null){
-                        position=elseToken.range.last+1;whitespace()
-                        require(position<body.length && body[position]=='{'){"Else requires a block"}
-                        val alternativeStart=++position;depth=1
-                        while(position<body.length && depth>0){when(body[position]){'{'->depth++;'}'->depth--};position++}
-                        require(depth==0){"Unclosed else block"}
-                        alternative=body.substring(alternativeStart,position-1)
-                    }
-                    if(condition)yieldAll(statements(block,context))
-                    else if(alternative!=null)yieldAll(statements(alternative,context))
-                    continue
-                }
-                position=start
-            }
-            val end=body.indexOf(';',position).let{if(it<0)body.length else it}
-            val statement=body.substring(position,end).trim()
-            require('{' !in statement && '}' !in statement){"Unsupported script block"}
-            if(statement.isNotEmpty())yield(statement)
-            position=end+1
+    private sealed interface Statement {
+        data class Command(val text:String):Statement
+        data class Branch(val condition:String,val yes:Statement,val no:Statement?):Statement
+        data class Block(val items:List<Statement>):Statement
+    }
+    private class StatementReader(private val source:String) {
+        private var position=0
+        private fun space(){while(position<source.length && source[position].isWhitespace())position++}
+        private fun word(value:String):Boolean {space();return source.regionMatches(position,value,0,value.length,true) &&
+            (position+value.length==source.length || !source[position+value.length].isLetterOrDigit())}
+        fun all():List<Statement>{
+            val result=ArrayList<Statement>();space()
+            while(position<source.length){result.add(read());space()}
+            return result
         }
+        private fun read():Statement {
+            space();require(position<source.length){"Missing statement"}
+            if(source[position]=='{'){
+                position++;val items=ArrayList<Statement>();space()
+                while(position<source.length && source[position]!='}'){items.add(read());space()}
+                require(position<source.length){"Unclosed block"};position++
+                return Statement.Block(items)
+            }
+            if(word("if")){
+                position+=2;space();require(position<source.length && source[position]=='(')
+                val start=++position;var depth=1
+                while(position<source.length && depth>0){when(source[position]){'('->depth++;')'->depth--};position++}
+                require(depth==0){"Unclosed condition"}
+                val condition=source.substring(start,position-1)
+                val yes=read();val no=if(word("else")){position+=4;read()}else null
+                return Statement.Branch(condition,yes,no)
+            }
+            val start=position
+            while(position<source.length && source[position]!=';'){
+                require(source[position]!='{' && source[position]!='}'){"Unsupported script block"};position++
+            }
+            val text=source.substring(start,position).trim()
+            if(position<source.length)position++
+            require(text.isNotEmpty()){ "Empty statement" }
+            return Statement.Command(text)
+        }
+    }
+    private fun statements(body:String,context:()->Map<String,Int>):Sequence<String> {
+        val parsed=StatementReader(body).all()
+        fun execute(statement:Statement):Sequence<String> = sequence {
+            when(statement){
+                is Statement.Command->yield(statement.text)
+                is Statement.Block->statement.items.forEach{yieldAll(execute(it))}
+                is Statement.Branch->{val selected=if(expression(statement.condition,context())!=0)statement.yes else statement.no
+                    if(selected!=null)yieldAll(execute(selected))}
+            }
+        }
+        return sequence{parsed.forEach{yieldAll(execute(it))}}
     }
 }
