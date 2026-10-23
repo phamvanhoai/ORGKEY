@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedScriptSettingsTest {
+    @Test fun savedValuesInitializeMainAndEventsWithoutUsingMetadataAsVariables(){
+        val session=ImportedScriptSession("""
+            main(){setting(toggle,name:"enabled",title:"Enabled",reset:true);setting(volume,name:"level",title:"Level",reset:80);effect[2].Depth=level;}
+            on(touch){if(enabled){play(volume:level);return(true);}}
+        """.trimIndent(),storedSettings=mapOf("LEVEL" to "35.0","enabled" to "false","#level.reset" to "99"))
+        assertEquals(35,session.initialEffects.single().value)
+        assertFalse(session.event("touch").handled)
+        session.setSlider("enabled",1)
+        assertEquals(35,session.event("touch").plays.single().parameters["volume"])
+        assertEquals(80,session.sliders.last().reset)
+    }
     @Test fun volumeDefaultsAndInterleavedHeadingsReachRuntime(){
         val session=ImportedScriptSession("""
             main(){

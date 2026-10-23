@@ -37,14 +37,14 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     val scriptSettings:List<ImportedScriptSession.Setting> get()=scriptSession?.settings.orEmpty()
     @Volatile var scriptSliderValues:Map<String,Int> = emptyMap();private set
     fun setScriptSlider(name:String,value:Int){checkNotNull(scriptSession){"No script session"}.setSlider(name,value);scriptSliderValues=scriptSliderValues+(name.lowercase() to value)}
-    fun withModeScript(source:String)=also{
+    fun withModeScript(source:String,storedSettings:Map<String,String> = emptyMap())=also{
         modeScript=runCatching{ImportedModeScript.parse(source)}.getOrNull()
-        val initialized=runCatching{ImportedScriptSession(source,expressionEffects)}
+        val initialized=runCatching{ImportedScriptSession(source,expressionEffects,storedSettings=storedSettings)}
         scriptSession=initialized.getOrNull()
         scriptStatus=if(source.isBlank())"No mode script" else initialized.exceptionOrNull()?.let{"Script initialization failed: ${it.message}"} ?: "Mode script loaded; waiting for events"
         scriptSession?.synchronizeEffects(expressionEffects)
         scriptSession?.let{applyScriptEffects(it.initialEffects)}
-        scriptSliderValues=scriptSliders.associate{it.name to it.reset}
+        scriptSliderValues=scriptSession?.settingValues.orEmpty()
         touchScript=runCatching{ImportedSimpleScript.evaluate(ImportedModeScript.parse(source),"touch")}.getOrNull()
             ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("octavemove","volume")}}}
     }

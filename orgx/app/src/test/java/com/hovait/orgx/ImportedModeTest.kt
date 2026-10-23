@@ -5,6 +5,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedModeTest {
+    @Test fun modeLoaderRestoresSavedDncValuesAndKeepsResetDefault(){
+        val file=File.createTempFile("orgx-dnc-settings",".pcm")
+        try{
+            file.writeBytes(ByteArray(2048){if(it%2==0)0 else 32})
+            val original=instrument()
+            val mode=original.modes.first().copy(sound=0,mix=List(8){-1},
+                script="""main(){setting(slider,name:"level",title:"Level",reset:80,from:0,to:100);effect[2].Depth=level;} on(touch){play(volume:level);return(true);}""",
+                scriptSettings=mapOf("LeVeL" to "35.0","#level.reset" to "80"))
+            val sound=ImportedInstrumentLoader.load(file,original.copy(modes=listOf(mode)))
+            assertTrue(sound.scriptStatus,sound.scriptStatus.startsWith("Mode script loaded"))
+            assertEquals(35,sound.scriptSliderValues["level"])
+            assertEquals(80,sound.scriptSliders.single().reset)
+            sound.setScriptSlider("level",80)
+            assertEquals(80,sound.scriptSliderValues["level"])
+        }finally{file.delete()}
+    }
     @Test fun eventBodyKeepsNestedConditionsAndIgnoresBracesInComments(){
         val script=ImportedModeScript.parse("on(touch) { if(key>60) { play(octavemove:1); } /* } */ return(true); } on(release) { stop(); }")
         val body=script.eventBodies("TOUCH").single()

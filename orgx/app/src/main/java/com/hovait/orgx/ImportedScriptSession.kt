@@ -1,13 +1,14 @@
 package com.hovait.orgx
 
 /** One initialized variable store per mode execution context. Owned by caller. */
-class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionEffect> = emptyList(),private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
+class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionEffect> = emptyList(),storedSettings:Map<String,String> = emptyMap(),private val clockMillis:()->Long={System.nanoTime()/1_000_000}) {
     private val timeOrigin=clockMillis()
     data class Slider(val name:String,val title:String,val reset:Int,val from:Int,val to:Int,val toggle:Boolean=false)
     data class Setting(val title:String,val control:Slider?=null)
     val settings:List<Setting>
     val sliders:List<Slider>
     val settingTitles:List<String>
+    val settingValues:Map<String,Int> get()=sliders.associate{it.name to (state[it.name] ?: it.reset)}
     var initialEffects:List<ImportedSimpleScript.EffectChange> = emptyList();private set
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
@@ -55,6 +56,19 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
         settingTitles=settings.titles
         require(sliders.map{it.name}.distinct().size==sliders.size){"Duplicate script slider"}
         sliders.forEach{state[it.name]=it.reset}
+        // Instrument.ReadFromStream restores ScriptSetting before main registers its controls.
+        // Keep metadata (#name.title/from/to/reset/type) separate from executable variables.
+        storedSettings.forEach{(name,raw)->
+            val key=name.lowercase()
+            if(!key.startsWith("#") && sliders.any{it.name==key}){
+                val value=when(raw.lowercase()){
+                    "true"->1
+                    "false"->0
+                    else->raw.toDoubleOrNull()?.takeIf{it.isFinite() && it>=Int.MIN_VALUE && it<=Int.MAX_VALUE}?.toInt()
+                }
+                if(value!=null)state[key]=value
+            }
+        }
         script=ImportedModeScript.parse(settings.code)
         synchronizeEffects(storedEffects)
         val initialized=ImportedSimpleScript.evaluate(script,"main",state=state)
