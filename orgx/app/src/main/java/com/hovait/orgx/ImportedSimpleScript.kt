@@ -10,7 +10,14 @@ object ImportedSimpleScript {
         val plays=ArrayList<Play>()
         val effects=ArrayList<EffectChange>()
         val pending=state?.toMutableMap() ?: mutableMapOf()
-        fun context()=pending+variables
+        fun context():Map<String,Int> {
+            val values=(pending+variables).toMutableMap()
+            repeat(8){slot->
+                val mode=values["effect[$slot].mode"]?.toByte()?.toInt()
+                if(mode==1 || mode==2)values["effect[$slot].speed"]=0
+            }
+            return values
+        }
         fun result(handled:Boolean):Result {
             state?.let{it.clear();it.putAll(pending)}
             return Result(plays.toList(),handled,effects.toList())
