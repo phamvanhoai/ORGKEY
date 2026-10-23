@@ -1,0 +1,25 @@
+on(touch) {
+  if (key >= 12*repeat_octave) {
+    touch_count = touch_count + 1;
+    touch_oct = 0;
+    timer(repeat_delay) {
+      play(octavemove:touch_oct, autorelease:true);
+      touch_oct = !touch_oct;
+      if (touch_count == 0) break;
+    }
+    return(true);
+  }
+}
+
+on(release) {
+  if (key >= 12*repeat_octave) {
+    touch_count = touch_count - 1;
+  }
+}
+
+main() {
+  touch_count = 0;
+
+  setting(slider, name:"repeat_octave", title:"From Octave", reset:5, from:0, to:9);
+  setting(slider, name:"repeat_delay", title:"Delay", reset:55, from:20, to:120);
+}

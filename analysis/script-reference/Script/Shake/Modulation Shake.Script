@@ -1,0 +1,8 @@
+on(modulate) {
+  effect[2].enable = level != 0;
+  effect[2].Depth = abs(level);
+  if (level > 0)
+    effect[2].Speed = 20;
+  else
+    effect[2].Speed = 40;
+}

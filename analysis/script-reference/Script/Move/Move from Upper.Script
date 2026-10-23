@@ -1,0 +1,19 @@
+on(touch) {
+  touch_is = true;
+  move_key = 0;
+  timer(25) {
+    move_key = move_key + 2;
+    if (!touch_is || move_key > 6) break;
+    play(sound:0, key:key+6-move_key, autorelease:move_key != 6);
+  }
+  return(true);
+}
+
+on(release) {
+  if (touch_is) exit; // exit this Mode
+  touch_is = false;
+}
+
+main() {
+  touch_is = false;
+}

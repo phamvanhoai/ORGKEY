@@ -1,0 +1,12 @@
+on(touch) {
+  play(connectkey:key+legato_move, connectspeed:50);
+  return(true);
+}
+
+on(release) {
+  exit;
+}
+
+main() {
+  setting(slider, name:"legato_move", title:"Legato from", reset:-2, from:-12, to:12);
+}

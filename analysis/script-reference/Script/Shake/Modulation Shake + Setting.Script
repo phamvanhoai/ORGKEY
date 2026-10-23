@@ -1,0 +1,14 @@
+on(modulate) {
+  effect[2].enable = level != 0;
+  effect[2].Depth = (abs(level)*modulate_depth) / 5;
+  if (level > 0)
+    effect[2].Speed = 4*modulate_speed;
+  else
+    effect[2].Speed = 8*modulate_speed;
+}
+
+main() {
+  setting(text, title:"Modulation");
+  setting(slider, name:"modulate_speed", title:"Speed", reset:5, from:1, to:20);
+  setting(slider, name:"modulate_depth", title:"Depth", reset:5, from:1, to:20);
+}

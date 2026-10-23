@@ -1,0 +1,8 @@
+on(touch) {
+  play(connectkey:key-2, connectspeed:50);
+  return(true);
+}
+
+on(release) {
+  exit;
+}

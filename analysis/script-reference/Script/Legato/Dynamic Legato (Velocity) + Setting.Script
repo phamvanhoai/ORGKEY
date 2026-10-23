@@ -1,0 +1,17 @@
+on(touch) {
+  effect[1].Enable = velocity_enable;
+  if (velocity_enable && touch_old != -1 && velocity < 100) {
+    Play(connectkey:touch_old, connectspeed:Max(5, (velocity*velocity_speed)/50));
+    touch_old = key;
+    return(true);
+  }
+  touch_old = key;
+}
+
+main() {
+  touch_old = -1;
+
+  setting(text, title:"Legato on Velocity");
+  setting(toggle, name:"velocity_enable", title:"Enabled", reset: true);
+  setting(slider, name:"velocity_speed", title:"Speed", reset:50, from:1, to:100);
+}

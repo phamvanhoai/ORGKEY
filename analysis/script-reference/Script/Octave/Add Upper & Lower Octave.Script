@@ -1,0 +1,6 @@
+on(touch) {
+  play(volume:50);
+  play(octavemove:1, volume:50);
+  play(octavemove:-1, volume:50);
+  return(true);
+}

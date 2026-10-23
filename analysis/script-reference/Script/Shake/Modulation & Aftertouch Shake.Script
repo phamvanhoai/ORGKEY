@@ -1,0 +1,14 @@
+on(aftertouch) {
+  effect[2].enable = velocity != 0;
+  effect[2].Depth = velocity;
+  effect[2].Speed = 25;
+}
+
+on(modulate) {
+  effect[2].enable = level != 0;
+  effect[2].Depth = abs(level);
+  if (level > 0)
+    effect[2].Speed = 20;
+  else
+    effect[2].Speed = 40;
+}

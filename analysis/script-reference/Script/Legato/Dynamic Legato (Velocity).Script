@@ -1,0 +1,13 @@
+on(touch) {
+  effect[1].Enable = true;
+  if (touch_old != -1 && velocity < 100) {
+    Play(connectkey:touch_old, connectspeed:Max(5, velocity));
+    touch_old = key;
+    return(true);
+  }
+  touch_old = key;
+}
+
+main() {
+  touch_old = -1;
+}

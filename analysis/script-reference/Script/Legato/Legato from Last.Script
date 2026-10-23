@@ -1,0 +1,17 @@
+on(touch) {
+  if (last_key == 0) last_key = key;
+
+  if (abs(last_key - key) > 6)
+    if (last_key < key)
+      last_key = key - 6;
+    else
+      last_key = key + 6;
+
+  play(connectkey:last_key, connectspeed:75);
+  last_key = key;
+  return(true);
+}
+
+main() {
+  last_key = 0;
+}

@@ -1,0 +1,15 @@
+on(touch) {
+  if (touch_time == -1) touch_time = time;
+  effect[1].enable = true;
+  effect[1].Mode = 0;
+  if (time = touch_time)
+    effect[1].Speed = 0;
+  else
+    effect[1].Speed = 10000 / (time - touch_time) + 10;
+
+  touch_time = time;
+}
+
+main() {
+  touch_time = -1;
+}

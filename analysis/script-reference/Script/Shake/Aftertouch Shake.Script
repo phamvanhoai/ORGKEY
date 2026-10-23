@@ -1,0 +1,5 @@
+on(aftertouch) {
+  effect[2].enable = velocity != 0;
+  effect[2].Depth = velocity;
+  effect[2].Speed = 25;
+}

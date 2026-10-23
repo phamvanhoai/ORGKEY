@@ -1,0 +1,18 @@
+on(touch) {
+  touch_count = touch_count + 1;
+  touch_oct = 0;
+  timer(55) {
+    play(octavemove:touch_oct, autorelease:true);
+    touch_oct = !touch_oct;
+    if (touch_count == 0) break;
+  }
+  return(true);
+}
+
+on(release) {
+  touch_count = touch_count - 1;
+}
+
+main() {
+  touch_count = 0;
+}

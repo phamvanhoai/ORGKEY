@@ -1,0 +1,11 @@
+on(aftertouch) {
+  effect[2].enable = velocity != 0;
+  effect[2].Depth = (velocity * aftertouch_depth) / 5;
+  effect[2].Speed = 5 * aftertouch_speed;
+}
+
+main() {
+  setting(text, title:"Aftertouch");
+  setting(slider, name:"aftertouch_speed", title:"Speed", reset:5, from:1, to:20);
+  setting(slider, name:"aftertouch_depth", title:"Depth", reset:5, from:1, to:20);
+}

@@ -1,0 +1,19 @@
+on(touch) {
+  if (touch_time == -1) {
+    touch_time = time;
+    touch_last = key;
+  }
+  if (Playing(released) && time - touch_time > 500 && abs(touch_last - key) < 6) {
+    play(connectkey:touch_last, connectspeed:50);
+    touch_time = time;
+    return(true);
+  }
+
+  touch_time = time;
+  touch_last = key;
+}
+
+main() {
+  touch_time = -1;
+  touch_last = 0;
+}

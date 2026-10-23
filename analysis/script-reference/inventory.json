@@ -1,0 +1,122 @@
+[
+  {
+    "path": "Script/Empty.Script",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "Script/Legato/Dynamic Legato (Near).Script",
+    "bytes": 377,
+    "sha256": "634479133fc6164f6a4dd231b8d2d63df8e81c5584941e7887777c6fd834778e"
+  },
+  {
+    "path": "Script/Legato/Dynamic Legato (Speed).Script",
+    "bytes": 287,
+    "sha256": "aeecb3f7f489094cd085cc1825037b6a9958cf8f79b9ba7903057c170923e310"
+  },
+  {
+    "path": "Script/Legato/Dynamic Legato (Velocity) + Setting.Script",
+    "bytes": 508,
+    "sha256": "2576d881c39dcefff33e8bd259e86dc7c8ea0375bb327858b6ed8c738344b895"
+  },
+  {
+    "path": "Script/Legato/Dynamic Legato (Velocity).Script",
+    "bytes": 252,
+    "sha256": "326befa72fe4a0eb259299475cf0ae950b34788bbcb418c842fc5f946e667e1c"
+  },
+  {
+    "path": "Script/Legato/Legato from + Setting.Script",
+    "bytes": 219,
+    "sha256": "a29f55922e4a54fdf68a5c1d6713a627bcfb458fcb3b886aa9f45423ec176e20"
+  },
+  {
+    "path": "Script/Legato/Legato from Last.Script",
+    "bytes": 294,
+    "sha256": "c7e1b05841cdbdd1b81ca2637c0f9ab1ebf9e8540e0b9e5ff29cfbb864ddaf3c"
+  },
+  {
+    "path": "Script/Legato/Legato from Lower.Script",
+    "bytes": 106,
+    "sha256": "c1ae9df65ef90a17aca50b014b92989525403bad17d182f6b844473e3db2e54d"
+  },
+  {
+    "path": "Script/Legato/Legato from Upper.Script",
+    "bytes": 106,
+    "sha256": "e6add847336712f697f6f6f8f0f4455c792c5fae2d9194e8600fe86e21e8e95a"
+  },
+  {
+    "path": "Script/Move/Move from Lower.Script",
+    "bytes": 346,
+    "sha256": "b3c30309752433b09bb5a2ba383f423b38715083041fe55a51f62b6fb6a5e677"
+  },
+  {
+    "path": "Script/Move/Move from Upper.Script",
+    "bytes": 348,
+    "sha256": "9ab49d4adc65b3b83ebc77360f79a26882723caa85376f76e95d9c7bce124d39"
+  },
+  {
+    "path": "Script/Octave/Add Lower Octave.Script",
+    "bytes": 40,
+    "sha256": "a582c1a0beaf3888732fc9a0aec009f87ef078c5598e62c0f5c8b72173b2cbfb"
+  },
+  {
+    "path": "Script/Octave/Add Upper & Lower Octave.Script",
+    "bytes": 122,
+    "sha256": "b290122f802ab15e7a318caa32afa919b58f377e578d65bb724e827b17543c21"
+  },
+  {
+    "path": "Script/Octave/Add Upper Octave.Script",
+    "bytes": 39,
+    "sha256": "1d9bef1e78992f0a79dd4629abd058f552454d02b243e9515b990ecbf183b4a6"
+  },
+  {
+    "path": "Script/Octave/Modulation Octave.Script",
+    "bytes": 795,
+    "sha256": "6a31051d9b7faec0f24ac79ab7ab74ecee4b5c520bb6504c70420523bb72b9e9"
+  },
+  {
+    "path": "Script/Octave/Repeat Octave (Full Keyboard).Script",
+    "bytes": 308,
+    "sha256": "ee106c44922d864198f94a6aa59f3ffaf192c41cf45b88d5cddfa6ec3930ceab"
+  },
+  {
+    "path": "Script/Octave/Repeat Octave (Half Keyboard).Script",
+    "bytes": 380,
+    "sha256": "0629dbc2ae9c354383b80df4183319eb0df3901723be63ed19cc4549bf876ae3"
+  },
+  {
+    "path": "Script/Octave/Repeat Octave + Setting.Script",
+    "bytes": 585,
+    "sha256": "7c32b8cc941e149069acc1c908d1c599389bc117b3554f28aa5edcf718d08f33"
+  },
+  {
+    "path": "Script/Shake/Aftertouch & Modulation Shake + Setting.Script",
+    "bytes": 799,
+    "sha256": "2c8f2019ae4d8b4f84f4630f03c6882bc23466a4278454ad8927262bc4875d49"
+  },
+  {
+    "path": "Script/Shake/Aftertouch Shake + Setting.Script",
+    "bytes": 378,
+    "sha256": "76abcee47016dfe5f641073a0166d3909b9667c87438e8b99327f069e4dbc230"
+  },
+  {
+    "path": "Script/Shake/Aftertouch Shake.Script",
+    "bytes": 114,
+    "sha256": "d8ca92d28948d502a4c2ce72474d6ddc6d396cf24533b20471b54fcf01cf88bd"
+  },
+  {
+    "path": "Script/Shake/Modulation & Aftertouch Shake.Script",
+    "bytes": 280,
+    "sha256": "16adb0cfe0dd934fc61ece27cf6ead5ad15270172dc6cbca6213841709f9fb41"
+  },
+  {
+    "path": "Script/Shake/Modulation Shake + Setting.Script",
+    "bytes": 432,
+    "sha256": "90fd63ef61fced84eb71d499c33cdf5d9e773216c5ce41275f5d32a5ed023b8a"
+  },
+  {
+    "path": "Script/Shake/Modulation Shake.Script",
+    "bytes": 166,
+    "sha256": "9acfb1af181246222bc76a2ef461a50319758a129dfc8252a63f3f568026c170"
+  }
+]

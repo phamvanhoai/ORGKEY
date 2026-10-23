@@ -1,0 +1,3 @@
+on(touch) {
+  play(octavemove:1);
+}
