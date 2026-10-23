@@ -213,6 +213,21 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }
             }}
         }
+        private var scriptPedal=false
+        fun scriptPedal(down:Boolean){
+            if(scriptPedal==down)return
+            scriptPedal=down
+            if(!ownsScriptEvents)return
+            runCatching{scriptSession?.event(if(down)"pedalon" else "pedaloff"){result->
+                require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
+            }?.also{result->
+                applyScriptEffects(result.effects)
+                result.effects.map{it.slot}.distinct().forEach{slot->
+                    val effect=expressionEffects.first{it.slot==slot}
+                    if(slot==2)configurePitchShake(effect) else configureVolumeShake(effect)
+                }
+            }}
+        }
         private val effectiveEnvelope=envelope?.let{original->
             fun value(name:String,fallback:Int)=envelopeOverrides[name]?.takeIf{it>=0}?.coerceAtMost(if(name=="sustain")100 else 127) ?: fallback
             original.copy(attack=value("attack",original.attack),decay=value("decay",original.decay),

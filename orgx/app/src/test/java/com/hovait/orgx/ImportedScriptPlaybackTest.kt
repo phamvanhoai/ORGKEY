@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun pedalScriptDispatchesOnlyOnTransitions(){
+        val source=sound().withModeScript("main() { level=25; } on(touch) { play(volume:level); return(true); } on(pedalon) { level=level+25; } on(pedaloff) { level=25; }")
+        val voice=source.voice(60)
+        voice.scriptPedal(true);voice.scriptPedal(true)
+        val next=source.voice(60);next.next(false);assertEquals(.125,next.left,1e-12)
+        voice.scriptPedal(false)
+        val reset=source.voice(60);reset.next(false);assertEquals(.0625,reset.left,1e-12)
+    }
     @Test fun originalModulationShakeRunsBothSignedBranches(){
         fun render(level:Int):Double {
             val source=SampledInstrument(listOf(InstrumentRegion(60,
