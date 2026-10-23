@@ -10,7 +10,7 @@ data class ImportedSound(val name:String,val envelope:List<Int>,val sections:Lis
 data class ImportedFxModule(val type:Int,val enabled:Boolean,val realtime:Boolean,val payload:List<Int>)
 data class ImportedChannelSettings(val volume:Int=100,val pan:Int=0,val tune:Int=0,val transpose:Int=0,val octave:Int=0,val releasePercent:Int=100,
     val fxEnabled:Boolean=false,val modules:List<ImportedFxModule> = emptyList())
-data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix:List<Int>,val mixVolume:List<Int>,val mixPan:List<Int>,val settings:ImportedChannelSettings=ImportedChannelSettings(),val effects:List<ImportedExpressionEffect> = emptyList())
+data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix:List<Int>,val mixVolume:List<Int>,val mixPan:List<Int>,val settings:ImportedChannelSettings=ImportedChannelSettings(),val effects:List<ImportedExpressionEffect> = emptyList(),val script:String="")
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList())
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4,val settings:ImportedChannelSettings=ImportedChannelSettings(),
@@ -76,12 +76,12 @@ object ImportedSetInstruments {
                 val selectedSound=int();val aftertouch=int();val mix=List(8){f.readByte().toInt()}
                 val modeSettings=fx();val modeEffects=effects()
                 val mixVolume=List(8){f.readByte().toInt()};val mixPan=List(8){f.readByte().toInt()}
-                if(!legacy)text()
+                val script=if(!legacy)text() else ""
                 if(version=="1.4.6"){
                     val settings=count(10000);repeat(settings){text()}
                     if(settings>0)repeat(count(10000)){text()}
                 }
-                ImportedMode(modeName,selectedSound,aftertouch,mix,mixVolume,mixPan,modeSettings,modeEffects)
+                ImportedMode(modeName,selectedSound,aftertouch,mix,mixVolume,mixPan,modeSettings,modeEffects,script)
             }
             // Instrument.ReadFromStream resets legacy ADS before 1.3.1; stored bytes are not the effective ADS.
             val effectiveLegacyAds=legacyAds.map{listOf(0,0,100)}
