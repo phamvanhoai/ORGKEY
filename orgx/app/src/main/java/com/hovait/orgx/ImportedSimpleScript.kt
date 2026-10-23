@@ -92,7 +92,7 @@ object ImportedSimpleScript {
                     if(stop && argument.trim().equals("cut",true)){parameters["cut"]=1;continue}
                     require(pair.size==2){"Invalid audio parameter"}
                     val name=pair[0].trim().lowercase()
-                    require(if(stop)name=="id" else name in setOf("id","octavemove","keymove","volume","sound","key","velocity","balance","pan","tune","pitchmove","connectkey","connectspeed","autorelease","attack","decay","sustain","release")){"Unsupported audio parameter: $name"}
+                    require(if(stop)name=="id" else name in setOf("id","octavemove","keymove","volume","sound","key","velocity","balance","pan","pedal","tune","pitchmove","connectkey","connectspeed","autorelease","attack","decay","sustain","release")){"Unsupported audio parameter: $name"}
                     require(name !in parameters){"Duplicate play parameter: $name"}
                     parameters[name]=expression(pair[1],context())
                 }

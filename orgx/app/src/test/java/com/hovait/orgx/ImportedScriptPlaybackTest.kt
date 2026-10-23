@@ -5,6 +5,23 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun playPedalSelectsReleaseCurveAndTracksPedalOff(){
+        fun source(pedal:Int?)=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope.from(listOf(0,0,100,10,0,0)))
+            .withModeScript("on(touch){play(${pedal?.let{"pedal:$it"}.orEmpty()});return(true);}")
+        val held=source(1).voice(60)
+        val fast=source(0).voice(60)
+        val default=source(null).voice(60)
+        held.next(false);fast.next(false);default.next(false)
+        repeat(101){held.next(true);fast.next(true);default.next(true)}
+        assertFalse(held.finished)
+        assertFalse(default.finished)
+        assertEquals(held.left,default.left,1e-12)
+        assertTrue(fast.finished)
+        held.scriptPedal(false)
+        repeat(101){held.next(true)}
+        assertTrue(held.finished)
+    }
     @Test fun scriptBalanceAndPanOverrideDoNotAccumulateOriginalNoteBalance(){
         val source=sound().withModeScript("on(touch){play(balance:20,pan:-40);return(true);}")
         val voice=source.voice(60,pan=80)
@@ -626,7 +643,7 @@ class ImportedScriptPlaybackTest {
             SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
             envelope=ImportedEnvelope(attack,0,100,20,false))
         val instrument=SampledInstrument.combine(listOf(layer(5),layer(10)))
-            .withModeScript("on(touch) { play(attack:0,release:1); return(true); }")
+            .withModeScript("on(touch) { play(attack:0,release:1,pedal:0); return(true); }")
         val first=instrument.voice(60);val second=instrument.voice(60)
         first.next(false);second.next(false)
         assertEquals(.5,first.left,1e-12)
@@ -637,7 +654,7 @@ class ImportedScriptPlaybackTest {
     @Test fun scriptEnvelopeOverridesAttackAndRelease(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
             envelope=ImportedEnvelope(10,0,100,20,false))
-        val voice=source.withModeScript("on(touch) { play(attack:0,release:1); return(true); }").voice(60)
+        val voice=source.withModeScript("on(touch) { play(attack:0,release:1,pedal:0); return(true); }").voice(60)
         voice.next(false);assertEquals(.25,voice.left,1e-12)
         repeat(20){voice.next(true)};assertTrue(voice.finished)
     }
@@ -645,7 +662,7 @@ class ImportedScriptPlaybackTest {
         fun voice(stored:Boolean,requested:Boolean)=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
             envelope=ImportedEnvelope(0,0,100,1,stored))
-            .withModeScript("on(touch) { play(autorelease:$requested); return(true); }").voice(60)
+            .withModeScript("on(touch) { play(autorelease:$requested,pedal:0); return(true); }").voice(60)
         val automatic=voice(false,true);val held=voice(true,false)
         repeat(120){automatic.next(false);held.next(false)}
         assertTrue(automatic.finished);assertFalse(held.finished)

@@ -135,8 +135,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true,scriptId:Int=note):Playback=if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed,scriptId) else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false,private val scriptId:Int=note,private val channelPanOverride:Int?=null){
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false,private val scriptId:Int=note,private val channelPanOverride:Int?=null,scriptPedalValue:Int?=null){
         private var scriptPedal=false
+        private var playbackPedal=scriptPedalValue?.let{it!=0}
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
         private var scriptReleased=false
         private var releaseHandled=false
@@ -156,7 +157,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun channelBalance(value:Int){balance=channelPanOverride ?: value;children.forEach{it.channelBalance(balance)};alternate?.channelBalance(balance)}
         private fun validateScriptAudio(result:ImportedSimpleScript.Result){
                 require(result.effects.all{it.slot in 0..3}){"Unsupported script effect slot"}
-                require(result.plays.all{play->play.parameters.keys.all{it in setOf("id","sound","key","velocity","balance","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
+                require(result.plays.all{play->play.parameters.keys.all{it in setOf("id","sound","key","velocity","balance","keymove","octavemove","volume","pan","pedal","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
                 result.plays.forEach{command->
                     val sound=command.parameters["sound"]
                     require(!scriptSoundRouting && sound==null || (sound ?: scriptDefaultSound) in scriptSounds){"Script sound unavailable: ${sound ?: scriptDefaultSound}"}
@@ -183,7 +184,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val playback=source.Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
                 (command.parameters["balance"] ?: 0).coerceIn(-100,100),
                 command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity,
-                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,command.parameters["id"] ?: scriptId,command.parameters["pan"]?.coerceIn(-100,100))
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,command.parameters["id"] ?: scriptId,command.parameters["pan"]?.coerceIn(-100,100),command.parameters["pedal"] ?: 1)
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
@@ -195,7 +196,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val scriptChildren=scriptPlan?.plays.orEmpty().map(::createScriptChild).toMutableList()
         private val initialChildren=if(scriptPlan!=null)scriptChildren.map{it.first}+
             (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)))
-            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal,scriptId,channelPanOverride)}
+            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal,scriptId,channelPanOverride,scriptPedalValue)}
         private val children=initialChildren.toMutableList()
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
@@ -351,6 +352,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }}.onFailure{scriptStatus="Modulation fallback: ${it.message}"}
         }
         fun scriptPedal(down:Boolean){
+            if(playbackPedal!=null)playbackPedal=down
+            children.forEach{it.scriptPedal(down)}
             alternate?.scriptPedal(down)
             if(scriptPedal==down)return
             scriptPedal=down
@@ -439,36 +442,37 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                     }
                 }}.onFailure{timerOwner?.let{scriptSession?.cancelTimer(it)};scriptStatus="Release fallback: ${it.message}"}
             }
+            val effectivePedal=playbackPedal ?: pedal
             advanceScriptTimer()
             timerFrames++
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
             val effectiveNoteOff=forcedRelease || (noteOff && !releaseHandled)
             val released=effectiveNoteOff || autoReleaseStarted
             countReleased=released
-            if(connectionActive && (!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
+            if(connectionActive && (!connectionByPedal || effectivePedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
                     step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
                     bentStep=step*2.0.pow(bendSemitones/12.0)
                 }
             }
-            pitchShake?.next(released,pedal)
+            pitchShake?.next(released,effectivePedal)
             val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)
-            if(aftertouch){alternate?.next(effectiveNoteOff,pedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
+            if(aftertouch){alternate?.next(effectiveNoteOff,effectivePedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
             }else if(scriptPlan!=null && children.isEmpty()){
                 left=0.0;right=0.0;finished=timerOwner?.let{scriptSession?.hasTimer(it)}!=true
             }else if(children.isNotEmpty()){
-                children.forEach{it.next(effectiveNoteOff,pedal,pitchOffset)}
+                children.forEach{it.next(effectiveNoteOff,effectivePedal,pitchOffset)}
                 fun gain(child:Playback)=scriptChildren.firstOrNull{it.first===child}?.second ?: 1.0
                 left=children.sumOf{it.left*gain(it)};right=children.sumOf{it.right*gain(it)};finished=children.all{it.finished} && timerOwner?.let{scriptSession?.hasTimer(it)}!=true
             }else{
-                val gain=state?.next(released,pedal) ?: if(released)0.0 else 1.0
+                val gain=state?.next(released,effectivePedal) ?: if(released)0.0 else 1.0
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
                 position+=(bentStep*scriptPitchFactor+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
                     (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && effectiveNoteOff)
             }
             if(children.isEmpty() && state==null && autoReleaseStarted)finished=true
-            volumeShake?.let{it.next(released,pedal);left*=it.left;right*=it.right}
+            volumeShake?.let{it.next(released,effectivePedal);left*=it.left;right*=it.right}
             if(finished)playbackRegistry.remove(this)
         }
     }
