@@ -5,6 +5,12 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun overflowingScriptTuneFallsBackBeforeCreatingAnyScriptVoice(){
+        val source=sound().withModeScript("on(touch) { play(volume:50); play(tune:2147483647); return(true); }")
+        val voice=source.voice(60,tune=1)
+        voice.next(false)
+        assertEquals(.25,voice.left,1e-12)
+    }
     @Test fun scriptReleaseOverrideReachesEveryLayerWithoutSharingLiveState(){
         fun layer(attack:Int)=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,

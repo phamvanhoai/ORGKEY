@@ -53,6 +53,12 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val scriptPlan=if(scriptAllowed)runCatching{
             modeScript?.let{ImportedSimpleScript.evaluate(it,"touch",mapOf("key" to note,"velocity" to scriptVelocity))}
                 ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}}}
+                ?.also{result->result.plays.forEach{command->
+                    val combinedTune=Math.addExact(tune,command.parameters["tune"] ?: 0)
+                    val target=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
+                    val rate=pitchStep(target,combinedTune)
+                    require(rate.isFinite() && rate>0){"Script pitch outside playback range"}
+                }}
         }.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
