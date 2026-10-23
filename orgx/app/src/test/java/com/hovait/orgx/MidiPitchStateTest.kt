@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiPitchStateTest {
+    @org.junit.Test fun liveRangeChangesPreserveRawBendAndPlaybackRange(){
+        val state=MidiPitchState()
+        state.set(16383,0);state.set(0,1);state.set(16383,0,true)
+        state.liveRange=12
+        org.junit.Assert.assertEquals(12.0,state.semitones(0),0.0)
+        org.junit.Assert.assertEquals(-12.0,state.semitones(1),0.0)
+        org.junit.Assert.assertEquals(2.0,state.semitones(0,true),0.0)
+        org.junit.Assert.assertEquals(8191,state.scriptLevel(0))
+        state.liveRange=1
+        org.junit.Assert.assertEquals(1.0,state.semitones(0),0.0)
+        state.set(8192,0);org.junit.Assert.assertEquals(0.0,state.semitones(0),0.0)
+    }
     @Test fun recordingStartsWithOnlyNonCenteredLiveChannelBends(){
         val state=MidiPitchState()
         assertTrue(state.recordingMessages().isEmpty())

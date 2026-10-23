@@ -117,6 +117,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     LaunchedEffect(Unit){
         engine.chordControl=preferences.getInt("chordControl",0).coerceIn(0,4)
         engine.chordMemory=preferences.getBoolean("chordMemory",true)
+        engine.setPitchBendRange(preferences.getInt("pitchbend_range",2).coerceIn(1,12))
+        engine.pitchBendLock=preferences.getBoolean("pitchbend_lock",false)
         engine.configureStyleTiming(preferences.getInt("styleChangeMethod",0).coerceIn(0,3),preferences.getBoolean("styleTempoLock",false))
         engine.configureChordSynchro(preferences.getBoolean("sync_start",true),preferences.getBoolean("sync_stop",false),
             preferences.getInt("chord_synchro",0).takeIf{it in listOf(0,2,3)} ?: 0)
@@ -1068,6 +1070,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var repeatToLoop by remember { mutableStateOf(preferences.getBoolean("styleRepeatToLoop",false)) }
     var tempoLock by remember{mutableStateOf(engine.styleTempoLock)}
     var autoTempoLock by remember{mutableStateOf(preferences.getBoolean("styleAutoTempoLock",false))}
+    var bendRange by remember{mutableIntStateOf(engine.pitchBendRange)}
+    var bendLock by remember{mutableStateOf(engine.pitchBendLock)}
     var changeMethod by remember{mutableIntStateOf(engine.styleChangeMethod)}
     var keyConnectionMethod by remember { mutableIntStateOf(preferences.getInt("key_connection",0).coerceIn(0,1)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
@@ -1086,6 +1090,14 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             })
         }
         Text("Rhythm Change Method",fontWeight=FontWeight.Bold)
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+            Text("Pitch bend ±$bendRange",Modifier.weight(1f))
+            TextButton(enabled=bendRange>1,onClick={bendRange--;engine.setPitchBendRange(bendRange);preferences.edit().putInt("pitchbend_range",bendRange).apply()}){Text("−")}
+            TextButton(enabled=bendRange<12,onClick={bendRange++;engine.setPitchBendRange(bendRange);preferences.edit().putInt("pitchbend_range",bendRange).apply()}){Text("+")}
+        }
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+            Text("Pitch bend lock",Modifier.weight(1f));Switch(checked=bendLock,onCheckedChange={bendLock=it;engine.pitchBendLock=it;preferences.edit().putBoolean("pitchbend_lock",it).apply()})
+        }
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Auto tempo lock",Modifier.weight(1f));Switch(checked=autoTempoLock,onCheckedChange={
                 autoTempoLock=it;preferences.edit().putBoolean("styleAutoTempoLock",it).apply()

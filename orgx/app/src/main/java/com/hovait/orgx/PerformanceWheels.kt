@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.sp
                                 }
                                 change.consume()
                             }
-                            if(wheel==0){bend=0f;engine.midiPitchBend(8192)}
+                            if(wheel==0 && !engine.pitchBendLock){bend=0f;engine.midiPitchBend(8192)}
                         }
                     }finally{if(wheel==0){bend=0f;engine.midiPitchBend(8192)}}
                 }){

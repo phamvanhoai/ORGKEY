@@ -29,6 +29,17 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
     private val voices = ConcurrentHashMap<Int, Voice>()
     private val pitchState=MidiPitchState()
+    @Volatile var pitchBendLock=false
+    val pitchBendRange get()=pitchState.liveRange
+    fun setPitchBendRange(range:Int){
+        pitchState.liveRange=range
+        for(channel in 0..15){
+            val semitones=pitchState.semitones(channel)
+            val level=pitchState.scriptLevel(channel)
+            if(stsPartsEnabled)stsParts.pitchBend(semitones,channel,level)
+            voices.filterKeys{MidiVoiceKey.isChannel(it,channel,false)}.values.forEach{it.sampledPlayback?.pitchBend(semitones,level)}
+        }
+    }
     private val outputLoop: AudioOutputLoop
     @Volatile var masterVolume = 0.65f
     @Volatile var keysVolume = 0.78f
@@ -219,7 +230,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun midiPitchBend(value:Int,channel:Int=0,playback:Boolean=false){
         pitchState.set(value,channel,playback)
         if(!playback){val bend=value.coerceIn(0,16383);captureMidi(0xe0 or channel,bend and 127,bend shr 7)}
-        val semitones=MidiPitchBend.semitones(value)
+        val semitones=pitchState.semitones(channel,playback)
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.pitchBend(semitones,channel,value.coerceIn(0,16383)-8192)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones,value.coerceIn(0,16383)-8192)}
     }

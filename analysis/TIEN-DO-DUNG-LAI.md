@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — điều khiển biểu cảm cảm ứng, 24-10-2026
+## Kết quả mới nhất — bend range và lock, 24-10-2026
+
+- Đối chiếu mảng PitchbendRange/Value gốc1..12 và MainActivity.v1 kiểm tra f1 khi nhả pointer. Thêm Pitch bend ±1..±12 và Pitch bend lock trong Cài đặt, dùng preference pitchbend_range/pitchbend_lock.
+- MidiPitchState giữ range live riêng; engine áp range mới cho channel live đang có tiếng và cho note-on sau đó. Raw scriptLevel vẫn là bend14bit-8192, trạng thái/range file playback giữ độc lập mặc định±2.
+- Bánh BEND giữ vị trí sau nhả bình thường khi lock=true; RESET vẫn trả giữa. Khi cancel gesture/Activity pause/rời composition, vẫn trả giữa để tránh treo pitch (khác chính sách lock toàn cục gốc, cần đối chiếu thêm).
+- Kiểm tra range12 cho raw max/min -> ±12, range1 -> +1, center ->0, scriptLevel giữ8191 và playback vẫn+2 đạt cùng PitchBendPolicyTest; build/cài APK thành công, không tạo file test mới.
+- Chưa có pitchspeed/smoothing/range riêng controller; ghi MIDI chưa xuất RPN bend sensitivity nên phát lại file ngoài engine mặc định±2 không tái hiện range live khác2. Chưa có bản thu hoặc thao tác lock/range so APK gốc.
+
+## Điều khiển biểu cảm cảm ứng, 24-10-2026
 
 - Thêm PerformanceWheels mã ứng dụng cạnh bàn phím: BEND và MOD kéo dọc, giữ riêng pointer của mỗi điều khiển để không lấy thao tác phím đàn. Dùng midiPitchBend/midiModulation hiện có (channel0 live), đi qua đường voice/STS/script và MIDI recording của engine.
 - BEND gửi giá trị14bit quanh8192 và trả giữa khi nhả, khi cancel gesture, khi Activity không còn cho nhập bàn phím hoặc khi rời composition. MOD gửi CC1 0..127, giữ mức sau nhả; RESET đưa bend/CC1 về giữa/0. Không nạp sample trong gesture.

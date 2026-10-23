@@ -4,6 +4,8 @@ import java.util.concurrent.atomic.AtomicIntegerArray
 
 /** Channel state persists across note-ons; live input and file playback are independent. */
 class MidiPitchState {
+    @Volatile var liveRange=2
+        set(value){require(value in 1..12);field=value}
     private val values=AtomicIntegerArray(32).apply{for(i in 0 until length())set(i,MidiPitchBend.CENTER)}
     private fun index(channel:Int,playback:Boolean):Int {
         require(channel in 0..15)
@@ -15,6 +17,6 @@ class MidiPitchState {
         val bend=values.get(index(channel,false))
         if(bend==MidiPitchBend.CENTER)null else MidiChannelMessage.bytes(0xe0 or channel,bend and 127,bend shr 7)
     }
-    fun semitones(channel:Int,playback:Boolean=false)=MidiPitchBend.semitones(values.get(index(channel,playback)))
+    fun semitones(channel:Int,playback:Boolean=false)=MidiPitchBend.semitones(values.get(index(channel,playback)),if(playback)2 else liveRange)
     fun scriptLevel(channel:Int,playback:Boolean=false)=values.get(index(channel,playback))-MidiPitchBend.CENTER
 }
