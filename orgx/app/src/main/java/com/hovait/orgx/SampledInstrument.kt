@@ -91,6 +91,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
         private var scriptReleased=false
         private var releaseHandled=false
+        private var forcedRelease=false
+        fun forceRelease(){
+            forcedRelease=true;scriptReleased=true;releaseHandled=false
+            children.forEach{it.forceRelease()};alternate?.forceRelease()
+        }
         private var balance=0
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
@@ -309,7 +314,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }}
             }
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
-            val effectiveNoteOff=noteOff && !releaseHandled
+            val effectiveNoteOff=forcedRelease || (noteOff && !releaseHandled)
             val released=effectiveNoteOff || autoReleaseStarted
             if(connectionActive && (!connectionByPedal || pedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){

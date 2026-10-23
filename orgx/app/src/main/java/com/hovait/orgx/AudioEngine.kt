@@ -401,7 +401,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             } catch(_:InterruptedException){} finally {
                 midiSessionGate.runIfCurrent(session){
                     playbackModulation.fill(0)
-                    voices.values.filter{it.playback}.forEach{it.sampledPlayback?.modulate(0);it.releasing=true};midiPlaybackThread=null;onComplete()
+                    voices.values.filter{it.playback}.forEach{it.sampledPlayback?.modulate(0);it.sampledPlayback?.forceRelease();it.releasing=true};midiPlaybackThread=null;onComplete()
                 }
             }
         }
@@ -410,7 +410,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Synchronized fun stopMidi(){
         val session=midiSessionGate.replace()
         midiPlaybackThread?.interrupt();midiPlaybackThread=null
-        midiSessionGate.runIfCurrent(session){playbackModulation.fill(0);voices.values.filter{it.playback}.forEach{it.sampledPlayback?.modulate(0);it.releasing=true}}
+        midiSessionGate.runIfCurrent(session){playbackModulation.fill(0);voices.values.filter{it.playback}.forEach{it.sampledPlayback?.modulate(0);it.sampledPlayback?.forceRelease();it.releasing=true}}
     }
 
     fun startRecording() {

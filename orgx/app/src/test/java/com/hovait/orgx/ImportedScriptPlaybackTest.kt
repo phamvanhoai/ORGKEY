@@ -5,6 +5,12 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun forcedStopEndsVoiceWhoseReleaseWasHandledByScript(){
+        val voice=sound().withModeScript("on(touch) { play(); return(true); } on(release) { return(true); }").voice(60)
+        voice.next(false);voice.next(true);assertFalse(voice.finished)
+        voice.forceRelease();voice.next(false)
+        assertTrue(voice.finished);assertEquals(0.0,voice.left,0.0)
+    }
     @Test fun handledReleaseKeepsScriptVoiceWhileFalseUsesDefaultRelease(){
         val held=sound().withModeScript("on(touch) { play(); return(true); } on(release) { return(true); }").voice(60)
         val normal=sound().withModeScript("on(touch) { play(); return(true); } on(release) { return(false); }").voice(60)
