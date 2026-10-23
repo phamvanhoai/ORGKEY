@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @org.junit.Test fun pitchSpeedRampsHeldPcmButNewNotesStartAtCurrentBend(){
+        val previous=SampledInstrument.pitchSpeed
+        try{
+            SampledInstrument.pitchSpeed=2
+            val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(256){(it*100).toShort()}),0,256)),1000)
+            val held=sound.voice(60)
+            held.next(false);held.next(false);held.pitchBend(12.0)
+            held.next(false);held.next(false)
+            org.junit.Assert.assertTrue(held.left>300.0/32768 && held.left<400.0/32768)
+            val fresh=sound.voice(60);fresh.pitchBend(12.0)
+            fresh.next(false);fresh.next(false)
+            org.junit.Assert.assertEquals(200.0/32768,fresh.left,1e-12)
+            held.pitchBend(0.0);repeat(100){held.next(false);org.junit.Assert.assertTrue(held.left.isFinite())}
+        }finally{SampledInstrument.pitchSpeed=previous}
+    }
     @Test fun keyConnectionByPedalPausesDelayAndPitchMovement(){
         val instrument=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(16){((it+1)*1000).toShort()}),0,0,looping=false)),1000)

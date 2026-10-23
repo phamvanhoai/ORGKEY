@@ -2,7 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Kết quả mới nhất — MIDI bend sensitivity, 24-10-2026
+## Kết quả mới nhất — Pitch Speed, 24-10-2026
+
+- Đối chiếu Channels.Process: fPitchSpeed lấy từ Music, iPitch là đích, mỗi khối tính dPitchChangeValue=(target-current)/(size*speed). Mảng gốc có1/2/3/4/5/7/10/15/20/30/40/60/100 tương ứng Fast,20..600ms,Slow; Music mặc định2.
+- Sampled Playback nay giữ bendFactor hiện tại và đích riêng, nội suy theo khối10ms và speed trước bước đọc sample. Nốt mới nhận bend ban đầu ngay; nốt đang ngân đi dần khi đổi hoặc nhả bend. Connection cập nhật base step mà vẫn dùng bendFactor đang chuyển. Scope cấu hình dùng chung sample channels như Music.
+- Cài đặt có Pitch Speed, lưu pitchspeed và restore mặc định2. Giá trị0 chỉ dùng đường nội bộ/tests để giữ phát tức thời; UI dùng các giá trị gốc1..100.
+- Kiểm tra PCM held-note ramp nằm giữa pitch cũ/mới, fresh note nhận bend ngay, trở center hữu hạn đạt cùng SampledInstrumentTest/ImportedScriptPlaybackTest/ReferenceRhythmPlayerTest; build/cài APK thành công. Không tạo file test mới.
+- Khối10ms hiện quy đổi từ outputRate, chưa chứng minh khớp kích thước buffer/quantization/mixer branch của native APK trên từng thiết bị. Chưa áp fLoopTempo/Loop3 bypass hoặc smoothing toàn bộ pitchmove/keyconnection giống gốc; chưa có bản thu đối chiếu. Các mức ms là nhãn tham chiếu, không cam kết tuyến tính tới đích sau đúng số ms.
+
+## MIDI bend sensitivity, 24-10-2026
 
 - Khép giới hạn export bend range ở lượt trước: khi REC bắt đầu, ghi RPN0,0 + Data Entry MSB range/LSB cents0 cho16 kênh live, rồi null RPN và ghi raw bend đang giữ trước các nốt. Đổi range trong REC cũng capture bộ controller này.
 - MidiFile giữ CC6/38/100/101 và NRPN98/99 theo thứ tự sự kiện; MidiSustain chuyển tiếp các sự kiện expression này. Playback có sensitivity riêng từng kênh (semitone+cents), reset mặc định2 mỗi lần mở song. Data Entry chỉ đổi range khi RPN0,0 đang được chọn; null RPN/NRPN không làm đổi nhầm range. Đổi range playback áp lại raw bend cho tiếng đang ngân, không thay trạng thái live.

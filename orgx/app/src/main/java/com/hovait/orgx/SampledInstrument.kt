@@ -127,6 +127,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun keyboardNote(note:Int):Int=if(activeModeSound!==this)activeModeSound.keyboardNote(note) else if(!keyboardMelodic)note else
         (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     companion object {
+        /** Music.fPitchSpeed is shared by the original sampled output channels. */
+        @Volatile var pitchSpeed=0
+            set(value){require(value in 0..100);field=value}
         fun combine(sounds:List<SampledInstrument>):SampledInstrument {
             require(sounds.isNotEmpty())
             if(sounds.size==1)return sounds.single()
@@ -213,6 +216,23 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             alternate?.scriptPitchMove(value)
         }
         private var bentStep=step
+        private var bendFactor=1.0
+        private var bendFrames=0
+        private var bendDelta=0.0
+        private var hasRendered=false
+        private fun advanceBend(){
+            val target=2.0.pow(bendSemitones/12.0)
+            if(pitchSpeed==0){bendFactor=target;bendFrames=0}
+            else{
+                if(bendFrames<=0){
+                    bendFrames=(outputRate/100).coerceAtLeast(1)
+                    bendDelta=(target-bendFactor)/(bendFrames.toDouble()*pitchSpeed)
+                }
+                bendFactor+=bendDelta;bendFrames--
+                if(kotlin.math.abs(target-bendFactor)<1e-10)bendFactor=target
+            }
+            bentStep=step*bendFactor;hasRendered=true
+        }
         private var aftertouch=false
         private var currentKey=note
         private var alternate:Playback?=null
@@ -236,7 +256,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }
             val nextStep=step*2.0.pow(semitones/12.0)
             require(nextStep.isFinite() && nextStep>0){"Pitch bend exceeds supported playback range"}
-            bendSemitones=semitones;bentStep=nextStep
+            if(bendSemitones!=semitones)bendFrames=0
+            bendSemitones=semitones
+            if(!hasRendered || pitchSpeed==0){bendFactor=2.0.pow(semitones/12.0);bentStep=nextStep}
             children.forEach{it.pitchBend(semitones,scriptLevel)};alternate?.pitchBend(semitones,scriptLevel)
         }
         /** Channels._Connection: keep the current sample position and move its pitch to the new key. */
@@ -467,10 +489,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val effectiveNoteOff=forcedRelease || (noteOff && !releaseHandled)
             val released=effectiveNoteOff || autoReleaseStarted
             countReleased=released
+            advanceBend()
             if(connectionActive && (!connectionByPedal || effectivePedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
                     step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
-                    bentStep=step*2.0.pow(bendSemitones/12.0)
+                    bentStep=step*bendFactor
                 }
             }
             pitchShake?.next(released,effectivePedal)
