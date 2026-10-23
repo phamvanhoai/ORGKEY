@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun repeatedModulationDoesNotRestoreEffectValueFromBeforeAftertouch(){
+        val session=ImportedScriptSession("on(modulate) { effect[2].Depth=25; } on(aftertouch) { effect[2].Depth=velocity; }")
+        assertEquals(25,session.modulation(80).effects.single().value)
+        session.event("aftertouch",mapOf("velocity" to 100))
+        assertEquals(100,session.modulation(80).effects.single().value)
+    }
     @Test fun effectReadsSeeEarlierAssignmentAndPreviousEvent(){
         val session=ImportedScriptSession("on(touch) { effect[2].Depth = effect[2].Depth + 10; play(volume:effect[2].Depth); }")
         session.synchronizeEffects(listOf(ImportedExpressionEffect(2,true,0,false,false,0,25,20,0,emptyList())))

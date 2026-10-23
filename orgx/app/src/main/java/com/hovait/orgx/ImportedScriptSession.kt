@@ -11,14 +11,14 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
     private var modulationLevel:Int?=null
     private var modulationResult=ImportedSimpleScript.Result(emptyList(),false)
     fun modulation(level:Int,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
-        if(modulationLevel==level)return modulationResult
+        if(modulationLevel==level)return currentEffects(modulationResult)
         val result=event("modulate",mapOf("level" to level),validate)
         modulationLevel=level;modulationResult=result
         return result
     }
     private var pedalResult=ImportedSimpleScript.Result(emptyList(),false)
     fun pedal(down:Boolean,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
-        if(pedalDown==down)return pedalResult
+        if(pedalDown==down)return currentEffects(pedalResult)
         val result=event(if(down)"pedalon" else "pedaloff",validate=validate)
         pedalDown=down;pedalResult=result
         return result
@@ -32,6 +32,9 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
             values.forEach{(name,value)->state["effect[${effect.slot}].$name"]=value}
         }
     }
+    private fun currentEffects(result:ImportedSimpleScript.Result)=result.copy(effects=result.effects.map{change->
+        change.copy(value=state["effect[${change.slot}].${change.property}"] ?: change.value)
+    })
     fun setSlider(name:String,value:Int){
         val slider=sliders.singleOrNull{it.name==name.lowercase()} ?: throw IllegalArgumentException("Unknown script slider: $name")
         require(value in slider.from..slider.to){"Script slider value outside declared range"}
