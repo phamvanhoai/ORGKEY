@@ -36,4 +36,6 @@ Key Connection đã bổ sung điều kiện restart AutoRelease/loop theo low n
 
 Đã truyền context velocity cho voice trực tiếp, STS, Mix layer và sound Aftertouch. Lệnh play có velocity dùng tỷ lệ so với lực đánh đầu vào vì mixer đã áp lực đánh ở ngoài Playback; test giữ nguyên velocity và override giá trị đều đạt. Chưa đối chiếu lượng tử hóa lực đánh với bản thu APK.
 
+Script play đã nối autorelease và attack/decay/sustain/release xuống envelope từng Mix layer; giá trị không chỉ định giữ envelope gốc. Test hai voice cùng instrument xác nhận release một voice không đổi state voice kia. Bộ kiểm thử đầy đủ 437 test đạt, build/cài APK thành công; chưa đối chiếu bản thu envelope APK gốc.
+
 Chưa có biến trạng thái/main, if/else, timer, script aftertouch/release và exit đổi mode. Lựa chọn sound tùy lệnh và fallback khi lỗi vẫn cần đối chiếu/hoàn thiện. Không coi toàn bộ DNC hoặc script Legato đã tương đương APK. Những script ngoài tập con hỗ trợ hiện dùng fallback.

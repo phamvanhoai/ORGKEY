@@ -5,6 +5,19 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun scriptReleaseOverrideReachesEveryLayerWithoutSharingLiveState(){
+        fun layer(attack:Int)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
+            envelope=ImportedEnvelope(attack,0,100,20,false))
+        val instrument=SampledInstrument.combine(listOf(layer(5),layer(10)))
+            .withModeScript("on(touch) { play(attack:0,release:1); return(true); }")
+        val first=instrument.voice(60);val second=instrument.voice(60)
+        first.next(false);second.next(false)
+        assertEquals(.5,first.left,1e-12)
+        repeat(20){first.next(true);second.next(false)}
+        assertTrue(first.finished);assertFalse(second.finished)
+        assertEquals(.5,second.left,1e-12)
+    }
     @Test fun scriptEnvelopeOverridesAttackAndRelease(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(2000){8192}),0,2000)),1000,
             envelope=ImportedEnvelope(10,0,100,20,false))
