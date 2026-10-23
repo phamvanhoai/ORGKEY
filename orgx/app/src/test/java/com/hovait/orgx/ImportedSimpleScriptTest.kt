@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun originalDynamicLegatoVelocityProducesEffectAndPlayPlan(){
+        val source=java.io.File(requireNotNull(System.getProperty("orgx.referenceScripts")),"Legato/Dynamic Legato (Velocity).Script").readText()
+        val session=ImportedScriptSession(source)
+        val first=session.event("touch",mapOf("key" to 60,"velocity" to 110))
+        assertEquals(ImportedSimpleScript.EffectChange(1,"enable",1),first.effects.single())
+        assertTrue(first.plays.isEmpty())
+        val second=session.event("touch",mapOf("key" to 64,"velocity" to 80))
+        assertTrue(second.handled)
+        assertEquals(60,second.plays.single().parameters["connectkey"])
+        assertEquals(80,second.plays.single().parameters["connectspeed"])
+    }
     @Test fun sessionTimeMeasuresMillisecondsBetweenTouches(){
         var now=1_000_000_000_000L
         val session=ImportedScriptSession("main() { previous = 0; } on(touch) { play(connectspeed:time-previous); previous = time; }"){now}

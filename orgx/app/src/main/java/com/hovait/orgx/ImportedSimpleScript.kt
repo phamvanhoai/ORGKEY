@@ -4,14 +4,16 @@ package com.hovait.orgx
  * Produces a complete plan before the caller changes any audio state. */
 object ImportedSimpleScript {
     data class Play(val parameters:Map<String,Int>)
-    data class Result(val plays:List<Play>,val handled:Boolean)
+    data class EffectChange(val slot:Int,val property:String,val value:Int)
+    data class Result(val plays:List<Play>,val handled:Boolean,val effects:List<EffectChange> = emptyList())
     fun evaluate(script:ImportedModeScript,event:String,variables:Map<String,Int> = emptyMap(),state:MutableMap<String,Int>?=null):Result {
         val plays=ArrayList<Play>()
+        val effects=ArrayList<EffectChange>()
         val pending=state?.toMutableMap() ?: mutableMapOf()
         fun context()=pending+variables
         fun result(handled:Boolean):Result {
             state?.let{it.clear();it.putAll(pending)}
-            return Result(plays.toList(),handled)
+            return Result(plays.toList(),handled,effects.toList())
         }
         var handled=false
         for(body in script.eventBodies(event)) {
@@ -25,6 +27,12 @@ object ImportedSimpleScript {
                     statement=statement.substring(end).trim()
                     require(statement.isNotEmpty() && !statement.startsWith("{")){"Block conditions are not supported yet"}
                     if(expression(condition,context())==0)continue
+                }
+                val effect=Regex("(?i)effect\\[(\\d+)]\\.(enable|mode|speed|depth|gain)\\s*=\\s*(.+)").matchEntire(statement)
+                if(effect!=null){
+                    val slot=effect.groupValues[1].toInt();require(slot in 0..7)
+                    effects.add(EffectChange(slot,effect.groupValues[2].lowercase(),expression(effect.groupValues[3],context())))
+                    continue
                 }
                 val assignment=Regex("([a-zA-Z_][a-zA-Z_0-9]*)\\s*=\\s*([^=].*)").matchEntire(statement)
                 if(assignment!=null){

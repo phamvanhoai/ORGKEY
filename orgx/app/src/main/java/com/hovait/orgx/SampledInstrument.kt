@@ -60,6 +60,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
             scriptSession?.event("touch",mapOf("key" to note,"velocity" to scriptVelocity)){result->
+                require(result.effects.isEmpty()){"Script effect assignment playback is not supported yet"}
                 require(result.plays.all{play->play.parameters.keys.all{it in setOf("key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
                 result.plays.forEach{command->
                     val combinedTune=Math.addExact(tune,command.parameters["tune"] ?: 0)
@@ -161,6 +162,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 val handled=runCatching{scriptSession?.event("aftertouch",mapOf("key" to note,
                     "velocity" to (pressure.coerceIn(0f,1f)*127).toInt(),"keyvelocity" to scriptVelocity)){result->
                     require(result.plays.isEmpty()){"Aftertouch audio commands are not supported yet"}
+                    require(result.effects.isEmpty()){"Aftertouch effect commands are not supported yet"}
                 }?.handled==true}.getOrDefault(false)
                 if(handled)return
             }
@@ -203,6 +205,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 scriptReleased=true
                 runCatching{scriptSession?.event("release",mapOf("key" to note,"velocity" to scriptVelocity)){result->
                     require(result.plays.isEmpty() && !result.handled){"Release audio commands are not supported yet"}
+                    require(result.effects.isEmpty()){"Release effect commands are not supported yet"}
                 }}
             }
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
