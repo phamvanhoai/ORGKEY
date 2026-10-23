@@ -5,6 +5,27 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun scriptBalanceAndPanOverrideDoNotAccumulateOriginalNoteBalance(){
+        val source=sound().withModeScript("on(touch){play(balance:20,pan:-40);return(true);}")
+        val voice=source.voice(60,pan=80)
+        voice.channelBalance(70)
+        voice.next(false)
+        assertEquals(.25,voice.left,1e-12)
+        assertEquals(.2,voice.right,1e-12) // +20 note balance plus -40 overridden pan
+        voice.channelBalance(-100);voice.next(false)
+        assertEquals(.25,voice.left,1e-12)
+        assertEquals(.2,voice.right,1e-12)
+    }
+    @Test fun playWithoutBalanceUsesCenteredNoteAndFollowsChannelPan(){
+        val source=sound().withModeScript("on(touch){play();return(true);}")
+        val voice=source.voice(60,pan=80)
+        voice.channelBalance(-40);voice.next(false)
+        assertEquals(.25,voice.left,1e-12)
+        assertEquals(.15,voice.right,1e-12)
+        voice.channelBalance(40);voice.next(false)
+        assertEquals(.15,voice.left,1e-12)
+        assertEquals(.25,voice.right,1e-12)
+    }
     @Test fun playingCountsActualScriptLayersAndReleasedTails(){
         val envelope=ImportedEnvelope.from(listOf(0,0,100,100,0,0))
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,envelope=envelope)

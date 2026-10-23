@@ -135,7 +135,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
     }
     fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true,scriptId:Int=note):Playback=if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed,scriptId) else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false,private val scriptId:Int=note){
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false,private val scriptId:Int=note,private val channelPanOverride:Int?=null){
         private var scriptPedal=false
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
         private var scriptReleased=false
@@ -152,11 +152,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             timerOwner?.let{scriptSession?.cancelTimer(it)}
             children.forEach{it.forceRelease()};alternate?.forceRelease()
         }
-        private var balance=0
-        fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
+        private var balance=channelPanOverride ?: 0
+        fun channelBalance(value:Int){balance=channelPanOverride ?: value;children.forEach{it.channelBalance(balance)};alternate?.channelBalance(balance)}
         private fun validateScriptAudio(result:ImportedSimpleScript.Result){
                 require(result.effects.all{it.slot in 0..3}){"Unsupported script effect slot"}
-                require(result.plays.all{play->play.parameters.keys.all{it in setOf("id","sound","key","velocity","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
+                require(result.plays.all{play->play.parameters.keys.all{it in setOf("id","sound","key","velocity","balance","keymove","octavemove","volume","pan","tune","pitchmove","autorelease","attack","decay","sustain","release","connectkey","connectspeed")}})
                 result.plays.forEach{command->
                     val sound=command.parameters["sound"]
                     require(!scriptSoundRouting && sound==null || (sound ?: scriptDefaultSound) in scriptSounds){"Script sound unavailable: ${sound ?: scriptDefaultSound}"}
@@ -181,9 +181,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val source=scriptSounds[command.parameters["sound"] ?: scriptDefaultSound] ?: this@SampledInstrument
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
             val playback=source.Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
-                (pan.toLong()+(command.parameters["pan"] ?: 0)).coerceIn(-100,100).toInt(),
+                (command.parameters["balance"] ?: 0).coerceIn(-100,100),
                 command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity,
-                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,command.parameters["id"] ?: scriptId)
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,command.parameters["id"] ?: scriptId,command.parameters["pan"]?.coerceIn(-100,100))
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
@@ -195,7 +195,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val scriptChildren=scriptPlan?.plays.orEmpty().map(::createScriptChild).toMutableList()
         private val initialChildren=if(scriptPlan!=null)scriptChildren.map{it.first}+
             (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)))
-            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal,scriptId)}
+            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal,scriptId,channelPanOverride)}
         private val children=initialChildren.toMutableList()
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
