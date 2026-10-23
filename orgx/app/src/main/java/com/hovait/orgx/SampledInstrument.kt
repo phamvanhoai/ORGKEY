@@ -150,6 +150,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private var bentStep=step
         private var aftertouch=false
+        private var currentKey=note
         private var alternate:Playback?=null
         private var heldModulation:Int?=null
         fun pitchBend(semitones:Double,scriptLevel:Int?=null){
@@ -177,6 +178,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         /** Channels._Connection: keep the current sample position and move its pitch to the new key. */
         fun connectTo(targetNote:Int,effect:ImportedExpressionEffect){
             require(targetNote in 0..127 && effect.slot==1)
+            currentKey=targetNote
             children.forEach{it.connectTo(targetNote,effect)};alternate?.connectTo(targetNote,effect)
             if(children.isNotEmpty())return
             val target=pitchStep(targetNote,tune)
@@ -240,7 +242,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             // positive pressure event. It closes the old key and opens the
             // alternate sound once; pressure is not a 50% cross-fade gate.
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
-                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,scriptPedal);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
+                aftertouch=true;alternate=aftertouchInstrument!!.voice(currentKey,tune,pan,autoRelease,effectsAllowed,scriptVelocity,scriptPedal);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
                 heldModulation?.let{alternate?.modulate(it)}
                 if(scriptPedal)alternate?.scriptPedal(true)
             }

@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun aftertouchFollowingLegatoUsesTransferredKey(){
+        val alternate=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)
+        val voice=sound().withAftertouch(alternate).voice(60)
+        voice.connectTo(72,ImportedExpressionEffect(1,true,0,false,false,16,0,0,0,emptyList()))
+        voice.aftertouch(1f);voice.next(false);voice.next(false)
+        assertEquals(200.0/32768,voice.left,1e-12)
+    }
     @Test fun touchScriptReceivesPedalBeforeSelectingBranch(){
         val source=sound().withModeScript("on(touch) { if(pedal) { play(volume:25); } else { play(volume:75); } return(true); }")
         val held=source.voice(60,initialScriptPedal=true);held.next(false)
