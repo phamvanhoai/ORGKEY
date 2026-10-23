@@ -34,4 +34,6 @@ Key Connection đã bổ sung điều kiện restart AutoRelease/loop theo low n
 
 Đã trích 24 script tham chiếu từ `assets/data.zip`. Bộ thực thi hiện xử lý touch dạng chuỗi lệnh `play`/`return`, số nguyên và biến cộng/trừ hằng số. Playback dùng chung cho voice trực tiếp và STS, hỗ trợ `key`, `keymove`, `octavemove`, `volume`, `pan`, `tune`, `pitchmove`, `connectkey`, `connectspeed`. Bốn script Octave/Legato Lower/Upper gốc đã được đưa qua test PCM; pitchmove giữ hiệu lực khi bend live thay đổi.
 
-Chưa có biến trạng thái/main, if/else, timer, script aftertouch/release và exit đổi mode. `velocity`, lựa chọn sound tùy lệnh và fallback khi lỗi vẫn cần đối chiếu/hoàn thiện. Không coi toàn bộ DNC hoặc script Legato đã tương đương APK. Những script ngoài tập con hỗ trợ hiện dùng fallback.
+Đã truyền context velocity cho voice trực tiếp, STS, Mix layer và sound Aftertouch. Lệnh play có velocity dùng tỷ lệ so với lực đánh đầu vào vì mixer đã áp lực đánh ở ngoài Playback; test giữ nguyên velocity và override giá trị đều đạt. Chưa đối chiếu lượng tử hóa lực đánh với bản thu APK.
+
+Chưa có biến trạng thái/main, if/else, timer, script aftertouch/release và exit đổi mode. Lựa chọn sound tùy lệnh và fallback khi lỗi vẫn cần đối chiếu/hoàn thiện. Không coi toàn bộ DNC hoặc script Legato đã tương đương APK. Những script ngoài tập con hỗ trợ hiện dùng fallback.
