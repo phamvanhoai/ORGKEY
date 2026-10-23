@@ -89,7 +89,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{it.layers=sounds}
         }
     }
-    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal)
+    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true)=Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal)
     inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),initialScriptPedal:Boolean=false){
         private var scriptPedal=false
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
@@ -133,7 +133,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private val children=if(scriptPlan!=null)scriptChildren.map{it.first}+
             (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity,initialScriptPedal=initialScriptPedal)))
-            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,true,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal)}
+            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal)}
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
         private var connectionDelta=0.0

@@ -97,7 +97,7 @@ class ImportedKeyboardParts {
             note.playback.next(note.released,pedalRelease)
             mixer.add(note.sound,note.playback.left*note.velocity,note.playback.right*note.velocity)
             if(note.repeat?.next(note.released,pedalRelease)==true){
-                val playback=note.sound.voice(note.sound.keyboardNote(note.key),autoRelease=true,effectsAllowed=false)
+                val playback=note.sound.voice(note.sound.keyboardNote(note.key),autoRelease=true,effectsAllowed=false,scriptAllowed=false)
                 playback.pitchBend(bends[note.channel],scriptBends[note.channel])
                 repeated.add(Note(note.part,note.channel,note.key,note.sound,playback,note.velocity,note.pedal,note.pedalMode))
             }

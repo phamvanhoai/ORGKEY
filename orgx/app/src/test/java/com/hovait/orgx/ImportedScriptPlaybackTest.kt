@@ -5,6 +5,15 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun repeatVoiceDoesNotExecuteTouchScriptAgain(){
+        val source=sound().withModeScript("main() { count=0; } on(touch) { count=count+25; play(volume:count); return(true); }")
+        source.voice(60)
+        val repeated=source.voice(60,autoRelease=true,effectsAllowed=false,scriptAllowed=false)
+        repeated.next(false)
+        assertEquals(.25,repeated.left,1e-12)
+        val nextTouch=source.voice(60);nextTouch.next(false)
+        assertEquals(.125,nextTouch.left,1e-12)
+    }
     @Test fun aftertouchPreservesScriptOctaveLayersAndTheirGain(){
         val alternate=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(64){(it*100).toShort()}),0,64)),1000)

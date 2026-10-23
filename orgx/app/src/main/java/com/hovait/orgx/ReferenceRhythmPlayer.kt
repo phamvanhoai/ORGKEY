@@ -249,7 +249,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voice.playback.next(voice.release>=0,pedalDown)
                 left+=voice.playback.left*voice.gain*voice.touchGain*currentChannelGain(0);right+=voice.playback.right*voice.gain*voice.touchGain*currentChannelGain(1)
                 if(voice.repeat?.next(voice.release>=0,pedalDown)==true){
-                    val playback=sampled?.voice(voice.note,voice.tune,voice.samplePan,autoRelease=true,effectsAllowed=false)
+                    val playback=sampled?.voice(voice.note,voice.tune,voice.samplePan,autoRelease=true,effectsAllowed=false,scriptAllowed=false)
                     if(playback!=null){playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0));repeated.add(voice.copy(playback=playback,envelope=null,release=-1,pendingRelease=false,repeat=null))}
                 }
                 if(voice.playback.finished)iterator.remove()
