@@ -7,6 +7,14 @@ class ImportedScriptSession(source:String,private val clockMillis:()->Long={Syst
     val sliders:List<Slider>
     private val script:ImportedModeScript
     private val state=mutableMapOf<String,Int>()
+    fun synchronizeEffects(effects:List<ImportedExpressionEffect>){
+        effects.forEach{effect->
+            val values=mapOf("enable" to if(effect.enabled)1 else 0,"startdelay" to effect.startDelay,
+                "bypedal" to if(effect.byPedal)1 else 0,"stopbyrelease" to if(effect.stopByRelease)1 else 0,
+                "mode" to effect.mode,"speed" to effect.speed,"depth" to effect.depth,"gain" to effect.gain)
+            values.forEach{(name,value)->state["effect[${effect.slot}].$name"]=value}
+        }
+    }
     fun setSlider(name:String,value:Int){
         val slider=sliders.singleOrNull{it.name==name.lowercase()} ?: throw IllegalArgumentException("Unknown script slider: $name")
         require(value in slider.from..slider.to){"Script slider value outside declared range"}

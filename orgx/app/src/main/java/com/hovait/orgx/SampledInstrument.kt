@@ -48,7 +48,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }
                 expressionEffects=updated
     }
-    fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{expressionEffects=effects.toList()}
+    fun withExpressionEffects(effects:List<ImportedExpressionEffect>)=also{expressionEffects=effects.toList();scriptSession?.synchronizeEffects(effects)}
     val keyConnectionEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==1 && it.enabled}
     val keyRepeatEffect:ImportedExpressionEffect? get()=expressionEffects.firstOrNull{it.slot==0 && it.enabled}
     val outputSampleRate:Int get()=outputRate

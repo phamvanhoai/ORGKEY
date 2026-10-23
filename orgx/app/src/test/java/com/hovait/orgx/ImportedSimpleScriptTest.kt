@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun effectReadsSeeEarlierAssignmentAndPreviousEvent(){
+        val session=ImportedScriptSession("on(touch) { effect[2].Depth = effect[2].Depth + 10; play(volume:effect[2].Depth); }")
+        session.synchronizeEffects(listOf(ImportedExpressionEffect(2,true,0,false,false,0,25,20,0,emptyList())))
+        assertEquals(30,session.event("touch").plays.single().parameters["volume"])
+        assertEquals(40,session.event("touch").plays.single().parameters["volume"])
+    }
     @Test fun originalDynamicLegatoVelocityProducesEffectAndPlayPlan(){
         val source=java.io.File(requireNotNull(System.getProperty("orgx.referenceScripts")),"Legato/Dynamic Legato (Velocity).Script").readText()
         val session=ImportedScriptSession(source)

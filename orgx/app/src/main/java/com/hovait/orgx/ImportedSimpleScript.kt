@@ -31,7 +31,10 @@ object ImportedSimpleScript {
                 val effect=Regex("(?i)effect\\[(\\d+)]\\.(enable|startdelay|bypedal|stopbyrelease|mode|speed|depth|gain)\\s*=\\s*(.+)").matchEntire(statement)
                 if(effect!=null){
                     val slot=effect.groupValues[1].toInt();require(slot in 0..7)
-                    effects.add(EffectChange(slot,effect.groupValues[2].lowercase(),expression(effect.groupValues[3],context())))
+                    val property=effect.groupValues[2].lowercase()
+                    val value=expression(effect.groupValues[3],context())
+                    effects.add(EffectChange(slot,property,value))
+                    pending["effect[$slot].$property"]=value
                     continue
                 }
                 val assignment=Regex("([a-zA-Z_][a-zA-Z_0-9]*)\\s*=\\s*([^=].*)").matchEntire(statement)
@@ -101,6 +104,8 @@ object ImportedSimpleScript {
         if(value=="false")return 0
         value.toIntOrNull()?.let{return it}
         variables[value]?.let{return it}
+        if(Regex("effect\\[[0-7]]\\.(enable|startdelay|bypedal|stopbyrelease|mode|speed|depth|gain)").matches(value))
+            return variables[value] ?: throw IllegalArgumentException("Unknown effect property: $value")
         val function=Regex("(max|min|abs)\\s*\\((.*)\\)").matchEntire(value)
         if(function!=null){
             val args=splitArguments(function.groupValues[2]).map{expression(it,variables)}
