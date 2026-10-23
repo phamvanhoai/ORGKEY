@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun dynamicLegatoCompoundConditionUsesStoredKeyAndVelocity(){
+        val script=ImportedModeScript.parse("on(touch) { if (touch_old != -1 && velocity < 100) play(connectkey:touch_old,connectspeed:Max(5,velocity)); }")
+        assertTrue(ImportedSimpleScript.evaluate(script,"touch",mapOf("touch_old" to -1,"velocity" to 50)).plays.isEmpty())
+        assertEquals(60,ImportedSimpleScript.evaluate(script,"touch",mapOf("touch_old" to 60,"velocity" to 50)).plays.single().parameters["connectkey"])
+    }
+    @Test fun booleanOperatorsShortCircuitUnknownVariables(){
+        val script=ImportedModeScript.parse("on(touch) { if (true || unknown) play(); if (false && unknown) play(); if (!false) play(); }")
+        assertEquals(2,ImportedSimpleScript.evaluate(script,"touch").plays.size)
+    }
     @Test fun conditionalPlayUsesEventVelocityAndSkipsFalseBranch(){
         val script=ImportedModeScript.parse("on(touch) { if (velocity < 100) play(connectkey:key-2,connectspeed:50); return(true); }")
         assertEquals(1,ImportedSimpleScript.evaluate(script,"touch",mapOf("key" to 60,"velocity" to 80)).plays.size)

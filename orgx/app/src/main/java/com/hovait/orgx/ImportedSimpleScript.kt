@@ -57,6 +57,20 @@ object ImportedSimpleScript {
     }
     private fun expression(source:String,variables:Map<String,Int>):Int {
         val value=source.trim().lowercase()
+        fun operator(token:String):Int {
+            var depth=0
+            for(index in value.indices){
+                when(value[index]){'('->depth++;')'->depth--}
+                if(depth==0 && value.startsWith(token,index))return index
+            }
+            return -1
+        }
+        val or=operator("||")
+        if(or>=0)return if(expression(value.substring(0,or),variables)!=0 || expression(value.substring(or+2),variables)!=0)1 else 0
+        val and=operator("&&")
+        if(and>=0)return if(expression(value.substring(0,and),variables)!=0 && expression(value.substring(and+2),variables)!=0)1 else 0
+        if(value.startsWith("(") && value.endsWith(")"))return expression(value.substring(1,value.length-1),variables)
+        if(value.startsWith("!") && !value.startsWith("!="))return if(expression(value.substring(1),variables)==0)1 else 0
         val comparison=Regex("(.+?)\\s*(==|!=|<=|>=|<|>)\\s*(.+)").matchEntire(value)
         if(comparison!=null){
             val left=expression(comparison.groupValues[1],variables)
