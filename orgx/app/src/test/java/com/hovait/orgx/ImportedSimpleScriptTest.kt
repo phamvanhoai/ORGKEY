@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSimpleScriptTest {
+    @Test fun dynamicLegatoSpeedFormulaUsesArithmeticPrecedence(){
+        val script=ImportedModeScript.parse("on(touch) { play(connectspeed:10000 / (time - touch_time) + 10,volume:2+3*4); }")
+        val result=ImportedSimpleScript.evaluate(script,"touch",mapOf("time" to 300,"touch_time" to 100))
+        assertEquals(60,result.plays.single().parameters["connectspeed"])
+        assertEquals(14,result.plays.single().parameters["volume"])
+    }
+    @Test(expected=IllegalArgumentException::class) fun zeroTimeIntervalRejectsDivision(){
+        ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch) { play(connectspeed:10000/(time-time)); }"),"touch",mapOf("time" to 10))
+    }
     @Test fun groupedComparisonsAndNegationRespectParentheses(){
         fun handled(condition:String)=ImportedSimpleScript.evaluate(ImportedModeScript.parse("on(touch) { return($condition); }"),"touch",mapOf("key" to 64)).handled
         assertTrue(handled("(key > 60) == true"))

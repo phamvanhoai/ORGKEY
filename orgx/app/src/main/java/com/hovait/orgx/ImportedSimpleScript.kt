@@ -102,12 +102,30 @@ object ImportedSimpleScript {
                 else->{require(args.size==2);minOf(args[0],args[1])}
             }
         }
-        val match=Regex("([a-z_][a-z_0-9]*)\\s*([+-])\\s*([a-z_][a-z_0-9]*|\\d+)").matchEntire(value)
-            ?: throw IllegalArgumentException("Unsupported play expression: $source")
-        val base=variables[match.groupValues[1]] ?: throw IllegalArgumentException("Unknown script variable")
-        val offset=match.groupValues[3].toIntOrNull() ?: variables[match.groupValues[3]]
-            ?: throw IllegalArgumentException("Unknown script variable: ${match.groupValues[3]}")
-        return if(match.groupValues[2]=="+")Math.addExact(base,offset) else Math.subtractExact(base,offset)
+        fun arithmetic(tokens:String):Int {
+            var depth=0
+            for(index in value.indices.reversed()){
+                when(value[index]){')'->depth++;'('->depth--}
+                if(depth==0 && value[index] in tokens && index>0){
+                    val previous=value.substring(0,index).trimEnd().lastOrNull()
+                    if(previous!=null && previous !in "+-*/(")return index
+                }
+            }
+            return -1
+        }
+        val index=arithmetic("+-").let{if(it>=0)it else arithmetic("*/")}
+        if(index>=0){
+            val left=expression(value.substring(0,index),variables)
+            val right=expression(value.substring(index+1),variables)
+            return when(value[index]){
+                '+'->Math.addExact(left,right)
+                '-'->Math.subtractExact(left,right)
+                '*'->Math.multiplyExact(left,right)
+                else->{require(right!=0 && !(left==Int.MIN_VALUE && right==-1)){"Invalid script division"};left/right}
+            }
+        }
+        if(value.startsWith("-"))return Math.negateExact(expression(value.substring(1),variables))
+        throw IllegalArgumentException("Unsupported play expression: $source")
     }
     private fun splitArguments(source:String):List<String>{
         val result=ArrayList<String>();var depth=0;var start=0
