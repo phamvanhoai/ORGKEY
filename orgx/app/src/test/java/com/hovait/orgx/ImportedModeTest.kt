@@ -6,7 +6,8 @@ import org.junit.Test
 
 class ImportedModeTest {
     @Test fun modeScriptRetainsOriginalEventAndVariableNames(){
-        val parsed=ImportedModeScript.parse("aftertouch key velocity connectkey pitchmove")
+        val mode=ImportedMode("M",0,-1,emptyList(),emptyList(),emptyList(),script="aftertouch key velocity connectkey pitchmove")
+        val parsed=mode.parsedScript
         assertEquals(listOf("aftertouch"),parsed.events)
         assertTrue(parsed.variables.containsAll(listOf("key","velocity","connectkey","pitchmove")))
     }
