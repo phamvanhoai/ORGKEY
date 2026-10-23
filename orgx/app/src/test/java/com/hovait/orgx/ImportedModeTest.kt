@@ -5,6 +5,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedModeTest {
+    @Test fun eventBodyKeepsNestedConditionsAndIgnoresBracesInComments(){
+        val script=ImportedModeScript.parse("on(touch) { if(key>60) { play(octavemove:1); } /* } */ return(true); } on(release) { stop(); }")
+        val body=script.eventBodies("TOUCH").single()
+        assertTrue(body.contains("play(octavemove:1)"))
+        assertTrue(body.contains("return(true)"))
+        assertFalse(body.contains("stop()"))
+        assertTrue(script.eventBodies("aftertouch").isEmpty())
+    }
     @Test fun modeScriptRetainsOriginalEventAndVariableNames(){
         val mode=ImportedMode("M",0,-1,emptyList(),emptyList(),emptyList(),script="on(aftertouch) { play(key:key, velocity:velocity, connectkey:key, pitchmove:0); } // on(release) { }")
         val parsed=mode.parsedScript
