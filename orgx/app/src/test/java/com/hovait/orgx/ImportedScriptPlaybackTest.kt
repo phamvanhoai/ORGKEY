@@ -5,6 +5,14 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun aftertouchAlternateReceivesHeldRawPitchContext(){
+        val alternate=sound().withModeScript("main() { gain=100; } on(pitchbend) { gain=level; return(true); } on(touch) { play(volume:gain); return(true); }")
+        val primary=sound().withAftertouch(alternate).voice(60)
+        primary.pitchBend(12.0,50)
+        primary.aftertouch(1f)
+        val observed=alternate.voice(60);observed.next(false)
+        assertEquals(.125,observed.left,1e-12)
+    }
     @Test fun stsNewNoteReceivesLatchedRawBendOnItsChannel(){
         // Use raw level in an event whose value can be observed on the next touch.
         val actual=sound().withModeScript("main() { gain=100; } on(pitchbend) { gain=level; return(true); } on(touch) { play(volume:gain); return(true); }")

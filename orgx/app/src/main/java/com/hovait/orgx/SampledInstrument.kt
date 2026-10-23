@@ -127,6 +127,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var connectionStopByRelease=false
         private var connectionActive=false
         private var bendSemitones=0.0
+        private var bendScriptLevel:Int?=null
         private var scriptPitchFactor=1.0
         private fun scriptPitchMove(value:Int){
             scriptPitchFactor=(1000L+value).coerceAtLeast(1)/1000.0
@@ -137,6 +138,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var alternate:Playback?=null
         fun pitchBend(semitones:Double,scriptLevel:Int?=null){
             require(semitones.isFinite()){"Pitch bend must be finite"}
+            require(scriptLevel==null || scriptLevel in -8192..8191)
+            bendScriptLevel=scriptLevel
             if(ownsScriptEvents){
                 val handled=runCatching{scriptSession?.event("pitchbend",mapOf("level" to
                     (scriptLevel ?: (semitones/2.0*8192).toInt()).coerceIn(-8192,8191))){result->
@@ -221,7 +224,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             // positive pressure event. It closes the old key and opens the
             // alternate sound once; pressure is not a 50% cross-fade gate.
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
-                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
+                aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
             }
         }
         fun modulate(level:Int){
