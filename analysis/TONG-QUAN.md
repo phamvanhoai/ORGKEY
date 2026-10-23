@@ -479,7 +479,11 @@ STS keyboard dùng `ImportedStsLoader`: cộng transpose/octave của Music đú
 
 Kiểm chứng STS trên SET legacy cục bộ: `ImportedStsIntegrationTest` đọc đủ 112 snapshot theo bản kiểm kê, xác nhận slot riêng biệt trong từng Track (0–12), tham chiếu instrument/system hợp lệ và số phần tử ChordSingle đúng. Test này đã chạy trên file thật, không bị skip. Đây là kiểm chứng parser, chưa xác nhận thực thi/âm thanh STS tương đương APK.
 
-ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phát. Với mode có sound `aftertouch`, app giữ sound chính và chuyển sang layer alternate khi áp lực đạt ngưỡng 0.5; các layer Mix vẫn được giữ cùng mode. Đây là chuyển đổi playback ở engine, không sửa file `.SET`.
+ORGX hiện đã nối Aftertouch của phím và MIDI vào voice SET đang phát. Với mode có sound `aftertouch`, app giữ sound chính và chuyển sang layer alternate ở sự kiện áp lực dương đầu tiên; các layer Mix vẫn được giữ cùng mode. Đây là chuyển đổi playback ở engine, không sửa file `.SET`.
+
+## Aftertouch theo cơ chế `Track` gốc
+
+Đã đối chiếu nhánh fallback trong `Track`: khi script không xử lý, áp lực dương đầu tiên đóng voice hiện tại rồi mở sound `InstMode.Aftertouch` bằng lực đánh phím đã lưu. ORGX đã bỏ ngưỡng 0.5, không còn lấy pressure thay cho velocity, đồng thời chỉ chuyển một lần cho mỗi nốt. Cả phím cảm ứng, MIDI Poly Pressure và MIDI Channel Pressure dùng chung quy tắc; channel/key vẫn được tách độc lập. Script `aftertouch` của mode chưa được thực thi nên nhánh script tùy biến vẫn là phần còn thiếu.
 
 Nút Intro khi đang chạy hiện hủy các Intro/Fill đang chờ trước đó, phát đúng Intro vừa chọn một lần rồi quay về Main đang chọn; tránh tình trạng bấm Intro 1 nhưng chạy tiếp chuỗi Intro cũ.
 

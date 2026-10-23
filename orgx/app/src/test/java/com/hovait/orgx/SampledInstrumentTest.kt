@@ -25,9 +25,20 @@ class SampledInstrumentTest {
         val playback=primary.withAftertouch(alternate).voice(60)
         playback.next(false)
         assertEquals(8192.0/32768,playback.left,1e-9)
-        playback.aftertouch(.5f)
+        playback.aftertouch(1f/127f)
         playback.next(false)
         assertEquals(16384.0/32768,playback.left,1e-9)
+    }
+    @Test fun zeroPressureDoesNotSwitchAndFirstPositivePressureSwitchesOnlyOnce() {
+        fun sound(vararg samples:Short)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(48000,1,samples),0,0,looping=false)),48000)
+        val playback=sound(1000,2000,3000).withAftertouch(sound(4000,5000,6000)).voice(60)
+        playback.aftertouch(0f);playback.next(false)
+        assertEquals(1000.0/32768,playback.left,1e-9)
+        playback.aftertouch(1f/127f);playback.next(false)
+        assertEquals(4000.0/32768,playback.left,1e-9)
+        playback.aftertouch(1f);playback.next(false)
+        assertEquals(5000.0/32768,playback.left,1e-9)
     }
     @Test fun exactMappingDoesNotBorrowOrTransposeNearbySections() {
         val pcm=SamplePcm(48000,1,shortArrayOf(1000,2000,3000))

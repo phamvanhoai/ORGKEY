@@ -27,4 +27,4 @@ Một cụm chỉ được ghi hoàn thành khi có đường phát/UI sử dụ
 
 Chạy `py -3 analysis/rebuild_status.py` để tạo [REBUILD-STATUS.json](REBUILD-STATUS.json) từ khai báo support trong mã. Script dừng nếu không còn nhận diện được khai báo; không tự suy đoán hỗ trợ. Báo cáo này không xác minh DSP hay hành vi trên thiết bị.
 
-Lượt rà soát này chưa thêm DNC/aftertouch/script vào ứng dụng và không cần cài APK chỉ vì cập nhật tài liệu.
+Aftertouch fallback đã được nối end-to-end theo `Track` gốc: áp lực dương đầu tiên chọn sound Aftertouch, giữ velocity ban đầu và không khởi động lại ở các pressure tiếp theo. Phần còn thiếu của cụm này là DNC và runtime script tùy biến của mode.

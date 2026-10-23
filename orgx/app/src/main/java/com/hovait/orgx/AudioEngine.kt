@@ -152,22 +152,23 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(stsPartsEnabled)stsParts.pressure(note,pressure.coerceIn(0f,1f))
         val key=MidiVoiceKey.key(note,0,false)
         captureMidi(0xa0,note,(pressure.coerceIn(0f,1f)*127).toInt())
-        voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
+        // The original reopens Aftertouch with KeyTouchs[key]: the initial
+        // note velocity. Pressure selects the alternate sound, not its gain.
+        voices[key]?.let{if(it.imported!=null)it.sampledPlayback?.aftertouch(pressure)}
     }
     /** MIDI poly/channel pressure hook; applies only to imported SET voices. */
     fun midiNotePressure(note:Int,pressure:Float,channel:Int=0,playback:Boolean=false){
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.pressure(note,pressure.coerceIn(0f,1f),channel)
         val key=MidiVoiceKey.key(note,channel,playback)
         if(!playback)captureMidi(0xa0 or channel,note,(pressure.coerceIn(0f,1f)*127).toInt())
-        voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
+        voices[key]?.let{if(it.imported!=null)it.sampledPlayback?.aftertouch(pressure)}
     }
     fun midiChannelPressure(pressure:Float,channel:Int=0,playback:Boolean=false){
         require(channel in 0..15)
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.channelPressure(pressure.coerceIn(0f,1f),channel)
         if(!playback)captureMidi(0xd0 or channel,(pressure.coerceIn(0f,1f)*127).toInt(),0)
-        val gain=VoiceVelocity.gain(pressure,false)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{
-            if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=gain}
+            if(it.imported!=null)it.sampledPlayback?.aftertouch(pressure)
         }
     }
     fun midiPitchBend(value:Int,channel:Int=0,playback:Boolean=false){

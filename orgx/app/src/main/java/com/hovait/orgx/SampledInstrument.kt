@@ -54,7 +54,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             children.forEach{it.pitchBend(semitones)};alternate?.pitchBend(semitones)
         }
         fun aftertouch(pressure:Float){
-            if(!aftertouch && pressure>=.5f && aftertouchInstrument!=null){
+            // Original Track switches to InstMode.Aftertouch on the first
+            // positive pressure event. It closes the old key and opens the
+            // alternate sound once; pressure is not a 50% cross-fade gate.
+            if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
                 aftertouch=true;alternate=aftertouchInstrument!!.voice(note,tune,pan);alternate?.pitchBend(bendSemitones);alternate?.channelBalance(balance)
             }
         }
