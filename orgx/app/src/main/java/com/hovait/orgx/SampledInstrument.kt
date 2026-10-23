@@ -52,7 +52,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         fun channelBalance(value:Int){balance=value;children.forEach{it.channelBalance(value)};alternate?.channelBalance(value)}
         private val scriptPlan=if(scriptAllowed)runCatching{
             modeScript?.let{ImportedSimpleScript.evaluate(it,"touch",mapOf("key" to note))}
-                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","keymove","octavemove","volume","pan","tune","connectkey","connectspeed")}}}
+                ?.takeIf{result->result.plays.all{play->play.parameters.keys.all{it in setOf("key","keymove","octavemove","volume","pan","tune","pitchmove","connectkey","connectspeed")}}}
         }.getOrNull() else null
         private val scriptChildren=scriptPlan?.plays.orEmpty().map{command->
             val key=((command.parameters["key"] ?: note).toLong()+(command.parameters["keymove"] ?: 0)+12L*(command.parameters["octavemove"] ?: 0)).coerceIn(0,127).toInt()
@@ -62,6 +62,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
             }
+            playback.scriptPitchMove(command.parameters["pitchmove"] ?: 0)
             playback to (command.parameters["volume"] ?: 100).coerceAtLeast(0)/100.0
         }
         private val children=if(scriptPlan!=null)scriptChildren.map{it.first}+
@@ -75,6 +76,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var connectionStopByRelease=false
         private var connectionActive=false
         private var bendSemitones=0.0
+        private var scriptPitchFactor=1.0
+        private fun scriptPitchMove(value:Int){
+            scriptPitchFactor=(1000L+value).coerceAtLeast(1)/1000.0
+            children.forEach{it.scriptPitchMove(value)}
+        }
         private var bentStep=step
         private var aftertouch=false
         private var alternate:Playback?=null
@@ -182,7 +188,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             }else{
                 val gain=state?.next(released,pedal) ?: if(released)0.0 else 1.0
                 left=samplePosition(note,position,0,pan+balance)*gain;right=samplePosition(note,position,1,pan+balance)*gain
-                position+=(bentStep+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
+                position+=(bentStep*scriptPitchFactor+pitchOffset/8192.0).coerceAtLeast(1.0/8192)
                 finished=state?.finished==true || note !in 0..127 || missing(note) ||
                     (!selected[note].looping && position>=selected[note].sample.frames.size) || (state==null && noteOff)
             }

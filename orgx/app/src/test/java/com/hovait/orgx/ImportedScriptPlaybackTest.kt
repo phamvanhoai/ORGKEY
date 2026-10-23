@@ -5,6 +5,13 @@ import org.junit.Test
 import java.io.File
 
 class ImportedScriptPlaybackTest {
+    @Test fun scriptPitchMoveSurvivesExternalPitchBend(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)
+        val voice=source.withModeScript("on(touch) { play(pitchmove:1000); return(true); }").voice(60)
+        voice.pitchBend(12.0)
+        voice.next(false);voice.next(false)
+        assertEquals(400.0/32768,voice.left,1e-12)
+    }
     @Test fun scriptKeyMoveChangesPlaybackSpeedAndPanChangesStereo(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(32){(it*100).toShort()}),0,32)),1000)
         val voice=source.withModeScript("on(touch) { play(key:key,keymove:12,pan:100); return(true); }").voice(60)
