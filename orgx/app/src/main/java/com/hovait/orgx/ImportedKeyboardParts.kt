@@ -11,6 +11,7 @@ class ImportedKeyboardParts {
     private var parts:Map<Int,Part> = emptyMap()
     private val notes=ArrayList<Note>()
     private val bends=DoubleArray(16)
+    private val modulation=IntArray(16)
     val activeNotes:Int get()=notes.size
     fun setScriptSlider(part:Int,expectedSound:SampledInstrument,name:String,value:Int):Boolean {
         val current=parts[part] ?: return false
@@ -42,6 +43,7 @@ class ImportedKeyboardParts {
             if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || part.pedal))
                 playback.connectFrom(part.sound.keyboardNote(previous.key),connection)
             playback.pitchBend(bends[channel])
+            if(modulation[channel]!=0)playback.modulate(modulation[channel])
             notes.add(Note(part.id,channel,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode,
                 repeat=part.sound.keyRepeatEffect?.let{ImportedKeyRepeat(it,part.sound.outputSampleRate)}))
         }
@@ -73,6 +75,7 @@ class ImportedKeyboardParts {
     }
     fun modulate(level:Int,channel:Int=0){
         require(channel in 0..15 && level in -127..127)
+        modulation[channel]=level
         notes.filter{it.channel==channel && !it.released}.forEach{it.playback.modulate(level)}
     }
     /** Caller begins/finishes the shared mixer once, including all other voices. */
@@ -93,5 +96,5 @@ class ImportedKeyboardParts {
         }
         notes.addAll(repeated)
     }
-    fun reset(){notes.clear();bends.fill(0.0)}
+    fun reset(){notes.clear();bends.fill(0.0);modulation.fill(0)}
 }

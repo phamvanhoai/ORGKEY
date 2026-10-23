@@ -166,8 +166,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(!playback)captureMidi(0xa0 or channel,note,(pressure.coerceIn(0f,1f)*127).toInt())
         voices[key]?.let{if(it.imported!=null)it.sampledPlayback?.aftertouch(pressure)}
     }
+    private val liveModulation=IntArray(16)
+    private val playbackModulation=IntArray(16)
     fun midiModulation(value:Int,channel:Int=0,playback:Boolean=false){
         require(value in 0..127 && channel in 0..15)
+        (if(playback)playbackModulation else liveModulation)[channel]=value
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.modulate(value,channel)
         else voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{it.sampledPlayback?.modulate(value)}
         if(!playback)captureMidi(0xb0 or channel,1,value)
@@ -317,6 +320,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
         val voice=Voice(note=note,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
         voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback))
+        val modulation=(if(playback)playbackModulation else liveModulation)[channel]
+        if(modulation!=0)voice.sampledPlayback?.modulate(modulation)
         voices[key]=voice
         if(!playback && voice.imported==null && !MidiVoiceKey.percussion(channel))
             captureMidi(0xc0 or channel,GmProgramMap.program(voiceInstrument),0)
@@ -391,6 +396,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 }
             } catch(_:InterruptedException){} finally {
                 midiSessionGate.runIfCurrent(session){
+                    playbackModulation.fill(0)
                     voices.values.filter{it.playback}.forEach{it.sampledPlayback?.modulate(0);it.releasing=true};midiPlaybackThread=null;onComplete()
                 }
             }
@@ -400,7 +406,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Synchronized fun stopMidi(){
         val session=midiSessionGate.replace()
         midiPlaybackThread?.interrupt();midiPlaybackThread=null
-        midiSessionGate.runIfCurrent(session){voices.values.filter{it.playback}.forEach{it.releasing=true}}
+        midiSessionGate.runIfCurrent(session){playbackModulation.fill(0);voices.values.filter{it.playback}.forEach{it.sampledPlayback?.modulate(0);it.releasing=true}}
     }
 
     fun startRecording() {
