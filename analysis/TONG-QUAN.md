@@ -493,3 +493,7 @@ Snapshot khôi phục mode được lưu. Đối chiếu `track-play-dispatch.ja
 
 ORGX đã nối `pedalMode` của từng Track trong SET vào engine nhiều voice. Note-off không còn bị giữ nguyên cho tới lúc nhả pedal: nó bắt đầu release ngay; mode 0 dùng đuôi nhanh, mode khác 0 dùng đuôi dài, và mode -1 theo trạng thái pedal động. Khi nhả pedal ở mode -1, đuôi đang chạy chuyển từ release dài sang release nhanh như `Channels.Process` của APK gốc. Kiểm thử bao phủ thời lượng hai kiểu release, chuyển mode giữa đuôi, nhiều part, key area và đường nạp STS.
 
+# Cập nhật STS cho MIDI live đa kênh (2026-10-23)
+
+Đường USB/Bluetooth của APK gốc truyền channel vào `a1(channel,key,velocity)` rồi phát tới các Track đang Record theo key area, không khóa ở channel 0. ORGX đã sửa nhóm STS nhận đủ 16 kênh live và định danh voice bằng channel + key. Note-off, pitch bend, poly aftertouch và channel aftertouch chỉ tác động đúng kênh; MIDI file playback tiếp tục dùng đường playback riêng. Trường hai byte trong STS được xác nhận là `MIDIChOut`, nên không bị dùng sai để lọc nốt vào.
+

@@ -19,23 +19,23 @@ class ImportedKeyboardPartQueue {
             completed(accepted)
         }
     }
-    fun noteOn(note:Int,velocity:Double){
-        require(note in 0..127 && velocity.isFinite() && velocity in 0.0..1.0)
-        commands.add{parts.noteOn(note,velocity)}
+    fun noteOn(note:Int,velocity:Double,channel:Int=0){
+        require(channel in 0..15 && note in 0..127 && velocity.isFinite() && velocity in 0.0..1.0)
+        commands.add{parts.noteOn(note,velocity,channel)}
     }
-    fun noteOff(note:Int){commands.add{parts.noteOff(note)}}
+    fun noteOff(note:Int,channel:Int=0){commands.add{parts.noteOff(note,channel)}}
     fun pedal(down:Boolean){commands.add{parts.pedalAll(down)}}
-    fun pitchBend(semitones:Double){
-        require(semitones.isFinite() && kotlin.math.abs(semitones)<=48)
-        commands.add{parts.pitchBend(semitones)}
+    fun pitchBend(semitones:Double,channel:Int=0){
+        require(channel in 0..15 && semitones.isFinite() && kotlin.math.abs(semitones)<=48)
+        commands.add{parts.pitchBend(semitones,channel)}
     }
-    fun pressure(note:Int,value:Float){
-        require(value.isFinite() && value in 0f..1f)
-        commands.add{parts.pressure(note,value)}
+    fun pressure(note:Int,value:Float,channel:Int=0){
+        require(channel in 0..15 && value.isFinite() && value in 0f..1f)
+        commands.add{parts.pressure(note,value,channel)}
     }
-    fun channelPressure(value:Float){
-        require(value.isFinite() && value in 0f..1f)
-        commands.add{parts.channelPressure(value)}
+    fun channelPressure(value:Float,channel:Int=0){
+        require(channel in 0..15 && value.isFinite() && value in 0f..1f)
+        commands.add{parts.channelPressure(value,channel)}
     }
     fun clear(afterClear:()->Unit = {}){commands.add{parts.reset();parts.replace(emptyList());afterClear()}}
     fun drain(){

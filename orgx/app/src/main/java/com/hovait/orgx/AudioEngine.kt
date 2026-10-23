@@ -156,14 +156,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
     /** MIDI poly/channel pressure hook; applies only to imported SET voices. */
     fun midiNotePressure(note:Int,pressure:Float,channel:Int=0,playback:Boolean=false){
-        if(stsPartsEnabled && !playback && channel==0)stsParts.pressure(note,pressure.coerceIn(0f,1f))
+        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.pressure(note,pressure.coerceIn(0f,1f),channel)
         val key=MidiVoiceKey.key(note,channel,playback)
         if(!playback)captureMidi(0xa0 or channel,note,(pressure.coerceIn(0f,1f)*127).toInt())
         voices[key]?.let{if(it.imported!=null){it.sampledPlayback?.aftertouch(pressure);it.velocity=VoiceVelocity.gain(pressure,false)}}
     }
     fun midiChannelPressure(pressure:Float,channel:Int=0,playback:Boolean=false){
         require(channel in 0..15)
-        if(stsPartsEnabled && !playback && channel==0)stsParts.channelPressure(pressure.coerceIn(0f,1f))
+        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.channelPressure(pressure.coerceIn(0f,1f),channel)
         if(!playback)captureMidi(0xd0 or channel,(pressure.coerceIn(0f,1f)*127).toInt(),0)
         val gain=VoiceVelocity.gain(pressure,false)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{
@@ -174,7 +174,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         pitchState.set(value,channel,playback)
         if(!playback){val bend=value.coerceIn(0,16383);captureMidi(0xe0 or channel,bend and 127,bend shr 7)}
         val semitones=MidiPitchBend.semitones(value)
-        if(stsPartsEnabled && !playback && channel==0)stsParts.pitchBend(semitones)
+        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.pitchBend(semitones,channel)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones)}
     }
     fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
@@ -293,7 +293,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             require(velocity.isFinite())
             val amount=velocity.coerceIn(0f,1f)
             if(amount==0f){noteOff(note,channel,playback);return}
-            stsParts.noteOn(note,amount.toDouble())
+            stsParts.noteOn(note,amount.toDouble(),channel)
             captureMidi(0x90 or channel,note,(amount*127).toInt().coerceAtLeast(1))
             return
         }
@@ -315,7 +315,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun triggerSoundEffect(effect: SoundEffect) { sampleBank?.trigger(effect.key) }
     fun stopSoundEffects() { sampleBank?.trigger("") }
     fun noteOff(note: Int,channel:Int=0,playback:Boolean=false) {
-        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.noteOff(note)
+        if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.noteOff(note,channel)
         voices[MidiVoiceKey.key(note,channel,playback)]?.let { voice ->
             if (sustain && !playback && !MidiVoiceKey.percussion(channel)) voice.pendingSustain = true else voice.releasing = true
         }

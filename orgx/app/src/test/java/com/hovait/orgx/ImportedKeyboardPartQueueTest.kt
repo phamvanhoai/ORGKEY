@@ -52,13 +52,13 @@ class ImportedKeyboardPartQueueTest {
             frame(queue,mixer);assertEquals(120,tempo)
         }finally{mixer.close()}
     }
-    @Test fun livePedalReleasesHeldNotesEvenAfterTheirPartWasReplaced(){
+    @Test fun noteOffReleasesOldVoiceEvenAfterItsPartWasReplaced(){
         val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
         try{
             queue.replace(listOf(part(100)));queue.pedal(true);queue.noteOn(60,1.0)
             assertEquals(.25,frame(queue,mixer),0.0)
             queue.noteOff(60);queue.replace(emptyList())
-            assertEquals(.25,frame(queue,mixer),0.0)
+            assertEquals(0.0,frame(queue,mixer),0.0)
             queue.pedal(false)
             assertEquals(0.0,frame(queue,mixer),0.0)
         }finally{mixer.close()}

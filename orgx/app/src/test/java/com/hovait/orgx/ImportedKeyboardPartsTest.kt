@@ -111,4 +111,23 @@ class ImportedKeyboardPartsTest {
             parts.reset();assertEquals(0.0,frame(parts,mixer),0.0)
         }finally{mixer.close()}
     }
+    @Test fun sameKeyOnTwoMidiChannelsHasIndependentReleaseAndPressure(){
+        fun constant(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,shortArrayOf(value,value)),0,2)),1000)
+        val sound=constant(8192).withAftertouch(constant(16384))
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound)))
+            parts.noteOn(60,1.0,1);parts.noteOn(60,1.0,2)
+            assertEquals(.5,frame(parts,mixer),0.0)
+            parts.pressure(60,1f,1)
+            assertEquals(.75,frame(parts,mixer),0.0)
+            parts.noteOff(60,1)
+            assertEquals(.25,frame(parts,mixer),0.0)
+            assertEquals(1,parts.activeNotes)
+            parts.channelPressure(1f,2)
+            assertEquals(.5,frame(parts,mixer),0.0)
+            parts.noteOff(60,2);assertEquals(0.0,frame(parts,mixer),0.0)
+        }finally{mixer.close()}
+    }
 }

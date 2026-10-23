@@ -138,3 +138,11 @@ StsMidiRoutingTest kiểm tra 64 tổ hợp enable/channel/playback; kiểm th�
 - Khi mode `-1` đang chạy đuôi dài và pedal được nhả, envelope chuyển sang đuôi nhanh từ mức âm lượng hiện tại (nhánh envelope 4 sang 5 của mã gốc).
 - Pedal mode được giữ riêng cho từng part và cho cả voice cũ sau khi đổi STS.
 
+# Cập nhật MIDI live đa kênh (2026-10-23)
+
+- USB/Bluetooth MIDI của APK gốc chuyển `channel`, `key`, `velocity` vào cùng đường phát các Track đang Record; nó không giới hạn STS ở channel 0.
+- ORGX hiện đưa note-on/note-off live từ đủ 16 kênh vào nhóm STS, vẫn tách MIDI file playback sang voice playback riêng.
+- Nốt đang ngân được định danh theo cả channel và key. Cùng một key trên hai kênh không còn nhả lẫn nhau.
+- Pitch bend, polyphonic aftertouch và channel aftertouch giữ trạng thái riêng theo từng kênh. Pitch bend có trước note-on cũng được áp vào đúng voice mới.
+- Hai byte `STS.MIDIChOut` trong snapshot là cấu hình xuất MIDI, không được dùng nhầm làm bộ lọc input.
+
