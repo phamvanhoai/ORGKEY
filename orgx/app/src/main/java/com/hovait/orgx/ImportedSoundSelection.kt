@@ -3,6 +3,10 @@ package com.hovait.orgx
 import java.io.File
 
 object ImportedSoundSelection {
+    fun selectedIndex(sounds:List<ImportedInstrument>,name:String?,key:String?):Int {
+        val matches=sounds.indices.filter{if(key!=null)key(sounds[it])==key else sounds[it].name==name}
+        return matches.singleOrNull() ?: -1
+    }
     fun key(sound:ImportedInstrument):String? {
         val source=sound.sourceIdentity ?: return null
         return if(sound.modes.isNotEmpty())"$source:mode:${sound.selectedMode}"

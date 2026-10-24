@@ -24,6 +24,7 @@ class ImportedSoundSelectionTest {
         assertEquals(selected.name,ImportedSoundSelection.changedMode(loaded,file,file.name,selected.name,savedKey))
         val newKey=ImportedSoundSelection.key(loaded.modeSelection!!.instrument)
         assertEquals("instrument:5:mode:0",newKey)
+        assertEquals(newKey,loaded.selectionKey)
         assertNull(ImportedSoundSelection.changedMode(loaded,file,file.name,selected.name,newKey))
     }
     @Test fun duplicateVoiceNamesRestoreByInstrumentAndSoundIdentity(){
@@ -35,6 +36,9 @@ class ImportedSoundSelectionTest {
         val selected=sounds.last()
         assertEquals("instrument:2:sound:1",ImportedSoundSelection.key(selected))
         assertSame(selected,ImportedSoundSelection.choose(sounds,selected.name,ImportedSoundSelection.key(selected)))
+        assertEquals(3,ImportedSoundSelection.selectedIndex(sounds,selected.name,ImportedSoundSelection.key(selected)))
+        assertEquals(-1,ImportedSoundSelection.selectedIndex(sounds,selected.name,null))
+        assertEquals(-1,ImportedSoundSelection.selectedIndex(sounds,selected.name,"instrument:9:sound:1"))
         for(key in listOf(null,"instrument:9:sound:1")){
             try{ImportedSoundSelection.choose(sounds,selected.name,key);fail("Ambiguous or missing selection accepted")}
             catch(_:IllegalArgumentException){}

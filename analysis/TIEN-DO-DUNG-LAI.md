@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Bảng chọn Voice nhận diện đúng các mục trùng tên, 24-10-2026
+
+- Màn chọn Voice vẫn dùng indexOfFirst(name) dù restore đã dùng identity. SET có nhiều instrument/sound/mode trùng tên vì vậy có thể đánh dấu mục đầu tiên, không phải voice đã nạp.
+- SampledInstrument nay cung cấp selectionKey: mode lấy identity của active mode qua modeSelection (kể cả DNC exit), sound thường giữ key do loader gán. UI đồng bộ key cùng tên và dùng ImportedSoundSelection.selectedIndex. Có key thì chỉ so key; không có key chỉ chọn nếu tên duy nhất, không đoán mục đầu khi trùng tên.
+- Bổ sung assertion vào ImportedSoundSelectionTest hiện có: bốn voice trùng tên chọn đúng index3 bằng key, tên mơ hồ/key thiếu trả -1, DNC exit cập nhật selectionKey sang mode0. ImportedSoundSelectionTest/ImportedModeTest và assembleDebug đạt. Chưa xác minh highlight bằng chạm trên thiết bị; không thay đổi file SET hoặc thêm file test/log mới.
+
 ## Giải phóng mục tiêu Main STS đã hoàn tất và tránh nạp trước bàn giao, 24-10-2026
 
 - mainStsTarget trước giữ nguyên sau khi Main đích đã phát, luôn che sectionState trong linkedMainPart. Vòng đồng bộ nay bỏ target khi session đích đã thành session phát và currentId đạt mục tiêu, hoặc target thuộc session đã rời lựa chọn; giữ target trong thời gian AutoFill đang chờ Main.

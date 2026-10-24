@@ -260,6 +260,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var bpm by remember { mutableIntStateOf(preferences.getInt("bpm", 120)) }
     var playing by remember { mutableStateOf(false) }
     var setSession by remember{mutableStateOf(engine.selectedStyleSession)}
+    var selectedVoiceKey by remember{mutableStateOf(engine.importedInstrument?.selectionKey)}
     var audibleStyleSession by remember{mutableStateOf(engine.importedStyleSession)}
     var styleAutoFill by remember{mutableStateOf(preferences.getBoolean("styleAutoFill",false))}
     var syncStart by remember{mutableStateOf(engine.synchroStart)}
@@ -323,6 +324,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         padWaiting=engine.importedPads.pendingMask or engine.importedPads.loadingMask
         padsActive=padRunning!=0 || padWaiting!=0
         restoredSetName=engine.importedInstrumentName
+        selectedVoiceKey=engine.importedInstrument?.selectionKey
         bankIndex=engine.activeSetIndex
         audibleStyleSession=engine.importedStyleSession
         setSession=engine.selectedStyleSession
@@ -539,7 +541,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         },
                         stylePage=browseStyles || browseVoices,
                         selectionTitle=if(browseVoices)"VOICE SELECT" else "STYLE SELECT",
-                        selectedChoice=if(!browseVoices){if(bankIndex!=null)bankStyles.indexOfFirst{it.id==setSession?.style?.id} else style} else if(useSetVoices)voiceSounds.indexOfFirst{it.name==engine.importedInstrumentName} else if(engine.importedInstrument==null)instrument else -1,
+                        selectedChoice=if(!browseVoices){if(bankIndex!=null)bankStyles.indexOfFirst{it.id==setSession?.style?.id} else style} else if(useSetVoices)ImportedSoundSelection.selectedIndex(voiceSounds,engine.importedInstrumentName,selectedVoiceKey) else if(engine.importedInstrument==null)instrument else -1,
                         styleChoices=if(browseVoices){if(useSetVoices)voiceSounds.map{it.name} else InstrumentCatalog.names} else if(bankIndex!=null)bankStyles.map{it.name} else engine.styleNames,
                         styleEnabled=if(bankBusy || restoringSet)List(if(browseVoices){if(useSetVoices)voiceSounds.size else InstrumentCatalog.names.size} else if(bankIndex!=null)bankStyles.size else engine.styleNames.size){false} else if(browseVoices)emptyList() else if(bankIndex!=null)bankEnabled else emptyList(),
                         page=bankPage,status=bankStatus,onPage={bankPage=(bankPage+it).coerceAtLeast(0)},onExit={if(!bankBusy){browseStyles=false;browseVoices=false}},

@@ -132,6 +132,7 @@ object ImportedInstrumentLoader {
                 envelope=ImportedEnvelope.from(instrument.sounds.first().envelope).let{it.copy(release=ImportedMusicParameters.release(it.release,channel,musicSettings))},pitchMode=instrument.sounds.first().envelope[4],
                 tuning=if(instrument.type==0)system?.table.orEmpty() else emptyList(),tuningTranspose=channel.transpose)
         }.let{if(settings==null)it.withKeyboardSettings(channel,instrument.type==0) else it}
+            .also{it.sourceSelectionKey=ImportedSoundSelection.key(instrument)}
     }
     /** Channels.OpenKey: default mode primary plus every enabled Mix slot, including duplicates. */
     fun layers(instrument:ImportedInstrument,aftertouch:Boolean=false):List<ImportedInstrument>{

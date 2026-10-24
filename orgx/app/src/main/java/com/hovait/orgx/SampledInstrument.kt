@@ -41,6 +41,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     val activeModeSound:SampledInstrument get()=modeRoute?.let{it.sounds[it.selected]} ?: this
     val activeMode:Int get()=modeRoute?.selected ?: 0
     private var ownModeSelection:ImportedSoundSelection.Mode?=null
+    internal var sourceSelectionKey:String?=null
+    val selectionKey:String? get()=modeSelection?.instrument?.let(ImportedSoundSelection::key) ?: sourceSelectionKey
     var modeSelection:ImportedSoundSelection.Mode?
         get()=if(activeModeSound!==this)activeModeSound.modeSelection else ownModeSelection
         internal set(value){ownModeSelection=value}
