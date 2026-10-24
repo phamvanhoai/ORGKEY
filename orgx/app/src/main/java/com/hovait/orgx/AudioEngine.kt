@@ -318,7 +318,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val repeat=imported?.let{ImportedKeyRepeat(it.outputSampleRate)}
     }
     private data class RepeatedVoice(val sound:SampledInstrument,val playback:SampledInstrument.Playback,
-        val gain:Float,val channel:Int,val order:Long,val noteOff:Boolean=false,@Volatile var sustainHeld:Boolean=false)
+        val gain:Float,val channel:Int,val order:Long,val noteOff:Boolean=false)
     private val repeatedVoices=java.util.concurrent.ConcurrentLinkedQueue<RepeatedVoice>()
     private val voiceOrder=java.util.concurrent.atomic.AtomicLong()
     private val voiceBudgetLock=Any()
@@ -428,8 +428,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             if(retiring?.imported!=null && (retiring.releasing || retiring.pendingSustain) && tail!=null && !tail.finished && !playback){
                 // Channels.Open allocates another channel while the previous
                 // note completes its release. Keep that PCM/envelope alive.
-                repeatedVoices.add(RepeatedVoice(retiring.imported,tail,retiring.velocity,channel,retiring.order,
-                    noteOff=true,sustainHeld=retiring.pendingSustain))
+                repeatedVoices.add(RepeatedVoice(retiring.imported,tail,retiring.velocity,channel,retiring.order,noteOff=true))
             }
             reserveVoice(channel,playback,1)
             voices[key]=voice
@@ -444,7 +443,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun noteOff(note: Int,channel:Int=0,playback:Boolean=false) {
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.noteOff(note,channel)
         voices[MidiVoiceKey.key(note,channel,playback)]?.let { voice ->
-            if (sustain && !playback && !MidiVoiceKey.percussion(channel)) voice.pendingSustain = true else voice.releasing = true
+            if(voice.imported!=null){
+                // Sampled channels close on key-up even with pedal down;
+                // Playback selects the slow/fast release envelope from pedal.
+                voice.releasing=true
+            }else if (sustain && !playback && !MidiVoiceKey.percussion(channel)) voice.pendingSustain = true else voice.releasing = true
         }
         captureMidi(0x80 or channel,note,0)
     }
@@ -453,7 +456,6 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(sustain!=enabled)voices.values.filter{!it.playback}.forEach{it.sampledPlayback?.scriptPedal(enabled)}
         if(sustain!=enabled)repeatedVoices.forEach{
             it.playback.scriptPedal(enabled)
-            if(!enabled)it.sustainHeld=false
         }
         if(stsPartsEnabled)stsParts.pedal(enabled)
         if(sustain!=enabled)MidiRecordingPedal.messages(enabled).forEach{message->
@@ -840,7 +842,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || (voice.sampledPlayback==null && voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
                 repeatedVoices.forEach{voice->
-                    voice.playback.next(voice.noteOff && (!voice.sustainHeld || !sustain),if(voice.noteOff)sustain else false)
+                    voice.playback.next(voice.noteOff,if(voice.noteOff)sustain else false)
                     importedKeyboardMixer.add(voice.sound,voice.playback.left*voice.gain,voice.playback.right*voice.gain)
                     if(voice.playback.finished)repeatedVoices.remove(voice)
                 }

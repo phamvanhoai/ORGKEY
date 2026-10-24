@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Voice SET nhận key-up ngay khi pedal còn bật, 24-10-2026
+
+- Sửa lại mô hình sustain của single sampled Voice: Channels.Close đánh dấu Close ngay lúc nhả phím; envelope dùng Pedal để chọn release chậm/nhanh. AudioEngine trước giữ pendingSustain nên không chuyển noteOff cho Playback, hoãn script release và có thể giữ loop đến lúc pedal tắt.
+- Single sampled noteOff nay đặt releasing ngay; Playback nhận key-up và sustain riêng, tương tự STS parts. Nốt đang release khi retrigger vẫn chuyển sang âm phụ giữ nguyên Playback, nhận pedal event và envelope đổi tốc độ khi pedal lên. Bỏ sustainHeld latch vừa thêm vì latch đó tiếp tục hoãn key-up sai cơ chế cho sampled Voice. Factory synth giữ logic pendingSustain cũ.
+- SampledInstrumentTest/ImportedKeyboardPartsTest/ImportedEnvelopeTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới. Chưa nghe/đo single Voice Android hoặc script release thực trên máy; tests xác minh nền Playback/envelope, không phải mọi điều kiện AudioEngine. Điều chỉnh này thay thế cách mô tả hoãn noteOff ở mục retrigger sustain trước.
+
 ## Giữ nốt sustain khi retrigger cùng phím, 24-10-2026
 
 - Voice SET đã noteOff nhưng pendingSustain nay được chuyển sang danh sách âm phụ khi cùng key có noteOn mới, thay vì bị bỏ. Giữ Playback/gain/channel/order, cùng ngân sách đa âm với nốt mới.
