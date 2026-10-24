@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Bỏ timing Pair allocation trong callback PAD, 24-10-2026
+
+- AudioEngine từng gọi session.padTiming mỗi sample, tạo Pair và boxing thời gian Long để truyền sang PAD. Thêm nextAt dùng primitive Long/Int và renderPads của session đọc clock/scale, render bank, nhận scale phản hồi dưới một session lock. Engine không gọi padTiming trong callback nữa; đường next với Pair vẫn giữ cho caller/test cũ.
+- Khi không có style chạy, nextAt dùng clock bank như trước; không thay sample generation/nhịp/Synchro/STOP. Không tuyên bố toàn callback không allocation: các stage/player khác vẫn có phần việc cần tối ưu.
+- Kiểm tra so PCM stereo/masks/scale qua4000frame, đổi tempo120->173 và STOP giữa lượt khớp đường timing cũ. Kiểm tra renderPads truyền scale1500 về style nhưng không tiến clock, Main chờ chuyển đúng cửa sổ1500. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest, assembleDebug đạt; cài APK thành công.
+- Chưa profile allocation/GC/underrun hoặc đo latency trên thiết bị; loại bỏ source allocation không chứng minh hết giật tiếng. Không thêm file test mới hoặc sửa SET.
+
 ## Cộng pan sample/nhạc cụ/Mix trước khi giới hạn kênh, 24-10-2026
 
 - Channels.OpenKey cộng notePan+Instrument.fPan+InstSec.Pan rồi tính min100; Channels.Process chặn iVolumeL/R âm về0. ORGX từng từ chối tổng pan instrument+section vượt100 và samplePosition có thể tạo panGain âm khi cộng notePan.

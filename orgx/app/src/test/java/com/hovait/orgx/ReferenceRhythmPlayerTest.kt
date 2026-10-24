@@ -4,6 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun primitivePadTimingPreservesPcmAndTransportAcrossTempoChangesAndStop(){
+        val first=ImportedPadBank(1000);val second=ImportedPadBank(1000)
+        val group=ImportedStyleGroup(1,100,"Pad",96,true,0,1500,120,meterX=3,meterY=4)
+        fun source()=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)),end=1500)),
+            {10000},{_,age,_->(age%13)/13.0},1000)
+        try{
+            first.play(0,source(),group);second.play(0,source(),group)
+            repeat(4000){frame->
+                if(frame==1800){first.stopAll();second.stopAll()}
+                val tempo=if(frame<1000)120 else 173
+                first.next(tempo,.7f,.5f,frame.toLong() to 1000,2)
+                second.nextAt(tempo,.7f,.5f,frame.toLong(),1000,2)
+                assertEquals(first.left,second.left,0.0);assertEquals(first.right,second.right,0.0)
+                assertEquals(first.runningMask,second.runningMask);assertEquals(first.pendingMask,second.pendingMask)
+                assertEquals(first.rhythmScale,second.rhythmScale)
+            }
+        }finally{first.close();second.close()}
+    }
     @Test fun unboundedPadLoopsUntilStopAndDoesNotFollowStoredJump(){
         val group=ImportedStyleGroup(1,100,"Loop pad",96,true,0,0,120,limit=false,jumpGroup=2)
         val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(1,1,60,0,5,0))

@@ -96,8 +96,12 @@ class ImportedPadBank(sampleRate:Int=48000) {
     fun stop(slot:Int){require(slot in 0..3);synchronized(commandLock){generations.incrementAndGet(slot);loadingMask=loadingMask and (1 shl slot).inv();pending.getAndSet(slot,Change(null))?.close()}}
     fun stopAll(){repeat(4,::stop)}
     fun next(tempo:Int,drumGain:Float,chordGain:Float,styleTiming:Pair<Long,Int>?=null,method:Int=0){
-        val time=styleTiming?.first ?: clock.time
-        var scale=styleTiming?.second ?: rhythmScale
+        nextAt(tempo,drumGain,chordGain,styleTiming?.first ?: -1L,styleTiming?.second ?: rhythmScale,method)
+    }
+    /** Audio callback entry: primitive timing avoids Pair and boxed Long allocations per sample. */
+    fun nextAt(tempo:Int,drumGain:Float,chordGain:Float,styleTime:Long=-1L,styleScale:Int=rhythmScale,method:Int=0){
+        val time=if(styleTime>=0)styleTime else clock.time
+        var scale=if(styleTime>=0)styleScale else rhythmScale
         rhythmScale=scale;scaleChanged=false
         left=0.0;right=0.0
         repeat(4){slot->
@@ -140,7 +144,7 @@ class ImportedPadBank(sampleRate:Int=48000) {
         }
         runningMask=(0..3).fold(0){mask,slot->if(players[slot]!=null && !tails[slot])mask or (1 shl slot) else mask}
         pendingMask=(0..3).fold(0){mask,slot->if(waiting[slot]!=null || pending.get(slot)?.player!=null)mask or (1 shl slot) else mask}
-        if(styleTiming!=null)clock.seek(time) else clock.advance(1,tempo)
+        if(styleTime>=0)clock.seek(time) else clock.advance(1,tempo)
         if(runningMask==0 && pendingMask==0)clock.reset()
     }
     fun close(){repeat(4){pending.getAndSet(it,null)?.close();waiting[it]?.close();waiting[it]=null;closeSlot(it)};runningMask=0;pendingMask=0}

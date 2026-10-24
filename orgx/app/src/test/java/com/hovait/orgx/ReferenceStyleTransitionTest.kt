@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun audioPadRenderingFeedsBackScaleWithoutAdvancingStyleClock(){
+        val session=session(lock=true)
+        val bank=ImportedPadBank(1000)
+        val group=ImportedStyleGroup(9,100,"Pad",96,true,0,1500,120,meterX=3,meterY=4)
+        val player=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("Pad",9,100,96,120,true,0,1500,false,
+            listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),{10000},{_,_,_->1.0},1000)
+        try{
+            bank.play(0,player,group)
+            session.renderPads(bank,120,1f,1f,2)
+            assertEquals(0L,session.padTiming.first);assertEquals(1500,session.padTiming.second)
+            assertEquals(1.0,bank.left,0.0)
+            repeat(100){session.next(120);session.renderPads(bank,120,1f,1f,2)}
+            session.request(2)
+            repeat(1400){session.next(120);session.renderPads(bank,120,1f,1f,2);assertEquals(1,session.currentId)}
+            session.next(120);assertEquals(2,session.currentId)
+        }finally{session.close();bank.close()}
+    }
     @Test fun manualStopDrainsVoiceWithoutPlayingQueuedSectionsOrMovingClock(){
         val session=session(lock=true)
         try{

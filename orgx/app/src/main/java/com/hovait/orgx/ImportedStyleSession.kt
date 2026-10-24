@@ -44,6 +44,11 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     var finished=false;private set
     val player get()=players.getValue(currentId)
     val padTiming:Pair<Long,Int> get()=synchronized(this){clock.time to rhythmScale}
+    /** Read timing and return PAD scale changes under the same session lock, without a per-frame snapshot object. */
+    @Synchronized fun renderPads(bank:ImportedPadBank,tempo:Int,drumGain:Float,chordGain:Float,method:Int){
+        bank.nextAt(tempo,drumGain,chordGain,clock.time,rhythmScale,method)
+        if(bank.scaleChanged)rhythmScale=bank.rhythmScale
+    }
     /** GroupPlayNext shares Music.rhythmScale across the main group and PAD slots. */
     @Synchronized fun applyPadRhythmScale(scale:Int){require(scale>0);rhythmScale=scale}
     val pendingId get()=synchronized(this){queue.firstOrNull{it.mute==0}?.id}
