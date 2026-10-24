@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chuỗi JumpGroup của PAD, 24-10-2026
+
+- Theo Tracks.GroupPlayNext, group không Loop có JumpGroup>0 chuyển tới group chỉ định thay vì luôn dừng. Thêm loadPad nạp các group nối tiếp theo ID trên IO; phát dùng ImportedPadSequence và không đọc file trong audio callback. Cả LCD và trang PAD dùng đường mới.
+- Chuỗi được duyệt theo ID duy nhất để không nạp vô hạn khi có vòng, tối đa64 group và dùng chung giới hạn64MB PCM của loadSections. Target thiếu báo lỗi cụ thể; không tự thay bằng PAD/style mặc định. Không sửa file SET.
+- Chuyển tại cửa sổ ReferenceSectionTiming.inWindow, đặt phase theo startOffset và method hiện tại. Chuyển khác player mang theo voice release/bus FX phù hợp; self jump giữ voice hiện tại. STOP/đổi SET/token nạp cũ đóng hoặc hủy toàn bộ chuỗi; khi chạy chỉ hiển thị một slot.
+- Kiểm tra PCM chuỗi one-shot->loop cho tiếng cũ+mới ở boundary, ổn định sau release và stop về0; token hoàn tất sau STOP không phát. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và assembleDebug đạt; cài APK thành công.
+- Chưa so bản thu APK/SET thực. Chưa triển khai LastLoop ngoài chuỗi, variant GroupSection theo chord, cập nhật rhythmScale toàn cục bởi PAD trong mọi method, hoặc toàn bộ group DSP tail khác cấu hình. Chưa coi PAD hoàn chỉnh100%.
+
 ## Nhả tiếng khi PAD kết thúc hoặc thay player, 24-10-2026
 
 - Đối chiếu Tracks.GroupPlayNext: khi đổi group, các track cũ gọi Channels.CloseAll(false). ReferenceRhythmPlayer không còn voices.clear tại cuối đoạn không lặp; đánh dấu finished, nhả nốt và tiếp tục render tail nếu caller gọi next. Không lập lịch vòng tiếp theo.

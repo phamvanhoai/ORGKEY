@@ -4,6 +4,37 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun padJumpChainAdvancesOnBoundaryAndKeepsRetiringVoice(){
+        val a=ImportedStyleGroup(1,100,"First",96,false,0,5,120,jumpGroup=2)
+        val b=ImportedStyleGroup(2,100,"Next",97,true,0,1000,120)
+        fun source(value:Double,group:ImportedStyleGroup)=ReferenceRhythmPlayer(listOf(
+            track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)),end=group.end.toLong()).copy(loop=group.loop)),
+            {10000},{_,_,_->value},1000)
+        val sequence=ImportedPadSequence(1,mapOf(1 to a,2 to b),mapOf(1 to source(1.0,a),2 to source(2.0,b)))
+        val bank=ImportedPadBank(1000)
+        try{
+            val token=bank.beginLoad(0);assertTrue(bank.playPrepared(0,token,sequence))
+            repeat(5){bank.next(120,1f,1f)}
+            assertEquals(1,sequence.currentId)
+            bank.next(120,1f,1f)
+            assertEquals(2,sequence.currentId);assertEquals(3.0,bank.left,1e-9)
+            repeat(20){bank.next(120,1f,1f)}
+            assertEquals(2.0,bank.left,1e-9);assertEquals(1,bank.runningMask)
+            bank.stopAll();repeat(20){bank.next(120,1f,1f)}
+            assertEquals(0,bank.runningMask);assertEquals(0.0,bank.left,0.0)
+        }finally{bank.close()}
+    }
+    @Test fun stoppedPadJumpChainCannotStartWhenItsLoadCompletes(){
+        val group=ImportedStyleGroup(1,100,"Pad",96,false,0,5,120,jumpGroup=1)
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(hit(0)),end=5).copy(loop=false)),{1000},{_,_,_->1.0},1000)
+        val sequence=ImportedPadSequence(1,mapOf(1 to group),mapOf(1 to player))
+        val bank=ImportedPadBank(1000)
+        try{
+            val token=bank.beginLoad(0);bank.stopAll()
+            assertFalse(bank.playPrepared(0,token,sequence))
+            bank.next(120,1f,1f);assertEquals(0.0,bank.left,0.0)
+        }finally{bank.close()}
+    }
     @Test fun oneShotBoundaryKeepsReleaseAudioWithoutSchedulingAnotherCycle(){
         val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,100)),end=5).copy(loop=false)),
             {1000},{_,_,_->1.0},1000)

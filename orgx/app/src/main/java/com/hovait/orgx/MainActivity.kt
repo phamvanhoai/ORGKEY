@@ -322,10 +322,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         val token=bank.beginLoad(slot)
         bankScope.launch{
             try{
-                val player=withContext(Dispatchers.IO){ImportedStylePlayer.load(file,index,group,true,
+                val player=withContext(Dispatchers.IO){ImportedStylePlayer.loadPad(file,index,group,
                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
                     chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
-                if(engine.activeSetIndex!==index)player.close() else bank.playPrepared(slot,token,player,group)
+                if(engine.activeSetIndex!==index)player.close() else bank.playPrepared(slot,token,player)
             }catch(error:Exception){
                 if(error is kotlinx.coroutines.CancellationException)throw error
                 Toast.makeText(context,"PAD ${slot+1}: ${error.message}",Toast.LENGTH_LONG).show()
@@ -997,10 +997,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         busy=true;status="LOADING ${group.name}"
                         scope.launch{
                             try{
-                                val player=withContext(Dispatchers.IO){ImportedStylePlayer.load(file,index,group,true,
+                                val player=withContext(Dispatchers.IO){ImportedStylePlayer.loadPad(file,index,group,
                                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
                                     chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
-                                if(engine.activeSetIndex!==index)player.close() else engine.importedPads.playPrepared(slot,token,player,group)
+                                if(engine.activeSetIndex!==index)player.close() else engine.importedPads.playPrepared(slot,token,player)
                                 status=""
                             }catch(error:Exception){
                                 if(error is kotlinx.coroutines.CancellationException)throw error

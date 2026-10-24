@@ -4,6 +4,24 @@ import java.io.File
 
 /** Prepare style samples and mode scripts; Track channel rules control expression effects. */
 object ImportedStylePlayer {
+    fun loadPad(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,
+        transposer:ReferenceChordTransposer?,keyConnectionMethod:Int=0,
+        scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:()->Int?):ImportedPadSequence {
+        val groups=linkedMapOf<Int,ImportedStyleGroup>()
+        var next:ImportedStyleGroup?=group
+        while(next!=null && next.id !in groups){
+            val current=next
+            require(groups.size<64){"PAD jump chain exceeds 64 groups"}
+            groups[current.id]=current
+            next=if(!current.loop && current.jumpGroup>0)
+                requireNotNull(index.styles.firstOrNull{it.id==current.jumpGroup}){"PAD jump target ${current.jumpGroup} is missing"}
+            else null
+        }
+        val players=loadSections(file,index,groups.values.toList(),true,transposer,targetChord,keyConnectionMethod,
+            scriptOverrides,chordControl,chordOctaveMove)
+        return ImportedPadSequence(group.id,groups,players)
+    }
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
         chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null):ImportedStyleSession {
