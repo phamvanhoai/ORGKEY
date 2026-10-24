@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedFxToggleEventsDoNotInvalidateStyleTransport(){
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(241,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000),
+            ReferenceDrumEvent(246,0,0,0,10,0)))),{10000},{_,_,_->1.0},1000)
+        try{repeat(3){player.next(0,120)};assertTrue(player.left>0)}finally{player.close()}
+    }
     @Test fun fadeStartHonorsStoredDelayBeforeRamping(){
         val fade=ReferenceFadeController();fade.command(false,4,2)
         assertEquals(1.0,fade.advance(),0.0);assertEquals(1.0,fade.advance(),0.0)

@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Event bật/tắt FX Music/Wave/Rhythm không làm mất section, 25-10-2026
+
+- TrackEvent có FXMusicOff/On241/242, FXWaveOff/On243/244, FXRhythmOff/On245/246. ORGX trước báo unsupported và loại style section chứa chúng. Support nay cho phép các event và player giữ transport; FX chain hiện hành không tắt/bật riêng vì chưa có Music/Wave/Rhythm bus snapshot tương ứng.
+- ReferenceRhythmPlayerTest dùng241 trước note và246 sau note, section vẫn phát. Build/test đạt. Không sửa SET hoặc tạo file test/log mới; cần nối bus FX riêng để âm lượng/FX toggle giống APK gốc.
+
 ## FadeStart dùng delay của event, 25-10-2026
 
 - Đối chiếu Music.FadeStart(i,i2): i2 được lưu fFadeDelay trước khi FadeValue cập nhật âm lượng. ReferenceFadeController nay nhận duration từ event.note và delayTicks từ event.touch, giữ gain trong thời gian delay rồi mới ramp; FadeCancel vẫn target1 ngay.
