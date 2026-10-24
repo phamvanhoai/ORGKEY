@@ -53,7 +53,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         set(value){field=value;SampledInstrument.tempo=value.coerceIn(40,240)}
     @Volatile var instrument = 0
     @Volatile var importedInstrument:SampledInstrument?=null
-        set(value){if(field!==value){clearStsParts();currentStsSingle=null};field=value}
+        set(value){
+            // A Master STS can be active while the single-voice field is already
+            // null. Selecting a factory voice must still retire those parts and
+            // invalidate a pending batch commit.
+            if(field!==value || stsPartsEnabled || currentStsGroup!=null){clearStsParts();currentStsSingle=null}
+            field=value
+        }
     @Volatile var currentStsSingle:ImportedStsLoader.Prepared?=null;private set
     @Volatile var importedInstrumentName:String?=null
     @Volatile var activeSetFile:File?=null

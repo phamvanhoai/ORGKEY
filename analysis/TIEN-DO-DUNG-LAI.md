@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chọn factory voice thoát Master STS dù single voice đã null, 24-10-2026
+
+- Master STS thay nhóm keyboard parts mà có thể giữ importedInstrument=null. Setter cũ chỉ clearStsParts khi field!==value; UI chọn factory gánnull lại không clear, nên noteOn vẫn định tuyến vào parts STS.
+- Setter nay clear khi voice khác hoặc stsPartsEnabled/currentStsGroup còn hoạt động. clearStsParts tăng generation, xóa currentGroup/single và enqueue clear trên audio thread, ngăn pending batch cũ commit sau chọn voice. Gán lại cùng single voice khi không có batch giữ hành vi cũ.
+- assembleDebug và ImportedKeyboardPartQueueTest/ImportedStsBatchTest/StsCommitWaitersTest đạt; cài APK thành công. Các test này kiểm tra queue/batch nền, không phải runtime AudioEngine setter trên thiết bị. Không thêm test phản chiếu điều kiện setter.
+- Chưa nghe xác minh chuyển STS->factory trên thiết bị vì SET hiện tại không có Master slot phù hợp theo index. Không coi đây là đối chiếu mọi quy tắc release tail/channel switch của APK gốc. Không sửa SET.
+
 ## Chặn tiếng mặc định lúc restore và kết quả voice nạp cũ, 24-10-2026
 
 - PianoKeyboard/PerformanceWheels trước chỉ dựa keyboardActive của lifecycle, vẫn nhận chạm khi restoringSet=true và engine còn voice factory. Nay enabled yêu cầu đã hoàn tất restore; pointer cancellation/finally hiện có xử lý nhả khi đổi trạng thái.
