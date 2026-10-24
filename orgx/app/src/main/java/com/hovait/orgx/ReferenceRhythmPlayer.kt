@@ -14,7 +14,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2}
     private var keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0}
     private var keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1}
-    private fun resetExpression(){transposeDelta=0;octaveDelta=0;modulationLevel=null;keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0};keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1};pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2};keyTouch=100;keyBalance=0;pitchMove=1000;volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
+    private fun resetExpression(){openedKeyIds.fill(null);transposeDelta=0;octaveDelta=0;modulationLevel=null;keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0};keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1};pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2};keyTouch=100;keyBalance=0;pitchMove=1000;volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -75,6 +75,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var pedalDown=initialPedal
     private var tailPedalMode:Int?=null
     private var modulationLevel:Int?=null
+    private val openedKeyIds=arrayOfNulls<Int>(129)
     private var transposeDelta=0
     private var octaveDelta=0
     private fun mappedNote(note:Int):Int {
@@ -292,8 +293,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==13){eventMuted=true;releaseAll();return@advance}
             if(event.type==3){releaseAll();return@advance}
             if(event.type==5){
-                val latest=voices.values.lastOrNull{event.note==-1 || it.sourceNote==event.note}
-                latest?.let{selected->voices.values.filter{it.eventId==selected.eventId && it.release<0}
+                openedKeyIds.getOrNull(event.note+1)?.let{selected->voices.values.filter{it.eventId==selected && it.release<0}
                     .forEach{it.playback?.aftertouch(event.touch/127f)}}
                 return@advance
             }
@@ -318,6 +318,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 return@advance
             }
             val note=if(event.type==2)mappedNote(event.note) else event.note
+            if(event.type==2 && event.note in 0..127){
+                openedKeyIds[0]=event.id;openedKeyIds[event.note+1]=event.id
+            }
             if(event.type==2 && !eventMuted && !performanceMuted && drumLength(note)>0){
                 while(voices.size>=ImportedPolyphony.rhythm)voices.remove(voices.keys.first())?.playback?.cut()
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)

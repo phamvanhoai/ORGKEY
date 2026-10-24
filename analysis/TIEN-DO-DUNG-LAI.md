@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Aftertouch giữ noteID theo lịch sử mở phím, 24-10-2026
+
+- Track gốc ghi KeyIDs[0]/KeyIDs[key+1] mỗi KeyOpen. Bộ phát trước tìm latest trong voice còn sống nên Aftertouch-1 có thể rơi sang nốt trước khi nốt mới nhất đã kết thúc. Thêm bảng129 entry nullable để giữ noteID mới nhất toàn track và theo phím, cập nhật từ event2 trước chọn vùng sample.
+- Aftertouch5 chỉ định tuyến theo ID đã nhớ, không tìm nốt thay thế khi ID đó không còn phát. Reset xóa bảng, restartAt giữ như trạng thái track. Chưa giữ KeyTouchs hoặc mô phỏng gọi script khi không còn Playback của ID đó.
+- ReferenceRhythmPlayerTest mở60 rồi64, nhả64 và gửi Aftertouch-1 tại20, xác minh60 vẫn phát. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest/ImportedStyleSessionTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa kiểm tra Aftertouch track thực trên thiết bị.
+
 ## Track SET nhận Aftertouch5 theo phím, 24-10-2026
 
 - Đối chiếu Track.Play5 dùng KeyIDs[Key+1], Key=-1 dùng vị trí0 tức nốt vừa mở gần nhất. Support nay nhận event5 với Key-1..127/Touch0..127 thay vì chặn section. Player tìm note gần nhất theo sourceNote hoặc toàn track nếu-1 rồi gửi aftertouch đến Playback chưa release cùng eventID.

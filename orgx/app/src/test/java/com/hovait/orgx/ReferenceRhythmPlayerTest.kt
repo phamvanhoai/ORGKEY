@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun aftertouchDoesNotFallBackToOlderNoteWhenLatestNoteHasEnded(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,0,false))
+            .withModeScript("on(touch){play();return(true);} on(aftertouch){stop(id:id,cut);return(true);}")
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(2,2,64,100,1,1000),
+            ReferenceDrumEvent(1,2,64,0,2,0),ReferenceDrumEvent(5,0,-1,127,20,0)))),
+            {10000},{_,_,_->0.0},1000,sampled=source)
+        try{
+            repeat(21){player.next(0,120)}
+            assertEquals(.25,player.left,1e-12)
+        }finally{player.close()}
+    }
     @Test fun storedAftertouchTargetsItsKeyOrTheLastOpenedKey(){
         fun render(key:Int):Double{
             val source=SampledInstrument(listOf(InstrumentRegion(60,
