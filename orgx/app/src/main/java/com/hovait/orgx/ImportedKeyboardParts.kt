@@ -10,6 +10,12 @@ class ImportedKeyboardParts {
         val pedalMode:Int,var released:Boolean=false,val repeat:ImportedKeyRepeat?=null,var retired:Boolean=false)
     private var parts:Map<Int,Part> = emptyMap()
     private val notes=ArrayList<Note>()
+    private fun addNote(note:Note){
+        while(notes.count{it.part==note.part}>=ImportedPolyphony.music){
+            notes.removeAt(notes.indexOfFirst{it.part==note.part})
+        }
+        notes.add(note)
+    }
     private val bends=DoubleArray(16)
     private val scriptBends=arrayOfNulls<Int>(16)
     private val modulation=IntArray(16)
@@ -46,14 +52,13 @@ class ImportedKeyboardParts {
                 previous.playback.connectTo(part.sound.keyboardNote(key),connection)
                 return@forEach
             }
-            if(notes.size>=512)notes.removeAt(0)
             val playback=part.sound.voice(part.sound.keyboardNote(key),scriptVelocity=(velocity*127).toInt().coerceAtLeast(1),initialScriptPedal=part.pedal)
             if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || part.pedal))
                 playback.connectFrom(part.sound.keyboardNote(previous.key),connection)
             playback.pitchBend(bends[channel],scriptBends[channel])
             if(part.pedal)playback.scriptPedal(true)
             if(modulation[channel]!=0)playback.modulate(modulation[channel])
-            notes.add(Note(part.id,channel,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode,
+            addNote(Note(part.id,channel,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode,
                 repeat=ImportedKeyRepeat(part.sound.outputSampleRate)))
         }
     }
@@ -111,7 +116,7 @@ class ImportedKeyboardParts {
             }
             if(note.playback.finished)iterator.remove()
         }
-        notes.addAll(repeated)
+        repeated.forEach(::addNote)
     }
     fun reset(){notes.clear();bends.fill(0.0);scriptBends.fill(null);modulation.fill(0)}
 }

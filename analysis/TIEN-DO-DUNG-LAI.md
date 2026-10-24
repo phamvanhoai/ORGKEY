@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Cấu hình đa âm theo part STS và track Rhythm, 24-10-2026
+
+- Đối chiếu Music mặc định fMaxMusicChannel10/fMaxRhythmChannel14, Channels.Open lấy giới hạn theo loại track rồi chọn kênh trống hoặc idx cũ nhất, setting6/PolyphonyValue8..256; MainActivity chặn Rhythm tối đa64.
+- Thêm ImportedPolyphony làm cấu hình chung, lưu/đọc max_music_channel và max_rhythm_channel, lựa chọn trong trang cài đặt hiện có. STS thay giới hạn512 tổng bằng Music tính theo từng part; track Rhythm thay128 bằng Rhythm. Nốt Repeat cũng tham gia ngân sách và thay nốt cũ nhất, không bỏ sót đường sinh nốt phụ.
+- ImportedKeyboardPartsTest kiểm tra hai part giới hạn8 nhận9 phím còn16 voice, noteOff nốt60 đã bị thay không ảnh hưởng, noteOff61 nhả đúng hai voice còn14. ImportedKeyboardPartsTest/ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa nghe/đo hiệu năng các mức cao trên thiết bị.
+- Chưa áp cấu hình này vào single Voice/factory/MIDI trong AudioEngine hoặc hàng đợi Repeat riêng của single Voice; giới hạn24/512 ở các đường đó vẫn còn. Bộ chọn UI hiện xoay lần lượt giá trị, chưa tái tạo đầy đủ trang cài đặt APK gốc. Giảm mức giữa nốt hiện áp khi mở thêm nốt, chưa mô phỏng việc Channels.Open tái tạo mảng khi tăng ngân sách.
+
 ## Voice SET trực tiếp giữ lực nhấn thấp như STS, 24-10-2026
 
 - VoiceVelocity trước áp mức sàn0.15 cho mọi noteOn live single voice, kể cả sampled SET, trong khi STS parts dùng đúng velocity0..1. Cùng nhạc cụ SET vì vậy có thể phát mạnh hơn khi chọn Voice trực tiếp ở lực nhấn thấp.

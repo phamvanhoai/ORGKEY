@@ -170,6 +170,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         engine.pitchBendLock=preferences.getBoolean("pitchbend_lock",false)
         SampledInstrument.pitchSpeed=preferences.getInt("pitchspeed",2).coerceIn(1,100)
         SampledInstrument.loopTempo=preferences.getBoolean("rhythm_loop_tempo",true)
+        ImportedPolyphony.music=preferences.getInt("max_music_channel",10).takeIf{it in ImportedPolyphony.choices} ?: 10
+        ImportedPolyphony.rhythm=preferences.getInt("max_rhythm_channel",14).takeIf{it in ImportedPolyphony.choices} ?: 14
         engine.configureStyleTiming(preferences.getInt("styleChangeMethod",0).coerceIn(0,3),preferences.getBoolean("styleTempoLock",false))
         engine.configureChordSynchro(preferences.getBoolean("sync_start",true),preferences.getBoolean("sync_stop",false),
             preferences.getInt("chord_synchro",0).takeIf{it in listOf(0,2,3)} ?: 0)
@@ -1206,6 +1208,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var bendLock by remember{mutableStateOf(engine.pitchBendLock)}
     var pitchSpeed by remember{mutableIntStateOf(SampledInstrument.pitchSpeed)}
     var loopTempo by remember{mutableStateOf(SampledInstrument.loopTempo)}
+    var musicPolyphony by remember{mutableIntStateOf(ImportedPolyphony.music)}
+    var rhythmPolyphony by remember{mutableIntStateOf(ImportedPolyphony.rhythm)}
     var changeMethod by remember{mutableIntStateOf(engine.styleChangeMethod)}
     var keyConnectionMethod by remember { mutableIntStateOf(preferences.getInt("key_connection",0).coerceIn(0,1)) }
     var outputStatus by remember { mutableStateOf(engine.outputStatus) }
@@ -1215,6 +1219,22 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     val scriptScope=rememberCoroutineScope()
     LaunchedEffect(engine) { while(true) { outputStatus=engine.outputStatus;kotlinx.coroutines.delay(300) } }
     InstrumentPage(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column(Modifier.verticalScroll(rememberScrollState())){Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle);
+        Text("Polyphony per track",fontWeight=FontWeight.Bold)
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+            Text("STS Music: $musicPolyphony",Modifier.weight(1f))
+            TextButton(onClick={
+                musicPolyphony=ImportedPolyphony.choices.getOrElse(ImportedPolyphony.choices.indexOf(musicPolyphony)+1){8}
+                ImportedPolyphony.music=musicPolyphony;preferences.edit().putInt("max_music_channel",musicPolyphony).apply()
+            }){Text("CHANGE")}
+        }
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+            Text("Rhythm: $rhythmPolyphony",Modifier.weight(1f))
+            TextButton(onClick={
+                val choices=ImportedPolyphony.choices.filter{it<=64}
+                rhythmPolyphony=choices.getOrElse(choices.indexOf(rhythmPolyphony)+1){8}
+                ImportedPolyphony.rhythm=rhythmPolyphony;preferences.edit().putInt("max_rhythm_channel",rhythmPolyphony).apply()
+            }){Text("CHANGE")}
+        }
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically){
             Text("Repeat section button to loop",Modifier.weight(1f));Switch(checked=repeatToLoop,onCheckedChange={repeatToLoop=it;engine.styleRepeatToLoop=it;preferences.edit().putBoolean("styleRepeatToLoop",it).apply()})
         }

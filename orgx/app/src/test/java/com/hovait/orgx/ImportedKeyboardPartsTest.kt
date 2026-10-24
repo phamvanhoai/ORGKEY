@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun polyphonyIsPerPartAndStealsTheOldestNote(){
+        val before=ImportedPolyphony.music
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            ImportedPolyphony.music=8
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,sound(100)),ImportedKeyboardParts.Part(2,sound(100))))
+            for(key in 60..68)parts.noteOn(key,1.0)
+            assertEquals(16,parts.activeNotes)
+            parts.noteOff(60);frame(parts,mixer)
+            assertEquals(16,parts.activeNotes)
+            parts.noteOff(61);frame(parts,mixer)
+            assertEquals(14,parts.activeNotes)
+        }finally{ImportedPolyphony.music=before;mixer.close()}
+    }
     @Test fun repeatByPedalUsesActualPedalInsteadOfEnvelopePedalMode(){
         for((pedal,mode,expected) in listOf(Triple(false,1,1),Triple(true,0,2))){
             val effect=ImportedExpressionEffect(0,true,0,true,false,0,500,0,0,emptyList())
