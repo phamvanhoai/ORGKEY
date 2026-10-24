@@ -31,6 +31,13 @@ class SampleBank(resources:Resources, outputRate:Int=48000) {
     private val choir=instrument(resources,ReferenceInstrumentRegions.choir,outputRate)
     private val violin=instrument(resources,ReferenceInstrumentRegions.violin,outputRate)
     private val strings=instrument(resources,ReferenceInstrumentRegions.strings,outputRate)
+    fun instrumentAt(index:Int,note:Int,position:Double,channel:Int=0):Double {
+        val age=position.toLong()
+        val fraction=position-age
+        val first=instrument(index,note,age,channel)
+        if(fraction==0.0)return first
+        return first+(instrument(index,note,age+1,channel)-first)*fraction
+    }
     fun instrument(index:Int,note:Int,age:Long,channel:Int=0):Double=when(index){
         1->organ.sample(note,age,channel)
         2->lead.sample(note,age,channel)

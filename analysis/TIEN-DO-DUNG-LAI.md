@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Factory và MIDI thực sự đổi cao độ khi pitch bend, 24-10-2026
+
+- AudioEngine trước chỉ gọi Playback.pitchBend cho sampled SET; factory sampleBank và oscillator fallback vẫn đọc theo ageFrames/frequency nguyên nốt. MIDI playback dùng factory nên bend/RPN có thể được đọc đúng nhưng không đổi âm thực.
+- Voice bổ sung samplePosition phần thập phân. Factory melodic tăng vị trí theo2^(bend/12), SampleBank.instrumentAt nội suy hai vị trí age liền kề; giữ phase/vị trí liên tục khi bend đổi. Oscillator fallback dùng frequency có bend. Lấy bend đúng channel và miền live/playback qua MidiPitchState, percussion không bend. SET Playback giữ cơ chế riêng, không bị nhân bend hai lần.
+- MidiPitchStateTest/MidiScriptBendStateTest/SampledInstrumentTest và assembleDebug đạt. Không thêm file test/log hoặc sửa SET. Chưa đo PCM/frequency từ SampleBank Android hoặc nghe đối chiếu trên thiết bị; đường factory hiện nội suy trên mẫu đầu ra đã resample, chưa thay bằng native sampler gốc, chưa có pitch-speed slew tương đương ở đường này. Tuổi envelope vẫn theo thời gian thực, tách khỏi vị trí đọc sample.
+
 ## Reset MIDI khôi phục Expression của đúng channel, 24-10-2026
 
 - Sau khi thêm CC11 vào bộ trộn, CC121 trước vẫn chỉ giải pedal/modulation/bend, khiến channel giữ Expression thấp hoặc0 sau reset. Resolver nay theo dõi Expression riêng16channel và xuất CC11=127 tại tick reset khi cần; reset lặp không tạo thêm event.
