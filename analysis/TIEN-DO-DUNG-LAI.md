@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Lưu STS khi chuyển Activity xuống nền, 24-10-2026
+
+- Thêm persistStsState trong MainActivity.onPause trước super: lấy snapshot mới nhất của batch, lưu modes/partFX/Master hoặc single mode theo selection tương ứng. Kiểm tra active SET index/file và slot/track để không ghi đè bằng batch cũ trong lúc đổi SET. Vẫn dùng SharedPreferences.apply, không chặn UI bằng commit/đọc PCM.
+- Bổ sung cho vòng lưu100ms hiện có, giảm cửa sổ mất thay đổi khi coroutine UI ngừng. Không bảo đảm trường hợp process bị kill đột ngột không đi qua onPause hoặc state thay đổi sau pause.
+- Thiết bị88d75c04: force-stop/mở lạnh thành công, xem màn hình đã phục hồi style DJ KHA BANH/Main1, voice Dance9KBT/Primary và tempo141. Sau build/cài mới, đưa HOME rồi mở lại Activity thành công. Không có selectedStsSet/Track/Slot trong prefs thiết bị, nên không coi đây là kiểm chứng khôi phục STS hoặc nhánh ghi snapshot với STS đang chọn.
+- assembleDebug đạt; không thêm test/file mới. Các giới hạn live Master thay đổi thủ công, phase DSP và restore single đầy đủ vẫn còn. File SET không bị sửa.
+
 ## Restore Master STS hiệu lực, 24-10-2026
 
 - Thêm lưu stsEffectiveMaster gắn file/length/mtime/slot: channel music đầy đủ numeric + FX modules, các system tuning, optional tempo và chord type/single mapping. Codec binary Base64 có giới hạn kích thước/count và từ chối dữ liệu sai, thừa byte, khácSET/slot hoặc số hệ tuning không khớp.

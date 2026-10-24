@@ -66,7 +66,38 @@ class MainActivity : ComponentActivity() {
         setContent { ORGXApp(engine,keyboardActive) }
     }
     override fun onResume(){super.onResume();keyboardActive=true}
-    override fun onPause(){keyboardActive=false;super.onPause()}
+    override fun onPause(){
+        keyboardActive=false
+        persistStsState()
+        super.onPause()
+    }
+    /** Flush the latest effective selection before Android can stop the UI coroutine. */
+    private fun persistStsState(){
+        if(!::engine.isInitialized)return
+        val preferences=getSharedPreferences("orgx-settings",0)
+        val selectedSet=preferences.getString("selectedStsSet",null)
+        val selectedTrack=preferences.getInt("selectedStsTrack",-1)
+        val selectedSlot=preferences.getInt("selectedStsSlot",-1)
+        val group=engine.currentStsGroup
+        if(group!=null && selectedTrack==0 && selectedSet==group.file.name && selectedSlot==group.selection.slot &&
+            engine.activeSetIndex===group.index && engine.activeSetFile==group.file){
+            val snapshots=group.currentSnapshots()
+            val editor=preferences.edit()
+                .putString(ImportedStsModeState.preferenceKey,ImportedStsModeState.encode(group.file,selectedSlot,snapshots.mapValues{it.value.mode}))
+                .putString(ImportedStsModeState.partsPreferenceKey,ImportedStsModeState.encodeParts(group.file,selectedSlot,snapshots))
+            val master=group.master
+            if(master!=null)editor.putString(ImportedStsMaster.preferenceKey,ImportedStsMaster.encode(group.file,selectedSlot,master))
+            else editor.remove(ImportedStsMaster.preferenceKey)
+            editor.apply()
+        }
+        val single=engine.currentStsSingle
+        if(single!=null && selectedTrack>0 && selectedSet==single.file.name && selectedSlot==single.snapshot.slot &&
+            engine.importedInstrument===single.sound && engine.activeSetIndex===single.index &&
+            single.index.tracks.getOrNull(selectedTrack)?.sts?.any{it.slot==selectedSlot && it.instrument==single.snapshot.instrument}==true){
+            preferences.edit().putString(ImportedStsModeState.singlePreferenceKey,
+                ImportedStsModeState.encodeSingle(single.file,selectedTrack,single.currentSnapshot())).apply()
+        }
+    }
     override fun onDestroy() { engine.close(); super.onDestroy() }
 }
 
