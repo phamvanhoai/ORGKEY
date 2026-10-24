@@ -233,6 +233,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(!playback)importedInstrument?.updateScriptModulation(value)
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.modulate(value,channel)
         else voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{it.sampledPlayback?.modulate(value)}
+        if(!playback)repeatedVoices.filter{it.channel==channel}.forEach{it.playback.modulate(value)}
         if(!playback)captureMidi(0xb0 or channel,1,value)
     }
     fun midiChannelPressure(pressure:Float,channel:Int=0,playback:Boolean=false){
@@ -247,6 +248,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         pitchState.set(value,channel,playback)
         if(!playback){val bend=value.coerceIn(0,16383);captureMidi(0xe0 or channel,bend and 127,bend shr 7)}
         val semitones=pitchState.semitones(channel,playback)
+        if(!playback)repeatedVoices.filter{it.channel==channel}.forEach{it.playback.pitchBend(semitones,value.coerceIn(0,16383)-8192)}
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.pitchBend(semitones,channel,value.coerceIn(0,16383)-8192)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones,value.coerceIn(0,16383)-8192)}
     }
@@ -312,7 +314,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     ) {
         val renderedNote=imported?.keyboardNote(note) ?: note
         val sampledPlayback=imported?.voice(renderedNote,scriptVelocity=recordingVelocity,initialScriptPedal=initialScriptPedal)
+        val repeat=imported?.keyRepeatEffect?.let{ImportedKeyRepeat(it,imported.outputSampleRate)}
     }
+    private data class RepeatedVoice(val sound:SampledInstrument,val playback:SampledInstrument.Playback,
+        val gain:Float,val channel:Int)
+    private val repeatedVoices=java.util.concurrent.ConcurrentLinkedQueue<RepeatedVoice>()
 
     private val track by lazy { AudioTrack.Builder()
         .setAudioAttributes(
@@ -788,9 +794,24 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
+                    if(voice.repeat?.next(voice.releasing || voice.pendingSustain,sustain)==true){
+                        val source=voice.imported
+                        if(source!=null && !voice.playback){
+                            val channel=note/128
+                            val repeated=source.voice(source.keyboardNote(voice.note),autoRelease=true,effectsAllowed=false,scriptAllowed=false)
+                            repeated.pitchBend(pitchState.semitones(channel,false),pitchState.scriptLevel(channel,false))
+                            repeatedVoices.add(RepeatedVoice(source,repeated,voice.velocity,channel))
+                            while(repeatedVoices.size>512)repeatedVoices.poll()
+                        }
+                    }
                     // Stateful playback owns completion, including switched Aftertouch
                     // samples and pitch bend. The primary sample's age is no longer authoritative.
                     if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || (voice.sampledPlayback==null && voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
+                }
+                repeatedVoices.forEach{voice->
+                    voice.playback.next(false,false)
+                    importedKeyboardMixer.add(voice.sound,voice.playback.left*voice.gain,voice.playback.right*voice.gain)
+                    if(voice.playback.finished)repeatedVoices.remove(voice)
                 }
                 stsParts.renderInto(importedKeyboardMixer,drainCommands=false)
                 importedKeyboardMixer.finishFrame()

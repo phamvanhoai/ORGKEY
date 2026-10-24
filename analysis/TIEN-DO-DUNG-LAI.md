@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Voice trực tiếp phát Key Repeat qua mixer, 24-10-2026
+
+- AudioEngine single Voice trước không có ImportedKeyRepeat dù STS parts và rhythm player đã có. Mỗi Voice sampled nay giữ controller theo sample rate; render audio kiểm tra delay/chu kỳ10ms hiện có, pedal và nhả phím, rồi tạo Playback lặp autoRelease.
+- Nốt lặp đi qua ImportedKeyboardMixer với gain của voice gốc, giữ channel để nhận pitch bend/modulation. Tắt script/effects của Playback lặp và không tạo controller lặp cho nó, tránh sinh đệ quy. Giới hạn512 nốt lặp, loại nốt đã phát xong; không ghi MIDI NoteOn phụ vì đây là hiệu ứng âm thanh của nốt gốc.
+- ImportedKeyRepeatTest/SampledInstrumentTest/ImportedKeyboardPartsTest và assembleDebug đạt; không thêm file test/log hoặc sửa SET. Các test kiểm tra controller/PCM/parts, chưa xác minh trực tiếp đường tích hợp AudioEngine Android hoặc nghe Repeat trên điện thoại. Điều khiển Repeat hiện chụp cấu hình khi noteOn; chưa đồng bộ lại mọi thay đổi tham số script giữa lúc giữ nốt.
+
 ## Voice trực tiếp áp hiệu ứng nối nốt, 24-10-2026
 
 - AudioEngine.noteOn của single voice trước luôn tạo Playback mới mà không đọc keyConnectionEffect, dù bộ xử lý SampledInstrument và keyboard STS đã có connectTo/connectFrom. Bổ sung điều phối hai kiểu theo Channels.OpenKey: mode>15 đổi cao độ Playback trước và chuyển key dùng cho noteOff; mode<=15 tạo note mới rồi connectFrom cao độ nốt trước.
