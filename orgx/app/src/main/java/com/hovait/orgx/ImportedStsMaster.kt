@@ -45,6 +45,15 @@ object ImportedStsMaster {
     }catch(_:Exception){null}
     data class Prepared(val music:ImportedChannelSettings,val systems:List<ImportedSystem>,
         val tempo:Int?,val chord:ImportedSts?)
+    /** Persistence captures live values; apply plans intentionally use null to mean unchanged. */
+    fun capture(current:Prepared?,index:ImportedSetIndex,master:ImportedSts,music:ImportedChannelSettings?,
+        tempo:Int,chordMode:Int,singles:List<Int>):Prepared {
+        require(tempo in 40..240)
+        ImportedStsChordSettings.validate(chordMode,singles)
+        return Prepared(music ?: current?.music ?: index.musicSettings,
+            (current?.systems ?: index.systems).toList(),tempo,
+            master.copy(chordType=chordMode,chordSingle=singles.toList()))
+    }
     fun prepare(index:ImportedSetIndex,snapshot:ImportedSts,changes:List<Boolean>):Prepared {
         require(changes.size==21)
         // Event 224 uses flags 2..7 with the same z01.e order as track flags 13..18.

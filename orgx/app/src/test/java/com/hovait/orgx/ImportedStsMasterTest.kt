@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsMasterTest {
+    @Test fun persistenceCapturesLiveTempoAndChordWhenLatestApplyPlanPreservedThem(){
+        val plan=ImportedStsMaster.Prepared(ImportedChannelSettings(volume=61),systems,null,null)
+        val saved=ImportedStsMaster.capture(plan,index,snapshot,null,173,2,List(12){273})
+        assertEquals(173,saved.tempo);assertEquals(2,saved.chord!!.chordType)
+        assertEquals(List(12){273},saved.chord!!.chordSingle)
+        assertEquals(61,saved.music.volume);assertEquals(systems,saved.systems)
+        assertNull(plan.tempo);assertNull(plan.chord)
+        val initial=ImportedStsMaster.capture(null,index,snapshot,ImportedChannelSettings(volume=77),99,0,List(12){145})
+        assertEquals(77,initial.music.volume);assertEquals(99,initial.tempo)
+        assertEquals(0,initial.chord!!.chordType)
+    }
     @Test fun persistedMasterKeepsDspTuningTempoAndChordAndRejectsWrongSet(){
         val file=java.io.File.createTempFile("sts-master",".set")
         try{

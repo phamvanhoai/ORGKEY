@@ -107,6 +107,12 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val stsGeneration=java.util.concurrent.atomic.AtomicLong()
     @Volatile private var stsMusic:ImportedChannelSettings?=null
     @Volatile var currentStsGroup:ImportedStsBatch.Prepared?=null;private set
+    fun stsMasterForPersistence(group:ImportedStsBatch.Prepared):ImportedStsMaster.Prepared? {
+        if(currentStsGroup!==group || activeSetIndex!==group.index || activeSetFile!=group.file)return null
+        val captured=ImportedStsMaster.capture(group.master,group.index,group.selection.master,stsMusic,
+            bpm.coerceIn(40,240),chordInputMode,chordSingles)
+        return captured.takeIf{currentStsGroup===group && activeSetIndex===group.index}
+    }
     private fun clearStsParts(){
         currentStsSingle=null
         stsGeneration.incrementAndGet();stsPartsEnabled=false

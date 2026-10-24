@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Lưu Master lấy tempo/chord live thay vì apply plan, 24-10-2026
+
+- Prepared Master dùng tempo/chord null để biểu thị không thay đổi khi áp STS. Lưu trực tiếp object này từng mất giá trị hiệu lực sau đổi BPM/chord thủ công hoặc sau STS có cờ tempo/chord tắt.
+- Thêm ImportedStsMaster.capture và AudioEngine.stsMasterForPersistence: lấy BPM live, chordInputMode/chordSingles live, music bus hiện có và hệ tuning hiệu lực. Kiểm tra current group/SET trước và sau snapshot; vòng lưu định kỳ và onPause dùng snapshot này. Không đổi kế hoạch apply hoặc mutate SET.
+- Kiểm tra plan có tempo/chordnull được lưu thành BPM173/chordmode2/table273 nhưng plan gốc cònnull; trường hợp chưa có Master Prepared vẫn capture music77/BPM99/mode0. ImportedStsMasterTest/ImportedStsBatchTest/ImportedStsChordSettingsTest và build đạt; cài APK thành công.
+- Chưa kiểm tra process restart với STS chọn trên thiết bị. Chưa bảo đảm snapshot nguyên tử của mọi field live khi audio commit đồng thời; tuning lấy từ current Prepared, không bao quát editor tuning chưa tích hợp. Dual chord mapping riêng vẫn theo preferences hiện có, không nằm trong Master codec. Chưa xác nhận tương đương APK100%.
+
 ## Restore STS một track giữ hiệu lực channel/FX, 24-10-2026
 
 - encodeSingle chuyển sang payload v2 dùng codec part state chung, giữ record/pedal/system/nhạc cụ/mode/channel numeric/FX modules/expression thay vì chỉ mode. Prefix track/instrument và file fingerprint/slot vẫn chặn restore nhầm. restoreSingle đọc cả v2 và định dạng cũ.

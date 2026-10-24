@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
             val editor=preferences.edit()
                 .putString(ImportedStsModeState.preferenceKey,ImportedStsModeState.encode(group.file,selectedSlot,snapshots.mapValues{it.value.mode}))
                 .putString(ImportedStsModeState.partsPreferenceKey,ImportedStsModeState.encodeParts(group.file,selectedSlot,snapshots))
-            val master=group.master
+            val master=engine.stsMasterForPersistence(group)
             if(master!=null)editor.putString(ImportedStsMaster.preferenceKey,ImportedStsMaster.encode(group.file,selectedSlot,master))
             else editor.remove(ImportedStsMaster.preferenceKey)
             editor.apply()
@@ -139,13 +139,11 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                     val parts=ImportedStsModeState.encodeParts(group.file,group.selection.slot,group.currentSnapshots())
                     if(preferences.getString(ImportedStsModeState.partsPreferenceKey,null)!=parts)
                         preferences.edit().putString(ImportedStsModeState.partsPreferenceKey,parts).apply()
-                    group.master?.let{master->
+                    engine.stsMasterForPersistence(group)?.let{master->
                         val state=ImportedStsMaster.encode(group.file,group.selection.slot,master)
                         if(preferences.getString(ImportedStsMaster.preferenceKey,null)!=state)
                             preferences.edit().putString(ImportedStsMaster.preferenceKey,state).apply()
                     }
-                    if(group.master==null && preferences.contains(ImportedStsMaster.preferenceKey))
-                        preferences.edit().remove(ImportedStsMaster.preferenceKey).apply()
                 }
                 if(changed!=null){
                     engine.importedInstrumentName=changed;restoredSetName=changed
