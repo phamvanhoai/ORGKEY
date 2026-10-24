@@ -4,6 +4,39 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun chordQualityUsesOriginalSlotsAndKeepsPercussionAndOtherInstruments(){
+        fun output(level:Int):Double{
+            val quality=ImportedChordQuality{level}
+            val parts=listOf(Triple(7,true,1.0),Triple(8,true,2.0),Triple(9,true,4.0),
+                Triple(1,true,8.0),Triple(1,true,16.0),Triple(8,false,32.0),Triple(11,true,64.0))
+            val player=ReferenceRhythmPlayer.combine(parts.map{(instrument,melodic,value)->
+                ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),
+                    {10000},{_,_,_->value},1000,accompaniment=melodic)
+                    .withTrackGate{muted->quality.allows(instrument,melodic,muted)}
+            }).withFrameStart(quality::beginFrame)
+            return try{player.next(0,120);player.left}finally{player.close()}
+        }
+        assertEquals(104.0,output(0),0.0)
+        assertEquals(109.0,output(1),0.0)
+        assertEquals(127.0,output(2),0.0)
+    }
+    @Test fun chordQualitySkipsNewEventsButRetainsAlreadyPlayingNotes(){
+        var level=2
+        val quality=ImportedChordQuality{level}
+        val player=ReferenceRhythmPlayer.combine(listOf(
+            ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1),
+                ReferenceDrumEvent(2,2,61,100,20,1000)))),{10000},{_,_,_->1.0},1000,accompaniment=true)
+                .withTrackGate{muted->quality.allows(8,true,muted)}
+        )).withFrameStart(quality::beginFrame)
+        try{
+            player.next(0,120);assertEquals(1.0,player.left,0.0)
+            level=0
+            repeat(25){player.next(0,120)}
+            assertEquals(1.0,player.left,0.0)
+            level=2;player.next(0,120)
+            assertEquals(2.0,player.left,0.0)
+        }finally{player.close()}
+    }
     @Test fun padMeterChangesTheSharedWindowBeforeStartingAnotherSlot(){
         val group=ImportedStyleGroup(1,100,"Three beats",96,true,0,1500,120,meterX=3,meterY=4)
         fun source()=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,5000)),end=1500)),

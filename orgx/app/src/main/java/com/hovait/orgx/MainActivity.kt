@@ -117,6 +117,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     LaunchedEffect(Unit){
         engine.chordControl=preferences.getInt("chordControl",0).coerceIn(0,4)
         engine.chordMemory=preferences.getBoolean("chordMemory",true)
+        engine.chordQuality=preferences.getInt("chord_qual",2).coerceIn(0,2)
         engine.setPitchBendRange(preferences.getInt("pitchbend_range",2).coerceIn(1,12))
         engine.pitchBendLock=preferences.getBoolean("pitchbend_lock",false)
         SampledInstrument.pitchSpeed=preferences.getInt("pitchspeed",2).coerceIn(1,100)
@@ -190,7 +191,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                     val mode=preferences.getInt("bankMode",0).coerceIn(0,2)
                     val session=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
                         engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
-                        chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(mode==2)engine::selectedSetChord else null)}
+                        chordQuality={engine.chordQuality},chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(mode==2)engine::selectedSetChord else null)}
                     engine.selectImportedStyle(session)
                     if(!engine.styleTempoLock)engine.bpm=session.selectedTempo.coerceIn(40,240)
                 }
@@ -324,7 +325,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             try{
                 val player=withContext(Dispatchers.IO){ImportedStylePlayer.loadPad(file,index,group,
                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
-                    chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
+                    chordQuality={engine.chordQuality},chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
                 if(engine.activeSetIndex!==index)player.close() else bank.playPrepared(slot,token,player)
             }catch(error:Exception){
                 if(error is kotlinx.coroutines.CancellationException)throw error
@@ -345,7 +346,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             try{
                 val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
-                    chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,
+                    chordQuality={engine.chordQuality},chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,
                     targetChord=if(mode==2)engine::selectedSetChord else null)}
                 if(engine.activeSetFile!=file || engine.activeSetIndex!==index){loaded.close();return@launch}
                 engine.selectImportedStyle(loaded)
@@ -859,7 +860,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         val session=withContext(Dispatchers.IO){
                             ImportedStylePlayer.loadStyle(checkNotNull(setFile),checkNotNull(index),definition,previewAccompaniment,
                                 engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
-                                chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
+                                chordQuality={engine.chordQuality},chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
                         engine.selectImportedStyle(session)
                         preferences.edit().putString("selectedStyleSet",setFile?.name).putInt("selectedSetStyleId",definition.id)
@@ -893,6 +894,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var synchroMinimum by remember{mutableIntStateOf(preferences.getInt("chord_synchro",0).takeIf{it in listOf(0,2,3)} ?: 0)}
     var stopPads by remember{mutableStateOf(engine.synchroStopPads)}
     var chordMemory by remember{mutableStateOf(engine.chordMemory)}
+    var chordQuality by remember{mutableIntStateOf(engine.chordQuality)}
     var editingDual by remember{mutableStateOf(false)}
     var firstKey by remember{mutableIntStateOf(0)}
     var secondKey by remember{mutableIntStateOf(4)}
@@ -929,6 +931,14 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             listOf("Manual","Auto","by Chord 1","by Chord 2").forEachIndexed{index,label->
                 FilterChip(selected=chordControl==index,onClick={
                     engine.chordControl=index;chordControl=index;preferences.edit().putInt("chordControl",index).apply()
+                },label={Text(label)},modifier=Modifier.weight(1f).heightIn(min=48.dp))
+            }
+        }
+        Text("Chord quality",fontWeight=FontWeight.Bold)
+        Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){
+            listOf("Minimum","Half","Full").forEachIndexed{value,label->
+                FilterChip(selected=chordQuality==value,onClick={
+                    chordQuality=value;engine.chordQuality=value;preferences.edit().putInt("chord_qual",value).apply()
                 },label={Text(label)},modifier=Modifier.weight(1f).heightIn(min=48.dp))
             }
         }
@@ -999,7 +1009,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                             try{
                                 val player=withContext(Dispatchers.IO){ImportedStylePlayer.loadPad(file,index,group,
                                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
-                                    chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
+                                    chordQuality={engine.chordQuality},chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=engine::selectedSetChord)}
                                 if(engine.activeSetIndex!==index)player.close() else engine.importedPads.playPrepared(slot,token,player)
                                 status=""
                             }catch(error:Exception){

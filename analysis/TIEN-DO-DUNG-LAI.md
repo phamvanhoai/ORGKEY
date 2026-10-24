@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chord quality trong đường phát SET, 24-10-2026
+
+- Đối chiếu Tracks._PlayGroup và arrays.ChordQuality: Minimum0 đánh dấu trước melodic instrument7/8/9, Half1 đánh dấu8; các mức dưới Full chỉ xử lý track đầu tiên của cùng melodic instrument0..10 trong group. Percussion và instrument>10 không bị lọc. Music mặc địnhFull2.
+- Thêm ImportedChordQuality giữ mask riêng cho mỗi group, reset mỗi lượt render group; gate nằm trước timeline.advance thay vì giảm volume. Nốt/FX đang phát vẫn được render; khi mở lại, timeline bắt kịp theo quy tắc bỏ nốt hết hạn sẵn có. Track đang event-muted không chiếm slot của track khác.
+- Nối callback engine.chordQuality vào restore/đổi/preview style và cả hai đường PAD. Trang CHORD có Minimum/Half/Full, lưu chord_qual và phục hồi trước SET. Không dùng skill UI hoặc sửa file SET.
+- Kiểm tra PCM7 track với slot7/8/9, slot1 trùng, percussion và slot11: tổngFull127, Half109, Minimum104. Kiểm tra đổi mức giữ voice hiện tại, chặn nốt mới và bắt kịp khi bật lại đạt cùng ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest. Build/cài APK thành công; không tạo file test mới.
+- Chưa so thu âm trên APK hoặc toàn bộ tương tác Solo/fMute/recording/unbounded group. Gate hiện dùng eventMuted của player, chưa chứng minh tương đương mọi nhánh Track.fMute của gốc. Chưa coi toàn bộ accompaniment hoàn chỉnh100%.
+
 ## Nhận diện section SET cũ qua phím chức năng, 24-10-2026
 
 - Đối chiếu TrackGroup.ReadFromStream: khi Section==0, ShortCutKeyDevice113..123 lần lượt đổi thành Intro16/17, Main32..35, Fill48/49, Ending80/81, Break64 và màu tương ứng. ORGX từng skip6 byte nên bỏ mất cơ chế này; parser nay đọc shortcutDevice/shortcutMidi và Color, chuẩn hóa section theo bảng gốc.

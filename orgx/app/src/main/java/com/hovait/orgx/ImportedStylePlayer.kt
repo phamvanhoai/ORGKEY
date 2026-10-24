@@ -7,7 +7,7 @@ object ImportedStylePlayer {
     fun loadPad(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,
         transposer:ReferenceChordTransposer?,keyConnectionMethod:Int=0,
         scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
-        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:()->Int?):ImportedPadSequence {
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:()->Int?,chordQuality:()->Int={2}):ImportedPadSequence {
         val groups=linkedMapOf<Int,ImportedStyleGroup>()
         var next:ImportedStyleGroup?=group
         while(next!=null && next.id !in groups){
@@ -19,25 +19,25 @@ object ImportedStylePlayer {
             else null
         }
         val players=loadSections(file,index,groups.values.toList(),true,transposer,targetChord,keyConnectionMethod,
-            scriptOverrides,chordControl,chordOctaveMove)
+            scriptOverrides,chordControl,chordOctaveMove,chordQuality)
         return ImportedPadSequence(group.id,groups,players)
     }
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
-        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null):ImportedStyleSession {
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null,chordQuality:()->Int={2}):ImportedStyleSession {
         val complete=ImportedSectionFallback.complete(index,style)
         val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
-        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove))
+        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality))
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
-        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
-        return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove).getValue(group.id)
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null,chordQuality:()->Int={2}):ReferenceRhythmPlayer {
+        return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality).getValue(group.id)
     }
     private fun loadSections(file:File,index:ImportedSetIndex,groups:List<ImportedStyleGroup>,includeAccompaniment:Boolean,
         transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?,keyConnectionMethod:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String>,
-        chordControl:()->Int,chordOctaveMove:()->Int):Map<Int,ReferenceRhythmPlayer> {
+        chordControl:()->Int,chordOctaveMove:()->Int,chordQuality:()->Int):Map<Int,ReferenceRhythmPlayer> {
         require(keyConnectionMethod in 0..1)
         val follow=targetChord!=null
         require(!follow || (includeAccompaniment && transposer!=null)){"Chord mapping requires accompaniment and chord table"}
@@ -63,6 +63,7 @@ object ImportedStylePlayer {
         }
         val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings,index.musicSettings,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,instrument),scriptOverridesForMode=scriptOverrides)}
         return groups.associate{group->
+          val quality=ImportedChordQuality(chordQuality)
           val parts=byGroup.getValue(group.id).map{track->
             val sound=sounds.getValue(key(track))
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0
@@ -85,13 +86,14 @@ object ImportedStylePlayer {
                 // and Type 3 tracks. Channels.Process excludes that channel type.
                 expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track),keyConnectionMethod=keyConnectionMethod)
                 .withChordFollowing(control=chordControl,octaveMove=chordOctaveMove,target=if(follow && melodic)targetChord else null)
+                .withTrackGate{muted->quality.allows(track.instrument,melodic,muted)}
           }
           // An empty/muted section still owns its timing and JumpGroup (notably
           // silent Endings). Keep transport semantics without inventing notes.
           val player=if(parts.isEmpty())ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(group.name,group.id,group.parent,
               group.section,group.tempo,group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,
               emptyList(),bounded=group.limit)),{0},{_,_,_->0.0},48000) else ReferenceRhythmPlayer.combine(parts)
-          group.id to player.withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings,index.musicSettings)
+          group.id to player.withFrameStart(quality::beginFrame).withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings,index.musicSettings)
         }
     }
 }

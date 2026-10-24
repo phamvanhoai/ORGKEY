@@ -63,6 +63,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var voiceSequence=0L
     private var eventMuted=initiallyMuted
     private var performanceMuted=false
+    private var frameStart:()->Unit={}
+    private var trackGate:(Boolean)->Boolean={true}
+    internal fun withFrameStart(action:()->Unit)=also{frameStart=action}
+    internal fun withTrackGate(allowed:(Boolean)->Boolean)=also{trackGate=allowed}
     fun setPerformanceMute(chord:Boolean,drum:Boolean){
         children.forEach{it.setPerformanceMute(chord,drum)}
         performanceMuted=if(accompaniment)chord else drum
@@ -178,6 +182,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     }
     fun next(selection:Int,tempo:Int) {
         if(finished){renderTail();return}
+        frameStart()
         nextReleaseTails()
         if(children.isNotEmpty()){
             left=0.0;right=0.0
@@ -213,7 +218,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         // event cursor in place while the musical/audio clocks keep advancing.
         // On unmute, Timeline dispatches overdue controls and still-live notes,
         // skipping notes whose entire stored duration has already elapsed.
-        if(!performanceMuted && !(accompaniment && lastChordTarget?.let{it<0}==true))timeline?.advance(local){event->
+        val trackAllowed=trackGate(eventMuted)
+        if(trackAllowed && !performanceMuted && !(accompaniment && lastChordTarget?.let{it<0}==true))timeline?.advance(local){event->
             if(event.type==51 && event.note>=0){
                 keyTouch=event.note and 65535
                 voices.values.filter{event.id==0 || it.eventId==event.id}.forEach{it.touchGain=keyTouch/100.0}

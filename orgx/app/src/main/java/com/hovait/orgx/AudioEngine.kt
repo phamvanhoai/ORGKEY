@@ -70,6 +70,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var chordIndex = 0
     @Volatile var chordMemory=true
     @Volatile var chordControl=0
+    @Volatile var chordQuality=2
         set(value){require(value in 0..4);field=value}
     fun selectedSetChordOctave():Int=if(leftChordEnabled && !autoChord)keyboardChordInput.octaveMove else 0
     @Volatile private var autoChordMap=AutoChordProgression(emptyList())

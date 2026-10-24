@@ -1,5 +1,22 @@
 package com.hovait.orgx
 
+/** Tracks._PlayGroup: quality limits melodic instrument slots, not their volume. */
+internal class ImportedChordQuality(private val quality:()->Int) {
+    private var level=2
+    private var used=0
+    fun beginFrame(){
+        level=quality().coerceIn(0,2)
+        used=when(level){0->(1 shl 7) or (1 shl 8) or (1 shl 9);1->1 shl 8;else->0}
+    }
+    fun allows(instrument:Int,melodic:Boolean,muted:Boolean):Boolean {
+        if(!melodic || level==2 || instrument !in 0..10 || muted)return true
+        val bit=1 shl instrument
+        if(used and bit!=0)return false
+        used=used or bit
+        return true
+    }
+}
+
 object ImportedStyleSupport {
     /** Tracks.ReadFromStream channel types; distinct from instrument percussion type. */
     fun expressionAllowed(index:ImportedSetIndex,track:ImportedTrack):Boolean {
