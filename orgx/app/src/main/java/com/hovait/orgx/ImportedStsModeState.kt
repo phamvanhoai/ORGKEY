@@ -11,16 +11,24 @@ object ImportedStsModeState {
         encode(file,slot,emptyMap())+parts.toSortedMap().entries.joinToString(";"){(position,part)->
             val s=part.settings
             listOf(position,part.instrument,part.mode,part.system,part.pedal,if(part.record)1 else 0,
-                s.volume,s.pan,s.tune,s.transpose,s.octave,s.releasePercent).joinToString(",")
+                s.volume,s.pan,s.tune,s.transpose,s.octave,s.releasePercent).joinToString(",")+
+                "~${if(s.fxEnabled)1 else 0}~"+s.modules.joinToString("/"){module->
+                    (listOf(module.type,if(module.enabled)1 else 0,if(module.realtime)1 else 0)+module.payload).joinToString(",")
+                }+"~"+part.effects.joinToString("/"){effect->
+                    (listOf(effect.slot,if(effect.enabled)1 else 0,effect.startDelay,if(effect.byPedal)1 else 0,
+                        if(effect.stopByRelease)1 else 0,effect.mode,effect.speed,effect.depth,effect.gain)+effect.raw).joinToString(",")
+                }
         }
     fun decodeParts(value:String,file:File,slot:Int,index:ImportedSetIndex):Map<Int,ImportedSts> {
-        if(value.length>4096)return emptyMap()
+        if(value.length>262144)return emptyMap()
         val prefix=encode(file,slot,emptyMap())
         if(!value.startsWith(prefix))return emptyMap()
         return try{
             val result=linkedMapOf<Int,ImportedSts>()
             for(row in value.removePrefix(prefix).split(';').filter{it.isNotEmpty()}){
-                val v=row.split(',').map{it.toInt()}
+                val fields=row.split('~')
+                require(fields.size==1 || fields.size==4)
+                val v=fields[0].split(',').map{it.toInt()}
                 require(v.size==12 && v[0] in 1..4 && v[5] in 0..1 && v[6] in 0..200 && v[7] in -100..100)
                 val track=index.tracks.filter{it.group==0}.getOrNull(v[0]) ?: error("Missing part")
                 val incoming=track.sts.single{it.slot==slot}
@@ -30,8 +38,27 @@ object ImportedStsModeState {
                 val selected=if(v[1]==incoming.instrument && v[2]==incoming.mode)incoming
                     else incoming.copy(settings=instrument.modes.getOrNull(v[2])?.settings ?: ImportedChannelSettings(),
                         effects=instrument.modes.getOrNull(v[2])?.effects.orEmpty())
+                var settings=selected.settings.copy(volume=v[6],pan=v[7],tune=v[8],transpose=v[9],octave=v[10],releasePercent=v[11])
+                var effects=selected.effects
+                if(fields.size==4){
+                    require(fields[1] in listOf("0","1"))
+                    val modules=fields[2].split('/').filter{it.isNotEmpty()}.map{entry->
+                        val m=entry.split(',').map{it.toInt()}
+                        require(m.size in 3..515 && m[1] in 0..1 && m[2] in 0..1 && m.drop(3).all{it in 0..255})
+                        ImportedFxModule(m[0],m[1]==1,m[2]==1,m.drop(3))
+                    }
+                    require(modules.size<=1000)
+                    settings=settings.copy(fxEnabled=fields[1]=="1",modules=modules)
+                    effects=fields[3].split('/').filter{it.isNotEmpty()}.map{entry->
+                        val e=entry.split(',').map{it.toInt()}
+                        require(e.size==9 || e.size==49)
+                        require(e[0] in 0..7 && e[1] in 0..1 && e[3] in 0..1 && e[4] in 0..1 && e.drop(9).all{it in 0..255})
+                        ImportedExpressionEffect(e[0],e[1]==1,e[2],e[3]==1,e[4]==1,e[5],e[6],e[7],e[8],e.drop(9))
+                    }
+                    require(effects.size<=8 && effects.distinctBy{it.slot}.size==effects.size)
+                }
                 val restored=selected.copy(instrument=v[1],mode=v[2],system=v[3],pedal=v[4],record=v[5]==1,
-                    settings=selected.settings.copy(volume=v[6],pan=v[7],tune=v[8],transpose=v[9],octave=v[10],releasePercent=v[11]))
+                    settings=settings,effects=effects)
                 require(result.put(v[0],restored)==null)
             }
             result

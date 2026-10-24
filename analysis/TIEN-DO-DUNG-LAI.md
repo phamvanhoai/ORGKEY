@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Restore FX và expression effects của part STS, 24-10-2026
+
+- Mở rộng stsEffectiveParts lưu fxEnabled, thứ tự module DSP, type/enabled/realtime/payload và đầy đủ trường effect biểu cảm cùng raw bytes. Decode không thay FX bằng mode mặc định khi đã có trạng thái lưu mới; vẫn đọc bản cũ chỉ có12 trường numeric.
+- Kiểm tra số trường/boolean/byte payload, giới hạn kích thước262144 ký tự, module1000, effect8 và slot effect không trùng; lỗi trả rỗng để fallback. Dữ liệu vẫn gắn đúng SET/slot; không thay SET trên đĩa.
+- Roundtrip qua prepareFull giữ Echo realtime và PitchShake tùy chỉnh cùng nhạc cụ/channel levels; kiểm tra định dạng cũ và flag hỏng. ImportedStsBatchTest/ImportedFxChainTest cùng build đạt; cài APK thành công. Không tạo file test mới.
+- Chưa kiểm tra đóng/mở process trên điện thoại; không lưu phase DSP/voice đang phát. Master music/tuning/tempo/chord hiệu lực chưa được lưu riêng, và vòng lưu định kỳ có thể mất thay đổi cuối khi app bị đóng đột ngột. Chưa coi restore hoàn chỉnh100%.
+
 ## Restore part STS hiệu lực sau SET CONTROL, 24-10-2026
 
 - Trước chỉ lưu mode theo part rồi nạp lại snapshot gốc; mất instrument/record/pedal/system và channel levels được giữ bởi SET CONTROL. Thêm stsEffectiveParts lưu các trường này cùng volume/pan/tune/transpose/octave/release, gắn filename/length/mtime/slot.
