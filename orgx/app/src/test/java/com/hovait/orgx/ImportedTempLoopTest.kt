@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedTempLoopTest {
+    @Test fun repeatedQueuedIntroKeepsLoopWhenItStarts(){
+        val session=session();repeat(100){session.next(120)}
+        session.press(2,true,false,true);session.press(2,true,false,true)
+        assertEquals(2,session.pendingId)
+        repeat(901){session.next(120)}
+        assertEquals(2,session.currentId);assertTrue(session.temporaryLoop)
+        repeat(2200){session.next(120);assertEquals(2,session.currentId)}
+    }
+    @Test fun repeatCurrentIntroDoesNotEraseQueuedMain(){
+        val session=session();session.press(2,false,false,true);session.next(120)
+        session.press(1,true,false,true)
+        session.press(2,true,false,true)
+        assertTrue(session.temporaryLoop);assertEquals(1,session.pendingId)
+        repeat(1100){session.next(120)}
+        assertEquals(1,session.currentId)
+    }
     private fun session():ImportedStyleSession {
         val parts=listOf(ImportedStyleGroup(1,100,"Main",32,true,0,1000,120),
             ImportedStyleGroup(2,100,"Intro",16,false,0,1000,120,jumpGroup=-1),

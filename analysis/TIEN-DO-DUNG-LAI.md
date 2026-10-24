@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nhấn lặp Intro đang chờ và giữ hàng đợi Main, 24-10-2026
+
+- Đối chiếu MainActivity.y1 và Music.GroupPlayIsLastGroup: chế độ nhấn lặp chấp nhận group đang phát hoặc group cuối hàng đợi, trước khi gửi yêu cầu Rhythm mới. ORGX từng xóa queue Intro trước kiểm tra, và chỉ xét cuối queue nếu queue không rỗng.
+- ImportedStyleSession.press kiểm tra hai vị trí trước nhánh xử lý Intro. Nhấn Intro hai lần khi Main đang chạy nay đánh dấu vòng tạm cho Intro đang chờ. Nhấn lại Intro đang phát trong khi Main đã chờ không xóa yêu cầu Main.
+- Bổ sung hai tình huống vào ImportedTempLoopTest hiện có. ImportedTempLoopTest, ImportedStyleSessionTest, ReferenceStyleTransitionTest và assembleDebug đạt. Chưa đối chiếu thao tác/nghe trên APK gốc; không sửa SET hoặc tạo file test mới. Các cơ chế chuyển section khác chưa được coi là tương đương toàn bộ.
+
 ## Hiển thị trạng thái không giữ hợp âm, 24-10-2026
 
 - Khi tắt Chord Memory và nhả hết phím hợp âm, engine đã trả -1 để ngừng phần hòa âm nhưng LCD vẫn hiện hợp âm cũ. LCD nay lấy thêm trạng thái này từ engine và hiển thị dấu —; không thay đổi lựa chọn hợp âm thủ công hoặc Auto Chord.
