@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Voice trực tiếp áp hiệu ứng nối nốt, 24-10-2026
+
+- AudioEngine.noteOn của single voice trước luôn tạo Playback mới mà không đọc keyConnectionEffect, dù bộ xử lý SampledInstrument và keyboard STS đã có connectTo/connectFrom. Bổ sung điều phối hai kiểu theo Channels.OpenKey: mode>15 đổi cao độ Playback trước và chuyển key dùng cho noteOff; mode<=15 tạo note mới rồi connectFrom cao độ nốt trước.
+- Chỉ tìm voice cùng live MIDI channel và cùng đối tượng SampledInstrument, còn hoạt động, tuân thủ StopByRelease/ByPedal. Không nối vào voice nhạc cụ đã thay hoặc MIDI playback. Chọn voice gần nhất bằng ageFrames; chưa đối chiếu mọi kiểu ưu tiên LastChannel gốc khi polyphony/retrigger.
+- NoteOn velocity0 nay đi qua noteOff cho cả single/factory/STS trước khi xử lý connection; kiểm tra velocity hữu hạn ở đầu vào chung, tránh nối nốt từ MIDI note-on-zero.
+- SampledInstrumentTest/ImportedKeyboardPartsTest/ImportedSoundSelectionTest đạt; assembleDebug đạt sau chỉnh đầu vào. Không tạo test/log mới hoặc sửa SET. Các kiểm tra PCM xác minh primitive nối nốt, chưa khởi tạo AudioEngine Android hoặc nghe so single voice trên thiết bị; chưa coi toàn bộ single-keyboard expression hoàn tất.
+
 ## Lưu origin version của hiệu ứng STS qua mở lại phiên, 24-10-2026
 
 - encodeParts bổ sung trường sourceVersion thứ5 sau dữ liệu FX/effect; encodeSingle dùng chung nên cả nhóm và STS đơn giữ nguồn phiên bản sau đổi mode/nhạc cụ. decode chấp nhận bản mới, bản4 trường cũ và bản chỉ số12 giá trị; kiểm tra chuỗi version có định dạng số chấm và giữ giới hạn dữ liệu/fingerprint hiện có.

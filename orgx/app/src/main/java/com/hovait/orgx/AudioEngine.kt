@@ -297,7 +297,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private val rhythmGains=DoubleArray(3)
 
     private data class Voice(
-        val note:Int,
+        var note:Int,
         val instrument:Int,
         val playback:Boolean=false,
         val imported:SampledInstrument?=null,
@@ -366,15 +366,30 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     fun noteOn(note: Int, velocity: Float = 1f, voiceInstrument:Int=instrument,channel:Int=0,playback:Boolean=false) {
+        require(velocity.isFinite())
+        if(velocity<=0f){noteOff(note,channel,playback);return}
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback)){
-            require(velocity.isFinite())
             val amount=velocity.coerceIn(0f,1f)
-            if(amount==0f){noteOff(note,channel,playback);return}
             stsParts.noteOn(note,amount.toDouble(),channel)
             captureMidi(0x90 or channel,note,(amount*127).toInt().coerceAtLeast(1))
             return
         }
         val key=MidiVoiceKey.key(note,channel,playback)
+        val sound=importedInstrument.takeIf{!playback && !MidiVoiceKey.percussion(channel)}
+        val connection=sound?.keyConnectionEffect
+        val previous=if(connection==null)null else voices.entries.filter{(voiceKey,voice)->
+            MidiVoiceKey.isLiveChannel(voiceKey,channel) && voice.imported===sound &&
+                voice.sampledPlayback?.finished==false && (!voice.releasing || !connection.stopByRelease)
+        }.minByOrNull{it.value.ageFrames}
+        if(connection!=null && connection.mode>15 && previous!=null && (!connection.byPedal || sustain)){
+            val voice=previous.value
+            voices.remove(previous.key,voice)
+            voice.note=note;voice.releasing=false;voice.pendingSustain=false
+            voice.sampledPlayback?.connectTo(checkNotNull(sound).keyboardNote(note),connection)
+            voices[key]=voice
+            captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
+            return
+        }
         val music=activeSetIndex?.musicSettings ?: ImportedChannelSettings()
         val setBalance=if(!playback && importedInstrument!=null && !MidiVoiceKey.percussion(channel))ImportedMusicParameters.keyboardGain(music).toFloat() else 1f
         val velocityGain=VoiceVelocity.gain(velocity,playback)*setBalance
@@ -382,6 +397,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
         val voice=Voice(note=note,initialScriptPedal=!playback && sustain,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
+        if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || sustain))
+            voice.sampledPlayback?.connectFrom(checkNotNull(sound).keyboardNote(previous.value.note),connection)
         voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback),pitchState.scriptLevel(channel,playback))
         if(!playback && sustain)voice.sampledPlayback?.scriptPedal(true)
         val modulation=(if(playback)playbackModulation else liveModulation)[channel]
