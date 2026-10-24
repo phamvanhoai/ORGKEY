@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackSTSFXEffect64 áp snapshot FX theo slot khi có dữ liệu, 25-10-2026
+
+- ReferenceRhythmPlayer nhận resolver slot->ImportedChannelSettings; event64 tìm STS cùng slot trên track, thay FX chain của track nếu snapshot có. Khi thiếu snapshot vẫn no-op an toàn như bước trước.
+- ImportedStylePlayer truyền resolver từ track.sts vào từng player. Test chạy event64 slot2 với FX enabled, không lỗi/tắt track. ReferenceRhythmPlayerTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa kiểm chứng FX nghe thực/khác biệt PCM trên thiết bị. Mask STSChanges (13..19) chưa áp từng trường; hiện thay toàn bộ ImportedChannelSettings snapshot nếu có.
+
 ## TrackSTSFXEffect64 không loại section khi thiếu snapshot, 25-10-2026
 
 - Track.Play64 của APK lấy STS(i).FXs theo fSTSChanges rồi áp vào Channels; ORGX chưa có STS list/snapshot cho rhythm track. Trước event64 bị báo unsupported làm loại cả style section.

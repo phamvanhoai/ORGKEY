@@ -84,7 +84,8 @@ object ImportedStylePlayer {
                 // Tracks.ReadFromStream assigns channel type 1 to rhythm groups
                 // and Type 3 tracks. Channels.Process excludes that channel type.
                 expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track),keyConnectionMethod=keyConnectionMethod,pedalMode=track.pedalMode,
-                storedTranspose=track.settings.transpose,storedOctave=track.settings.octave)
+                storedTranspose=track.settings.transpose,storedOctave=track.settings.octave,
+                stsFxResolver={slot->track.sts.firstOrNull{it.slot==slot}?.settings})
                 .withChordFollowing(control=chordControl,octaveMove=chordOctaveMove,target=if(follow && melodic)targetChord else null)
                 .withTrackGate{muted->quality.allows(track.instrument,melodic,muted)}
           }

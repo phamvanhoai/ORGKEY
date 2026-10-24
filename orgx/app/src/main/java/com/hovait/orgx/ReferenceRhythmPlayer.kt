@@ -8,7 +8,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val initiallyMuted:Boolean=false,private val initialChannel:ImportedChannelSettings?=null,
     private val expressionEffects:List<ImportedExpressionEffect> = emptyList(),private val initialPedal:Boolean=false,
     private val expressionAllowed:Boolean=true,private val keyConnectionMethod:Int=0,private val pedalMode:Int=-1,
-    private val storedTranspose:Int=initialChannel?.transpose ?: 0,private val storedOctave:Int=initialChannel?.octave ?: 0) {
+    private val storedTranspose:Int=initialChannel?.transpose ?: 0,private val storedOctave:Int=initialChannel?.octave ?: 0,
+    private val stsFxResolver:(Int)->ImportedChannelSettings?={null}) {
     init{require(keyConnectionMethod in 0..1)}
     private var volumeShake=expressionEffects.firstOrNull{it.slot==3}
     private var pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2}
@@ -297,8 +298,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==13){eventMuted=true;releaseAll();return@advance}
             if(event.type==3){releaseAll();return@advance}
             if(event.type==64){
-                // STS FX snapshots are owned by the keyboard-set loader. Keep
-                // the event in the timeline; no snapshot is available here.
+                stsFxResolver(event.note)?.let{settings->
+                    fx?.close();fx=ImportedFxChain(settings)
+                }
                 return@advance
             }
             if(event.type==5){

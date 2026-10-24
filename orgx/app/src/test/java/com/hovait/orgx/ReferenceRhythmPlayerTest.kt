@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedStsFxEventReplacesTrackFxWhenSnapshotIsAvailable(){
+        val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(ImportedFxModule(6,true,false,listOf(50,0,0,0,1,0,0,0))))
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(64,2,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),
+            {10000},{_,_,_->0.0},1000,initialChannel=ImportedChannelSettings(),stsFxResolver={if(it==2)settings else null})
+        try{repeat(3){player.next(0,120)}}finally{player.close()}
+    }
     @Test fun storedStsFxEventDoesNotInvalidateOrStopTheTrack(){
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
             ReferenceDrumEvent(64,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),
