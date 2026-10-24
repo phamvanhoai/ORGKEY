@@ -4,6 +4,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun changingStyleAnchorsNewSectionWithThePreviousSharedScale(){
+        fun create(group:ImportedStyleGroup,events:List<ReferenceDrumEvent>):ImportedStyleSession {
+            val player=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(group.name,group.id,group.parent,
+                group.section,120,true,0,group.end.toLong(),false,events)),{1000},{_,_,_->1.0},1000)
+            return ImportedStyleSession(ImportedStyleDefinition(group.parent,group.name,listOf(group)),mapOf(group.id to player),1000)
+        }
+        val old=create(ImportedStyleGroup(1,100,"3/8",32,true,0,750,120,meterX=3,meterY=8),emptyList())
+        val replacement=create(ImportedStyleGroup(2,200,"4/4",32,true,0,1000,120),
+            listOf(ReferenceDrumEvent(2,1,60,100,250,100)))
+        try{
+            repeat(1000){old.next(120)}
+            assertEquals(750,old.padTiming.second)
+            replacement.continueFrom(old)
+            assertEquals(1000L,replacement.padTiming.first)
+            assertEquals(1000,replacement.padTiming.second)
+            // GroupPlayStart uses the old 750-unit scale before installing
+            // the new 1000-unit scale: 1000 % 750 starts at offset 250.
+            replacement.next(120)
+            assertEquals(1.0,replacement.player.left,0.0)
+        }finally{old.close();replacement.close()}
+    }
     @Test fun audioPadRenderingFeedsBackScaleWithoutAdvancingStyleClock(){
         val session=session(lock=true)
         val bank=ImportedPadBank(1000)

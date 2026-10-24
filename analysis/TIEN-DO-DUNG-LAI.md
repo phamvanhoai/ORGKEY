@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Giữ scale dùng neo vị trí khi đổi style đang chạy, 24-10-2026
+
+- Tracks.GroupPlayNext và GroupPlayStart giữ Music.rhythmScale cũ để tính neo bắt đầu khi scale mới >10, rồi mới cài scale mới. continueFrom trước chỉ mang section/time, bỏ mất scale chung nên select dùng scale khởi tạo của style mới và có thể bắt đầu sai vị trí nhạc.
+- continueFrom nay chụp section/time/scale dưới cùng khóa của session cũ, áp scale trước select. Quy tắc scale mới 1..10 áp trước neo và scale lớn áp sau neo vẫn do select hiện có thực hiện.
+- Kiểm tra trong ReferenceStyleTransitionTest hiện có: style 3/8 scale750 chạy tới time1000, chuyển Main4/4 scale1000; note tại offset250 phải phát ngay, clock vẫn1000 và scale mới1000. Ba lớp ReferenceStyleTransitionTest/ImportedStyleSessionTest/ImportedTempLoopTest tổng39 kiểm tra đạt; assembleDebug đạt. Chưa nghe đối chiếu đổi style thực trên điện thoại; không sửa SET hoặc thêm file test mới.
+
 ## Nhấn lặp Intro đang chờ và giữ hàng đợi Main, 24-10-2026
 
 - Đối chiếu MainActivity.y1 và Music.GroupPlayIsLastGroup: chế độ nhấn lặp chấp nhận group đang phát hoặc group cuối hàng đợi, trước khi gửi yêu cầu Rhythm mới. ORGX từng xóa queue Intro trước kiểm tra, và chỉ xét cuối queue nếu queue không rỗng.

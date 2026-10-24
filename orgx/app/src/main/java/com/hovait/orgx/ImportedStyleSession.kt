@@ -78,12 +78,14 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     @Synchronized fun preparePlay(){if(finished)reset()}
     /** MainActivity.B1 keeps the section, with Fill/Break returning to Main. */
     fun continueFrom(previous:ImportedStyleSession){
-        val (section,time)=synchronized(previous){previous.groups.getValue(previous.currentId).section to previous.clock.time}
+        val (section,time,scale)=synchronized(previous){
+            Triple(previous.groups.getValue(previous.currentId).section,previous.clock.time,previous.rhythmScale)
+        }
         synchronized(this){
             val wanted=if(section in 48..64)32+(section and 15) else section
             val target=style.sections.firstOrNull{it.section==wanted && available(it.id)}
                 ?: style.sections.firstOrNull{it.section==32 && available(it.id)} ?: main
-            queue.clear();jumpId=null;clock.seek(time);select(target.id)
+            queue.clear();jumpId=null;clock.seek(time);rhythmScale=scale;select(target.id)
             player.continueGroupFxFrom(previous.player)
             player.releaseVoicesFrom(previous.player)
         }
