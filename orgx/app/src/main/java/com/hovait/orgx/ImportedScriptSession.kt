@@ -41,6 +41,15 @@ class ImportedScriptSession(source:String,storedEffects:List<ImportedExpressionE
         scheduled=Scheduled(timerToken,timer,parameters.toMap(),now+timer.interval.coerceAtLeast(1))
     }
     private var pedalDown=false
+    private var pitchLevel:Int?=null
+    private var pitchResult=ImportedSimpleScript.Result(emptyList(),false)
+    fun pitchBend(level:Int,forceEvent:Boolean=false,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {
+        require(level in -8192..8191)
+        if(!forceEvent && pitchLevel==level)return currentEffects(pitchResult).also(validate)
+        val result=event("pitchbend",mapOf("level" to level),validate)
+        pitchLevel=level;pitchResult=result
+        return result
+    }
     private var modulationLevel:Int?=null
     private var modulationResult=ImportedSimpleScript.Result(emptyList(),false)
     fun modulation(level:Int,validate:(ImportedSimpleScript.Result)->Unit={}):ImportedSimpleScript.Result {

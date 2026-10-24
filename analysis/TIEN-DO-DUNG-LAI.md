@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Track pitchbend cập nhật DNC trước note đầu và không nhân callback theo lớp, 24-10-2026
+
+- ImportedScriptSession thêm pitchBend có cache kết quả/mức tương tự modulation; Playback dùng kết quả chung để áp effect/handled cho từng voice mà không chạy lại script mỗi layer. Event53 của track gọi updateScriptPitchBend cấp sound trước khi dispatch đến voice; forceEvent giữ callback cho mỗi event53 thật kể cả cùng level.
+- Nốt đầu sau event53 thấy biến script đã cập nhật trước touch. Cache dùng currentEffects để lấy cấu hình state mới nhất cho các voice. Giới hạn handler pitchbend vẫn chỉ biến/effect2..3, không hỗ trợ play/stop audio ở handler này.
+- ReferenceRhythmPlayerTest dùng bend trước note0, script gain+=25; note tại10 phát25%, note tại20 cũng25%, tổngPCM0.125. ReferenceRhythmPlayerTest/SampledInstrumentTest/MidiScriptBendStateTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa thử DNC track thực trên điện thoại. Script context giữa track cùng SoundKey vẫn có thể dùng chung, chưa tuyên bố isolation hoàn tất.
+
 ## TrackPitchMove không gọi nhầm script pitchbend, 24-10-2026
 
 - Playback.pitchBend thêm notifyScript mặc địnhtrue để tách cập nhật hệ số mẫu khỏi sự kiện biểu cảm. Track43 dùngfalse theo Track.Play gốc; lệnh53 giữtrue và rawTouch. Đường nạp pitch cho note/revoice/Repeat không có raw event cũng không tự tạo callback pitchbend0.

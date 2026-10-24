@@ -254,6 +254,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==53 && event.note>0){
                 pitchMove=event.note
                 pitchScriptLevel=(event.touch-8192).coerceIn(-8192,8191)
+                sampled?.updateScriptPitchBend(checkNotNull(pitchScriptLevel))
                 val semitones=12*kotlin.math.log2(pitchMove/1000.0)
                 voices.values.filter{event.id==0 || it.eventId==event.id}.forEach{it.playback?.pitchBend(semitones,pitchScriptLevel)}
                 return@advance

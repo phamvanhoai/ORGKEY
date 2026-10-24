@@ -64,6 +64,12 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             require(result.audio.isEmpty() && result.effects.all{it.slot in 2..3})
         }?.also{applyScriptEffects(it.effects)}}
     }
+    fun updateScriptPitchBend(level:Int){
+        if(activeModeSound!==this)return activeModeSound.updateScriptPitchBend(level)
+        runCatching{scriptSession?.pitchBend(level,forceEvent=true){result->
+            require(result.audio.isEmpty() && result.effects.all{it.slot in 2..3})
+        }?.also{applyScriptEffects(it.effects)}}
+    }
     fun updateScriptPedal(down:Boolean){
         if(activeModeSound!==this)return activeModeSound.updateScriptPedal(down)
         runCatching{scriptSession?.pedal(down){result->
@@ -251,8 +257,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             require(scriptLevel==null || scriptLevel in -8192..8191)
             bendScriptLevel=scriptLevel
             if(ownsScriptEvents && notifyScript){
-                val handled=runCatching{scriptSession?.event("pitchbend",mapOf("level" to
-                    (scriptLevel ?: (semitones/2.0*8192).toInt()).coerceIn(-8192,8191))){result->
+                val handled=runCatching{scriptSession?.pitchBend(
+                    (scriptLevel ?: (semitones/2.0*8192).toInt()).coerceIn(-8192,8191)){result->
                     require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
                 }?.also{result->
                     applyScriptEffects(result.effects)

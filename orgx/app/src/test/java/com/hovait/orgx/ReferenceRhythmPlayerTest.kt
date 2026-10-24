@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun pitchbendBeforeFirstNoteRunsDncOnceForAllFollowingNotes(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)
+            .withModeScript("main(){gain=0;} on(pitchbend){gain=gain+25;return(true);} on(touch){play(volume:gain);return(true);}")
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(53,0,1000,8242,0,0),
+            ReferenceDrumEvent(2,1,60,100,10,1000),ReferenceDrumEvent(2,2,64,100,20,1000)))),
+            {10000},{_,_,_->0.0},1000,sampled=source)
+        try{
+            repeat(11){player.next(0,120)};assertEquals(.0625,player.left,1e-12)
+            repeat(10){player.next(0,120)};assertEquals(.125,player.left,1e-12)
+        }finally{player.close()}
+    }
     @Test fun trackPitchMoveDoesNotTriggerDncPitchbendEvent(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)
