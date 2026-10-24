@@ -54,7 +54,7 @@ class ImportedKeyboardParts {
             if(part.pedal)playback.scriptPedal(true)
             if(modulation[channel]!=0)playback.modulate(modulation[channel])
             notes.add(Note(part.id,channel,key,part.sound,playback,velocity*part.inputGain,part.pedal,part.pedalMode,
-                repeat=part.sound.keyRepeatEffect?.let{ImportedKeyRepeat(it,part.sound.outputSampleRate)}))
+                repeat=ImportedKeyRepeat(part.sound.outputSampleRate)))
         }
     }
     fun noteOff(key:Int,channel:Int=0){
@@ -103,6 +103,7 @@ class ImportedKeyboardParts {
             val pedalRelease=if(note.pedalMode==-1)note.pedal else note.pedalMode!=0
             note.playback.next(note.released,pedalRelease)
             mixer.add(note.sound,note.playback.left*note.velocity,note.playback.right*note.velocity)
+            note.repeat?.configure(note.sound.keyRepeatEffect)
             if(!note.retired && note.repeat?.next(note.released,pedalRelease)==true){
                 val playback=note.sound.voice(note.sound.keyboardNote(note.key),autoRelease=true,effectsAllowed=false,scriptAllowed=false)
                 playback.pitchBend(bends[note.channel],scriptBends[note.channel])

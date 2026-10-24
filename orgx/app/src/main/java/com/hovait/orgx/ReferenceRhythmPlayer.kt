@@ -305,7 +305,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 }
                 voices[voiceSequence++]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=playback,
                     panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1),eventId=event.id,touchGain=keyTouch/100.0,
-                    tune=event.tune,samplePan=samplePan,repeat=if(playback!=null)keyRepeatEffect?.takeIf{expressionAllowed}?.let{ImportedKeyRepeat(it,sampleRateForEnvelope)} else null,
+                    tune=event.tune,samplePan=samplePan,repeat=if(playback!=null && expressionAllowed)ImportedKeyRepeat(sampleRateForEnvelope).also{it.configure(keyRepeatEffect)} else null,
                     sourceNote=event.note,sourceLength=event.length,sourceTouch=event.touch)
             } else if(event.type==1)voices.values.forEach{if(it.eventId==event.id && it.release<0){if(pedalDown)it.pendingRelease=true else it.release=0}}
         }

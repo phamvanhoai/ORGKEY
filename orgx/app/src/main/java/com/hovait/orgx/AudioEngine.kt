@@ -314,7 +314,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     ) {
         val renderedNote=imported?.keyboardNote(note) ?: note
         val sampledPlayback=imported?.voice(renderedNote,scriptVelocity=recordingVelocity,initialScriptPedal=initialScriptPedal)
-        val repeat=imported?.keyRepeatEffect?.let{ImportedKeyRepeat(it,imported.outputSampleRate)}
+        val repeat=imported?.let{ImportedKeyRepeat(it.outputSampleRate)}
     }
     private data class RepeatedVoice(val sound:SampledInstrument,val playback:SampledInstrument.Playback,
         val gain:Float,val channel:Int)
@@ -794,6 +794,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
+                    voice.repeat?.configure(voice.imported?.keyRepeatEffect)
                     if(voice.repeat?.next(voice.releasing || voice.pendingSustain,sustain)==true){
                         val source=voice.imported
                         if(source!=null && !voice.playback){

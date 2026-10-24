@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyRepeatTest {
+    @Test fun heldNoteCanEnableDisableAndResumeRepeatWithoutResettingItsCounter(){
+        val repeat=ImportedKeyRepeat(1000)
+        repeat(100){assertFalse(repeat.next(false,false))}
+        repeat.configure(effect(speed=500))
+        val first=List(20){repeat.next(false,false)}
+        assertEquals(listOf(19),first.indices.filter{first[it]})
+        repeat.configure(null)
+        repeat(40){assertFalse(repeat.next(false,false))}
+        repeat.configure(effect(speed=500))
+        val resumed=List(20){repeat.next(false,false)}
+        assertEquals(listOf(19),resumed.indices.filter{resumed[it]})
+    }
     private fun effect(delay:Int=0,pedal:Boolean=false,stop:Boolean=false,speed:Int=100)=
         ImportedExpressionEffect(0,true,delay,pedal,stop,0,speed,0,0,emptyList())
     @Test fun usesOriginalTenMillisecondDelayAndPeriodFormula(){

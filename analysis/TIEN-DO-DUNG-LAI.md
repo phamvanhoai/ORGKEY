@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Cập nhật Repeat trong lúc giữ nốt, 24-10-2026
+
+- ImportedKeyRepeat nhận configure(null) để tắt bằng cấu hình disabled dùng chung, giữ bộ đếm delay/chu kỳ. Có constructor sampleRate để tạo controller đang tắt ngay từ noteOn, thay vì không có controller nếu effect chưa bật.
+- Voice trực tiếp và STS parts cập nhật controller từ keyRepeatEffect hiện tại của sound mỗi frame. Script/DNC đổi enable/speed/delay vì vậy có thể ảnh hưởng nốt đã giữ. Playback sinh từ Repeat vẫn không có controller, không sinh lặp đệ quy. Track playback tạo controller kể cả lúc Repeat chưa bật nếu expressionAllowed, để event65 có thể bật giữa nốt bằng configure hiện có.
+- ImportedKeyRepeatTest bổ sung bật sau100 frame, tắt40 frame rồi bật lại, kiểm tra nốt lặp đúng chu kỳ và không reset counter. ImportedKeyRepeatTest/ImportedKeyboardPartsTest/ReferenceRhythmPlayerTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới. Chưa kiểm chứng slider/script Repeat thật trên điện thoại hoặc toàn bộ đồng bộ script theo từng Playback; đây là cập nhật từ cấu hình sound/track hiện có.
+
 ## Voice trực tiếp phát Key Repeat qua mixer, 24-10-2026
 
 - AudioEngine single Voice trước không có ImportedKeyRepeat dù STS parts và rhythm player đã có. Mỗi Voice sampled nay giữ controller theo sample rate; render audio kiểm tra delay/chu kỳ10ms hiện có, pedal và nhả phím, rồi tạo Playback lặp autoRelease.
