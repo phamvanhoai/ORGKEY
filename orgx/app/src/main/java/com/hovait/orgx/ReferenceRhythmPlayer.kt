@@ -177,6 +177,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         initialTime=referenceTime;children.forEach{it.startAt(referenceTime)}
     }
     fun next(selection:Int,tempo:Int) {
+        if(finished){renderTail();return}
         nextReleaseTails()
         if(children.isNotEmpty()){
             left=0.0;right=0.0
@@ -196,7 +197,12 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         val duration=track.end-track.start
         var local=clock.time-loopOrigin+track.start
         if(track.bounded && duration>0 && local>=track.end){
-            if(!track.loop){voices.clear();left=0.0;right=0.0;finished=true;return}
+            if(!track.loop){
+                releaseAll();finished=true
+                // GroupPlayNext closes retiring channels; their release and FX still render.
+                renderVoices(track.outputGain)
+                return
+            }
             loopOrigin+=(local-track.start)/duration*duration
             local=clock.time-loopOrigin+track.start
             timeline?.reset()

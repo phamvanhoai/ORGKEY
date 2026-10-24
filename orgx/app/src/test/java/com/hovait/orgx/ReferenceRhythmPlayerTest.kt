@@ -4,6 +4,30 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun oneShotBoundaryKeepsReleaseAudioWithoutSchedulingAnotherCycle(){
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,100)),end=5).copy(loop=false)),
+            {1000},{_,_,_->1.0},1000)
+        repeat(5){player.next(0,120)}
+        player.next(0,120)
+        assertTrue(player.finished);assertTrue(player.hasTail);assertEquals(1.0,player.left,0.0)
+        player.next(0,120);assertEquals(.9,player.left,1e-9)
+        repeat(20){player.next(0,120)}
+        assertFalse(player.hasTail);assertEquals(0.0,player.left,0.0)
+        player.close()
+    }
+    @Test fun replacingPadKeepsOldReleaseAlongsideNewNotes(){
+        fun pad(value:Double)=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),
+            {10000},{_,_,_->value},1000)
+        val bank=ImportedPadBank(1000)
+        try{
+            bank.play(0,pad(1.0));bank.next(120,1f,1f)
+            bank.play(0,pad(2.0));bank.next(120,1f,1f)
+            assertEquals(3.0,bank.left,1e-9)
+            bank.next(120,1f,1f);assertEquals(2.9,bank.left,1e-9)
+            repeat(20){bank.next(120,1f,1f)}
+            assertEquals(2.0,bank.left,1e-9);assertEquals(1,bank.runningMask)
+        }finally{bank.close()}
+    }
     @Test fun padSectionsKeepTheirSlotsAndNeverUseAnotherStyle(){
         fun group(id:Int,parent:Int,section:Int)=ImportedStyleGroup(id,parent,"Pad $id",section,true,0,1000,120)
         val unrelated=group(1,200,96)

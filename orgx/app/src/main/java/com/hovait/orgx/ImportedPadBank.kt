@@ -43,9 +43,16 @@ class ImportedPadBank(sampleRate:Int=48000) {
             }
             waiting[slot]?.let{change->
                 if(change.group==null || ReferenceSectionTiming.inWindow(time,scale,tempo)){
-                    players[slot]?.close();players[slot]=change.player;tails[slot]=false
+                    val previous=players[slot]
+                    players[slot]=change.player;tails[slot]=false
                     val offset=change.group?.let{ReferenceSectionTiming.startOffset(time,it,scale,method)} ?: 0L
-                    change.player?.startAt(offset);waiting[slot]=null
+                    change.player?.startAt(offset)
+                    if(previous!=null){
+                        change.player?.continueGroupFxFrom(previous)
+                        change.player?.releaseVoicesFrom(previous)
+                        previous.close()
+                    }
+                    waiting[slot]=null
                 }
             }
             val player=players[slot] ?: return@repeat

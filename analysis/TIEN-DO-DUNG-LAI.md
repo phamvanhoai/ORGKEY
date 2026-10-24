@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nhả tiếng khi PAD kết thúc hoặc thay player, 24-10-2026
+
+- Đối chiếu Tracks.GroupPlayNext: khi đổi group, các track cũ gọi Channels.CloseAll(false). ReferenceRhythmPlayer không còn voices.clear tại cuối đoạn không lặp; đánh dấu finished, nhả nốt và tiếp tục render tail nếu caller gọi next. Không lập lịch vòng tiếp theo.
+- ImportedPadBank khi nhận player thay thế khởi tạo vị trí mới trước, chuyển bus FX cùng cấu hình và các voice/tail cũ sang player mới bằng cơ chế releaseVoicesFrom đang dùng cho style, rồi mới đóng player cũ. Giữ giới hạn32 tail hiện có. Không sửa file SET.
+- Kiểm tra PCM: cuối one-shot còn tiếng1.0 rồi0.9 và về0; thay PAD giá trị1 bằng2 cho tổng3 rồi2.9, cuối còn2 và slot vẫn chạy. Nhóm ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và assembleDebug đạt; đã cài APK lên thiết bị. Không tạo file test mới.
+- Chưa so bản thu PAD trên APK gốc. Nhánh chuyển group FX khác cấu hình vẫn chưa giữ toàn bộ đuôi group DSP cũ; chưa bổ sung JumpGroup/LastLoop hoặc biến thể hợp âm PAD. Đây là sửa lỗi cắt tiếng, không xác nhận PAD tương đương hoàn toàn.
+
 ## Chọn PAD theo style, 24-10-2026
 
 - Sửa trang PAD từng gom mọi group Section96..99 của SET rồi chia trang và gán slot theo thứ tự danh sách. Nay dùng cùng resolver với LCD: Section96+slot của style đang chọn, thiếu mới tìm parent0, theo MainActivity.y1 của APK.
