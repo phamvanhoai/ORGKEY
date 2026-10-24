@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chord marker202 không loại style khi chưa có hòa âm runtime, 25-10-2026
+
+- TrackEvent.Chord202 là marker dữ liệu hòa âm. ORGX trước báo unsupported và loại section. Nay giữ event trong timeline; chord following hiện vẫn lấy targetChord/ChordSynchro của session, chưa map marker202 vào chord state riêng.
+- ReferenceRhythmPlayerTest dùng marker202 trước note, section vẫn phát. Build/test đạt. Không sửa SET hoặc tạo file test/log mới; cần nối marker vào GroupPlayChord/ChordFind khi SET dùng marker để hoàn thiện semantics hòa âm.
+
 ## KeyMove/OctaveMove231/232 giữ transport, 25-10-2026
 
 - Track.Play xử lý231 bằng fFXMusic.f và232 ở nhánh FX Music, không phải đổi note trực tiếp. ORGX trước loại section chứa hai event. Support/player nay cho event đi qua timeline, giữ nốt phát; FX Music tham số riêng chưa được nối vào ImportedFxChain.
