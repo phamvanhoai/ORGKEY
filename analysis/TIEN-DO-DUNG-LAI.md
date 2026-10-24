@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chọn PAD theo style, 24-10-2026
+
+- Sửa trang PAD từng gom mọi group Section96..99 của SET rồi chia trang và gán slot theo thứ tự danh sách. Nay dùng cùng resolver với LCD: Section96+slot của style đang chọn, thiếu mới tìm parent0, theo MainActivity.y1 của APK.
+- Giữ bốn vị trí PAD1..4; slot thiếu hiện EMPTY và vô hiệu hóa. Bỏ phân trang từng khiến PAD của style khác vào nút hiện tại. Không sửa dữ liệu SET.
+- Build debug và nhóm ReferenceRhythmPlayerTest đạt, có kiểm tra group đảo thứ tự, slot khuyết, ưu tiên local/shared và không lấy style khác. Đã cài APK lên thiết bị. Chưa đối chiếu âm thanh PAD thực với APK; chưa bổ sung assignment tùy chọn hay chord variant PAD.
+
 ## Kết quả mới nhất — sample Loop Tempo, 24-10-2026
 
 - Đối chiếu Channels.Process: fLoopTempo && InstSec.Loop==3 nhân pitch theo fTempo/120 và đặt _pitchSpeed0. ImportedInstrumentLoader nay giữ riêng tempoSync cho region Loop3, thay vì chỉ gộp chung cờ looping.

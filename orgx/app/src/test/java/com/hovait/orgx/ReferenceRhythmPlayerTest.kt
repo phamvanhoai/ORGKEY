@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun padSectionsKeepTheirSlotsAndNeverUseAnotherStyle(){
+        fun group(id:Int,parent:Int,section:Int)=ImportedStyleGroup(id,parent,"Pad $id",section,true,0,1000,120)
+        val unrelated=group(1,200,96)
+        val shared=group(2,0,97)
+        val local=group(3,100,97)
+        val fourth=group(4,100,99)
+        val index=ImportedSetIndex(emptyList(),listOf(unrelated,shared,fourth,local))
+        assertEquals(listOf(null,local,null,fourth),ImportedStyleCatalog.pads(index,100))
+        assertEquals(listOf(unrelated,shared,null,null),ImportedStyleCatalog.pads(index,200))
+        assertEquals(listOf(null,shared,null,null),ImportedStyleCatalog.pads(index,null))
+    }
     @Test fun stoppingPadsRejectsAPlayerThatFinishedLoadingAfterStop(){
         val group=ImportedStyleGroup(9,100,"Pad",96,true,0,1000,120)
         fun pad()=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),

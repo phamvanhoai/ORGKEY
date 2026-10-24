@@ -311,10 +311,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
     }
     val bankScope=rememberCoroutineScope()
-    val performancePads=remember(bankIndex,setSession?.style?.id){List(4){slot->
-        bankIndex?.styles?.firstOrNull{it.parent==setSession?.style?.id && it.section==96+slot}
-            ?: bankIndex?.styles?.firstOrNull{it.parent==0 && it.section==96+slot}
-    }}
+    val performancePads=remember(bankIndex,setSession?.style?.id){ImportedStyleCatalog.pads(bankIndex,setSession?.style?.id)}
     fun pressSetPad(slot:Int){
         val bank=engine.importedPads
         val bit=1 shl slot
@@ -505,7 +502,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 onSelect={leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();chord=it;autoChord=false;engine.autoChord=false;engine.chordIndex=it;showChords=false},
                 onAuto={enabled,preset->leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();autoChord=enabled;progression=preset;engine.autoChord=enabled;engine.progression=preset;showChords=false},
                 onDismiss={showChords=false})
-            if(showPads) PadDialog(engine,onDismiss={showPads=false})
+            if(showPads) PadDialog(engine,setSession?.style?.id,onDismiss={showPads=false})
             if(showFiles) RecordingDialog(engine,onDismiss={showFiles=false})
             if(showProjects) ProjectDialog(ProjectStore(context),ProjectState(octave,bpm,instrument,chord,style,effect,autoChord,progression,engine.masterVolume,engine.keysVolume,engine.chordVolume,engine.drumsVolume,engine.effectMix),onLoad={project->
                 octave=project.octave;bpm=project.bpm;instrument=project.instrument;chord=project.chord.coerceIn(0, chordNames.lastIndex);style=project.style.coerceIn(engine.styleNames.indices);effect=project.effect;autoChord=project.autoChord;progression=project.progression
@@ -973,13 +970,12 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         }
     }},confirmButton={TextButton(onClick=onDismiss){Text("CLOSE")}})
 }
-@Composable private fun PadDialog(engine:AudioEngine,onDismiss:()->Unit){
+@Composable private fun PadDialog(engine:AudioEngine,styleId:Int?,onDismiss:()->Unit){
     val context=LocalContext.current
     val scope=rememberCoroutineScope()
     val file=engine.activeSetFile
     val index=engine.activeSetIndex
-    val groups=remember(index){index?.styles?.filter{it.section in 96..99}?.distinctBy{it.id}.orEmpty()}
-    var page by remember(index){mutableIntStateOf(0)}
+    val groups=remember(index,styleId){ImportedStyleCatalog.pads(index,styleId)}
     var busy by remember{mutableStateOf(false)}
     var status by remember{mutableStateOf("")}
     var running by remember{mutableIntStateOf(engine.importedPads.runningMask)}
@@ -987,9 +983,13 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     LaunchedEffect(engine){while(true){running=engine.importedPads.runningMask or engine.importedPads.pendingMask;pendingPads=engine.importedPads.pendingMask;kotlinx.coroutines.delay(100)}}
     val names=listOf("KICK","SNARE","HI-HAT","CLAP","LOW TOM","HIGH TOM","CRASH","PERC")
     InstrumentPage(onDismissRequest=onDismiss,title={Text("Performance pads")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)){
-        if(groups.isNotEmpty() && file!=null && index!=null){
+        if(groups.any{it!=null} && file!=null && index!=null){
             Text("SET PAD",fontWeight=FontWeight.Bold)
-            groups.drop(page*4).take(4).forEachIndexed{slot,group->
+            groups.forEachIndexed{slot,group->
+                if(group==null){
+                    OutlinedButton(enabled=false,onClick={},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("PAD ${slot+1} · EMPTY")}
+                    return@forEachIndexed
+                }
                 val active=running and (1 shl slot)!=0
                 OutlinedButton(enabled=!busy,onClick={
                     if(active)engine.importedPads.stop(slot) else{
@@ -1013,9 +1013,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 }
             }
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){
-                TextButton(enabled=page>0 && !busy,onClick={engine.importedPads.stopAll();page--}){Text("PREV")}
                 TextButton(onClick={engine.importedPads.stopAll()}){Text("STOP ALL SET PADS")}
-                TextButton(enabled=(page+1)*4<groups.size && !busy,onClick={engine.importedPads.stopAll();page++}){Text("NEXT")}
             }
             if(status.isNotBlank())Text(status)
         }
