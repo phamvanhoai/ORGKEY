@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nhịp chuyển đoạn dùng chung PAD/style, 24-10-2026
+
+- Đối chiếu Tracks.CalcRhythmScale và GroupPlayNext: PAD Auto trả-1 giữ scale trước; các method khác tính scale theo meter/LimitEnd-LimitStart. Giá trị<=10 áp trước GroupPlayStart, giá trị dương còn lại áp sau.
+- ImportedPadBank giữ rhythmScale khi phát riêng, thay cho hằng1000 mỗi frame. Bắt đầu PAD hoặc chuyển JumpGroup cập nhật scale theo quy tắc trên; các slot sau trong cùng frame dùng giá trị mới. ImportedPadSequence giữ phase bắt đầu theo đúng thứ tự cập nhật scale.
+- AudioEngine chuyển thay đổi scale của PAD vào ImportedStyleSession đang chạy, dùng cho cửa sổ chuyển style tiếp theo, không reset clock, không xóa yêu cầu đang chờ. Không thay BPM khi chỉ chọn PAD.
+- Kiểm tra: PAD3/4 mode Wait cycle đặt scale1500, slot khác không khởi động ở1000 mà đợi1500; Auto giữ scale500 từ style. Yêu cầu chuyển Main đang chờ vẫn giữ clock100 và chuyển tại1500 sau khi PAD đổi scale. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest/ReferenceSectionTimingTest và build đạt; cài APK thành công.
+- Chưa so thao tác/thu âm trên APK gốc. Style được xử lý trước PAD trong mỗi audio frame nên phản hồi scale về style từ frame tiếp theo; chưa gộp hai scheduler thành một như Tracks gốc, chưa chuyển LastLoop/chord variant PAD. Không xác nhận timing tương đương100%.
+
 ## Chuỗi JumpGroup của PAD, 24-10-2026
 
 - Theo Tracks.GroupPlayNext, group không Loop có JumpGroup>0 chuyển tới group chỉ định thay vì luôn dừng. Thêm loadPad nạp các group nối tiếp theo ID trên IO; phát dùng ImportedPadSequence và không đọc file trong audio callback. Cả LCD và trang PAD dùng đường mới.

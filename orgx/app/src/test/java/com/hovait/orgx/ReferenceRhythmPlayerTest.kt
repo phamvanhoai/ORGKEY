@@ -4,6 +4,35 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun padMeterChangesTheSharedWindowBeforeStartingAnotherSlot(){
+        val group=ImportedStyleGroup(1,100,"Three beats",96,true,0,1500,120,meterX=3,meterY=4)
+        fun source()=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,5000)),end=1500)),
+            {10000},{_,_,_->1.0},1000)
+        val bank=ImportedPadBank(1000)
+        try{
+            val first=ImportedPadSequence(1,mapOf(1 to group),mapOf(1 to source()))
+            assertTrue(bank.playPrepared(0,bank.beginLoad(0),first))
+            bank.next(120,1f,1f,method=2)
+            assertEquals(1500,bank.rhythmScale);assertTrue(bank.scaleChanged)
+            repeat(999){bank.next(120,1f,1f,method=2)}
+            bank.play(1,source(),group.copy(id=2,section=97))
+            bank.next(120,1f,1f,method=2)
+            assertEquals(1,bank.runningMask);assertEquals(2,bank.pendingMask)
+            repeat(499){bank.next(120,1f,1f,method=2)}
+            bank.next(120,1f,1f,method=2)
+            assertEquals(3,bank.runningMask);assertEquals(0,bank.pendingMask)
+        }finally{bank.close()}
+    }
+    @Test fun automaticPadTimingRetainsTheStyleScale(){
+        val bank=ImportedPadBank(1000)
+        val group=ImportedStyleGroup(1,100,"Pad",96,true,0,1500,120,meterX=3,meterY=4)
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(hit(0)),end=1500)),{10000},{_,_,_->1.0},1000)
+        try{
+            bank.play(0,player,group)
+            bank.next(120,1f,1f,styleTiming=0L to 500,method=0)
+            assertEquals(500,bank.rhythmScale);assertFalse(bank.scaleChanged)
+        }finally{bank.close()}
+    }
     @Test fun padJumpChainAdvancesOnBoundaryAndKeepsRetiringVoice(){
         val a=ImportedStyleGroup(1,100,"First",96,false,0,5,120,jumpGroup=2)
         val b=ImportedStyleGroup(2,100,"Next",97,true,0,1000,120)

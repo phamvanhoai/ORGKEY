@@ -44,6 +44,8 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     var finished=false;private set
     val player get()=players.getValue(currentId)
     val padTiming:Pair<Long,Int> get()=synchronized(this){clock.time to rhythmScale}
+    /** GroupPlayNext shares Music.rhythmScale across the main group and PAD slots. */
+    @Synchronized fun applyPadRhythmScale(scale:Int){require(scale>0);rhythmScale=scale}
     val pendingId get()=synchronized(this){queue.firstOrNull{it.mute==0}?.id}
     @Volatile var chordMuted=false;private set
     @Volatile var drumMuted=false;private set

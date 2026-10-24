@@ -767,6 +767,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val setPlayer=importedRhythm.takeIf{rhythmPlaying || naturalStyleTail}
                 importedPads.next(bpm.coerceIn(40,240),drumsVolume,chordVolume,
                     importedStyleSession?.takeIf{rhythmPlaying}?.padTiming,styleChangeMethod)
+                if(importedPads.scaleChanged && rhythmPlaying)importedStyleSession?.applyPadRhythmScale(importedPads.rhythmScale)
                 setPlayer?.mixOutput(drumsVolume,chordVolume)
                 val styleLeft=(setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0))+importedPads.left
                 val styleRight=(setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0))+importedPads.right

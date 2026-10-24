@@ -8,11 +8,15 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     private val players:Map<Int,ReferenceRhythmPlayer>) {
     var currentId=first;private set
     private var startedAt=0L
+    private var scaleChange:Int?=null
+    fun takeScaleChange():Int?=scaleChange.also{scaleChange=null}
     val player get()=players.getValue(currentId)
     val group get()=groups.getValue(currentId)
     fun start(time:Long,scale:Int,method:Int){
         currentId=first
-        val offset=ReferenceSectionTiming.startOffset(time,group,scale,method)
+        val newScale=ReferenceSectionTiming.scale(group,method)
+        scaleChange=newScale.takeIf{it>0}
+        val offset=ReferenceSectionTiming.startOffset(time,group,if(newScale in 1..10)newScale else scale,method)
         startedAt=time-offset
         player.startAt(offset)
     }
@@ -23,7 +27,9 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
             if(next in players){
                 val previous=player
                 currentId=next
-                val offset=ReferenceSectionTiming.startOffset(time,group,scale,method)
+                val newScale=ReferenceSectionTiming.scale(group,method)
+                scaleChange=newScale.takeIf{it>0}
+                val offset=ReferenceSectionTiming.startOffset(time,group,if(newScale in 1..10)newScale else scale,method)
                 startedAt=time-offset
                 player.startAt(offset,preserveGroupFx=player===previous,preserveVoices=player===previous)
                 if(player!==previous){player.continueGroupFxFrom(previous);player.releaseVoicesFrom(previous)}
@@ -67,6 +73,11 @@ class ImportedPadBank(sampleRate:Int=48000) {
     private val tails=BooleanArray(4)
     private val waiting=arrayOfNulls<Change>(4)
     private val clock=ReferenceStyleClock(sampleRate)
+    var rhythmScale=1000;private set
+    var scaleChanged=false;private set
+    private fun updateScale(scale:Int?){
+        if(scale!=null && scale>0){rhythmScale=scale;scaleChanged=true}
+    }
     @Volatile var pendingMask=0;private set
     @Volatile var runningMask=0;private set
     var left=0.0;private set
@@ -79,7 +90,8 @@ class ImportedPadBank(sampleRate:Int=48000) {
     fun stopAll(){repeat(4,::stop)}
     fun next(tempo:Int,drumGain:Float,chordGain:Float,styleTiming:Pair<Long,Int>?=null,method:Int=0){
         val time=styleTiming?.first ?: clock.time
-        val scale=styleTiming?.second ?: 1000
+        var scale=styleTiming?.second ?: rhythmScale
+        rhythmScale=scale;scaleChanged=false
         left=0.0;right=0.0
         repeat(4){slot->
             pending.getAndSet(slot,null)?.let{change->
@@ -91,8 +103,11 @@ class ImportedPadBank(sampleRate:Int=48000) {
                 if(change.group==null || ReferenceSectionTiming.inWindow(time,scale,tempo)){
                     val previous=players[slot]
                     players[slot]=change.player;tails[slot]=false
-                    val offset=change.group?.let{ReferenceSectionTiming.startOffset(time,it,scale,method)} ?: 0L
+                    val newScale=change.group?.let{ReferenceSectionTiming.scale(it,method)}
+                    val offset=change.group?.let{ReferenceSectionTiming.startOffset(time,it,if(newScale!=null && newScale in 1..10)newScale else scale,method)} ?: 0L
                     if(change.sequence!=null)change.sequence.start(time,scale,method) else change.player?.startAt(offset)
+                    updateScale(if(change.sequence!=null)change.sequence.takeScaleChange() else newScale)
+                    scale=rhythmScale
                     if(previous!=null){
                         change.player?.continueGroupFxFrom(previous)
                         change.player?.releaseVoicesFrom(previous)
@@ -106,7 +121,10 @@ class ImportedPadBank(sampleRate:Int=48000) {
             var player=players[slot] ?: return@repeat
             if(tails[slot])player.renderTail() else{
                 val sequence=sequences[slot]
-                if(sequence!=null){player=sequence.advance(time,scale,method,tempo);players[slot]=player}
+                if(sequence!=null){
+                    player=sequence.advance(time,scale,method,tempo);players[slot]=player
+                    updateScale(sequence.takeScaleChange());scale=rhythmScale
+                }
                 else player.next(0,tempo)
                 if(player.finished && sequence?.awaitingJump!=true){player.releaseAll();tails[slot]=true}
             }

@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun padScaleMovesTheQueuedStyleWindowWithoutResettingTransport(){
+        val session=session(lock=true)
+        try{
+            repeat(100){session.next(120)}
+            session.request(2)
+            session.applyPadRhythmScale(1500)
+            assertEquals(100L,session.padTiming.first);assertEquals(2,session.pendingId)
+            repeat(1400){session.next(120);assertEquals(1,session.currentId)}
+            session.next(120);assertEquals(2,session.currentId)
+            assertEquals(1501L,session.padTiming.first)
+        }finally{session.close()}
+    }
     @Test fun performanceMuteWaitsForRhythmWindowWithoutChangingSection(){
         val session=session(lock=true)
         repeat(100){session.next(120)}
