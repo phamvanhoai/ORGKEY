@@ -349,6 +349,43 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
     }
     val bankScope=rememberCoroutineScope()
+    var stsLoadJob by remember{mutableStateOf<kotlinx.coroutines.Job?>(null)}
+    var loadingSts by remember{mutableIntStateOf(-1)}
+    var stsLoadRevision by remember{mutableIntStateOf(0)}
+    var selectedConsoleSts by remember{mutableIntStateOf(-1)}
+    LaunchedEffect(engine){while(true){
+        selectedConsoleSts=engine.currentStsGroup?.takeIf{it.index===engine.activeSetIndex}?.selection?.slot ?: -1
+        kotlinx.coroutines.delay(100)
+    }}
+    val consoleStsSlots=remember(bankIndex,setSession?.style?.id){
+        val index=bankIndex
+        if(index==null)emptyList() else (32..35).map{section->
+            ImportedStsSelection.linkedMainSlot(index,setSession?.style?.id ?: 0,section)
+        }
+    }
+    fun pressConsoleSts(slot:Int){
+        val file=engine.activeSetFile ?: return
+        val index=engine.activeSetIndex ?: return
+        if(restoringSet)return
+        stsLoadJob?.cancel()
+        val revision=++stsLoadRevision
+        loadingSts=slot
+        stsLoadJob=bankScope.launch{
+            try{
+                val expectedSound=engine.importedInstrument
+                val expectedGroup=engine.currentStsGroup
+                val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,0,slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
+                if(stsLoadRevision==revision && engine.activeSetIndex===index && engine.activeSetFile==file && engine.awaitStsRequest(prepared,expectedSound)){
+                    preferences.edit().putString("selectedStsSet",file.name).putInt("selectedStsTrack",0).putInt("selectedStsSlot",slot).apply()
+                    selectedConsoleSts=slot;restoredSetName=engine.importedInstrumentName
+                }
+            }catch(error:Exception){
+                if(error is kotlinx.coroutines.CancellationException)throw error
+                Toast.makeText(context,"STS: ${error.message}",Toast.LENGTH_LONG).show()
+            }finally{if(stsLoadRevision==revision)loadingSts=-1}
+        }
+    }
     val performancePads=remember(bankIndex,setSession?.style?.id){ImportedStyleCatalog.pads(bankIndex,setSession?.style?.id)}
     fun pressSetPad(slot:Int){
         val bank=engine.importedPads
@@ -439,6 +476,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         chordMuted=chordMuted,drumMuted=drumMuted,
                         padsActive=padsActive,
                         padEnabled=performancePads.map{it!=null && !restoringSet},padRunning=padRunning,padWaiting=padWaiting,onPad=::pressSetPad,
+                        stsSlots=if(restoringSet)emptyList() else consoleStsSlots,selectedSts=selectedConsoleSts,loadingSts=loadingSts,onSts=::pressConsoleSts,
                         onChordMute={engine.toggleStyleMute(true)},onDrumMute={engine.toggleStyleMute(false)},
                         onSyncStart={
                             engine.configureChordSynchro(!engine.synchroStart,engine.synchroStop,preferences.getInt("chord_synchro",0))

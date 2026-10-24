@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## STS1–4 trực tiếp trên LCD mặt đàn, 24-10-2026
+
+- Thêm hàng STS1..4 dưới PAD trên InstrumentConsole; slot dùng liên kết STSIndex của style hoặc1..4 qua resolver đã đối chiếu MainActivity. Hiển thị active theo currentStsGroup và dấu... khi nạp. SET thiếu slot giữ nút disabled, không tự tạo snapshot.
+- Bấm gọi ImportedStsRequest.prepare track0 với SET CONTROL, nạp PCM trên IO rồi await commit gate; không gửi lệnh chuyển style/Play/Stop. Lưu selectedSET/track0/slot để restore hiện có tiếp nhận. Job mới hủy request cũ; revision giữ trạng thái nạp đúng cả khi bấm lại cùng slot, kiểm tra SET/expectedSound/currentGroup trước apply.
+- ImportedStsSelectionTest/ImportedStsBatchTest và build đạt, đã cài APK. Xem màn hình thiết bị sau restore: SET DJ KHA BANH theo resolver hiện tại không có Master slots tương ứng, nên chưa kiểm chứng gọi tiếng bằng nút STS trên SET này. Không sửa SET hoặc thêm file test/UI skill.
+- Hàng nút là bổ sung thao tác trực tiếp theo cơ chế KeyboardSet của gốc, không tuyên bố vị trí/kích thước giống100%. Chưa có thử nghiệm thao tác đồng thời Main-link và direct STS/đổi SET hoặc thu âm; chưa hỗ trợ phân trang toàn bộ KeyboardSet trên mặt đàn.
+
 ## Bỏ timing Pair allocation trong callback PAD, 24-10-2026
 
 - AudioEngine từng gọi session.padTiming mỗi sample, tạo Pair và boxing thời gian Long để truyền sang PAD. Thêm nextAt dùng primitive Long/Int và renderPads của session đọc clock/scale, render bank, nhận scale phản hồi dưới một session lock. Engine không gọi padTiming trong callback nữa; đường next với Pair vẫn giữ cho caller/test cũ.
