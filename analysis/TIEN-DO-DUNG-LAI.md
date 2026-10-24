@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Restore Master STS hiệu lực, 24-10-2026
+
+- Thêm lưu stsEffectiveMaster gắn file/length/mtime/slot: channel music đầy đủ numeric + FX modules, các system tuning, optional tempo và chord type/single mapping. Codec binary Base64 có giới hạn kích thước/count và từ chối dữ liệu sai, thừa byte, khácSET/slot hoặc số hệ tuning không khớp.
+- prepareFull nhận restoredMaster, dùng music/system hiệu lực để chuẩn bị part PCM trước, trả batch kèm Master để engine commit chung. Nhánh không có Master hiệu lực xóa preference cũ, tránh phục hồi nhầm trạng thái trước. Không sửa SET.
+- Kiểm tra roundtrip Master volume73/pan-21/Echo, bảng tuning0.25,tempo142,chord; sai slot, dữ liệu hỏng, số tuning khác hoặc file đổi trảnull. ImportedStsMasterTest/ImportedStsBatchTest và build đạt; cài APK thành công.
+- Chưa kiểm tra process restart trên điện thoại. Giá trị lưu là Master Prepared của lần STS đã commit, chưa theo mọi thay đổi tempo/chord/tuning thủ công sau đó; các giá trị optional null vẫn để trạng thái engine hiện có. Không lưu phase FX/voice và chưa coi restore tương đương toàn bộ APK gốc.
+
 ## Restore FX và expression effects của part STS, 24-10-2026
 
 - Mở rộng stsEffectiveParts lưu fxEnabled, thứ tự module DSP, type/enabled/realtime/payload và đầy đủ trường effect biểu cảm cùng raw bytes. Decode không thay FX bằng mode mặc định khi đã có trạng thái lưu mới; vẫn đọc bản cũ chỉ có12 trường numeric.

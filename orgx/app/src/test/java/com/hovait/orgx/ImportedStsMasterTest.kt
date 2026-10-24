@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsMasterTest {
+    @Test fun persistedMasterKeepsDspTuningTempoAndChordAndRejectsWrongSet(){
+        val file=java.io.File.createTempFile("sts-master",".set")
+        try{
+            file.writeBytes(byteArrayOf(1,2,3))
+            val bank=index.copy(tracks=listOf(ImportedTrack("Master",0,0,false,emptyList(),sts=listOf(snapshot.copy(slot=1)))))
+            val music=ImportedChannelSettings(volume=73,pan=-21,fxEnabled=true,modules=listOf(
+                ImportedFxModule(6,true,false,listOf(50,0,0,0,1,0,0,0))))
+            val state=ImportedStsMaster.Prepared(music,systems.map{it.copy(table=List(24){.25})},142,snapshot.copy(slot=1))
+            val encoded=ImportedStsMaster.encode(file,1,state)
+            assertEquals(state,ImportedStsMaster.decode(encoded,file,1,bank))
+            assertNull(ImportedStsMaster.decode(encoded,file,2,bank))
+            assertNull(ImportedStsMaster.decode(encoded+"!",file,1,bank))
+            assertNull(ImportedStsMaster.decode(encoded,file,1,bank.copy(systems=emptyList())))
+            file.appendBytes(byteArrayOf(4))
+            assertNull(ImportedStsMaster.decode(encoded,file,1,bank))
+        }finally{file.delete()}
+    }
     private val snapshot=ImportedSts("Master",false,0,0,1,0,0,142,0,1,List(12){145},
         ImportedChannelSettings(volume=45,pan=20,tune=999,transpose=3,octave=-1,releasePercent=60))
     private val systems=listOf(ImportedSystem("Original",12,1,List(24){0.0}),ImportedSystem("Scale",4,2,List(24){1.0}))

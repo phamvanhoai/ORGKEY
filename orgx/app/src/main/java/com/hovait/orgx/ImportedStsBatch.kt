@@ -68,13 +68,14 @@ object ImportedStsBatch {
         val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot,scriptOverrides)}
         return Prepared(file,index,selection,voices,master)
     }
-    fun prepareFull(file:File,index:ImportedSetIndex,slot:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},restoredModes:Map<Int,Int> = emptyMap(),restoredParts:Map<Int,ImportedSts> = emptyMap()):Prepared {
+    fun prepareFull(file:File,index:ImportedSetIndex,slot:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},restoredModes:Map<Int,Int> = emptyMap(),restoredParts:Map<Int,ImportedSts> = emptyMap(),restoredMaster:ImportedStsMaster.Prepared?=null):Prepared {
         val selection=resolve(index,slot)
         // Resolve all slots first, so a missing later Track cannot cause partial apply.
         val members=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
         val snapshots=members.associate{it.position to (restoredParts[it.position] ?: ImportedStsModeState.restore(index,it.snapshot,restoredModes[it.position]))}
-        ImportedStsMemory.check(index,snapshots.values)
-        val voices=snapshots.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,index,snapshot,scriptOverrides)}
-        return Prepared(file,index,selection,voices)
+        val loadIndex=if(restoredMaster==null)index else index.copy(musicSettings=restoredMaster.music,systems=restoredMaster.systems)
+        ImportedStsMemory.check(loadIndex,snapshots.values)
+        val voices=snapshots.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot,scriptOverrides)}
+        return Prepared(file,index,selection,voices,restoredMaster)
     }
 }

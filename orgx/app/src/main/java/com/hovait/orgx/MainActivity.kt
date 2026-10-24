@@ -108,6 +108,13 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                     val parts=ImportedStsModeState.encodeParts(group.file,group.selection.slot,group.currentSnapshots())
                     if(preferences.getString(ImportedStsModeState.partsPreferenceKey,null)!=parts)
                         preferences.edit().putString(ImportedStsModeState.partsPreferenceKey,parts).apply()
+                    group.master?.let{master->
+                        val state=ImportedStsMaster.encode(group.file,group.selection.slot,master)
+                        if(preferences.getString(ImportedStsMaster.preferenceKey,null)!=state)
+                            preferences.edit().putString(ImportedStsMaster.preferenceKey,state).apply()
+                    }
+                    if(group.master==null && preferences.contains(ImportedStsMaster.preferenceKey))
+                        preferences.edit().remove(ImportedStsMaster.preferenceKey).apply()
                 }
                 if(changed!=null){
                     engine.importedInstrumentName=changed;restoredSetName=changed
@@ -168,7 +175,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                     if(preferences.getInt("selectedStsTrack",-1)==0){
                         val modes=ImportedStsModeState.decode(preferences.getString(ImportedStsModeState.preferenceKey,"").orEmpty(),file,snapshot.slot)
                         val parts=ImportedStsModeState.decodeParts(preferences.getString(ImportedStsModeState.partsPreferenceKey,"").orEmpty(),file,snapshot.slot,index)
-                        ImportedStsRequest.Prepared.Group(ImportedStsBatch.prepareFull(file,index,snapshot.slot,ImportedDncPreferences(context)::read,modes,parts))
+                        val master=ImportedStsMaster.decode(preferences.getString(ImportedStsMaster.preferenceKey,"").orEmpty(),file,snapshot.slot,index)
+                        ImportedStsRequest.Prepared.Group(ImportedStsBatch.prepareFull(file,index,snapshot.slot,ImportedDncPreferences(context)::read,modes,parts,master))
                     }else {
                         val restored=ImportedStsModeState.restoreSingle(preferences.getString(ImportedStsModeState.singlePreferenceKey,"").orEmpty(),
                             file,preferences.getInt("selectedStsTrack",-1),index,snapshot)
