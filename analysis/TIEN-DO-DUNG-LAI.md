@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chuyển tông track có thể đưa nốt dưới0 về vùng hợp lệ, 24-10-2026
+
+- mappedNote trước thoát sớm khi mapNote trả giá trị âm, nhầm nốt đã transpose dưới0 với sentinel ngừng hòa âm. Nay chỉ bỏ cộng delta khi chordTarget thực sự báo không có hợp âm; nốt có giá trị âm do transpose vẫn cộng thay đổi41/42 trước bước kiểm tra vùng/sample.
+- ReferenceRhythmPlayerTest dựng nốt60 có mapping-72 ra-12, lệnh41 đặt transpose0 đưa kết quả về60 và phát được. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest/ImportedStyleSessionTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa thử trường hợp transpose này bằng SET thực trên thiết bị. Các giới hạn lệnh41/42 và ngân sách PCM của lượt trước vẫn áp dụng.
+
 ## TrackPitchMove43 điều khiển cao độ sampled track, 24-10-2026
 
 - Đối chiếu Track.Play43: round(KeyToPitch(Key/1000+12,500)), gán KeyPitchMove và ChangeKey toàn track. ORGX nay giải bằng round(1000*2^(Key/12000)), cập nhật pitchMove và Playback đang phát; note mới dùng pitchMove đã giữ hiện có.

@@ -79,7 +79,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var octaveDelta=0
     private fun mappedNote(note:Int):Int {
         val mapped=mapNote(note)
-        return if(!accompaniment || mapped<0)mapped else
+        return if(!accompaniment || chordTarget?.invoke()?.let{it<0}==true)mapped else
             (mapped.toLong()+transposeDelta+octaveDelta.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     }
     private var pitchMove=1000

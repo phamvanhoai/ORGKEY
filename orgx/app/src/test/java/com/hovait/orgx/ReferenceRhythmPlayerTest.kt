@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun trackTransposeCanBringAnInitiallyNegativeMappedKeyBackIntoMidiRange(){
+        val opened=mutableListOf<Int>()
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(41,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,0,1000)))),
+            {key->opened.add(key);if(key in 0..127)1000 else 0},{_,_,_->1.0},1000,
+            accompaniment=true,mapNote={it-72},storedTranspose=-72)
+        try{
+            player.next(0,120)
+            assertEquals(listOf(60),opened.distinct())
+            assertTrue(player.left>0)
+        }finally{player.close()}
+    }
     @Test fun storedTransposeAndOctaveChangeOnlySubsequentNotes(){
         val opened=mutableListOf<Int>()
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
