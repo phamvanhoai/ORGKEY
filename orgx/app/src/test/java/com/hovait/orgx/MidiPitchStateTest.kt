@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiPitchStateTest {
+    @Test fun factoryBendStartsAtCurrentPitchAndSmoothsHeldChangesOnTenMillisecondClock(){
+        val slew=MidiPitchSlew(1000)
+        assertEquals(2.0,slew.next(12.0,2),0.0)
+        repeat(10){slew.next(0.0,2)}
+        assertEquals(1.475,slew.next(0.0,2),1e-12)
+        assertEquals(1.0,slew.next(0.0,0),0.0)
+        assertEquals(.5,slew.next(-12.0,0),0.0)
+    }
     @Test fun sensitivitySurvivesWritingAndReadingMidiBeforeFirstBentNote(){
         val live=MidiPitchState();live.liveRange=7
         val initial=live.sensitivityMessages().map{message->RecordedMidiEvent(0,message[0].toInt() and 255,

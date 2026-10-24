@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Factory/MIDI áp Pitch Speed khi bend nốt đang giữ, 24-10-2026
+
+- Bổ sung MidiPitchSlew trong file MidiPitchBend hiện có: nội suy hệ số pitch theo khối10ms và pitchSpeed giống quy tắc advanceBend của SampledInstrument. Nốt mới snap về bend hiện hành, speed0 tức thời, đổi target khởi động lại khối tính delta.
+- AudioEngine factory samplePosition và oscillator frequency dùng cùng hệ số đã làm mượt; sampled SET vẫn dùng bộ xử lý riêng, percussion không áp bend. Dùng sample rate48000 tương ứng engine hiện tại; chưa tổng quát hóa đổi output rate runtime.
+- MidiPitchStateTest kiểm tra khởi đầu bend+12 ra factor2, chuyển về0 với speed2 qua10frame rồi frame11 ra1.475 ở1000Hz, speed0 snap1 và0.5. MidiPitchStateTest/MidiScriptBendStateTest/SampledInstrumentTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa đo cao độ/độ trễ factory trên điện thoại hoặc so DSP gốc, không tuyên bố chất lượng resampling tương đương native.
+
 ## Factory và MIDI thực sự đổi cao độ khi pitch bend, 24-10-2026
 
 - AudioEngine trước chỉ gọi Playback.pitchBend cho sampled SET; factory sampleBank và oscillator fallback vẫn đọc theo ageFrames/frequency nguyên nốt. MIDI playback dùng factory nên bend/RPN có thể được đọc đúng nhưng không đổi âm thực.
