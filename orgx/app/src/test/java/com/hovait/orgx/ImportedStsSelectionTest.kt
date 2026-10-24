@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsSelectionTest {
+    @Test fun mainLinkResolvesMasterWithoutAnyPreviouslySelectedTrack(){
+        val group=ImportedStyleGroup(100,0,"Style",0,false,0,0,120,stsIndices=listOf(8,9,0,0))
+        val bank=index().copy(styles=listOf(group))
+        assertEquals(8,ImportedStsSelection.linkedMainSlot(bank,100,32))
+        assertNull(ImportedStsSelection.linkedMainSlot(bank,100,33))
+        assertEquals(1,ImportedStsSelection.linkedMainSlot(bank,999,32))
+        val missingMaster=bank.copy(tracks=bank.tracks.mapIndexed{position,track->if(position==0)track.copy(group=100) else track})
+        assertNull(ImportedStsSelection.linkedMainSlot(missingMaster,100,32))
+        val onlyMember=bank.copy(tracks=bank.tracks.mapIndexed{position,track->if(position==0)track.copy(sts=emptyList()) else track})
+        assertNull(ImportedStsSelection.linkedMainSlot(onlyMember,100,32))
+    }
     @Test fun mainVariationUsesPositiveGroupStsOverrideOrItsDefaultSlot(){
         val group=ImportedStyleGroup(100,0,"Style",0,false,0,0,120,stsIndices=listOf(8,0,-1,12))
         assertEquals(listOf(8,2,3,12),(32..35).map{ImportedStsSelection.slotForMain(group,it)})

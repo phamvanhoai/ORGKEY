@@ -220,38 +220,29 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     var linkSts by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
-    var linkedStsTrack by remember{mutableIntStateOf(preferences.getInt("selectedStsTrack",-1))}
-    var linkedStsSet by remember{mutableStateOf(preferences.getString("selectedStsSet",null))}
     DisposableEffect(preferences){
         val listener=SharedPreferences.OnSharedPreferenceChangeListener{prefs,key->
             if(key=="linkMainSts")linkSts=prefs.getBoolean(key,false)
-            if(key=="selectedStsTrack")linkedStsTrack=prefs.getInt(key,-1)
-            if(key=="selectedStsSet")linkedStsSet=prefs.getString(key,null)
         }
         preferences.registerOnSharedPreferenceChangeListener(listener)
         onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
     }
-    LaunchedEffect(setSession,sectionState.first,linkSts,restoringSet,linkedStsTrack,linkedStsSet){
+    LaunchedEffect(setSession,sectionState.first,linkSts,restoringSet){
         val session=setSession
         val file=engine.activeSetFile
         val index=engine.activeSetIndex
-        if(linkSts && session!=null && file!=null && index!=null && !restoringSet &&
-            preferences.getString("selectedStsSet",null)==file.name){
+        if(linkSts && session!=null && file!=null && index!=null && !restoringSet){
             val part=session.style.sections.firstOrNull{it.id==sectionState.first}
             if(part!=null && part.section in 32..35)try{
-                val group=index.styles.firstOrNull{it.id==session.style.id} ?: part
-                val slot=ImportedStsSelection.slotForMain(group,part.section)
-                val trackIndex=linkedStsTrack
-                val snapshot=ImportedStsSelection.resolve(index,trackIndex,slot)
+                val slot=ImportedStsSelection.linkedMainSlot(index,session.style.id,part.section) ?: return@LaunchedEffect
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
                 val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
-                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,0,slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
                 if(engine.importedStyleSession===session && session.currentId==part.id &&
-                    preferences.getString("selectedStsSet",null)==file.name &&
-                    preferences.getInt("selectedStsTrack",-1)==trackIndex &&
+                    engine.activeSetFile==file && engine.activeSetIndex===index &&
                     preferences.getBoolean("linkMainSts",false) && engine.awaitStsRequest(prepared,expectedSound)){
-                    preferences.edit().putInt("selectedStsSlot",slot).apply()
+                    preferences.edit().putString("selectedStsSet",file.name).putInt("selectedStsTrack",0).putInt("selectedStsSlot",slot).apply()
                     restoredSetName=engine.importedInstrumentName
                 }
             }catch(error:Exception){
@@ -783,7 +774,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 Checkbox(checked=linked,enabled=!importing,onCheckedChange={
                     linked=it;preferences.edit().putBoolean("linkMainSts",it).apply()
                 })
-                Text("Đổi STS theo Main 1–4 trên Track đã chọn",fontSize=12.sp)
+                Text("Đổi toàn bộ STS theo Main 1–4",fontSize=12.sp)
             }
             TextButton(onClick={showStsChanges=!showStsChanges},modifier=Modifier.heightIn(min=48.dp)){
                 Text(if(showStsChanges)"ẨN SET CONTROL" else "SET CONTROL (${stsChanges.count{it}}/21)")

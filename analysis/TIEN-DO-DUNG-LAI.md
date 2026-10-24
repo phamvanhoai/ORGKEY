@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Main link chọn STS toàn nhóm bàn phím, 24-10-2026
+
+- Đối chiếu MainActivity.z1: khi Y1 bật và section Main, tính slot từ variation/GroupOf(style).STSIndex rồi gọi Music.STSPut(slot); STSPut áp Master và các main track, không chỉ track editor đang chọn.
+- Sửa Main link trong ORGX: bỏ điều kiện đã chọn STS thủ công từ đúng SET và bỏ selectedStsTrack khỏi cách chọn đích. Dùng ImportedStsRequest.prepare track0 để chuẩn bị cả group; chỉ apply nếu session/section/SET/âm sắc vẫn đúng sau nạp IO. Lưu selectedStsTrack0/SET/slot sau apply thành công để restore theo batch.
+- linkedMainSlot kiểm tra slot tồn tại duy nhất trên Master group0; slot vắng không đổi âm sắc. Nếu metadata group của style vắng, dùng slot1..4 thay vì lấy STSIndex của section con. Nhãn UI đổi thành Đổi toàn bộ STS theo Main1–4.
+- ImportedStsSelectionTest/ImportedStsRequestTest/ImportedStsBatchTest và assembleDebug đạt; cài APK thành công. Có kiểm tra Main override8, Master thiếuslot, chỉ member cóslot, thiếuMaster và fallbackdefault. Không tạo file test mới hoặc sửa SET.
+- Chưa thao tác/thu âm đối chiếu trên thiết bị. Main link vẫn kích hoạt theo section đang phát, chưa theo thời điểm bấm Main trước cửa sổ chuyển nhịp như z1. ImportedStsRequest hiện áp full snapshot ở lần đầu chưa có current group; SET CONTROL mask áp cho các chuyển tiếp có basis group, chưa bảo toàn mọi trạng thái bàn phím trước lần đầu.
+
 ## STOP giữ release tail của style, 24-10-2026
 
 - Đường setRhythmEnabled(false) từng xóa naturalStyleTail rồi reset player ở frame dừng, khiến nốt và FX đang ngân bị mất. Theo cơ chế đóng kênh CloseAll(false) của Tracks.GroupPlayNext, chuyển sang release thay vì xóa voice/buffer.
