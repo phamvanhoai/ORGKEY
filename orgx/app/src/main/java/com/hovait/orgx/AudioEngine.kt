@@ -334,8 +334,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             if(normal.size+repeated.size+extra<=limit)return
             val oldest=normal.minByOrNull{it.value.order}
             val tail=repeated.minByOrNull{it.order}
-            if(oldest!=null && (tail==null || oldest.value.order<tail.order))voices.remove(oldest.key,oldest.value)
-            else if(tail!=null)repeatedVoices.remove(tail) else return
+            if(oldest!=null && (tail==null || oldest.value.order<tail.order)){
+                if(voices.remove(oldest.key,oldest.value))oldest.value.sampledPlayback?.cut()
+            }else if(tail!=null){if(repeatedVoices.remove(tail))tail.playback.cut()}else return
         }
     }
 

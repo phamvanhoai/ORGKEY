@@ -189,6 +189,19 @@ class ImportedScriptPlaybackTest {
         assertTrue(tailObserver.left>0)
         tailObserver.forceRelease();voice.forceRelease()
     }
+    @Test fun cuttingLayeredVoiceRemovesAllChildrenFromPlayingImmediately(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,100,false))
+            .withModeScript("on(touch){play();play();return(true);}")
+        val voice=source.voice(60);voice.next(false)
+        assertTrue(voice.left>0)
+        voice.cut();assertTrue(voice.finished);assertEquals(0.0,voice.left,0.0)
+        source.withModeScript("on(touch){play(volume:Playing(released));return(true);}")
+        val observer=source.voice(60);observer.next(false)
+        assertEquals(0.0,observer.left,0.0)
+        observer.cut()
+    }
     @Test fun originalNearLegatoUsesPlayingReleasedPredicate(){
         var now=0L
         var count=0

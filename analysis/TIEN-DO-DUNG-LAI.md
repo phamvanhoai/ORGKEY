@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nốt bị thay khi đầy đa âm hủy cả DNC layers và timer, 24-10-2026
+
+- Các đường cấp đa âm trước remove entry mà không kết thúc Playback: timer DNC chưa hủy và Playing(released) có thể còn tính channel/layer bị bỏ cho đến GC. Playback.cut trước cũng chỉ forceRelease parent rồi chờ frame tiếp, không cut hết children ngay.
+- cut nay forceRelease/hủy timer, cut child/Aftertouch đệ quy, đặt finished và output0 ngay, bỏ registry entry. STS khi thay oldest hoặc reset gọi cut; Rhythm khi thay oldest (kể cả Repeat) gọi cut; AudioEngine khi thay Voice/Repeat trong budget cũng cut sau remove thành công.
+- ImportedScriptPlaybackTest kiểm tra voice script hai lớp sau cut lập tức finished/âm0 và observer Playing(released)=0. Phương thức này cùng ImportedKeyboardPartsTest/ReferenceRhythmPlayerTest/SampledInstrumentTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa stress đa âm DNC trên điện thoại hoặc chứng minh mọi đường remove/close đã hủy tài nguyên. Release mềm thông thường vẫn giữ tail, chỉ cut khi thay/kết thúc cứng ở các đường nêu trên.
+
 ## MIDI nhận RPN Fine/Coarse Tuning theo channel, 24-10-2026
 
 - MidiPitchState trước chỉ giải RPN0,0 cho bend sensitivity. Bổ sung RPN0,1 Fine Tuning14bit center8192 và RPN0,2 Coarse Tuning MSB center64. Data Entry LSB không đổi coarse; NRPN/RPN null không làm đổi tuning.

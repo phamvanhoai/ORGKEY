@@ -151,7 +151,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var forcedRelease=false
         private var countReleased=false
         private var forcedCut=false
-        internal fun cut(){forceRelease();forcedCut=true}
+        internal fun cut(){
+            forceRelease();forcedCut=true;finished=true;left=0.0;right=0.0
+            children.forEach{it.cut()};alternate?.cut()
+            playbackRegistry.remove(this)
+        }
         private var timerOwner:Long?=null
         private var timerFrames=0L
         fun forceRelease(){

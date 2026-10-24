@@ -12,7 +12,7 @@ class ImportedKeyboardParts {
     private val notes=ArrayList<Note>()
     private fun addNote(note:Note){
         while(notes.count{it.part==note.part}>=ImportedPolyphony.music){
-            notes.removeAt(notes.indexOfFirst{it.part==note.part})
+            notes.removeAt(notes.indexOfFirst{it.part==note.part}).playback.cut()
         }
         notes.add(note)
     }
@@ -118,5 +118,5 @@ class ImportedKeyboardParts {
         }
         repeated.forEach(::addNote)
     }
-    fun reset(){notes.clear();bends.fill(0.0);scriptBends.fill(null);modulation.fill(0)}
+    fun reset(){notes.forEach{it.playback.cut()};notes.clear();bends.fill(0.0);scriptBends.fill(null);modulation.fill(0)}
 }
