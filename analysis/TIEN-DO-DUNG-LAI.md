@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Volume nhạc cụ/sample bằng0 theo OpenKey, 24-10-2026
+
+- Hai nhánh Channels.OpenKey chỉ nhân Instrument.fVolume và InstSec.Volume khi cả hai khác0; ORGX trước nhân trực tiếp gây im lặng khi metadata một trong hai bằng0. regionGain nay trả1 khi có0, còn cả hai khác0 giữ product/10000.
+- Tách ImportedInstrument.layerGain để hệ số MixVol tác động độc lập, theo MixVol thay Touch trước OpenKey. Không gộp gain mix vào stored instrument volume nữa: MixVol-100 vẫn im lặng, không bị zero-sentinel biến thành unity. Volume track/mixer0 vẫn mute như trước.
+- Kiểm tra PCM các tổ hợp0/100/50 cho instrument/section,50x50 ra0.25, silent mix-100 và trackvolume0 vẫn0. SampledInstrumentTest/ReferenceRhythmPlayerTest ở lần đầu; sau tách gain, kiểm tra mục tiêu/SampledInstrumentTest và ImportedModeTest đạt; assembleDebug và cài APK thành công. Test mode cũ được đổi từ kiểm tra volume nội bộ50 sang volume100/layerGain0.5; kiểm tra PCM/stereo/envelope mode vẫn đạt.
+- Chưa đối chiếu bản thu SET thực/APK; chưa tái tạo lượng tử integer Touch khi MixVol nhân trước gain nhạc cụ. Không suy ra toàn bộ gain/mixer tương đương100%; SET không bị sửa.
+
 ## Nối nốt mở lại voice đã bắt đầu release, 24-10-2026
 
 - Channels._Connection gán Close=false khi nhận key mới. Playback.connectTo đã reconnect envelope nhưng chưa xóa forcedRelease hoặc loopExited của Loop1, khiến voice nối vẫn tự đóng/đọc tail khi next.

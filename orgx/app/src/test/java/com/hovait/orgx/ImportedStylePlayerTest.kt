@@ -5,6 +5,28 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStylePlayerTest {
+    @Test fun zeroStoredInstrumentOrSectionVolumeUsesUnscaledSampleLikeOpenKey(){
+        val file=File.createTempFile("style-zero-volume",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,32,0,32))
+            val source=index().instruments.first()
+            fun load(instrumentVolume:Int,sectionVolume:Int)=ImportedInstrumentLoader.load(file,
+                source.copy(volume=instrumentVolume,sounds=source.sounds.map{sound->
+                    sound.copy(sections=sound.sections.map{it.copy(volume=sectionVolume)})
+                }))
+            val baseline=load(100,100).sample(60,0)
+            assertTrue(baseline>0)
+            for((instrument,region) in listOf(0 to 100,100 to 0,0 to 0,0 to 50,50 to 0))
+                assertEquals(baseline,load(instrument,region).sample(60,0),1e-12)
+            assertEquals(baseline*.25,load(50,50).sample(60,0),1e-12)
+            val mode=ImportedMode("Silent mix",-1,-1,listOf(0),listOf(-100),listOf(0))
+            val silentMix=ImportedInstrumentLoader.load(file,source.copy(modes=listOf(mode)))
+            assertEquals(0.0,silentMix.sample(60,0),0.0)
+            val bank=index().let{it.copy(tracks=listOf(it.tracks.first().copy(volume=0)))}
+            val muted=ImportedStylePlayer.load(file,bank,group)
+            try{muted.next(0,120);assertEquals(0.0,muted.left,0.0)}finally{muted.close()}
+        }finally{file.delete()}
+    }
     @Test fun sustainUntilReleaseSampleDoesNotDisableItsStyle(){
         val source=index()
         val sustain=source.instruments[1].copy(sounds=source.instruments[1].sounds.map{sound->

@@ -4,6 +4,9 @@ import java.io.File
 import java.io.RandomAccessFile
 
 object ImportedInstrumentLoader {
+    /** Channels.OpenKey multiplies stored Instrument/InstSec volumes only when both are nonzero. */
+    internal fun regionGain(instrumentVolume:Int,sectionVolume:Int):Double =
+        if(instrumentVolume==0 || sectionVolume==0)1.0 else instrumentVolume.toDouble()*sectionVolume/10000
     fun modeReferenceError(instrument:ImportedInstrument):String? {
         val mode=instrument.modes.firstOrNull() ?: return null
         val references=listOf("primary" to mode.sound,"Aftertouch" to mode.aftertouch)+
@@ -121,7 +124,7 @@ object ImportedInstrumentLoader {
                     if(stereo==null)value(frame*2) else ((stereo[frame*2].toInt()+stereo[frame*2+1])/2).toShort()
                 }
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
-                    section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,
+                    section.loopStart,section.loopEnd,regionGain(instrument.volume,section.volume)*instrument.layerGain,instrument.pan+section.pan,section.loop!=0,
                     section.tune+if(instrument.type==0)channel.tune+musicSettings.tune else 0,tempoSync=section.loop==3,loopUntilRelease=section.loop==1)
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
@@ -133,7 +136,7 @@ object ImportedInstrumentLoader {
     fun layers(instrument:ImportedInstrument,aftertouch:Boolean=false):List<ImportedInstrument>{
         val mode=instrument.modes.firstOrNull() ?: return listOf(instrument)
         fun layer(sound:Int,volume:Int,pan:Int)=instrument.sounds.getOrNull(sound)?.let{selected->
-            instrument.copy(volume=instrument.volume*volume/100,pan=instrument.pan+pan,sounds=listOf(selected),modes=emptyList())
+            instrument.copy(layerGain=instrument.layerGain*volume/100,pan=instrument.pan+pan,sounds=listOf(selected),modes=emptyList())
         }
         return buildList {
             val primary=if(aftertouch && mode.aftertouch>=0)mode.aftertouch else mode.sound
