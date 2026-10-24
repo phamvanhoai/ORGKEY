@@ -5,6 +5,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStylePlayerTest {
+    @Test fun trailingLoaderCallbackStillSuppliesTheTargetChord(){
+        val file=File.createTempFile("style-chord-callback",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,32,0,32))
+            val transposer=ReferenceChordTransposer.fromTable(File("src/main/assets/Chord").readText())
+            var requested=0
+            val player=ImportedStylePlayer.load(file,index(),group,true,transposer){requested++;null}
+            try{player.next(0,120);assertTrue(requested>0)}finally{player.close()}
+        }finally{file.delete()}
+    }
     @Test fun emptyTrackSoundDoesNotDisableOtherTracksOrStyleSections(){
         val file=File.createTempFile("style-empty-sound",".pcm")
         try{
@@ -96,12 +106,36 @@ class ImportedStylePlayerTest {
             assertEquals(base.right*.5,player.right,1e-9)
         }finally{file.delete()}
     }
-    @Test fun soloTrackExcludesOtherTracksWithoutChangingStoredMute(){
+    @Test fun storedSoloDoesNotRemoveOtherTracksDuringNormalStylePlayback(){
         val source=index()
         val solo=source.copy(tracks=source.tracks.map{it.copy(solo=it.instrument==1)})
-        assertEquals(listOf("Bass"),ImportedStyleSupport.playbackTracks(solo,group,true).map{it.name})
-        assertTrue(ImportedStyleSupport.drumTracks(solo,group).isEmpty())
+        assertEquals(listOf("Drum","Bass"),ImportedStyleSupport.playbackTracks(solo,group,true).map{it.name})
+        assertEquals(listOf("Drum"),ImportedStyleSupport.drumTracks(solo,group).map{it.name})
         assertFalse(solo.tracks.first().muted)
+        assertTrue(solo.tracks.last().solo)
+        val muted=solo.copy(tracks=solo.tracks.map{if(it.name=="Drum")it.copy(muted=true) else it})
+        assertEquals(listOf("Bass"),ImportedStyleSupport.playbackTracks(muted,group,true).map{it.name})
+    }
+    @Test fun storedSoloRetainsDrumAndBassPcmForStyleAndPadGroups(){
+        val file=File.createTempFile("style-solo",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,32,0,32))
+            val source=index()
+            for(section in listOf(32,96)){
+                val part=group.copy(section=section)
+                val bank=source.copy(styles=listOf(part))
+                val savedSolo=bank.copy(tracks=bank.tracks.map{it.copy(solo=it.instrument==1)})
+                val normal=ImportedStylePlayer.load(file,bank,part,true)
+                val marked=ImportedStylePlayer.load(file,savedSolo,part,true)
+                try{
+                    normal.next(0,120);marked.next(0,120)
+                    assertTrue(marked.mixedLeft(1f,0f)>0)
+                    assertTrue(marked.mixedLeft(0f,1f)>0)
+                    assertEquals(normal.left,marked.left,1e-12)
+                    assertEquals(normal.right,marked.right,1e-12)
+                }finally{normal.close();marked.close()}
+            }
+        }finally{file.delete()}
     }
     @Test fun trackKindDeterminesMelodicAndPercussionRoutingWithoutMutatingBank(){
         val source=index()

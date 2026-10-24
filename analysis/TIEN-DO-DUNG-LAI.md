@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Không áp nhầm Solo của editor vào style/PAD, 24-10-2026
+
+- Đối chiếu Tracks.PlayNext ở playmode0 đặt _solo=false trước _PlayGroup. Bộ lọc activeTracks của ORGX từng tự kích hoạt solo nếu bất kỳ track có fSolo, làm mất các bè khác trong group type1. Nay playback group type1 không lọc theo metadata Solo; Mute và lựa chọn drum-only vẫn được giữ. Metadata SET không bị thay đổi.
+- Kiểm tra qua loader PCM ở cả section32 và96: lưu Solo ở Bass vẫn có cả drum/chord bus, tổng stereo bằng bản không có Solo; track Mute vẫn không được đưa vào danh sách phát. Đã sửa kỳ vọng Solo cũ vốn phản ánh cách triển khai ORGX thay vì playmode thường của gốc.
+- Sửa tương thích chữ ký load/loadStyle: callback targetChord giữ vị trí cuối để lời gọi Kotlin trailing lambda cũ không bị gán thành chordQuality sau khi thêm tùy chọn ở lượt trước. Callback có thể trảnull vẫn được loader gọi đúng; các lời gọi app dùng named arguments giữ nguyên.
+- Build và các kiểm tra Solo PCM/callback cùng ReferenceRhythmPlayerTest đạt; đã cài APK. Lượt chạy cả ImportedStylePlayerTest được dừng vì gồm render SET dài; kết quả báo đạt ở đây chỉ thuộc các kiểm tra mục tiêu nêu trên. Không tạo file test mới.
+- Báo cáo SET thiết bị hiện có ghi solo=false cho các track nên chưa có bằng chứng lỗi Solo ảnh hưởng SET đó; sửa này áp dụng SET có cờ Solo. Chưa đối chiếu thu âm APK, chưa dựng chế độ Solo editor/recording hoặc toàn bộ tương tác fMute của gốc.
+
 ## Nạp group nối tiếp ngoài danh sách nút style, 24-10-2026
 
 - Tracks.GroupPlayNext gọi Group(JumpGroup), tìm trên toàn SET. loadStyle trước chỉ chuẩn bị các section của style/fallback; group đích có trong SET nhưng ngoài danh sách này vẫn gây transition unavailable.

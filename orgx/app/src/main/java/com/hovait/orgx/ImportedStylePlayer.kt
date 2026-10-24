@@ -7,7 +7,7 @@ object ImportedStylePlayer {
     fun loadPad(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,
         transposer:ReferenceChordTransposer?,keyConnectionMethod:Int=0,
         scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
-        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:()->Int?,chordQuality:()->Int={2}):ImportedPadSequence {
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},chordQuality:()->Int={2},targetChord:()->Int?):ImportedPadSequence {
         val groups=listOf(group)+ImportedStyleCatalog.jumpTargets(index,listOf(group))
         require(groups.size<=64){"PAD jump chain exceeds 64 groups"}
         val byId=groups.associateBy{it.id}
@@ -20,7 +20,7 @@ object ImportedStylePlayer {
     }
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
-        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null,chordQuality:()->Int={2}):ImportedStyleSession {
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},chordQuality:()->Int={2},targetChord:(()->Int?)?=null):ImportedStyleSession {
         val complete=ImportedSectionFallback.complete(index,style)
         val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
@@ -31,7 +31,7 @@ object ImportedStylePlayer {
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
-        chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:(()->Int?)?=null,chordQuality:()->Int={2}):ReferenceRhythmPlayer {
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},chordQuality:()->Int={2},targetChord:(()->Int?)?=null):ReferenceRhythmPlayer {
         return loadSections(file,index,listOf(group),includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality).getValue(group.id)
     }
     private fun loadSections(file:File,index:ImportedSetIndex,groups:List<ImportedStyleGroup>,includeAccompaniment:Boolean,

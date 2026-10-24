@@ -46,7 +46,9 @@ object ImportedStyleSupport {
     })
     fun activeTracks(index:ImportedSetIndex,group:ImportedStyleGroup):List<ImportedTrack>{
         val tracks=index.tracks.filter{it.group==group.id}
-        val solo=tracks.any{it.solo}
+        // Tracks.PlayNext sets _solo=false for ordinary rhythm playback.
+        // Stored editor Solo flags must not remove the other style/PAD tracks.
+        val solo=group.type!=1 && tracks.any{it.solo}
         return tracks.filter{(!it.muted || it.events.any{event->event.type==14}) && (!solo || it.solo) && it.events.any{event->event.type==2}}
     }
     fun drumTracks(index:ImportedSetIndex,group:ImportedStyleGroup)=activeTracks(index,group).filter{
