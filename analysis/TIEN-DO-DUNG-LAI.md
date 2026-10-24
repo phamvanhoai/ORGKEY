@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Phân trang Keyboard Set trên LCD, 24-10-2026
+
+- ImportedStsSelection.consoleSlots giữ bốn vị trí Main/STSIndex ở đầu, rồi bổ sung tất cả slot Master đang bật chưa nằm trong bốn vị trí đó, sorted/distinct. Theo Music.STSExists, không dùng slot chỉ có ở member track làm KeyboardSet toàn nhóm.
+- Thêm STS< / STS> khi có hơn4 mục, hiển thị bốn nút mỗi trang. Trang sau ghi số slot thực, giữ active/loading và cơ chế nạp/hủy của directSTS; chuyển trang không dừng style hoặc tự phát STS. Đổi SET/style reset trang0. Vùng trạng thái NEXT chuyển thấp xuống khi có nút trang để không đè nhau.
+- Kiểm tra Master slot0/1/5/8/12 với styleoverride8: trangđầu8/null/null/null, phầncòn0/1/5/12; tập slot hiển thị đủ và không gồm member-only. ImportedStsSelectionTest/ImportedStsBatchTest và build đạt; cài APK thành công.
+- Chưa kiểm tra bố trí/tap paging trên thiết bị với SET có nhiều Master STS; chưa có KeyboardSet name browsing/phân loại như toàn bộ app gốc. Không sửa SET hoặc tạo file test mới; không tuyên bố UI giống100%.
+
 ## DNC exit giữa mode trùng tên vẫn cập nhật identity, 24-10-2026
 
 - changedMode nhận savedKey, so cả display name và key instrument/mode; mode khác index nhưng cùng tên vẫn trả tín hiệu lưu. Nhạc cụ có identity nhưng chưa lưu key cũng được migration khi chạy; không làm mất fallback nhạc cụ dựng bằng code không có identity.

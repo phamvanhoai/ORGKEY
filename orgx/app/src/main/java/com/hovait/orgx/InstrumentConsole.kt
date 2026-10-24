@@ -23,7 +23,8 @@ import androidx.compose.ui.input.pointer.pointerInput
     syncStart:Boolean=false,syncStop:Boolean=false,onSyncStart:()->Unit={},onSyncStop:()->Unit={},
     chordMuted:Boolean=false,drumMuted:Boolean=false,onChordMute:()->Unit={},onDrumMute:()->Unit={},padsActive:Boolean=false,
     padEnabled:List<Boolean> = emptyList(),padRunning:Int=0,padWaiting:Int=0,onPad:(Int)->Unit={},
-    stsSlots:List<Int?> = emptyList(),selectedSts:Int=-1,loadingSts:Int=-1,onSts:(Int)->Unit={}){
+    stsSlots:List<Int?> = emptyList(),selectedSts:Int=-1,loadingSts:Int=-1,onSts:(Int)->Unit={},
+    stsPage:Int=0,stsPages:Int=1,onStsPage:(Int)->Unit={}){
     data class Key(val x:Float,val y:Float,val w:Float,val h:Float,val label:String,val active:Boolean=false,val enabled:Boolean=true,val action:()->Unit)
     val keys=mutableListOf<Key>()
     keys+=Key(8f,12f,110f,26f,"ORGX / hovait",action=onMenu)
@@ -50,8 +51,13 @@ import androidx.compose.ui.input.pointer.pointerInput
     }
     if(!stylePage && stsSlots.isNotEmpty())repeat(4){position->
         val slot=stsSlots.getOrNull(position)
-        keys+=Key(490f+position*68f,147f,63f,25f,"STS ${position+1}${if(slot!=null && loadingSts==slot)"..." else ""}",
+        val number=if(stsPage==0)position+1 else slot ?: (stsPage*4+position+1)
+        keys+=Key(490f+position*68f,147f,63f,25f,"STS $number${if(slot!=null && loadingSts==slot)"..." else ""}",
             active=slot!=null && selectedSts==slot,enabled=slot!=null,action={slot?.let(onSts)})
+    }
+    if(!stylePage && stsPages>1){
+        keys+=Key(235f,143f,42f,20f,"STS <",enabled=stsPage>0,action={onStsPage(-1)})
+        keys+=Key(281f,143f,42f,20f,"STS >",enabled=stsPage+1<stsPages,action={onStsPage(1)})
     }
     if(stylePage){
         keys+=Key(680f,16f,80f,18f,"EXIT",action=onExit)
@@ -96,7 +102,7 @@ import androidx.compose.ui.input.pointer.pointerInput
         text("OCTAVE $octave",492f,98f,12f,0xFFDDDDDD.toInt())
         text("CHORD   $chord",239f,131f,16f,0xFF8CDEA4.toInt())
         val nextLabel=pending?.let{session?.section(it)}?.let{"NEXT ${ImportedStyleCatalog.label(it.section)}"}
-        text(nextLabel ?: if(playing && temporaryLoop)"RUNNING / TEMP LOOP" else if(playing)"RUNNING" else "READY",239f,164f,12f,0xFFDDDDDD.toInt())
+        text(nextLabel ?: if(playing && temporaryLoop)"RUNNING / TEMP LOOP" else if(playing)"RUNNING" else "READY",239f,if(stsPages>1)176f else 164f,12f,0xFFDDDDDD.toInt())
         if(stsSlots.isEmpty())text(pending?.let{p->session?.style?.sections?.firstOrNull{it.id==p}?.let{"NEXT  ${ImportedStyleCatalog.label(it.section)}"}} ?: "SELECT STYLE / VOICE ON DISPLAY",490f,157f,11f,0xFFFFD36A.toInt())
         if(stylePage){
             rect(230f,16f,534f,162f,Color(0xFF152D3D))

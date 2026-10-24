@@ -2,6 +2,12 @@ package com.hovait.orgx
 
 /** Snapshot identity is its track index and original slot, never its display name. */
 object ImportedStsSelection {
+    fun consoleSlots(index:ImportedSetIndex,styleId:Int):List<Int?> {
+        val first=(32..35).map{linkedMainSlot(index,styleId,it)}
+        val extra=index.tracks.firstOrNull()?.takeIf{it.group==0}?.sts.orEmpty()
+            .map{it.slot}.filter{it>=0 && it !in first}.distinct().sorted()
+        return first+extra
+    }
     /** MainActivity.z1 calls Music.STSPut for Master, independently of the editor's selected Track. */
     fun linkedMainSlot(index:ImportedSetIndex,styleId:Int,section:Int):Int? {
         require(section in 32..35){"STS linking requires a Main section"}

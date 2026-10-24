@@ -374,10 +374,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     }}
     val consoleStsSlots=remember(bankIndex,setSession?.style?.id){
         val index=bankIndex
-        if(index==null)emptyList() else (32..35).map{section->
-            ImportedStsSelection.linkedMainSlot(index,setSession?.style?.id ?: 0,section)
-        }
+        if(index==null)emptyList() else ImportedStsSelection.consoleSlots(index,setSession?.style?.id ?: 0)
     }
+    var consoleStsPage by remember(bankIndex,setSession?.style?.id){mutableIntStateOf(0)}
+    val consoleStsPages=((consoleStsSlots.size+3)/4).coerceAtLeast(1)
     fun pressConsoleSts(slot:Int){
         val file=engine.activeSetFile ?: return
         val index=engine.activeSetIndex ?: return
@@ -493,7 +493,9 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         chordMuted=chordMuted,drumMuted=drumMuted,
                         padsActive=padsActive,
                         padEnabled=performancePads.map{it!=null && !restoringSet},padRunning=padRunning,padWaiting=padWaiting,onPad=::pressSetPad,
-                        stsSlots=if(restoringSet)emptyList() else consoleStsSlots,selectedSts=selectedConsoleSts,loadingSts=loadingSts,onSts=::pressConsoleSts,
+                        stsSlots=if(restoringSet)emptyList() else consoleStsSlots.drop(consoleStsPage*4).take(4),selectedSts=selectedConsoleSts,loadingSts=loadingSts,onSts=::pressConsoleSts,
+                        stsPage=consoleStsPage,stsPages=if(restoringSet)1 else consoleStsPages,
+                        onStsPage={consoleStsPage=(consoleStsPage+it).coerceIn(0,consoleStsPages-1)},
                         onChordMute={engine.toggleStyleMute(true)},onDrumMute={engine.toggleStyleMute(false)},
                         onSyncStart={
                             engine.configureChordSynchro(!engine.synchroStart,engine.synchroStop,preferences.getInt("chord_synchro",0))

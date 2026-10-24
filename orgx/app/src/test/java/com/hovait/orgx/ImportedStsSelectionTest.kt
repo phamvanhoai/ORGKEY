@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsSelectionTest {
+    @Test fun consoleIncludesEveryEnabledMasterSlotAfterTheFourStyleAssignments(){
+        val group=ImportedStyleGroup(100,0,"Style",0,false,0,0,120,stsIndices=listOf(8,0,0,0))
+        val base=index()
+        val master=base.tracks[0].copy(sts=listOf(snapshot(12,1),snapshot(8,1),snapshot(0,1),snapshot(1,1),snapshot(5,1)))
+        val bank=base.copy(styles=listOf(group),tracks=listOf(master,base.tracks[1]))
+        assertEquals(listOf(8,null,null,null,0,1,5,12),ImportedStsSelection.consoleSlots(bank,100))
+        assertEquals(master.sts.map{it.slot}.toSet(),ImportedStsSelection.consoleSlots(bank,100).filterNotNull().toSet())
+    }
     @Test fun mainLinkResolvesMasterWithoutAnyPreviouslySelectedTrack(){
         val group=ImportedStyleGroup(100,0,"Style",0,false,0,0,120,stsIndices=listOf(8,9,0,0))
         val bank=index().copy(styles=listOf(group))
