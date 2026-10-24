@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Byte dự phòng STS cũ không phải độ dài tên, 24-10-2026
+
+- STS.ReadFromStream trước1.4.5 chỉ readByte và đặt Name rỗng; parser ORGX từng đọc byte này thành legacyLength rồi skip tương ứng, lệch trường nếu reserved khác0. Đã bỏ skip; nhánh tên length-prefixed1.4.5+ giữ nguyên.
+- Kiểm tra binary SET1.2.8 tối thiểu, slot1 bật/13flags, reserved7 không có tên: đọc đúng MIDI513/instrument27/system3/mode2/tempo142/data2=9, keyarea24..100 và groupcount cuối file. Kiểm tra đọc SET mẫu hiện có và ImportedStsBatchTest, assembleDebug đạt; cài APK thành công. Không sửa SET hoặc thêm file test mới.
+- STSExists gốc xác định bằng Master.Enable; không tự tạo STS cho slot tắt. Chưa chứng minh reserved byte của SET hiện tại khác0 hoặc đây là nguyên nhân nút STS disabled; chưa thao tác/thu âm so APK, không tuyên bố mọi STS thiếu đã được sửa.
+
 ## STS1–4 trực tiếp trên LCD mặt đàn, 24-10-2026
 
 - Thêm hàng STS1..4 dưới PAD trên InstrumentConsole; slot dùng liên kết STSIndex của style hoặc1..4 qua resolver đã đối chiếu MainActivity. Hiển thị active theo currentStsGroup và dấu... khi nạp. SET thiếu slot giữ nút disabled, không tự tạo snapshot.

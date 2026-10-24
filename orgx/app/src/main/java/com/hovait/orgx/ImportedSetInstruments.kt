@@ -130,9 +130,9 @@ object ImportedSetInstruments {
                 require(nameLength.toLong()<=f.length()-f.filePointer)
                 bytes(nameLength).toString(Charsets.UTF_8)
             }else{
-                val legacyLength=f.readUnsignedByte()
-                require(legacyLength.toLong()<=f.length()-f.filePointer)
-                skip(legacyLength.toLong())
+                // STS.ReadFromStream before 1.4.5 discards one reserved byte;
+                // it is not a string length and has no following name bytes.
+                f.readUnsignedByte()
                 ""
             }
             val midiChannel=f.readUnsignedByte() or (f.readUnsignedByte() shl 8)
