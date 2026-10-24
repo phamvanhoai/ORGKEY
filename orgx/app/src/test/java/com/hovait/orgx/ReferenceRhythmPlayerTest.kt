@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun resetAndCloseRemoveScriptLayersFromPlayingRegistry(){
+        for(close in listOf(false,true)){
+            val sound=SampledInstrument(listOf(InstrumentRegion(60,
+                SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+                envelope=ImportedEnvelope(0,0,100,100,false))
+                .withModeScript("on(touch){play();play();return(true);}")
+            val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),
+                {10000},{_,_,_->0.0},1000,sampled=sound)
+            try{
+                player.next(0,120);assertTrue(player.left>0)
+                if(close)player.close() else player.reset()
+                sound.withModeScript("on(touch){play(volume:Playing(released));return(true);}")
+                val observer=sound.voice(60);observer.next(false)
+                assertEquals(0.0,observer.left,0.0);observer.cut()
+            }finally{player.close()}
+        }
+    }
     @Test fun primitivePadTimingPreservesPcmAndTransportAcrossTempoChangesAndStop(){
         val first=ImportedPadBank(1000);val second=ImportedPadBank(1000)
         val group=ImportedStyleGroup(1,100,"Pad",96,true,0,1500,120,meterX=3,meterY=4)

@@ -412,7 +412,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             voices.remove(previous.key,voice)
             voice.note=note;voice.releasing=false;voice.pendingSustain=false
             voice.sampledPlayback?.connectTo(checkNotNull(sound).keyboardNote(note),connection)
-            voices[key]=voice
+            voices.put(key,voice)?.takeIf{it!==voice}?.sampledPlayback?.cut()
             captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
             return
         }
@@ -433,7 +433,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 // Channels.Open allocates another channel while the previous
                 // note completes its release. Keep that PCM/envelope alive.
                 repeatedVoices.add(RepeatedVoice(retiring.imported,tail,retiring.velocity,channel,retiring.order,noteOff=true))
-            }
+            }else tail?.cut()
             reserveVoice(channel,playback,1)
             voices[key]=voice
         }

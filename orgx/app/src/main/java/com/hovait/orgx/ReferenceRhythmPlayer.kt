@@ -163,8 +163,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     fun mixedRight(drumGain:Float,chordGain:Float):Double =
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
-    fun close(){fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
-    fun reset(){resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    private fun discardVoices(){voices.values.forEach{it.playback?.cut()};voices.clear()}
+    fun close(){discardVoices();left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0;fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
+    fun reset(){resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;discardVoices();eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     /** Track.Start rewinds events, closes old notes in release, and retains channel controls. */
     fun restartAt(referenceTime:Long){
         require(referenceTime>=0)

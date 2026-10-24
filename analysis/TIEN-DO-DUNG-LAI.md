@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Reset/đóng Rhythm dọn Playback DNC, 24-10-2026
+
+- ReferenceRhythmPlayer.reset trước voices.clear không cut; close chỉ đóng FX/children, còn voice script/layers sống trong registry. Thêm discardVoices cắt từng Playback rồi clear; reset/close dùng chung. close xóa output còn giữ trong player.
+- AudioEngine khi cùng key có nốt mới nhưng entry cũ không đủ điều kiện chuyển release tail, nay cut Playback bị bỏ. Nhánh connection ghi đè một entry khác ở key đích cũng cut entry đó. Các tail đã release chuyển quyền sở hữu vẫn không cut, và releaseVoicesFrom giữ nguyên semantics chuyển section.
+- ReferenceRhythmPlayerTest thêm hai đường reset/close với script hai lớp: sau thao tác, observer Playing(released) ra0. ReferenceRhythmPlayerTest/ImportedKeyboardPartsTest/ReferenceStyleTransitionTest/ImportedStyleSessionTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa stress timer/đổi voice qua Android trên điện thoại. Nhiều noteOn đồng phím chưa nhả vẫn theo chính sách thay entry, chưa tái tạo nhiều channel đồng phím độc lập.
+
 ## Nốt bị thay khi đầy đa âm hủy cả DNC layers và timer, 24-10-2026
 
 - Các đường cấp đa âm trước remove entry mà không kết thúc Playback: timer DNC chưa hủy và Playing(released) có thể còn tính channel/layer bị bỏ cho đến GC. Playback.cut trước cũng chỉ forceRelease parent rồi chờ frame tiếp, không cut hết children ngay.
