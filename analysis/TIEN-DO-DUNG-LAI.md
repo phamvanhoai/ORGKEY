@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Sampled track gửi release đúng tick dù pedal đang bật, 24-10-2026
+
+- Event1 của ReferenceRhythmPlayer trước giữ pendingRelease cho mọi voice nếu pedalDown, trì hoãn cả script release. Nay sampled Playback nhận release ngay, envelope tiếp tục lấy pedalDown để chọn tốc độ giảm; nhánh không Playback giữ cơ chế cũ.
+- ReferenceRhythmPlayerTest dùng pedalOn0/noteOn0/noteOff10 với script release stop(id:id,cut), xác minh có âm trước và0 tại tick10 dù chưa pedalOff. ReferenceRhythmPlayerTest/ImportedEnvelopeTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa nghe PAD/Style thực hoặc đối chiếu pedal mode riêng từng track trên điện thoại. Đây là đồng bộ đường sampled track với semantics Close/envelope, không tuyên bố mọi pedal mode gốc hoàn tất.
+
 ## Nốt mới trong track nhận mức Modulation hiện hành, 24-10-2026
 
 - ReferenceRhythmPlayer giữ modulationLevel sau event46/56, áp cho Playback mới sau khởi tạo touch/pedal; trước chỉ Playback đã tồn tại nhận modulate. resetExpression xóa trạng thái, restartAt giữ như các control track khác.
