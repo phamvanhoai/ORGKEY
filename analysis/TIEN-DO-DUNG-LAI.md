@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Phát MIDI dùng Volume, Expression và Pan riêng từng channel, 24-10-2026
+
+- MidiFile giữ CC7/10/11 thay vì bỏ. Thêm MidiChannelMix trong file MidiPan hiện có, trạng thái16channel độc lập dùng atomic, mặc định volume100/expression127/pan64, reset khi mở lượt phát mới.
+- AudioEngine dispatch controller vào mix; render áp volume*expression và pan riêng L/R cho MIDI melodic/percussion đang phát, không thay đổi live keyboard. Nhận thay đổi cả với nốt đã mở vì gain đọc mỗi frame. Không thay thế hay giả định toàn bộ cách mix/volume curve của APK gốc.
+- VoiceMixerTest kiểm tra độc lập channel, expression64, pan hai biên và reset. VoiceMixerTest/MidiIntegrationTest/MidiSustainTest/MidiMalformedTest và assembleDebug đạt; không thêm file test/log hoặc sửa SET. Chưa nghe MIDI stereo trên máy; chưa bổ sung reset expression qua CC121 hoặc ghi các controller này từ đầu vào ngoài trong lượt này. Default volume100 làm mức MIDI trước đây unity giảm về100/127 trước gain tổng, cần đối chiếu mức âm thực với APK gốc.
+
 ## Phát MIDI nhận All Sound Off CC120 theo channel, 24-10-2026
 
 - Bộ đọc trước bỏ CC120. Nay giữ event trong MidiFile, resolver xóa active/pending của channel đó để không sinh noteOff trì hoãn từ sustain sau lệnh cắt, đồng thời giữ CC120 cho playback.

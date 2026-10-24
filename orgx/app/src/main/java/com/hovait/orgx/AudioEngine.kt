@@ -227,6 +227,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
     private val liveModulation=IntArray(16)
     private val playbackModulation=IntArray(16)
+    private val playbackMix=MidiChannelMix()
     fun midiModulation(value:Int,channel:Int=0,playback:Boolean=false){
         require(value in 0..127 && channel in 0..15)
         (if(playback)playbackModulation else liveModulation)[channel]=value
@@ -533,6 +534,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Synchronized fun playMidi(song:MidiSong,onComplete:()->Unit){
         stopMidi()
         pitchState.resetPlayback()
+        playbackMix.reset()
         val session=midiSessionGate.replace()
         val playback=thread(start=false,name="ORGX-MIDI"){
             try {
@@ -549,6 +551,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     }
                     if(!midiSessionGate.runIfCurrent(session){
                         when(event.controller){
+                            7,10,11->playbackMix.controller(event.channel,checkNotNull(event.controller),event.velocity)
                             120->voices.entries.filter{MidiVoiceKey.isChannel(it.key,event.channel,true)}
                                 .forEach{voices.remove(it.key,it.value)}
                             6,38,98,99,100,101->{
@@ -817,12 +820,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     voice.gain=if(voice.sampledPlayback!=null)1f else VoiceEnvelope.next(voice.gain,voice.releasing,voice.instrument == -1,sampleRate)
                     val naturalDecay = if (voice.instrument == 0 && voice.imported==null) exp(-voice.ageFrames.toDouble() / sampleRate * 0.32) else 1.0
                     val gain=voice.gain.coerceAtLeast(0f)*voice.velocity*naturalDecay
+                    val gainLeft=gain*(if(voice.playback)playbackMix.gain((note-2048)/128,false) else 1.0)
+                    val gainRight=gain*(if(voice.playback)playbackMix.gain((note-2048)/128,true) else 1.0)
                     if(voice.instrument == -1){
-                        midiDrumLeft+=sample*gain;midiDrumRight+=sampleRight*gain
+                        midiDrumLeft+=sample*gainLeft;midiDrumRight+=sampleRight*gainRight
                     } else if(voice.imported!=null){
                         importedKeyboardMixer.add(voice.imported,sample*gain,sampleRight*gain)
                     } else {
-                        mixedLeft+=sample*gain;mixedRight+=sampleRight*gain;melodicCount++
+                        mixedLeft+=sample*gainLeft;mixedRight+=sampleRight*gainRight;melodicCount++
                     }
                     voice.phase = (voice.phase + 2.0 * PI * frequency / sampleRate) % (2.0 * PI)
                     voice.ageFrames++
