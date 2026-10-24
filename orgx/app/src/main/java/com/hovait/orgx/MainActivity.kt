@@ -332,8 +332,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var instrument by remember { mutableIntStateOf(InstrumentCatalog.validIndex(preferences.getInt("instrument", 0))) }
     var chord by remember { mutableIntStateOf(ChordSelection.resolve(chordNames, preferences.getString("chordName", null), preferences.getInt("chord", 0))) }
     var leftChord by remember{mutableStateOf(preferences.getBoolean("leftChord",false))}
+    var noHeldChord by remember{mutableStateOf(false)}
     LaunchedEffect(engine){while(true){
         if(!engine.autoChord)engine.detectedKeyboardChord?.let{if(it in chordNames.indices){chord=it;engine.chordIndex=it}}
+        noHeldChord=engine.selectedSetChord()==-1
         kotlinx.coroutines.delay(40)
     }}
     var style by remember { mutableIntStateOf(StyleSelection.resolve(engine.styleIds,if(preferences.contains("styleId"))preferences.getInt("styleId",0) else null,preferences.getInt("style",0))) }
@@ -483,7 +485,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Bg, surface = Panel)) {
         Box(Modifier.fillMaxSize().background(Bg).systemBarsPadding()) {
             Column(Modifier.fillMaxSize().padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else chordNames[chord]
+                val chordDisplay=if(autoChord) "AUTO ${listOf("POP","BALLAD","DANCE")[progression]}" else if(noHeldChord)"—" else chordNames[chord]
                 Box(Modifier.weight(.55f).fillMaxWidth()){
                     InstrumentConsole(Modifier.fillMaxSize(),if(restoringSet) "LOADING SAVED SET..." else setSession?.displayName ?: if(bankIndex!=null) "SELECT SET STYLE" else engine.styleNames[style],
                         engine.importedInstrumentName ?: restoredSetName ?: InstrumentCatalog.names[instrument],chordDisplay,bpm,octave,

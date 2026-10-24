@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Hiển thị trạng thái không giữ hợp âm, 24-10-2026
+
+- Khi tắt Chord Memory và nhả hết phím hợp âm, engine đã trả -1 để ngừng phần hòa âm nhưng LCD vẫn hiện hợp âm cũ. LCD nay lấy thêm trạng thái này từ engine và hiển thị dấu —; không thay đổi lựa chọn hợp âm thủ công hoặc Auto Chord.
+- Sửa setter đặt nhầm: chordControl kiểm tra 0..4, chordQuality kiểm tra 0..2, tương ứng các giá trị engine hỗ trợ.
+- assembleDebug và KeyboardChordInputTest/ReferenceRhythmPlayerTest đã đạt; APK đã cài lên thiết bị. Chưa xác minh bằng thao tác chạm và nghe so với APK gốc cho thay đổi LCD này. Không sửa file SET và không tạo file test mới.
+
 ## Track giữ phiên bản riêng khi đọc STS, 24-10-2026
 
 - Track.ReadFromStream gốc dùng fVersion của track để quyết định STSCount13 trước1.2.9, có STS hay không và cách đọc tên snapshot. ORGX trước dùng musicVersion của container. Parser nay lấy metadata version của track, fallback SET version nếu rỗng và lưu ImportedTrack.sourceVersion.
