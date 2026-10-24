@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Giữ nốt sustain khi retrigger cùng phím, 24-10-2026
+
+- Voice SET đã noteOff nhưng pendingSustain nay được chuyển sang danh sách âm phụ khi cùng key có noteOn mới, thay vì bị bỏ. Giữ Playback/gain/channel/order, cùng ngân sách đa âm với nốt mới.
+- Âm phụ giữ trạng thái sustainHeld, hoãn noteOff đến khi pedal tắt; pedal event được chuyển đến cả âm phụ để script nhận thay đổi. Pedal tắt xóa latch giữ của âm cũ, không tự giữ lại vì bật pedal kế tiếp trước frame audio.
+- SampledInstrumentTest/ImportedKeyboardPartsTest/ImportedKeyboardMixerTest đạt, assembleDebug cuối đạt sau bổ sung latch. Không thêm file test/log hoặc sửa SET. Chưa xác minh vòng retrigger/pedal qua AudioEngine Android hoặc nghe so APK trên máy. NoteOn cùng phím khi chưa nhả vẫn chưa là nhiều voice độc lập; không coi mô hình retrigger hoàn tất.
+
 ## Nhấn lại cùng phím không bỏ mất release tail của Voice SET, 24-10-2026
 
 - AudioEngine dùng map theo note/channel nên entry Voice cũ bị bỏ khi retrigger cùng phím. Nếu entry đó đã nhả và Playback còn release, PCM/envelope bị cắt thay vì giữ kênh như Channels.Open.
