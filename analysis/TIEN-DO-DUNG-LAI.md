@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nhóm section chung0 không tạo style thừa khi có style khai báo, 24-10-2026
+
+- Catalog trước bổ sung mọi parent suy ra từ section sau Type0, gồm0; SET có nhóm dùng chung0 vì vậy có thể hiện thêm Style0 ngoài các style khai báo. Danh sách phím style gốc duyệt các group Type0 sau Master, không biến kho section0 thành mục riêng.
+- Khi có style Type0 khai báo, không thêm parent0 từ sectionsByParent. Section chung vẫn được resolve vào style thiếu phần. Index legacy/partial chỉ có nhóm0 vẫn giữ một style0 để không mất đường phát tương thích hiện có.
+- ImportedSectionFallbackTest chỉnh mong đợi chỉ100/200 và bổ sung index chỉgroup0 vẫn nạp catalog được. ImportedSectionFallbackTest/ImportedStyleSessionTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa so danh sách cuối với APK gốc trên cùng SET. Đối chiếu thêm Track.Play13 gọi CloseAll(false), nên không sửa mute theo nhận định ép fast-release ban đầu của lượt này.
+
 ## Track pitchbend cập nhật DNC trước note đầu và không nhân callback theo lớp, 24-10-2026
 
 - ImportedScriptSession thêm pitchBend có cache kết quả/mức tương tự modulation; Playback dùng kết quả chung để áp effect/handled cho từng voice mà không chạy lại script mỗi layer. Event53 của track gọi updateScriptPitchBend cấp sound trước khi dispatch đến voice; forceEvent giữ callback cho mỗi event53 thật kể cả cùng level.

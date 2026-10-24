@@ -31,7 +31,8 @@ object ImportedStyleCatalog {
         val parents=LinkedHashSet<Int>()
         index.styles.filter{it.type==0 && it.id!=0 && it.id!=Int.MIN_VALUE}.forEach{parents.add(it.id)}
         // Retain support for older/partial indexes without explicit parent metadata.
-        sectionsByParent.keys.filter{it!=Int.MIN_VALUE}.forEach{parents.add(it)}
+        val declaredStyles=parents.isNotEmpty()
+        sectionsByParent.keys.filter{it!=Int.MIN_VALUE && (it!=0 || !declaredStyles)}.forEach{parents.add(it)}
         return parents.map{parent->
             val sections=sectionsByParent[parent].orEmpty()
             ImportedSectionFallback.complete(index,ImportedStyleDefinition(parent,names[parent]?.name?.takeIf{it.isNotBlank()} ?: "Style $parent",sections.sortedBy{it.section}))

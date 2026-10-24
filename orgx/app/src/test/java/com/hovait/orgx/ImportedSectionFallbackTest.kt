@@ -12,10 +12,16 @@ class ImportedSectionFallbackTest {
         val index=ImportedSetIndex(emptyList(),listOf(parent(100,"Shared"),parent(200,"Local Intro"),
             parent(Int.MIN_VALUE,"Recording"),intro,shared))
         val styles=ImportedStyleCatalog.styles(index)
-        assertEquals(listOf(100,200,0),styles.map{it.id})
+        assertEquals(listOf(100,200),styles.map{it.id})
         assertEquals(listOf(shared),styles.first().sections)
         assertEquals("Shared",styles.first().name)
         assertEquals(listOf(intro,shared),styles[1].sections)
+    }
+    @Test fun legacyIndexWithOnlyGroupZeroSectionsStillHasAPlayableStyle(){
+        val main=part(1,0,32)
+        val styles=ImportedStyleCatalog.styles(ImportedSetIndex(emptyList(),listOf(main)))
+        assertEquals(listOf(0),styles.map{it.id})
+        assertEquals(listOf(main),styles.single().sections)
     }
     @Test fun catalogKeepsStyleWhoseMainComesFromGroupZero(){
         val parent=ImportedStyleGroup(100,0,"Shared Main Style",0,false,0,0,120,type=0)
