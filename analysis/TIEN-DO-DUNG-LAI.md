@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Bảng điều khiển giữ style đang chọn, tempo đổi lúc bàn giao, 24-10-2026
+
+- Sau khi thêm chờ cửa sổ nhịp, vòng đồng bộ UI vẫn ghi đè setSession bằng session đang phát cũ mỗi100ms. Người dùng có thể thấy danh sách/nút quay về style cũ trong khi requestStyleSection đã nhắm style mới. AudioEngine.selectedStyleSession nay trả pending selection nếu có (kể cả null khi clear), nếu không trả session đang phát. UI và điều kiện nút Play sử dụng lựa chọn này.
+- UI theo dõi riêng audibleStyleSession để chạy lại Main STS link khi session mới thực sự commit; guard identity engine.importedStyleSession vẫn giữ, không cho kết quả nạp của style cũ ghi đè. Chưa xác minh STS thật trên SET có Master phù hợp.
+- Hai đường chọn style trước gán BPM ngay sau load. Nay chỉ gán sớm khi đang dừng; khi đang chạy, BPM đổi qua takeTempoChange trong audio thread tại bàn giao. Giữ trạng thái tempo lock và tempo thủ công hiện có.
+- assembleDebug và41 kiểm tra chuyển style/section hiện có đạt. Các kiểm tra này xác minh nền session, không mô phỏng Compose hoặc Android AudioEngine; chưa kiểm tra thao tác chọn style trong thời gian chờ trên thiết bị. Không sửa SET, không tạo file test/log mới.
+
 ## Bàn giao style tại mốc nhịp, giữ Fill/Break tới cuối, 24-10-2026
 
 - MainActivity.B1 gọi y1 để xếp Rhythm khi đổi style đang chạy; nếu đang Fill/Break thì gửi RhythmJump. Tracks.PlayNext/GroupPlayNext xử lý yêu cầu tại cửa sổ rhythmScale, Jump khi phần không lặp hoàn tất. ORGX trước consume pendingStyle ngay khi load xong trên audio thread, gây đổi giữa nhịp.

@@ -425,6 +425,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private data class StyleSelection(val session:ImportedStyleSession?,val bank:ImportedSetIndex?=null,val presses:MutableList<SectionPress> = mutableListOf(),val mutes:MutableList<Boolean> = mutableListOf())
     private val pendingStyle=java.util.concurrent.atomic.AtomicReference<StyleSelection?>(null)
     private val styleSelectionLock=Any()
+    /** The console controls the requested style while the previous style finishes. */
+    val selectedStyleSession:ImportedStyleSession? get()=synchronized(styleSelectionLock){
+        val selection=pendingStyle.get()
+        if(selection!=null)selection.session else importedStyleSession
+    }
     private val styleTempoMemory=ImportedStyleTempoMemory()
     private var playingStyleBank:ImportedSetIndex?=null
     @Volatile var styleChangeMethod=0;private set

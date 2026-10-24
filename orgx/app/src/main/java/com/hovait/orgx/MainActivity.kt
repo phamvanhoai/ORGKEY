@@ -259,7 +259,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var octave by remember { mutableIntStateOf(preferences.getInt("octave", 4)) }
     var bpm by remember { mutableIntStateOf(preferences.getInt("bpm", 120)) }
     var playing by remember { mutableStateOf(false) }
-    var setSession by remember{mutableStateOf(engine.importedStyleSession)}
+    var setSession by remember{mutableStateOf(engine.selectedStyleSession)}
+    var audibleStyleSession by remember{mutableStateOf(engine.importedStyleSession)}
     var styleAutoFill by remember{mutableStateOf(preferences.getBoolean("styleAutoFill",false))}
     var syncStart by remember{mutableStateOf(engine.synchroStart)}
     var syncStop by remember{mutableStateOf(engine.synchroStop)}
@@ -286,7 +287,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
     }
     val linkedMainPart=mainStsTarget?.takeIf{it.first===setSession}?.second ?: sectionState.first
-    LaunchedEffect(setSession,linkedMainPart,mainStsRevision,linkSts,restoringSet,directStsOverride){
+    LaunchedEffect(setSession,audibleStyleSession,linkedMainPart,mainStsRevision,linkSts,restoringSet,directStsOverride){
         val session=setSession
         val requestRevision=mainStsRevision
         val file=engine.activeSetFile
@@ -322,7 +323,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         padsActive=padRunning!=0 || padWaiting!=0
         restoredSetName=engine.importedInstrumentName
         bankIndex=engine.activeSetIndex
-        setSession=engine.importedStyleSession
+        audibleStyleSession=engine.importedStyleSession
+        setSession=engine.selectedStyleSession
         temporaryLoop=setSession?.temporaryLoop==true
         setSession?.let{sectionState=it.currentId to it.pendingId;bpm=engine.bpm}
         kotlinx.coroutines.delay(100)
@@ -447,7 +449,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 preferences.edit().putString("selectedStyleSet",file.name).putInt("selectedSetStyleId",loaded.style.id).putInt("bankMode",mode).apply()
                 bankMode=mode
                 val tempo=loaded.selectedTempo
-                if(tempo>0 && !engine.styleTempoLock){bpm=tempo.coerceIn(40,240);engine.bpm=bpm}
+                if(tempo>0 && !engine.styleTempoLock && !engine.rhythmPlaying){bpm=tempo.coerceIn(40,240);engine.bpm=bpm}
                 if(closeBrowser)browseStyles=false
                 bankStatus=""
             }catch(error:Exception){
@@ -509,7 +511,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         },
                         onMenu={closePages();showTools=true},onStyle={closePages();browseVoices=false;browseStyles=true;bankPage=0;bankStatus=""},
                         onVoice={closePages();browseStyles=false;browseVoices=true;bankPage=0;bankStatus=""},onMixer={closePages();showMixer=true},onChord={closePages();showChords=true},
-                        onPlay={if(!restoringSet && (bankIndex==null || engine.importedStyleSession!=null)){
+                        onPlay={if(!restoringSet && (bankIndex==null || engine.selectedStyleSession!=null)){
                             if(engine.rhythmPlaying || engine.importedPads.runningMask!=0 || engine.importedPads.pendingMask!=0 || engine.importedPads.loadingMask!=0)engine.stopPerformance()
                             else engine.setRhythmEnabled(true)
                         }},
@@ -978,7 +980,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         engine.selectImportedStyle(session)
                         preferences.edit().putString("selectedStyleSet",setFile?.name).putInt("selectedSetStyleId",definition.id)
                             .putInt("bankMode",if(!previewAccompaniment)0 else if(followSetChord)2 else 1).apply()
-                        if(!engine.styleTempoLock)engine.bpm=session.selectedTempo.coerceIn(40,240)
+                        if(!engine.styleTempoLock && !engine.rhythmPlaying)engine.bpm=session.selectedTempo.coerceIn(40,240)
                         onRhythmSelected(engine.bpm)
                         onDismiss()
                     }catch(error:Exception){importStatus=error.message ?: "Cannot load SET Drum"}
