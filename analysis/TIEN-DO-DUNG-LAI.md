@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nối nốt mở lại voice đã bắt đầu release, 24-10-2026
+
+- Channels._Connection gán Close=false khi nhận key mới. Playback.connectTo đã reconnect envelope nhưng chưa xóa forcedRelease hoặc loopExited của Loop1, khiến voice nối vẫn tự đóng/đọc tail khi next.
+- connectTo nay xóa forcedRelease và loopExited cùng scriptReleased/releaseHandled. Điều kiện lựa chọn voice và envelope reconnect hiện có không đổi; chỉ mở lại khi caller thực sự thực hiện connection. Không reset PCM phase hoặc tự hồi sinh voice đã bị xóa khỏi mixer.
+- Kiểm tra Loop1 voice đang giữ, forceRelease3frame rồi connect mode2/stopByReleasefalse: giữ50frame trong loop với gain đầy đủ và chưafinished; forceRelease sau đó vẫn kết thúc. SampledInstrumentTest/ReferenceRhythmPlayerTest và build đạt; cài APK thành công. Không tạo file test mới hoặc sửa SET.
+- Chưa thu âm hoặc đối chiếu thao tác keyconnection thực trên APK. Chưa xử lý toàn bộ ForceLoop, dynamic connection speed và mọi nhánh script/autorelease; không coi nhạc cụ biểu cảm hoàn chỉnh100%.
+
 ## Sample Loop1 giữ phím rồi đọc tail khi nhả, 24-10-2026
 
 - Đối chiếu Channels.Process nhánh InstSec.Loop: Loop>1 luôn lặp, Loop1 chỉ lặp khi channel chưa Close; khi không lặp dùng Wave.Length. Loader trước từ chối1, làm nhạc cụ/style có region này không được hỗ trợ.

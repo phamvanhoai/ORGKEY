@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @org.junit.Test fun connectionReopensForcedReleaseAndSustainLoopForTheNewKey(){
+        val instrument=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(40){if(it<4)4000 else 16000}),0,4,loopUntilRelease=true)),
+            1000,envelope=ImportedEnvelope(0,0,100,20,false))
+        val voice=instrument.voice(60)
+        repeat(10){voice.next(false)}
+        voice.forceRelease();repeat(3){voice.next(false)}
+        val connection=ImportedExpressionEffect.default(1).copy(enabled=true,stopByRelease=false,mode=2)
+        voice.connectTo(60,connection)
+        repeat(50){
+            voice.next(false)
+            assertFalse(voice.finished)
+            assertEquals(4000.0/32768,voice.left,1e-9)
+        }
+        voice.forceRelease();repeat(50){voice.next(false)}
+        assertTrue(voice.finished)
+    }
     @org.junit.Test fun releaseLoopExitsAtItsCurrentPhaseAndPlaysTheStoredTail(){
         fun voice(untilRelease:Boolean)=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,shortArrayOf(1000,2000,3000,4000,5000,6000,7000,8000)),2,4,

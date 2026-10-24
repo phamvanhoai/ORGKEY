@@ -270,6 +270,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             currentKey=targetNote
             scriptReleased=false
             releaseHandled=false
+            // Channels._Connection reopens the existing channel (Close=false).
+            // A previous forced release must not close the newly connected key.
+            forcedRelease=false
+            loopExited=false
             if(!effect.stopByRelease && effectiveEnvelope?.autoRelease==false)state?.reconnect()
             children.forEach{it.connectTo(targetNote,effect)};alternate?.connectTo(targetNote,effect)
             if(children.isNotEmpty())return
