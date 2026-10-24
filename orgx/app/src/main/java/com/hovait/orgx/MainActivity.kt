@@ -1221,7 +1221,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     InstrumentPage(onDismissRequest=onDismiss,title={Text("ORGX")},text={Column(Modifier.verticalScroll(rememberScrollState())){Text("Music Workstation",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("Designed by hovait");Text("Version 0.1.6",color=Subtle);Text("Audio output: $outputStatus",color=Subtle);
         Text("Polyphony per track",fontWeight=FontWeight.Bold)
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
-            Text("STS Music: $musicPolyphony",Modifier.weight(1f))
+            Text("Music: $musicPolyphony",Modifier.weight(1f))
             TextButton(onClick={
                 musicPolyphony=ImportedPolyphony.choices.getOrElse(ImportedPolyphony.choices.indexOf(musicPolyphony)+1){8}
                 ImportedPolyphony.music=musicPolyphony;preferences.edit().putInt("max_music_channel",musicPolyphony).apply()

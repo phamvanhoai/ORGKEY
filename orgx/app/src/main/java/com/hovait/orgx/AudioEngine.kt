@@ -301,6 +301,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private data class Voice(
         var note:Int,
         val instrument:Int,
+        val order:Long,
         val playback:Boolean=false,
         val imported:SampledInstrument?=null,
         var phase: Double = 0.0,
@@ -317,8 +318,23 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val repeat=imported?.let{ImportedKeyRepeat(it.outputSampleRate)}
     }
     private data class RepeatedVoice(val sound:SampledInstrument,val playback:SampledInstrument.Playback,
-        val gain:Float,val channel:Int)
+        val gain:Float,val channel:Int,val order:Long)
     private val repeatedVoices=java.util.concurrent.ConcurrentLinkedQueue<RepeatedVoice>()
+    private val voiceOrder=java.util.concurrent.atomic.AtomicLong()
+    private val voiceBudgetLock=Any()
+    /** Share the channel budget between held notes and their Repeat channels. */
+    private fun reserveVoice(channel:Int,playback:Boolean,extra:Int){
+        val limit=if(MidiVoiceKey.percussion(channel))ImportedPolyphony.rhythm else ImportedPolyphony.music
+        while(true){
+            val normal=voices.entries.filter{MidiVoiceKey.isChannel(it.key,channel,playback)}
+            val repeated=if(playback)emptyList() else repeatedVoices.filter{it.channel==channel}
+            if(normal.size+repeated.size+extra<=limit)return
+            val oldest=normal.minByOrNull{it.value.order}
+            val tail=repeated.minByOrNull{it.order}
+            if(oldest!=null && (tail==null || oldest.value.order<tail.order))voices.remove(oldest.key,oldest.value)
+            else if(tail!=null)repeatedVoices.remove(tail) else return
+        }
+    }
 
     private val track by lazy { AudioTrack.Builder()
         .setAudioAttributes(
@@ -386,7 +402,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val previous=if(connection==null)null else voices.entries.filter{(voiceKey,voice)->
             MidiVoiceKey.isLiveChannel(voiceKey,channel) && voice.imported===sound &&
                 voice.sampledPlayback?.finished==false && (!voice.releasing || !connection.stopByRelease)
-        }.minByOrNull{it.value.ageFrames}
+        }.maxByOrNull{it.value.order}
         if(connection!=null && connection.mode>15 && previous!=null && (!connection.byPedal || sustain)){
             val voice=previous.value
             voices.remove(previous.key,voice)
@@ -399,17 +415,18 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val music=activeSetIndex?.musicSettings ?: ImportedChannelSettings()
         val setBalance=if(!playback && importedInstrument!=null && !MidiVoiceKey.percussion(channel))ImportedMusicParameters.keyboardGain(music).toFloat() else 1f
         val velocityGain=VoiceVelocity.gain(velocity,playback,sampled=sound!=null)*setBalance
-        if (voices.size >= 24 && !voices.containsKey(key)) {
-            voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
-        }
-        val voice=Voice(note=note,initialScriptPedal=!playback && sustain,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
+        val voice=Voice(note=note,order=voiceOrder.incrementAndGet(),initialScriptPedal=!playback && sustain,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument,velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
         if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || sustain))
             voice.sampledPlayback?.connectFrom(checkNotNull(sound).keyboardNote(previous.value.note),connection)
         voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback),pitchState.scriptLevel(channel,playback))
         if(!playback && sustain)voice.sampledPlayback?.scriptPedal(true)
         val modulation=(if(playback)playbackModulation else liveModulation)[channel]
         if(modulation!=0)voice.sampledPlayback?.modulate(modulation)
-        voices[key]=voice
+        synchronized(voiceBudgetLock){
+            voices.remove(key)
+            reserveVoice(channel,playback,1)
+            voices[key]=voice
+        }
         if(!playback && voice.imported==null && !MidiVoiceKey.percussion(channel))
             captureMidi(0xc0 or channel,GmProgramMap.program(voiceInstrument),0)
         captureMidi(0x90 or channel,note,(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
@@ -801,8 +818,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                             val channel=note/128
                             val repeated=source.voice(source.keyboardNote(voice.note),autoRelease=true,effectsAllowed=false,scriptAllowed=false)
                             repeated.pitchBend(pitchState.semitones(channel,false),pitchState.scriptLevel(channel,false))
-                            repeatedVoices.add(RepeatedVoice(source,repeated,voice.velocity,channel))
-                            while(repeatedVoices.size>512)repeatedVoices.poll()
+                            synchronized(voiceBudgetLock){
+                                reserveVoice(channel,false,1)
+                                repeatedVoices.add(RepeatedVoice(source,repeated,voice.velocity,channel,voiceOrder.incrementAndGet()))
+                            }
                         }
                     }
                     // Stateful playback owns completion, including switched Aftertouch

@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Voice trực tiếp và MIDI dùng cấu hình đa âm chung, 24-10-2026
+
+- Thay giới hạn24 tổng của AudioEngine bằng Music/Rhythm đã cấu hình. Phân ngân sách theo MIDI channel và miền live/playback; channel percussion dùng Rhythm, các channel khác dùng Music. Nốt Repeat live dùng chung ngân sách với note nguồn thay vì một giới hạn512 độc lập.
+- Voice và Repeat có số thứ tự mở nốt dùng AtomicLong. Khi cấp chỗ, so nốt thường và Repeat để lấy nốt mở cũ nhất, theo nguyên tắc idx của Channels.Open; cùng phím retrigger bỏ entry bị thay trước khi tính ngân sách. Việc cấp chỗ và insert nốt mới/repeat dùng cùng khóa. Legato tìm nốt mở gần nhất theo order thay vì ageFrames; tái sử dụng channel giữ order cũ.
+- Đổi nhãn cài đặt STS Music thành Music vì đã áp cả đường trực tiếp/MIDI. MidiVoiceKeyTest/ImportedKeyboardPartsTest/ImportedKeyRepeatTest/SampledInstrumentTest đạt trước hai chỉnh nhỏ order/retrigger, assembleDebug cuối đạt. Không thêm file test/log hoặc sửa SET; các test nền không khởi tạo và đo polyphony Android AudioEngine, chưa nghe/stress trên điện thoại.
+- MIDI channel là miền ngân sách của mô hình hiện tại, chưa tái tạo hoàn toàn từng Track/Channels gốc khi nhiều track MIDI chung channel. Nốt cùng key vẫn dùng một entry map, chưa có nhiều noteOn đồng phím độc lập; tăng/giảm budget giữa nốt chưa mô phỏng việc tái tạo mảng native.
+
 ## Cấu hình đa âm theo part STS và track Rhythm, 24-10-2026
 
 - Đối chiếu Music mặc định fMaxMusicChannel10/fMaxRhythmChannel14, Channels.Open lấy giới hạn theo loại track rồi chọn kênh trống hoặc idx cũ nhất, setting6/PolyphonyValue8..256; MainActivity chặn Rhythm tối đa64.
