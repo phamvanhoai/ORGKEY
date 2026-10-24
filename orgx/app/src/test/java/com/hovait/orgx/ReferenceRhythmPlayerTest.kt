@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedStsFxEventDoesNotInvalidateOrStopTheTrack(){
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(64,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),
+            {10000},{_,_,_->1.0},1000)
+        try{repeat(3){player.next(0,120)};assertTrue(player.left>0)}finally{player.close()}
+    }
     @Test fun keyAftertouchOpensTheInstrumentAftertouchPath(){
         val base=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)

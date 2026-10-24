@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackSTSFXEffect64 không loại section khi thiếu snapshot, 25-10-2026
+
+- Track.Play64 của APK lấy STS(i).FXs theo fSTSChanges rồi áp vào Channels; ORGX chưa có STS list/snapshot cho rhythm track. Trước event64 bị báo unsupported làm loại cả style section.
+- Support nay cho event64 đi qua timeline; Player giữ event nhưng không áp FX khi không có snapshot. Đây là fallback an toàn để nốt/style khác vẫn phát, không giả vờ áp FX sai.
+- ReferenceRhythmPlayerTest dùng event64 trước noteOn, xác minh track vẫn phát. Test và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa áp STS FX runtime cho style track và chưa kiểm tra SET thực chứa event64. Phần snapshot/mask cần nối với loader STS tương ứng trong bước sau.
+
 ## KeyAftertouch4 mở đường Aftertouch của nhạc cụ, 25-10-2026
 
 - ImportedStyleSupport trước chỉ coi event2 là note mở; track chỉ có KeyAftertouch4 bị loại, loader không giữ region cần dùng. Nay activeTracks/support/forTrack nhận cả2/4, timeline xử lý cả hai.

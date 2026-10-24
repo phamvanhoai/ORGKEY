@@ -296,6 +296,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             }
             if(event.type==13){eventMuted=true;releaseAll();return@advance}
             if(event.type==3){releaseAll();return@advance}
+            if(event.type==64){
+                // STS FX snapshots are owned by the keyboard-set loader. Keep
+                // the event in the timeline; no snapshot is available here.
+                return@advance
+            }
             if(event.type==5){
                 openedKeyIds.getOrNull(event.note+1)?.let{selected->voices.values.filter{it.eventId==selected && it.release<0}
                     .forEach{it.playback?.aftertouch(event.touch/127f)}}
