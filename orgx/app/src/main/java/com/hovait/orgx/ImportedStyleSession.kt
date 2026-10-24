@@ -59,6 +59,12 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     }
     fun available(id:Int)=id in players
     fun close(){players.values.forEach{it.close()}}
+    @Synchronized fun stopPlayback(preserveImmediate:Boolean=false){
+        val immediate=queue.firstOrNull()?.takeIf{preserveImmediate && it.immediate}
+        queue.clear();if(immediate!=null)queue.addLast(immediate) else jumpId=null
+        temporaryLoops.clear();tempoChange=null
+        finished=true;player.releaseAll()
+    }
     @Synchronized fun renderTail(){if(finished)player.renderTail()}
     val hasTail get()=synchronized(this){player.hasTail}
     /** Play after a natural ending must clear finished while retaining an immediate section choice. */

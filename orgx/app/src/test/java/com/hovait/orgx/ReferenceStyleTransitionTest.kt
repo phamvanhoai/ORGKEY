@@ -4,6 +4,34 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun manualStopDrainsVoiceWithoutPlayingQueuedSectionsOrMovingClock(){
+        val session=session(lock=true)
+        try{
+            session.next(120);session.request(2)
+            val time=session.padTiming.first
+            session.stopPlayback()
+            assertTrue(session.finished);assertNull(session.pendingId)
+            session.renderTail();assertEquals(.1,session.player.left,1e-9)
+            session.renderTail();assertEquals(.09,session.player.left,1e-9)
+            repeat(20){session.next(120);session.renderTail()}
+            assertEquals(time,session.padTiming.first);assertFalse(session.hasTail)
+            assertEquals(1,session.currentId)
+            session.preparePlay();session.next(120)
+            assertFalse(session.finished);assertEquals(.1,session.player.left,1e-9)
+        }finally{session.close()}
+    }
+    @Test fun stopFollowedImmediatelyByIntroKeepsTheNewButtonRequest(){
+        val session=session(lock=true)
+        try{
+            session.next(120)
+            session.press(5,false,false)
+            session.stopPlayback(preserveImmediate=true)
+            session.preparePlay();session.next(120)
+            assertEquals(5,session.currentId);assertFalse(session.finished)
+            repeat(1000){session.next(120)}
+            assertEquals(1,session.currentId)
+        }finally{session.close()}
+    }
     @Test fun revisitingMainKeepsItsChannelVolumeUntilItsNextAutomationEvent(){
         val groups=listOf(ImportedStyleGroup(1,100,"Main 1",32,true,0,4000,120),
             ImportedStyleGroup(2,100,"Main 2",33,true,0,4000,120))

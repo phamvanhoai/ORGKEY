@@ -402,7 +402,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
 
     fun setRhythmEnabled(enabled: Boolean) {
         if(enabled && !rhythmPlaying)restartStyleOnPlay.set(true)
-        naturalStyleTail=false
+        if(!enabled)pendingRhythmStop.set(true)
         stoppedStyleReset.invalidate()
         rhythmPlaying = enabled
         if (!enabled) {transportFrame = 0L;resetHarmony=true}
@@ -592,6 +592,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private val stoppedStyleReset=StoppedStyleReset()
+    private val pendingRhythmStop=java.util.concurrent.atomic.AtomicBoolean(false)
     private val restartStyleOnPlay=java.util.concurrent.atomic.AtomicBoolean(false)
     @Volatile private var naturalStyleTail=false
     private fun rhythmSample(): Double {
@@ -610,14 +611,21 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             session?.takeTempoChange()?.let{bpm=it}
           }
         }
+        if(pendingRhythmStop.getAndSet(false)){
+            val session=importedStyleSession
+            if(session!=null)session.stopPlayback(preserveImmediate=rhythmPlaying) else importedRhythm?.releaseAll()
+            naturalStyleTail=!rhythmPlaying && (session?.hasTail ?: importedRhythm?.hasTail ?: false)
+        }
         if(restartStyleOnPlay.getAndSet(false) && rhythmPlaying){
+            naturalStyleTail=false
             importedStyleSession?.preparePlay()
         }
         val resetStopped=stoppedStyleReset.shouldReset(rhythmPlaying,selected!=null)
         if (!rhythmPlaying) {
-            if(naturalStyleTail && importedStyleSession?.finished==true){
-                importedStyleSession?.renderTail()
-                if(importedStyleSession?.hasTail==false){
+            if(naturalStyleTail){
+                val session=importedStyleSession
+                if(session!=null)session.renderTail() else importedRhythm?.renderTail()
+                if((session?.hasTail ?: importedRhythm?.hasTail)!=true){
                     naturalStyleTail=false
                     stoppedStyleReset.invalidate()
                 }

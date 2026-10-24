@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## STOP giữ release tail của style, 24-10-2026
+
+- Đường setRhythmEnabled(false) từng xóa naturalStyleTail rồi reset player ở frame dừng, khiến nốt và FX đang ngân bị mất. Theo cơ chế đóng kênh CloseAll(false) của Tracks.GroupPlayNext, chuyển sang release thay vì xóa voice/buffer.
+- AudioEngine gửi pendingRhythmStop qua atomic mailbox; audio thread gọi session.stopPlayback rồi render tail khi transport đã dừng. Mixer vẫn nhận importedRhythm tới khi hết tail; chỉ sau đó StoppedStyleReset đặt lại player. Không gọi DSP từ UI thread.
+- stopPlayback hủy queue, jump và temporary loop, ngừng clock/scheduling, giữ player để nhả tiếng. Khi STOP rồi START/Intro trước khi mailbox được xử lý, giữ yêu cầu immediate mới và preparePlay xử lý lại; các yêu cầu cũ không chạy muộn. STOP performance vẫn dừng PAD qua bank riêng hiện có.
+- Kiểm tra manual stop: voice0.1->0.09 rồi hết, clock không tiến, Main2 đang chờ bị hủy; preparePlay phát lại. STOP rồi Intro tức thời vẫn chạy Intro và về Main. ReferenceStyleTransitionTest/ReferenceRhythmPlayerTest/StoppedStyleResetTest và assembleDebug đạt; đã cài APK.
+- Chưa thu âm/so thao tác STOP trên APK gốc. AudioEngine chỉ được build, kiểm tra JVM nêu trên áp vào session/player; chưa có test runtime thiết bị cho toàn bộ mixer. Chưa tái tạo thời điểm xử lý lệnh STOP của RecordRhythm theo mọi mode hoặc giữ tail khi đổi SET giữa lúc đang nhả.
+
 ## Khởi động lại track giữ channel state, 24-10-2026
 
 - Đối chiếu Track.Start: đặt lại DataPos/TimeStart, Channels.CloseAll(false), gọi z01.f(true); không khôi phục volume/pan/pedal/KeyTouch/KeyBalance/KeyPitchMove từ metadata. ORGX từng reset toàn bộ player khi quay lại section, còn nhánh preserveVoices lại không nhả các note cũ.
