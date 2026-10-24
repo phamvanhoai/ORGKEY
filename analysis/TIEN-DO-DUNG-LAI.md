@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## FadeStart/FadeCancel giảm âm lượng Rhythm bus, 25-10-2026
+
+- ReferenceRhythmPlayer lưu fadeGain/target/step, event211 đặt target0, event212 target1; mỗi mixOutput tiến một bước theo độ dài event.note hoặc length. Gain áp sau mixedLeft/Right trước group FX, đuôi FX tiếp tục nhận frame.
+- ReferenceRhythmPlayerTest kiểm tra FadeStart làm output nhỏ hơn raw left sau2 frame và FadeCancel đưa output trở lại dương. Build/test đạt. Không sửa SET hoặc tạo file test/log mới; chưa đo fade time theo Music.FadeStart(i3,i4) thực của APK gốc. Fade hiện áp từng player trước group combine, chưa có Music bus fade chung cho mọi style/PAD/song output.
+
 ## Track FadeStart/FadeCancel211/212 không loại section, 25-10-2026
 
 - Track.Play xử lý211/212 ở Music.FadeStart/FadeCancel trên bus music. ORGX chưa có bộ fade bus chung nhưng trước đây event bị unsupported và loại cả style. Nay giữ event trong timeline, không làm mất nốt/FX; Fade thực tế vẫn chưa được mô phỏng.

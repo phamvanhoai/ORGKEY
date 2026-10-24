@@ -77,6 +77,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var tailPedalMode:Int?=null
     private var modulationLevel:Int?=null
     private var pitchScriptLevel:Int?=null
+    private var fadeGain=1.0
+    private var fadeTarget=1.0
+    private var fadeStep=0.0
     private val openedKeyIds=arrayOfNulls<Int>(129)
     private var transposeDelta=0
     private var octaveDelta=0
@@ -149,9 +152,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     /** Called once per audio frame after the drum/chord mixer, not once per output channel. */
     fun mixOutput(drumGain:Float,chordGain:Float){
         // SET balance/volume is latched in Voice.gain before channel FX, at OpenKey.
-        val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain)
+        val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain);fadeGain=(fadeGain+fadeStep).coerceIn(0.0,1.0)
         val processor=groupFx
-        if(processor==null){outputLeft=l;outputRight=r}else{processor.process(l,r);outputLeft=processor.left;outputRight=processor.right}
+        if(processor==null){outputLeft=l*fadeGain;outputRight=r*fadeGain}else{processor.process(l*fadeGain,r*fadeGain);outputLeft=processor.left;outputRight=processor.right}
     }
     companion object {
         fun combine(players:List<ReferenceRhythmPlayer>):ReferenceRhythmPlayer {
@@ -303,7 +306,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 }
                 return@advance
             }
-            if(event.type==211 || event.type==212)return@advance
+            if(event.type==211 || event.type==212){ fadeTarget=if(event.type==211)0.0 else 1.0; val frames=(event.note.takeIf{it>0}?.toLong() ?: event.length).coerceAtLeast(1); fadeStep=(fadeTarget-fadeGain)/frames.toDouble(); return@advance }
             if(event.type==5){
                 openedKeyIds.getOrNull(event.note+1)?.let{selected->voices.values.filter{it.eventId==selected && it.release<0}
                     .forEach{it.playback?.aftertouch(event.touch/127f)}}

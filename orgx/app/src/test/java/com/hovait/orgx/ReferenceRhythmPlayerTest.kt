@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun fadeStartAndCancelRampTheRhythmBus(){
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(211,0,0,0,0,4),ReferenceDrumEvent(2,1,60,100,1,1000),
+            ReferenceDrumEvent(212,0,0,0,8,0)))),{10000},{_,_,_->1.0},1000)
+        try{
+            repeat(2){player.next(0,120);player.mixOutput(1f,1f)}
+            assertTrue(player.outputLeft<player.left)
+            repeat(8){player.next(0,120);player.mixOutput(1f,1f)}
+            assertTrue(player.outputLeft>0)
+        }finally{player.close()}
+    }
     @Test fun fadeCommandsDoNotInvalidateAStyleTrack(){
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
             ReferenceDrumEvent(211,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000),
