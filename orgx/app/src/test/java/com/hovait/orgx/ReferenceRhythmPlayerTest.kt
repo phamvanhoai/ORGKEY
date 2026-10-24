@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun trackPitchMoveMatchesStoredKeyPitchRatio(){
+        fun render(type:Int,value:Int):List<Double>{
+            val sound=SampledInstrument(listOf(InstrumentRegion(60,
+                SamplePcm(1000,1,ShortArray(128){(it*200).toShort()}),0,128)),1000)
+            val player=ReferenceRhythmPlayer(listOf(track(listOf(
+                ReferenceDrumEvent(type,0,value,0,0,0),ReferenceDrumEvent(2,1,60,100,0,1000)))),
+                {10000},{_,_,_->0.0},1000,sampled=sound)
+            return try{List(30){player.next(0,120);player.left}}finally{player.close()}
+        }
+        assertEquals(render(53,2000),render(43,12000))
+        assertEquals(render(53,500),render(43,-12000))
+    }
     @Test fun trackCloseAllReleasesEveryNoteWithoutMutingLaterNotes(){
         val sound=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,

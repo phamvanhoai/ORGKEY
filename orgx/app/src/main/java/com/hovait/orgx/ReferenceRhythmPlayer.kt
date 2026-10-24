@@ -247,6 +247,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voices.values.filter{event.id==0 || it.eventId==event.id}.forEach{it.playback?.pitchBend(semitones)}
                 return@advance
             }
+            if(event.type==43){
+                // Track.Play: round(KeyToPitch(Key/1000 + 12, 500)).
+                pitchMove=Math.round(1000.0*Math.pow(2.0,event.note/12000.0)).toInt()
+                val semitones=12*kotlin.math.log2(pitchMove/1000.0)
+                voices.values.forEach{it.playback?.pitchBend(semitones)}
+                return@advance
+            }
             if(ImportedExpressionAutomation.supported(event)){
                 if(event.id==0){
                     val initial=keyRepeatEffect ?: ImportedExpressionEffect(0,false,0,false,false,0,0,0,0,emptyList())

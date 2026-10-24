@@ -65,7 +65,7 @@ object ImportedStyleSupport {
             return "Track '${it.name}' references missing instrument ${it.instrument}"
         }
         tracks.forEach{track->track.events.forEach{event->
-            if(event.type !in listOf(1,2,3,11,12,13,14,44,45) && !(event.type in listOf(46,56) && event.note in -127..127) && !(event.type==51 && event.note>=0) && !(event.type==53 && event.note>0) && !(event.type==52 && event.note in -100..100) && !ImportedExpressionAutomation.supported(event)){
+            if(event.type !in listOf(1,2,3,11,12,13,14,44,45) && !(event.type==43 && event.note in -48000..48000) && !(event.type in listOf(46,56) && event.note in -127..127) && !(event.type==51 && event.note>=0) && !(event.type==53 && event.note>0) && !(event.type==52 && event.note in -100..100) && !ImportedExpressionAutomation.supported(event)){
                 val detail=if(event.type==65)" (Effect slot ${event.id}, parameter ${event.note})" else ""
                 return "Track '${track.name}': unsupported event ${event.type}$detail at time ${event.time}"
             }

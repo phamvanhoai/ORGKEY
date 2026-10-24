@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackPitchMove43 điều khiển cao độ sampled track, 24-10-2026
+
+- Đối chiếu Track.Play43: round(KeyToPitch(Key/1000+12,500)), gán KeyPitchMove và ChangeKey toàn track. ORGX nay giải bằng round(1000*2^(Key/12000)), cập nhật pitchMove và Playback đang phát; note mới dùng pitchMove đã giữ hiện có.
+- Support cho phép43 trong biên-48000..48000 thay vì chặn toàn section. Biên này là giới hạn triển khai hiện tại, không khẳng định toàn bộ giá trị APK gốc. Không gọi script pitchbend như event53 vì nhánh43 gốc trực tiếp ChangeKey.
+- ReferenceRhythmPlayerTest so PCM43/+12000 với53/2000 và43/-12000 với53/500 trong30frame; ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa thử track thực chứa43 trên điện thoại, chưa mở rộng các lệnh TrackKeyMove41/TrackOctaveMove42.
+
 ## Track SET nhận TrackCloseAll3, 24-10-2026
 
 - Track.Play của APK xử lý event3 bằng Channels.CloseAll(false), không bật mute. ImportedStyleSupport trước từ chối event3 nên section không nạp được. Nay cho phép và ReferenceRhythmPlayer releaseAll tại tick lệnh.
