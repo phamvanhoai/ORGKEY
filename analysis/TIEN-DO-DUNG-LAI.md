@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Style/PAD truyền Key Connection Method tới mode loader, 24-10-2026
+
+- loadSections đã nhận keyConnectionMethod cho expression track nhưng bỏ sót khi gọi ImportedInstrumentLoader.load. Nay truyền tham số này để các mode context/fallback exit được chuẩn bị cùng phương thức engine, thay vì mặc định0. Đường style và PAD cùng dùng loadSections.
+- Kiểm tra loader có Track channel override, nhạc cụ1.4.2/mode tạm chứa release exit: sau noteoff về mode0, KeyConnection mode2 được áp method1 thành18. ImportedModeTest/ReferenceRhythmPlayerTest và assembleDebug đạt; cài APK thành công.
+- STS.ReadFromStream gốc không áp cùng conversion cho Effects snapshot; không tự thay đổi nhánh đó. Chưa thu âm DNC exit của style thực hoặc so APK; không xác nhận mọi mode/script giống100%. Không thêm file test hoặc sửa SET.
+
 ## Key Connection mode dùng phiên bản nhạc cụ riêng, 24-10-2026
 
 - Instrument.ReadFromStream áp quy tắc mode KeyConnection trước1.4.3 theo fVersion riêng. Parser ORGX nay giữ metadata version trên ImportedInstrument; loader mode dùng sourceVersion nhạc cụ khi có, fallback tham số container cho nhạc cụ dựng bằng code không có metadata.

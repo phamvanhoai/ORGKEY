@@ -60,7 +60,7 @@ object ImportedStylePlayer {
         require(selected.values.sumOf{source->ImportedInstrumentLoader.layers(source).sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}}<=64L*1024*1024){
             "Style exceeds 64 MB PCM budget"
         }
-        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings,index.musicSettings,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,instrument),scriptOverridesForMode=scriptOverrides)}
+        val sounds=selected.mapValues{(key,instrument)->ImportedInstrumentLoader.load(file,instrument,index.systems.getOrNull(key.system),key.settings,index.musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,instrument),scriptOverridesForMode=scriptOverrides)}
         return groups.associate{group->
           val quality=ImportedChordQuality(chordQuality)
           val parts=byGroup.getValue(group.id).map{track->

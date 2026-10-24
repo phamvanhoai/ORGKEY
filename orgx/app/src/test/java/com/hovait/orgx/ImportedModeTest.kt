@@ -5,6 +5,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedModeTest {
+    @Test fun preparedExitModeKeepsConnectionMethodEvenWithTrackChannelOverrides(){
+        val file=File.createTempFile("orgx-exit-connection",".pcm")
+        try{
+            file.writeBytes(ByteArray(2048){if(it%2==0)0 else 32})
+            val original=instrument()
+            val default=original.modes.first().copy(name="Default",sound=0,mix=List(8){-1},
+                effects=listOf(ImportedExpressionEffect.default(1).copy(enabled=true,mode=2)))
+            val current=default.copy(name="Temporary",script="on(touch){play();return(true);} on(release){exit;}")
+            val source=original.copy(modes=listOf(current),defaultMode=default,selectedMode=1,sourceVersion="1.4.2")
+            val loaded=ImportedInstrumentLoader.load(file,source,settings=ImportedChannelSettings(),
+                keyConnectionMethod=1,sourceVersion="1.4.6")
+            val voice=loaded.voice(60);voice.next(false);voice.next(true)
+            assertEquals(0,loaded.modeSelection!!.instrument.selectedMode)
+            assertEquals(18,loaded.keyConnectionEffect!!.mode)
+        }finally{file.delete()}
+    }
     @Test fun connectionCompatibilityUsesInstrumentVersionInsteadOfContainerVersion(){
         val file=File.createTempFile("orgx-mode-version",".pcm")
         try{
