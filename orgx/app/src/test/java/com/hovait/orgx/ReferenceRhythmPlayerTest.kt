@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedAftertouchTargetsItsKeyOrTheLastOpenedKey(){
+        fun render(key:Int):Double{
+            val source=SampledInstrument(listOf(InstrumentRegion(60,
+                SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)
+                .withModeScript("on(touch){play();return(true);} on(aftertouch){stop(id:id,cut);return(true);}")
+            val player=ReferenceRhythmPlayer(listOf(track(listOf(
+                ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(2,2,64,100,0,1000),
+                ReferenceDrumEvent(5,0,key,127,10,0)))),{10000},{_,_,_->0.0},1000,sampled=source)
+            return try{repeat(11){player.next(0,120)};player.left}finally{player.close()}
+        }
+        assertEquals(.25,render(60),1e-12)
+        assertEquals(.25,render(-1),1e-12)
+        assertEquals(.5,render(67),1e-12)
+    }
     @Test fun trackTransposeCanBringAnInitiallyNegativeMappedKeyBackIntoMidiRange(){
         val opened=mutableListOf<Int>()
         val player=ReferenceRhythmPlayer(listOf(track(listOf(

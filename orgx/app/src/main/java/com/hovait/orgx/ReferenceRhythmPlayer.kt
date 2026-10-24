@@ -291,6 +291,12 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             }
             if(event.type==13){eventMuted=true;releaseAll();return@advance}
             if(event.type==3){releaseAll();return@advance}
+            if(event.type==5){
+                val latest=voices.values.lastOrNull{event.note==-1 || it.sourceNote==event.note}
+                latest?.let{selected->voices.values.filter{it.eventId==selected.eventId && it.release<0}
+                    .forEach{it.playback?.aftertouch(event.touch/127f)}}
+                return@advance
+            }
             if(event.type==14){eventMuted=false;return@advance}
             if(event.type==12){
                 pedalDown=true;sampled?.updateScriptPedal(true);voices.values.forEach{it.playback?.scriptPedal(true)}

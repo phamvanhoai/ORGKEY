@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Track SET nhận Aftertouch5 theo phím, 24-10-2026
+
+- Đối chiếu Track.Play5 dùng KeyIDs[Key+1], Key=-1 dùng vị trí0 tức nốt vừa mở gần nhất. Support nay nhận event5 với Key-1..127/Touch0..127 thay vì chặn section. Player tìm note gần nhất theo sourceNote hoặc toàn track nếu-1 rồi gửi aftertouch đến Playback chưa release cùng eventID.
+- ReferenceRhythmPlayerTest dùng hai phím60/64 và script aftertouch stop đúng id: pressure60 hoặc-1 chỉ tắt một nốt, pressure67 không tắt nốt nào. ReferenceRhythmPlayerTest/SampledInstrumentTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa thử SET thật có event5 trên điện thoại. KeyIDs hiện suy từ voice còn lưu, chưa có bảng lịch sử độc lập khi voice bị steal hoặc kết thúc; không tuyên bố toàn bộ Aftertouch gốc tương đương.
+
 ## Chuyển tông track có thể đưa nốt dưới0 về vùng hợp lệ, 24-10-2026
 
 - mappedNote trước thoát sớm khi mapNote trả giá trị âm, nhầm nốt đã transpose dưới0 với sentinel ngừng hòa âm. Nay chỉ bỏ cộng delta khi chordTarget thực sự báo không có hợp âm; nốt có giá trị âm do transpose vẫn cộng thay đổi41/42 trước bước kiểm tra vùng/sample.
