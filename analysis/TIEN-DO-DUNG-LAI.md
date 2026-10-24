@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## FadeStart dùng delay của event, 25-10-2026
+
+- Đối chiếu Music.FadeStart(i,i2): i2 được lưu fFadeDelay trước khi FadeValue cập nhật âm lượng. ReferenceFadeController nay nhận duration từ event.note và delayTicks từ event.touch, giữ gain trong thời gian delay rồi mới ramp; FadeCancel vẫn target1 ngay.
+- Thêm test controller delay2: hai frame đầu gain1, frame sau bắt đầu giảm. Build/test ReferenceRhythmPlayer đạt. Không sửa SET hoặc tạo file test/log mới; duration vẫn chưa quy đổi chính xác theo fOutBufferSize/MaxFade và tempo như Music.FadeStart, nên chưa tuyên bố fade sample-accurate.
+
 ## Fade dùng chung giữa các track combine, 25-10-2026
 
 - ReferenceRhythmPlayer thêm ReferenceFadeController dùng chung. combine bind parent và mọi child vào cùng controller, nên event211/212 từ một track thay fadeGain của tổng style, thay vì mỗi child tự giảm riêng.

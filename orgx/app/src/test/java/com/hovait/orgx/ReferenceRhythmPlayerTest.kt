@@ -4,6 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun fadeStartHonorsStoredDelayBeforeRamping(){
+        val fade=ReferenceFadeController();fade.command(false,4,2)
+        assertEquals(1.0,fade.advance(),0.0);assertEquals(1.0,fade.advance(),0.0)
+        assertTrue(fade.advance()<1.0)
+    }
     @Test fun fadeStartAndCancelRampTheRhythmBus(){
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
             ReferenceDrumEvent(211,0,0,0,0,4),ReferenceDrumEvent(2,1,60,100,1,1000),
