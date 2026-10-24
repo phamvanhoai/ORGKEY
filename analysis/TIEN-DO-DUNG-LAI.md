@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Bàn giao style tại mốc nhịp, giữ Fill/Break tới cuối, 24-10-2026
+
+- MainActivity.B1 gọi y1 để xếp Rhythm khi đổi style đang chạy; nếu đang Fill/Break thì gửi RhythmJump. Tracks.PlayNext/GroupPlayNext xử lý yêu cầu tại cửa sổ rhythmScale, Jump khi phần không lặp hoàn tất. ORGX trước consume pendingStyle ngay khi load xong trên audio thread, gây đổi giữa nhịp.
+- AudioEngine giữ pending style đến khi session hiện hành cho phép bàn giao. Main/Intro/Ending chờ cửa sổ nhịp; Fill/Break chờ thêm kết thúc phần. Nếu người dùng nhấn section trong style mới, yêu cầu Rhythm đó được chuyển tại cửa sổ nhịp mà không phải đợi Fill hết. Khi dừng hoặc clear style, áp dụng ngay như trước; style cũ tiếp tục render trong thời gian chờ.
+- Hai tình huống bổ sung trong ReferenceStyleTransitionTest hiện có kiểm tra Main chờ time1000 và Fill chờ hết/nhấn section được ngắt ở cửa sổ. Ba lớp chuyển section tổng41 kiểm tra đạt, assembleDebug đạt. Chưa xác minh nghe và thao tác đổi style thực trên máy; kiểm tra JVM xác minh session gate, không khởi tạo AudioEngine Android. Không sửa SET hoặc tạo file test mới.
+
 ## Giữ scale dùng neo vị trí khi đổi style đang chạy, 24-10-2026
 
 - Tracks.GroupPlayNext và GroupPlayStart giữ Music.rhythmScale cũ để tính neo bắt đầu khi scale mới >10, rồi mới cài scale mới. continueFrom trước chỉ mang section/time, bỏ mất scale chung nên select dùng scale khởi tạo của style mới và có thể bắt đầu sai vị trí nhạc.

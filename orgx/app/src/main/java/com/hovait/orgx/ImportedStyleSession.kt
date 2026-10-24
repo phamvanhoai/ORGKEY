@@ -76,6 +76,16 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     val hasTail get()=synchronized(this){player.hasTail}
     /** Play after a natural ending must clear finished while retaining an immediate section choice. */
     @Synchronized fun preparePlay(){if(finished)reset()}
+    /** B1 queues a Rhythm, or only a RhythmJump while Fill/Break finishes. */
+    @Synchronized fun canContinueToStyle(tempo:Int,explicitSection:Boolean=false):Boolean {
+        if(finished)return true
+        if(!ReferenceSectionTiming.inWindow(clock.time,rhythmScale,tempo))return false
+        val section=groups.getValue(currentId)
+        if(!explicitSection && section.section in 48..64){
+            return if(section.limit)clock.time-startedAt>=section.end.toLong()-section.start else player.finished
+        }
+        return true
+    }
     /** MainActivity.B1 keeps the section, with Fill/Break returning to Main. */
     fun continueFrom(previous:ImportedStyleSession){
         val (section,time,scale)=synchronized(previous){

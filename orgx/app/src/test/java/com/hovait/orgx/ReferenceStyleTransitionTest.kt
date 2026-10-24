@@ -4,6 +4,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun styleChangeWaitsForWindowWhileMainKeepsPlaying(){
+        val session=session(lock=true)
+        try{
+            repeat(100){session.next(120)}
+            assertFalse(session.canContinueToStyle(120))
+            repeat(900){session.next(120)}
+            assertTrue(session.canContinueToStyle(120))
+            assertEquals(1,session.currentId);assertFalse(session.finished)
+        }finally{session.close()}
+    }
+    @Test fun styleChangeDuringFillWaitsForItsEndUnlessASectionWasPressed(){
+        val session=session(lock=true)
+        try{
+            session.request(3,true);session.next(120)
+            assertFalse(session.canContinueToStyle(120))
+            assertTrue(session.canContinueToStyle(120,explicitSection=true))
+            repeat(999){session.next(120)}
+            assertTrue(session.canContinueToStyle(120))
+            assertEquals(3,session.currentId)
+        }finally{session.close()}
+    }
     @Test fun changingStyleAnchorsNewSectionWithThePreviousSharedScale(){
         fun create(group:ImportedStyleGroup,events:List<ReferenceDrumEvent>):ImportedStyleSession {
             val player=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(group.name,group.id,group.parent,

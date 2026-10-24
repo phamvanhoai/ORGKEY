@@ -610,6 +610,11 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile private var naturalStyleTail=false
     private fun rhythmSample(): Double {
         val selected=synchronized(styleSelectionLock){
+          val waiting=pendingStyle.get()
+          val current=importedStyleSession
+          val ready=waiting?.session==null || !rhythmPlaying || current==null ||
+              current.canContinueToStyle(bpm.coerceIn(40,240),waiting.presses.isNotEmpty())
+          if(!ready)null else
           pendingStyle.getAndSet(null)?.also{selection->
             naturalStyleTail=false
             val session=selection.session
