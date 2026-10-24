@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Kiểm tra thao tác style trên điện thoại thật, 24-10-2026
+
+- Dùng ADB trên thiết bị đang kết nối, mở ORGX hiện có. Ảnh ban đầu hiển thị DJ VIP KVT1/Main1, Dance9KBT/Primary, tempo141, READY. Chọn Main2 rồi nhấn Intro1; ảnh sau6giây hiển thị Main2/RUNNING. Không chụp giữa Intro nên chỉ xác nhận trạng thái sau chuỗi thao tác, chưa xác nhận từng frame chuyển.
+- Mở STYLE SELECT khi đang RUNNING, chọn DJ VIP KVT2, đợi5giây: ảnh hiển thị DJ VIP KVT2/Main2, tempo144, RUNNING, nút STOP. Không nhấn Play giữa hai style. Sau kiểm tra đã bấm STOP. Đây là kiểm chứng runtime trên thiết bị cho đổi style giữ Main2 và không bắt Play lại, không phải đo continuity/latency âm thanh.
+- Dùng lại analysis/previews/orgx-current.png để quan sát, không thêm bộ ảnh/log/test mới hoặc sửa SET. Không thay code trong lượt kiểm tra này vì hai thao tác trên không lộ lỗi mới. Chưa thử các SET khác, đo PCM, Main–STS, hoặc đổi style giữa Intro trên thiết bị; không suy ra toàn bộ ứng dụng tương đương100%.
+
 ## Đổi style trong Intro giữ biến thể Main trước đó, 24-10-2026
 
 - continueFrom trước chỉ chuyển current section/time/scale; lastLoop của style mới luôn bắt đầu bằng Main đầu tiên. Khi đang Intro sau Main2 rồi đổi style, Intro mới có JumpGroup âm có thể trởMain1 thay vì Main2.
