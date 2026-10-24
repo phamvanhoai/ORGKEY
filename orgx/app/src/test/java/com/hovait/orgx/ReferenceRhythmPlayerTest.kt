@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedTransposeAndOctaveChangeOnlySubsequentNotes(){
+        val opened=mutableListOf<Int>()
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(41,0,2,0,10,0),
+            ReferenceDrumEvent(42,0,1,0,10,0),ReferenceDrumEvent(2,2,60,100,20,1000)))),
+            {note->opened.add(note);10000},{_,_,_->1.0},1000,accompaniment=true)
+        try{repeat(21){player.next(0,120)};assertEquals(listOf(60,74),opened.distinct())}finally{player.close()}
+    }
     @Test fun trackPitchMoveMatchesStoredKeyPitchRatio(){
         fun render(type:Int,value:Int):List<Double>{
             val sound=SampledInstrument(listOf(InstrumentRegion(60,

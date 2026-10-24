@@ -7,13 +7,14 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0},private var fx:ImportedFxChain?=null,
     private val initiallyMuted:Boolean=false,private val initialChannel:ImportedChannelSettings?=null,
     private val expressionEffects:List<ImportedExpressionEffect> = emptyList(),private val initialPedal:Boolean=false,
-    private val expressionAllowed:Boolean=true,private val keyConnectionMethod:Int=0,private val pedalMode:Int=-1) {
+    private val expressionAllowed:Boolean=true,private val keyConnectionMethod:Int=0,private val pedalMode:Int=-1,
+    private val storedTranspose:Int=initialChannel?.transpose ?: 0,private val storedOctave:Int=initialChannel?.octave ?: 0) {
     init{require(keyConnectionMethod in 0..1)}
     private var volumeShake=expressionEffects.firstOrNull{it.slot==3}
     private var pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2}
     private var keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0}
     private var keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1}
-    private fun resetExpression(){modulationLevel=null;keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0};keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1};pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2};keyTouch=100;keyBalance=0;pitchMove=1000;volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
+    private fun resetExpression(){transposeDelta=0;octaveDelta=0;modulationLevel=null;keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0};keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1};pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2};keyTouch=100;keyBalance=0;pitchMove=1000;volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -46,7 +47,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         voices.entries.forEach{entry->
             val voice=entry.value
             if(voice.release>=0 || voice.pendingRelease || voice.sourceLength<1000)return@forEach
-            val note=mapNote(voice.sourceNote)
+            val note=mappedNote(voice.sourceNote)
             if(note==voice.note)return@forEach
             if(note !in 0..127){voice.playback?.cut();voice.release=0;return@forEach}
             val playback=sampled?.voice(note,voice.tune,voice.samplePan,scriptVelocity=voice.sourceTouch and 65535,
@@ -74,6 +75,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var pedalDown=initialPedal
     private var tailPedalMode:Int?=null
     private var modulationLevel:Int?=null
+    private var transposeDelta=0
+    private var octaveDelta=0
+    private fun mappedNote(note:Int):Int {
+        val mapped=mapNote(note)
+        return if(!accompaniment || mapped<0)mapped else
+            (mapped.toLong()+transposeDelta+octaveDelta.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
+    }
     private var pitchMove=1000
     private var keyBalance=0
     private var keyTouch=100
@@ -294,6 +302,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 return@advance
             }
             if(event.type==44){channelVolume=event.note;return@advance}
+            if(event.type==41){transposeDelta=event.note-storedTranspose;return@advance}
+            if(event.type==42){octaveDelta=event.note-storedOctave;return@advance}
             if(event.type==45){channelPan=event.note;return@advance}
             if(event.type==46 || event.type==56){
                 modulationLevel=event.note
@@ -301,7 +311,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voices.values.forEach{it.playback?.modulate(event.note)}
                 return@advance
             }
-            val note=if(event.type==2)mapNote(event.note) else event.note
+            val note=if(event.type==2)mappedNote(event.note) else event.note
             if(event.type==2 && !eventMuted && !performanceMuted && drumLength(note)>0){
                 while(voices.size>=ImportedPolyphony.rhythm)voices.remove(voices.keys.first())?.playback?.cut()
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
