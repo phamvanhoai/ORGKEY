@@ -8,19 +8,15 @@ object ImportedStylePlayer {
         transposer:ReferenceChordTransposer?,keyConnectionMethod:Int=0,
         scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
         chordControl:()->Int={0},chordOctaveMove:()->Int={0},targetChord:()->Int?,chordQuality:()->Int={2}):ImportedPadSequence {
-        val groups=linkedMapOf<Int,ImportedStyleGroup>()
-        var next:ImportedStyleGroup?=group
-        while(next!=null && next.id !in groups){
-            val current=next
-            require(groups.size<64){"PAD jump chain exceeds 64 groups"}
-            groups[current.id]=current
-            next=if(!current.loop && current.jumpGroup>0)
-                requireNotNull(index.styles.firstOrNull{it.id==current.jumpGroup}){"PAD jump target ${current.jumpGroup} is missing"}
-            else null
+        val groups=listOf(group)+ImportedStyleCatalog.jumpTargets(index,listOf(group))
+        require(groups.size<=64){"PAD jump chain exceeds 64 groups"}
+        val byId=groups.associateBy{it.id}
+        groups.forEach{current->
+            require(current.loop || current.jumpGroup<=0 || current.jumpGroup in byId){"PAD jump target ${current.jumpGroup} is missing"}
         }
-        val players=loadSections(file,index,groups.values.toList(),true,transposer,targetChord,keyConnectionMethod,
+        val players=loadSections(file,index,groups,true,transposer,targetChord,keyConnectionMethod,
             scriptOverrides,chordControl,chordOctaveMove,chordQuality)
-        return ImportedPadSequence(group.id,groups,players)
+        return ImportedPadSequence(group.id,byId,players)
     }
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
@@ -28,7 +24,10 @@ object ImportedStylePlayer {
         val complete=ImportedSectionFallback.complete(index,style)
         val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
-        return ImportedStyleSession(complete,loadSections(file,index,sections,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality))
+        val linked=ImportedStyleCatalog.jumpTargets(index,sections)
+        val playableLinked=linked.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
+        val players=loadSections(file,index,sections+playableLinked,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality)
+        return ImportedStyleSession(complete,players,linkedGroups=linked)
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},

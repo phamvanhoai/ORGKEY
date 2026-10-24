@@ -11,8 +11,8 @@ class ImportedStyleTempoMemory {
 
 /** GroupPlayAdd/Next/Start rules for supported, bounded style groups. */
 class ImportedStyleSession(val style:ImportedStyleDefinition,private val players:Map<Int,ReferenceRhythmPlayer>,sampleRate:Int=48000,
-    private var changeMethod:Int=0,private var tempoLock:Boolean=false) {
-    private val groups=style.sections.associateBy{it.id}
+    private var changeMethod:Int=0,private var tempoLock:Boolean=false,linkedGroups:List<ImportedStyleGroup> = emptyList()) {
+    private val groups=(style.sections+linkedGroups).associateBy{it.id}
     private val main=style.sections.first{it.section in 32..35 && it.id in players}
     private val clock=ReferenceStyleClock(sampleRate)
     private data class Request(val id:Int,val immediate:Boolean,val mute:Int=0)

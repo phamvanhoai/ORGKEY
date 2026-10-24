@@ -5,6 +5,34 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun styleLoadsJumpTargetsOutsideItsButtonSections(){
+        val main=ImportedStyleGroup(1,100,"Main",32,true,0,1000,120)
+        val ending=ImportedStyleGroup(2,100,"Ending",80,false,0,1000,120,jumpGroup=3)
+        val linked=ImportedStyleGroup(3,200,"Linked ending",81,false,0,1000,120,jumpGroup=0)
+        val unrelated=linked.copy(id=4,parent=300)
+        val index=ImportedSetIndex(emptyList(),listOf(main,ending,linked,unrelated))
+        // Silent sections are valid SET groups and need no PCM file.
+        val session=ImportedStylePlayer.loadStyle(File("unused-silent-set"),index,
+            ImportedStyleDefinition(100,"Style",listOf(main,ending)))
+        try{
+            assertTrue(session.available(3));assertFalse(session.available(4))
+            assertEquals(listOf(1,2),session.style.sections.map{it.id})
+            session.request(2,true)
+            repeat(48001){session.next(120)}
+            assertEquals(3,session.currentId);assertNull(session.transitionError);assertFalse(session.finished)
+            repeat(48000){session.next(120)}
+            assertTrue(session.finished)
+        }finally{session.close()}
+    }
+    @Test fun crossStyleJumpDiscoveryHandlesCyclesAndIgnoresLoopingGroupJumps(){
+        val a=ImportedStyleGroup(1,100,"A",80,false,0,1000,120,jumpGroup=2)
+        val b=a.copy(id=2,parent=200,jumpGroup=1)
+        val loop=a.copy(id=3,loop=true,jumpGroup=4)
+        val unused=a.copy(id=4)
+        val index=ImportedSetIndex(emptyList(),listOf(a,b,loop,unused))
+        assertEquals(listOf(b),ImportedStyleCatalog.jumpTargets(index,listOf(a,loop)))
+        assertTrue(ImportedStyleCatalog.jumpTargets(index,listOf(a.copy(jumpGroup=999))).isEmpty())
+    }
     @Test fun legacyFunctionKeysBecomeSectionsWithoutOverridingExplicitSections(){
         val bytes=java.io.ByteArrayOutputStream()
         val out=java.io.DataOutputStream(bytes)

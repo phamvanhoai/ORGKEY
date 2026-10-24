@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nạp group nối tiếp ngoài danh sách nút style, 24-10-2026
+
+- Tracks.GroupPlayNext gọi Group(JumpGroup), tìm trên toàn SET. loadStyle trước chỉ chuẩn bị các section của style/fallback; group đích có trong SET nhưng ngoài danh sách này vẫn gây transition unavailable.
+- Thêm duyệt JumpGroup dương của group không Loop trên toàn index; theo ID đã thấy để kết thúc khi gặp chu trình. loadStyle chuẩn bị các group đích được hỗ trợ bằng cùng loader/sample budget hiện có. ImportedStyleSession nhận linkedGroups riêng, không chèn vào style.sections hoặc tạo thêm style/nút trên UI.
+- PAD dùng lại cùng bộ duyệt, vẫn giữ kiểm tra target thiếu và giới hạn64 group. Group Loop không tự đi theo JumpGroup; jump âm/0 vẫn giữ cơ chế hiện có. Không sửa file SET.
+- Kiểm tra qua loadStyle: Ending của parent100 nối tới group parent200 rồi kết thúc, không lỗi transition; group parent300 không liên quan không được nạp; danh sách nút giữ1/2. Kiểm tra chu trình, đích thiếu và Loop không duyệt jump; hồi quy ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và build đạt. Cài APK thành công.
+- Chưa đối chiếu bản thu SET thực/APK. Group type khác1 hoặc dữ liệu target chưa hỗ trợ vẫn không được phát và báo unavailable khi chuyển; không thêm hỗ trợ ChordVars hoặc toàn bộ schema SET mới. Tổng PCM của chuỗi vẫn chịu giới hạn64MB.
+
 ## Chord quality trong đường phát SET, 24-10-2026
 
 - Đối chiếu Tracks._PlayGroup và arrays.ChordQuality: Minimum0 đánh dấu trước melodic instrument7/8/9, Half1 đánh dấu8; các mức dưới Full chỉ xử lý track đầu tiên của cùng melodic instrument0..10 trong group. Percussion và instrument>10 không bị lọc. Music mặc địnhFull2.

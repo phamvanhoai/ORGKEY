@@ -3,6 +3,20 @@ package com.hovait.orgx
 data class ImportedStyleDefinition(val id:Int,val name:String,val sections:List<ImportedStyleGroup>)
 
 object ImportedStyleCatalog {
+    /** Tracks.Group(id) resolves positive jumps across the entire SET, not just this style. */
+    fun jumpTargets(index:ImportedSetIndex,roots:List<ImportedStyleGroup>):List<ImportedStyleGroup>{
+        val byId=index.styles.associateBy{it.id}
+        val seen=roots.mapTo(HashSet()){it.id}
+        val queue=ArrayDeque(roots)
+        val linked=ArrayList<ImportedStyleGroup>()
+        while(queue.isNotEmpty()){
+            val group=queue.removeFirst()
+            if(group.loop || group.jumpGroup<=0 || !seen.add(group.jumpGroup))continue
+            val next=byId[group.jumpGroup] ?: continue
+            linked.add(next);queue.addLast(next)
+        }
+        return linked
+    }
     /** MainActivity.y1 resolves each PAD in the current style before parent zero. */
     fun pads(index:ImportedSetIndex?,parent:Int?):List<ImportedStyleGroup?> = List(4){slot->
         index?.styles?.firstOrNull{parent!=null && it.parent==parent && it.section==96+slot}
