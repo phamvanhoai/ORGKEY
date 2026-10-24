@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Track Style/PAD áp PedalMode đã lưu trong SET, 24-10-2026
+
+- ImportedStylePlayer trước chỉ truyền initialPedal, bỏ track.pedalMode. ReferenceRhythmPlayer nay nhận pedalMode, mặc định-1 để giữ tương thích caller không metadata. Loader truyền giá trị thực từ track.
+- Khi render sampled voice, envelope dùng pedalDown nếu mode-1, luôn release chậm nếu mode khác0/-1, nhanh nếu mode0. Connection/PitchShake/VolumeShake dùng effectPedal thực, Repeat tiếp tục dùng pedalDown. Release tail được chuyển quyền sở hữu giữ mode nguồn.
+- ReferenceRhythmPlayerTest kiểm tra mode1/pedalfalse giảm chậm hơn mode0/pedaltrue, mode-1 khớp trạng thái pedal tương ứng. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest/ImportedSectionFallbackTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa nghe Style/PAD thực trên thiết bị hoặc đối chiếu mọi giá trị PedalMode của APK. Nhánh không sampled Playback chưa mở rộng semantics này.
+
 ## Sampled track gửi release đúng tick dù pedal đang bật, 24-10-2026
 
 - Event1 của ReferenceRhythmPlayer trước giữ pendingRelease cho mọi voice nếu pedalDown, trì hoãn cả script release. Nay sampled Playback nhận release ngay, envelope tiếp tục lấy pedalDown để chọn tốc độ giảm; nhánh không Playback giữ cơ chế cũ.

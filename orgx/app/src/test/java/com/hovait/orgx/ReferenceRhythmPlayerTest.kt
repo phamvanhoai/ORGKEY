@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun sampledTrackReleaseUsesStoredPedalModeIndependentlyOfPedalState(){
+        fun render(mode:Int,pedal:Boolean):Double {
+            val sound=SampledInstrument(listOf(InstrumentRegion(60,
+                SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+                envelope=ImportedEnvelope(0,0,100,100,false))
+            val player=ReferenceRhythmPlayer(listOf(track(listOf(
+                ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(1,1,60,0,1,0)))),
+                {10000},{_,_,_->0.0},1000,sampled=sound,initialPedal=pedal,pedalMode=mode)
+            return try{repeat(102){player.next(0,120)};player.left}finally{player.close()}
+        }
+        assertTrue(render(1,false)>render(0,true))
+        assertEquals(render(1,false),render(-1,true),0.0)
+        assertEquals(render(0,true),render(-1,false),0.0)
+    }
     @Test fun sampledTrackReceivesReleaseScriptAtNoteOffWhilePedalIsDown(){
         val sound=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,

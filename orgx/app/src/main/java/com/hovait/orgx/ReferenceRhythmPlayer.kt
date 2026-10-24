@@ -7,7 +7,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val sampled:SampledInstrument?=null,private val channelGain:(Int)->Double={1.0},private var fx:ImportedFxChain?=null,
     private val initiallyMuted:Boolean=false,private val initialChannel:ImportedChannelSettings?=null,
     private val expressionEffects:List<ImportedExpressionEffect> = emptyList(),private val initialPedal:Boolean=false,
-    private val expressionAllowed:Boolean=true,private val keyConnectionMethod:Int=0) {
+    private val expressionAllowed:Boolean=true,private val keyConnectionMethod:Int=0,private val pedalMode:Int=-1) {
     init{require(keyConnectionMethod in 0..1)}
     private var volumeShake=expressionEffects.firstOrNull{it.slot==3}
     private var pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2}
@@ -72,6 +72,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         performanceMuted=if(accompaniment)chord else drum
     }
     private var pedalDown=initialPedal
+    private var tailPedalMode:Int?=null
     private var modulationLevel:Int?=null
     private var pitchMove=1000
     private var keyBalance=0
@@ -97,6 +98,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 // Retiring voices retain their channel's pedal/expression state.
                 // The destination section has an independent channel state.
                 tail.pedalDown=source.pedalDown
+                tail.tailPedalMode=source.pedalMode
                 tail.volumeShake=source.volumeShake
                 tail.tailGain=source.tracks.getOrNull(source.current)?.outputGain ?: 1.0
                 source.voices.values.forEach{if(it.release<0)it.release=0}
@@ -331,7 +333,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         while(iterator.hasNext()){
             val voice=iterator.next()
             if(voice.playback!=null){
-                voice.playback.next(voice.release>=0,pedalDown)
+                val mode=tailPedalMode ?: pedalMode
+                val envelopePedal=if(mode==-1)pedalDown else mode!=0
+                voice.playback.next(voice.release>=0,envelopePedal,effectPedal=pedalDown)
                 left+=voice.playback.left*voice.gain*voice.touchGain*currentChannelGain(0);right+=voice.playback.right*voice.gain*voice.touchGain*currentChannelGain(1)
                 if(voice.repeat?.next(voice.release>=0,pedalDown)==true){
                     val playback=sampled?.voice(voice.note,voice.tune,voice.samplePan,autoRelease=true,effectsAllowed=false,scriptAllowed=false)
