@@ -7,6 +7,25 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 
 class ImportedSoundSelectionTest {
+    @Test fun scriptExitToSameNamedModeStillUpdatesSavedIdentity(){
+        val file=temp.newFile("same-mode.pcm")
+        file.writeBytes(byteArrayOf(0,32,0,32))
+        val sample=ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+            ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))))
+        fun mode(script:String="")=ImportedMode("Same",0,-1,List(8){-1},List(8){0},List(8){0},script=script)
+        val raw=ImportedInstrument("Voice",100,0,0,listOf(sample),listOf(mode(),
+            mode("on(touch){play();return(true);} on(release){exit;}")),sourceIdentity="instrument:5")
+        val selected=ImportedInstrumentLoader.playableSounds(listOf(raw)).last()
+        val loaded=ImportedInstrumentLoader.load(file,selected)
+        val savedKey=ImportedSoundSelection.key(selected)
+        assertNull(ImportedSoundSelection.changedMode(loaded,file,file.name,selected.name,savedKey))
+        val voice=loaded.voice(60);voice.next(false);voice.next(true)
+        assertEquals(selected.name,loaded.modeSelection!!.name)
+        assertEquals(selected.name,ImportedSoundSelection.changedMode(loaded,file,file.name,selected.name,savedKey))
+        val newKey=ImportedSoundSelection.key(loaded.modeSelection!!.instrument)
+        assertEquals("instrument:5:mode:0",newKey)
+        assertNull(ImportedSoundSelection.changedMode(loaded,file,file.name,selected.name,newKey))
+    }
     @Test fun duplicateVoiceNamesRestoreByInstrumentAndSoundIdentity(){
         fun source(id:Int)=ImportedInstrument("Same",100,0,0,listOf(
             ImportedSound("Same",listOf(0,0,100,10,0,0),emptyList()),

@@ -17,11 +17,12 @@ object ImportedSoundSelection {
         val name:String get()="${instrument.sourceName} / MODE ${instrument.modes.first().name}"
     }
     /** Only a directly selected voice is persisted here; STS keeps its own restore path. */
-    fun changedMode(sound:SampledInstrument?,file:File?,savedFile:String?,savedName:String?):String? {
+    fun changedMode(sound:SampledInstrument?,file:File?,savedFile:String?,savedName:String?,savedKey:String?=null):String? {
         if(file==null || savedFile!=file.name || savedName==null)return null
         val mode=sound?.modeSelection ?: return null
         if(mode.file!=file)return null
-        return mode.name.takeIf{it!=savedName}
+        val currentKey=key(mode.instrument)
+        return mode.name.takeIf{it!=savedName || (currentKey!=null && currentKey!=savedKey)}
     }
     fun resolve(directory:File,fileName:String,soundName:String,soundKey:String?=null):Pair<File,ImportedInstrument> {
         require(Regex("[0-9a-f]{64}\\.orgset").matches(fileName)){"Invalid saved SET reference"}

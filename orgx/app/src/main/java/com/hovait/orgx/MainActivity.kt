@@ -78,6 +78,15 @@ class MainActivity : ComponentActivity() {
         val selectedSet=preferences.getString("selectedStsSet",null)
         val selectedTrack=preferences.getInt("selectedStsTrack",-1)
         val selectedSlot=preferences.getInt("selectedStsSlot",-1)
+        val directFile=engine.activeSetFile
+        val directSound=engine.importedInstrument
+        val changedDirect=ImportedSoundSelection.changedMode(directSound,directFile,
+            preferences.getString("importedSetFile",null),preferences.getString("importedSetSound",null),
+            preferences.getString("importedSetSoundKey",null))
+        if(changedDirect!=null && selectedSet==null){
+            preferences.edit().putString("importedSetSound",changedDirect)
+                .putString("importedSetSoundKey",directSound?.modeSelection?.instrument?.let(ImportedSoundSelection::key)).apply()
+        }
         val group=engine.currentStsGroup
         if(group!=null && selectedTrack==0 && selectedSet==group.file.name && selectedSlot==group.selection.slot &&
             engine.activeSetIndex===group.index && engine.activeSetFile==group.file){
@@ -119,7 +128,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         while(true){
             if(!restoringSet){
                 val changed=ImportedSoundSelection.changedMode(engine.importedInstrument,engine.activeSetFile,
-                    preferences.getString("importedSetFile",null),preferences.getString("importedSetSound",null))
+                    preferences.getString("importedSetFile",null),preferences.getString("importedSetSound",null),preferences.getString("importedSetSoundKey",null))
                 val group=engine.currentStsGroup
                 val single=engine.currentStsSingle
                 val savedTrack=preferences.getInt("selectedStsTrack",-1)

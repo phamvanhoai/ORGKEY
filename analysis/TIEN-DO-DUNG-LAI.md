@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## DNC exit giữa mode trùng tên vẫn cập nhật identity, 24-10-2026
+
+- changedMode nhận savedKey, so cả display name và key instrument/mode; mode khác index nhưng cùng tên vẫn trả tín hiệu lưu. Nhạc cụ có identity nhưng chưa lưu key cũng được migration khi chạy; không làm mất fallback nhạc cụ dựng bằng code không có identity.
+- Vòng lưu direct voice truyền key hiện tại; MainActivity.onPause bổ sung lưu direct mode mới nhất khi không có selectedStsSet, tránh chỉ lưu STS mà bỏ sót exit voice ngay trước khi chuyển nền. Không sửa SET.
+- Kiểm tra script release exit mode1->0 cùng tên: trước exit khôngchanged, sau exit name giữ nhưng key thành instrument5:mode0, lưu xong khôngchanged. Kiểm tra script Move gốc và ImportedSoundSelectionTest, build đạt; cài APK thành công.
+- Chưa kiểm tra đóng/mở process thực với mode trùng tên hoặc chụp snapshot nguyên tử lúc script đổi mode. Không lưu phase voice/DSP hoặc toàn bộ DNC biến runtime; chưa coi restore100%.
+
 ## Voice trùng tên khôi phục bằng định danh, 24-10-2026
 
 - Thêm selectedSound giữ số sound gốc trên lựa chọn raw sound; mode giữ selectedMode. ImportedSoundSelection.key kết hợp sourceIdentity của nhạc cụ với sound/mode index. Hai nơi chọn voice lưu importedSetSoundKey cùng file/name; mode exit có đổi tên lưu key mới qua đường changedMode hiện có.
