@@ -4,6 +4,25 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceStyleTransitionTest {
+    @Test fun revisitingMainKeepsItsChannelVolumeUntilItsNextAutomationEvent(){
+        val groups=listOf(ImportedStyleGroup(1,100,"Main 1",32,true,0,4000,120),
+            ImportedStyleGroup(2,100,"Main 2",33,true,0,4000,120))
+        val players=groups.associate{group->
+            val events=listOf(ReferenceDrumEvent(2,1,60,100,0,4000))+
+                if(group.id==1)listOf(ReferenceDrumEvent(44,0,50,0,200,0)) else emptyList()
+            group.id to ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(group.name,group.id,100,group.section,
+                120,true,0,4000,false,events)),{10000},{_,_,_->1.0},1000,initialChannel=ImportedChannelSettings())
+        }
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",groups),players,1000)
+        try{
+            repeat(201){session.next(120)}
+            assertEquals(.5,session.player.left,0.0)
+            session.request(2,true);repeat(21){session.next(120)}
+            session.request(1,true);repeat(21){session.next(120)}
+            assertEquals(1,session.currentId)
+            assertEquals(.5,session.player.mixedLeft(1f,1f),1e-9)
+        }finally{session.close()}
+    }
     @Test fun padScaleMovesTheQueuedStyleWindowWithoutResettingTransport(){
         val session=session(lock=true)
         try{

@@ -2,6 +2,15 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Khởi động lại track giữ channel state, 24-10-2026
+
+- Đối chiếu Track.Start: đặt lại DataPos/TimeStart, Channels.CloseAll(false), gọi z01.f(true); không khôi phục volume/pan/pedal/KeyTouch/KeyBalance/KeyPitchMove từ metadata. ORGX từng reset toàn bộ player khi quay lại section, còn nhánh preserveVoices lại không nhả các note cũ.
+- Thêm restartAt giữ trạng thái điều khiển và các release tail, đặt lại timeline/clock, đưa note đang mở sang release. ImportedStyleSession và chuyển JumpGroup PAD dùng đường này; full reset vẫn đặt lại trạng thái ban đầu. Nhánh startAt(preserveVoices=true) nay giữ voice trong release thay vì để ngân vô hạn.
+- ImportedFxChain giữ danh sách module cùng thứ tự stage, thêm resetRealtime chỉ reset stage có realtime=true theo z01.f(true). Gọi khi Track.Start/restart và khi qua ranh giới loop; FX không realtime không bị xóa buffer chỉ vì khởi động lại track.
+- Kiểm tra PCM: đổi volume50/pan100 rồi restart giữ đúng phía/gain, old/new note tổng1 rồi0.95 và ổn định0.5; full reset trả hai kênh1. Kiểm tra Main1->Main2->Main1 giữ volume50 trước sự kiện volume kế tiếp. Echo thường còn0.5 sau selective reset, Echo realtime về0; module disabled không làm lệch ánh xạ.
+- ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest/ImportedFxChainTest và assembleDebug đạt; kiểm tra Main reentry mới đạt riêng; cài APK thành công. Không tạo file test mới hoặc sửa SET.
+- Chưa đối chiếu bản thu APK. resetRealtime dùng Stage.reset hiện có, chưa mô phỏng riêng mọi module c()/a() hoặc phase native. Full Stop/reset, mọi kiểu pedal và group FX khác cấu hình vẫn cần đối chiếu thêm; chưa coi transport/audio tương đương100%.
+
 ## Không áp nhầm Solo của editor vào style/PAD, 24-10-2026
 
 - Đối chiếu Tracks.PlayNext ở playmode0 đặt _solo=false trước _PlayGroup. Bộ lọc activeTracks của ORGX từng tự kích hoạt solo nếu bất kỳ track có fSolo, làm mất các bè khác trong group type1. Nay playback group type1 không lọc theo metadata Solo; Mute và lựa chọn drum-only vẫn được giữ. Metadata SET không bị thay đổi.

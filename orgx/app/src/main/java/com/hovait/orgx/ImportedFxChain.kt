@@ -313,7 +313,8 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val stages:List<Stage> = if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2,29,31,15)}.map{
+    private val modules=if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2,29,31,15)}
+    private val stages:List<Stage> = modules.map{
         if(it.type==15){
             require(it.payload.size==4){"Invalid Pitch Shift payload"}
             return@map PitchShift(int(it.payload,0),sampleRate)
@@ -393,6 +394,8 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     private var closed=false
     val active get()=!closed && stages.any{it.active}
     fun reset(){check(!closed){"SET FX chain is closed"};stages.forEach{it.reset()};left=0.0;right=0.0}
+    /** Track.Start -> z01.f(true) resets only modules marked realtime. */
+    fun resetRealtime(){check(!closed){"SET FX chain is closed"};stages.forEachIndexed{index,stage->if(modules[index].realtime)stage.reset()}}
     override fun close(){
         if(closed)return
         closed=true

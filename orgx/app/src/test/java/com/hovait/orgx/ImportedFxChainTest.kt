@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun trackRestartResetsOnlyRealtimeModules(){
+        for(realtime in listOf(false,true)){
+            val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(
+                module(6,50,1).copy(enabled=false,realtime=!realtime),
+                module(6,50,1).copy(realtime=realtime))),1000)
+            try{
+                fx.process(1.0,0.0);fx.resetRealtime()
+                repeat(9){fx.process(0.0,0.0)}
+                fx.process(0.0,0.0)
+                assertEquals(if(realtime)0.0 else .5,fx.left,0.0)
+                assertEquals(0.0,fx.right,0.0)
+            }finally{fx.close()}
+        }
+    }
     @Test fun stereoEchoModulatesOutputButKeepsFullFeedback(){
         val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(module(4,50,10))),100)
         // Ten-sample delay. Seed all cells so modulation can be measured throughout the sweep.

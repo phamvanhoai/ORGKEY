@@ -31,7 +31,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
                 scaleChange=newScale.takeIf{it>0}
                 val offset=ReferenceSectionTiming.startOffset(time,group,if(newScale in 1..10)newScale else scale,method)
                 startedAt=time-offset
-                player.startAt(offset,preserveGroupFx=player===previous,preserveVoices=player===previous)
+                player.restartAt(offset)
                 if(player!==previous){player.continueGroupFxFrom(previous);player.releaseVoicesFrom(previous)}
             }
         }

@@ -165,14 +165,20 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     fun close(){fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
     fun reset(){resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;voices.clear();eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    /** Track.Start rewinds events, closes old notes in release, and retains channel controls. */
+    fun restartAt(referenceTime:Long){
+        require(referenceTime>=0)
+        clock.reset();initialTime=referenceTime;timeline=null;current=-1;loopOrigin=0;finished=false
+        left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0
+        voices.values.forEach{if(it.release<0){it.pendingRelease=false;it.release=0}}
+        fx?.resetRealtime()
+        children.forEach{it.restartAt(referenceTime)}
+    }
     fun startAt(referenceTime:Long,preserveGroupFx:Boolean=false,preserveVoices:Boolean=false){
         require(referenceTime>=0)
         if(preserveVoices){
-            // GroupPlayStart calls Track.Start; same-group restart does not CloseAll.
-            clock.reset();initialTime=referenceTime;timeline=null;current=-1;loopOrigin=0;finished=false
-            left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0
+            restartAt(referenceTime)
             if(!preserveGroupFx)groupFx?.reset()
-            children.forEach{it.startAt(referenceTime,preserveVoices=true)}
             return
         }
         val live=if(preserveGroupFx)groupFx else null
@@ -211,6 +217,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             loopOrigin+=(local-track.start)/duration*duration
             local=clock.time-loopOrigin+track.start
             timeline?.reset()
+            fx?.resetRealtime()
             // Closing channels starts their release; it does not erase the sample/FX state.
             voices.values.forEach{if(it.release<0)it.release=0}
         }

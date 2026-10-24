@@ -4,6 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun sectionRestartKeepsChannelControlsAndReleasesOldNotes(){
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),
+            ReferenceDrumEvent(44,0,50,0,5,0),ReferenceDrumEvent(45,0,100,0,6,0))
+        val player=ReferenceRhythmPlayer(listOf(track(events)),{10000},{_,_,_->1.0},1000,
+            initialChannel=ImportedChannelSettings())
+        try{
+            player.next(0,120);assertEquals(1.0,player.left,0.0)
+            repeat(6){player.next(0,120)}
+            assertEquals(0.0,player.left,0.0);assertEquals(.5,player.right,0.0)
+            player.restartAt(0);player.next(0,120)
+            assertEquals(0.0,player.left,0.0);assertEquals(1.0,player.right,0.0)
+            player.next(0,120);assertEquals(.95,player.right,1e-9)
+            repeat(20){player.next(0,120)}
+            assertEquals(.5,player.right,1e-9)
+            player.reset();player.next(0,120)
+            assertEquals(1.0,player.left,0.0);assertEquals(1.0,player.right,0.0)
+        }finally{player.close()}
+    }
     @Test fun chordQualityUsesOriginalSlotsAndKeepsPercussionAndOtherInstruments(){
         fun output(level:Int):Double{
             val quality=ImportedChordQuality{level}
