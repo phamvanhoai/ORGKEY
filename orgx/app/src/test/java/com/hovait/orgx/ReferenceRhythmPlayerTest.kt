@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun unboundedTrackCloseAllFinishesTimelineWhileReleaseTailRemains(){
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,100,false))
+        val definition=track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000),
+            ReferenceDrumEvent(3,0,0,0,10,0))).copy(bounded=false,loop=false)
+        val player=ReferenceRhythmPlayer(listOf(definition),{10000},{_,_,_->0.0},1000,sampled=sound)
+        try{
+            repeat(11){player.next(0,120)}
+            assertTrue(player.finished);assertTrue(player.hasTail)
+            player.renderTail();assertTrue(player.left>0)
+        }finally{player.close()}
+    }
     @Test fun legatoAtPolyphonyLimitDoesNotStealAnUnrelatedNote(){
         val before=ImportedPolyphony.rhythm
         val sound=SampledInstrument(listOf(InstrumentRegion(60,

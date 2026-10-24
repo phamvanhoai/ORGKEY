@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Track không bounded kết thúc ở CloseAll mà vẫn giữ release tail, 25-10-2026
+
+- Timeline trước chỉ nhận event1 cuối như dấu nhả nốt hoàn tất; unbounded track kết thúc bằng event3 còn chờ voices rỗng, làm kéo dài thời điểm session nhận hoàn tất theo envelope. Cho event3 cuối vào điều kiện hết timeline; renderTail tiếp tục giữ PCM/envelope.
+- ReferenceRhythmPlayerTest kiểm tra noteOn0/CloseAll10 trên track unbounded: finished tại10, hasTail=true và frame tail vẫn có âm. ReferenceRhythmPlayerTest/ReferenceDrumTimelineTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa kiểm chứng chuyển section thực có CloseAll cuối trên thiết bị. Chưa port đầy đủ quy tắc last-event ID/Length của Track.PlayNext gốc.
+
 ## Legato khi đầy đa âm không cắt thừa nốt khác, 25-10-2026
 
 - ReferenceRhythmPlayer trước giải phóng oldest channel ngay trước kiểm tra connection mode>15. Nhánh này tái sử dụng Playback hiện hành nên không cần kênh mới; khi đủ ngân sách thao tác đó làm mất một voice không liên quan.

@@ -8,7 +8,7 @@ class ReferenceDrumTimeline(events:List<ReferenceDrumEvent>) {
     private var index=0
     private var previous=Long.MIN_VALUE
     val exhausted get()=index>=events.size
-    val endsWithNoteOff get()=events.lastOrNull()?.type==1
+    val endsWithNoteOff get()=events.lastOrNull()?.type in listOf(1,3)
     fun reset(){index=0;previous=Long.MIN_VALUE}
     fun advance(time:Long,dispatch:(ReferenceDrumEvent)->Unit) {
         require(time>=previous){"Reset the timeline before seeking backwards"}
