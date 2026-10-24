@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun legatoAtPolyphonyLimitDoesNotStealAnUnrelatedNote(){
+        val before=ImportedPolyphony.rhythm
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)
+        val events=(0..7).map{ReferenceDrumEvent(2,it+1,60+it,100,it.toLong(),1000)}+
+            listOf(ReferenceDrumEvent(12,0,0,0,10,0),ReferenceDrumEvent(2,9,72,100,11,1000))
+        val connection=ImportedExpressionEffect.default(1).copy(enabled=true,mode=16,byPedal=true)
+        val player=ReferenceRhythmPlayer(listOf(track(events)),{10000},{_,_,_->0.0},1000,
+            sampled=sound,expressionEffects=listOf(connection))
+        try{
+            ImportedPolyphony.rhythm=8
+            repeat(12){player.next(0,120)}
+            assertEquals(8,player.activeVoices)
+        }finally{ImportedPolyphony.rhythm=before;player.close()}
+    }
     @Test fun pitchbendBeforeFirstNoteRunsDncOnceForAllFollowingNotes(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)

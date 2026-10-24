@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Legato khi đầy đa âm không cắt thừa nốt khác, 25-10-2026
+
+- ReferenceRhythmPlayer trước giải phóng oldest channel ngay trước kiểm tra connection mode>15. Nhánh này tái sử dụng Playback hiện hành nên không cần kênh mới; khi đủ ngân sách thao tác đó làm mất một voice không liên quan.
+- Dời bước thay oldest xuống sau nhánh connectTo; chỉ cấp ngân sách khi thực sự mở Playback mới. Nhánh connectFrom vẫn cấp chỗ như trước.
+- Kiểm tra8 nốt với connection ByPedal chưa kích hoạt, bật pedal rồi mở nốt thứ9: Legato tái sử dụng và activeVoices vẫn8. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa kiểm tra nghe Legato đầy đa âm bằng SET thực trên thiết bị.
+
 ## Nhóm section chung0 không tạo style thừa khi có style khai báo, 24-10-2026
 
 - Catalog trước bổ sung mọi parent suy ra từ section sau Type0, gồm0; SET có nhóm dùng chung0 vì vậy có thể hiện thêm Style0 ngoài các style khai báo. Danh sách phím style gốc duyệt các group Type0 sau Master, không biến kho section0 thành mục riêng.

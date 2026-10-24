@@ -326,7 +326,6 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 openedKeyIds[0]=event.id;openedKeyIds[event.note+1]=event.id
             }
             if(event.type==2 && !eventMuted && !performanceMuted && drumLength(note)>0){
-                while(voices.size>=ImportedPolyphony.rhythm)voices.remove(voices.keys.first())?.playback?.cut()
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 val connection=keyConnectionEffect?.takeIf{expressionAllowed && it.enabled}
                 val previous=voices.values.lastOrNull{it.playback!=null && !it.playback.finished &&
@@ -336,6 +335,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                     previous.note=note;previous.eventId=event.id;previous.sourceNote=event.note;previous.sourceLength=event.length;previous.sourceTouch=event.touch;previous.playback?.connectTo(note,connection)
                     return@advance
                 }
+                while(voices.size>=ImportedPolyphony.rhythm)voices.remove(voices.keys.first())?.playback?.cut()
                 val samplePan=ImportedNoteTouch.pan(event.touch)
                 val playback=sampled?.voice(note,event.tune,samplePan,scriptVelocity=event.touch and 65535,
                     initialScriptPedal=pedalDown,scriptId=event.id)?.also{playback->
