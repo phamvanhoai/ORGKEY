@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Phát MIDI nhận All Sound Off CC120 theo channel, 24-10-2026
+
+- Bộ đọc trước bỏ CC120. Nay giữ event trong MidiFile, resolver xóa active/pending của channel đó để không sinh noteOff trì hoãn từ sustain sau lệnh cắt, đồng thời giữ CC120 cho playback.
+- AudioEngine xử lý CC120 bằng bỏ voice MIDI playback của đúng channel, không đi noteOff có release/pedal, không tác động live input hoặc channel khác. Pedal/controller state không bị reset bởi lệnh này; CC123 vẫn giữ quy tắc All Notes Off có xét pedal.
+- MidiSustainTest thêm nốt channel0 đang pedal và channel1 độc lập, xác minh CC120 còn tại tick4, không còn off trì hoãn channel0, off channel1 tại11. MidiSustainTest/MidiFileTest/MidiVoiceKeyTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa kiểm chứng âm thanh CC120 trên thiết bị hoặc đối chiếu trực tiếp APK gốc, không coi toàn bộ controller MIDI đã hoàn tất.
+
 ## MIDI Reset All Controllers trả pitch bend về giữa, 24-10-2026
 
 - MidiFile đưa CC121 qua MidiSustain.resolve, nơi trước chỉ reset modulation và pedal rồi bỏ lệnh. Pitch bend còn giữ ở AudioEngine nên note sau reset có thể lệch tông.

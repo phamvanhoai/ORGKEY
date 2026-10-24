@@ -12,7 +12,11 @@ object MidiSustain {
         events.forEach{event->
             val channel=event.channel
             val key=MidiVoiceKey.key(event.note,channel)
-            if(event.controller==123){
+            if(event.controller==120){
+                active.entries.removeAll{it.value.channel==channel}
+                pending.entries.removeAll{it.value.channel==channel}
+                result+=event
+            }else if(event.controller==123){
                 val iterator=active.entries.iterator()
                 while(iterator.hasNext()){
                     val entry=iterator.next()

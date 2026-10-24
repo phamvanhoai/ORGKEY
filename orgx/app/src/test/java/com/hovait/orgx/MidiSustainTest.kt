@@ -4,6 +4,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiSustainTest {
+    @Test fun allSoundOffDropsSustainedNotesOnlyInItsChannelAndKeepsTheCutCommand(){
+        val events=MidiSustain.resolve(listOf(pedal(0,127),
+            MidiNoteEvent(1,60,100,true),MidiNoteEvent(2,60,0,false),
+            MidiNoteEvent(3,65,100,true,channel=1),
+            MidiNoteEvent(4,0,0,false,controller=120),pedal(10,0),
+            MidiNoteEvent(11,65,0,false,channel=1)))
+        assertEquals(4L,events.single{it.controller==120}.tick)
+        assertFalse(events.any{it.controller==null && !it.on && it.channel==0})
+        assertEquals(11L,events.single{it.controller==null && !it.on}.tick)
+    }
     @Test fun resetControllersCentersOnlyItsChannelsPitchBend(){
         val events=MidiSustain.resolve(listOf(
             MidiNoteEvent(0,0,96,false,channel=0,controller=-2),
