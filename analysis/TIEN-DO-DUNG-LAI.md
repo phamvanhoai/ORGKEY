@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Key Connection mode dùng phiên bản nhạc cụ riêng, 24-10-2026
+
+- Instrument.ReadFromStream áp quy tắc mode KeyConnection trước1.4.3 theo fVersion riêng. Parser ORGX nay giữ metadata version trên ImportedInstrument; loader mode dùng sourceVersion nhạc cụ khi có, fallback tham số container cho nhạc cụ dựng bằng code không có metadata.
+- Nhạc cụ1.4.2 trong SET1.4.6 nay nhận bit keyConnectionMethod16, nhạc cụ1.4.6 không bị áp compatibility dù container cũ. Các bản copy/layer/exitmode giữ metadata nhờ data class copy. Không sửa expression effects của track dựa trên phiên bản nhạc cụ; track vẫn dùng version SET.
+- Kiểm tra loader mode2/method1: old instrument ra18, modern ra2, metadata rỗng fallback old ra18; object mode gốc giữ2. ImportedModeTest và index template92nhạc cụ, build đạt; cài APK thành công.
+- Chưa tìm/thu âm nhạc cụ mixed-version trong SET thực, chưa đối chiếu toàn bộ điều khiển nối nốt. Nhánh STS dùng effects snapshot riêng không thay đổi trong lượt này. Không tuyên bố tương đương100%.
+
 ## LCD dùng metadata group đang phát và giữ thông báo NEXT, 24-10-2026
 
 - Session bổ sung lookup section(id) trên cả button sections và linked JumpGroup targets. LCD meter dùng metadata này thay vì fallback4/4 khi group nối tiếp nằm ngoài danh sách nút; Main link cũng nhận diện linked Main qua lookup chung. Không thêm group nối tiếp vào danh sách style/nút.

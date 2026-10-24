@@ -89,7 +89,7 @@ object ImportedInstrumentLoader {
             val modeSettings=settings ?: ImportedMusicParameters.pitch(instrument.modes.first().settings,musicSettings,musicSettings.octave)
             val decoded=uniqueLayers.associateWith{load(file,it,system,modeSettings,musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=sourceVersion)}
             val loaded=SampledInstrument.combine(layers.map{decoded.getValue(it).copySampleSource()})
-                .withExpressionEffects(if(settings==null)ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(instrument.modes.first().effects,sourceVersion,keyConnectionMethod) else emptyList())
+                .withExpressionEffects(if(settings==null)ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(instrument.modes.first().effects,instrument.sourceVersion ?: sourceVersion,keyConnectionMethod) else emptyList())
                 .withScriptSounds(scriptSources.mapValues{decoded.getValue(it.value).copySampleSource()},mode.sound)
                 .withModeScript(instrument.modes.first().script,instrument.modes.first().scriptSettings+scriptOverrides)
             loaded.scriptSettingsKey=ImportedDncPreferences.key(file,instrument)

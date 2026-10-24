@@ -5,6 +5,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedModeTest {
+    @Test fun connectionCompatibilityUsesInstrumentVersionInsteadOfContainerVersion(){
+        val file=File.createTempFile("orgx-mode-version",".pcm")
+        try{
+            file.writeBytes(ByteArray(2048){if(it%2==0)0 else 32})
+            val original=instrument()
+            val mode=original.modes.first().copy(effects=listOf(ImportedExpressionEffect.default(1).copy(enabled=true,mode=2)))
+            val source=original.copy(modes=listOf(mode),sourceVersion="1.4.2")
+            val legacy=ImportedInstrumentLoader.load(file,source,keyConnectionMethod=1,sourceVersion="1.4.6")
+            assertEquals(18,legacy.keyConnectionEffect!!.mode)
+            val modern=ImportedInstrumentLoader.load(file,source.copy(sourceVersion="1.4.6"),keyConnectionMethod=1,sourceVersion="1.2.8")
+            assertEquals(2,modern.keyConnectionEffect!!.mode)
+            val fallback=ImportedInstrumentLoader.load(file,source.copy(sourceVersion=null),keyConnectionMethod=1,sourceVersion="1.2.8")
+            assertEquals(18,fallback.keyConnectionEffect!!.mode)
+            assertEquals(2,mode.effects.single().mode)
+        }finally{file.delete()}
+    }
     @Test fun modeLoaderRestoresSavedDncValuesAndKeepsResetDefault(){
         val file=File.createTempFile("orgx-dnc-settings",".pcm")
         try{
