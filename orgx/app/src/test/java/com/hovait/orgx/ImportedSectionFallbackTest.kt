@@ -5,6 +5,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun catalogEnumeratesDeclaredParentsInSetOrderIncludingFullySharedStyle(){
+        fun parent(id:Int,name:String)=ImportedStyleGroup(id,0,name,0,false,0,0,120,type=0)
+        val shared=part(1,0,32)
+        val intro=part(2,200,16)
+        val index=ImportedSetIndex(emptyList(),listOf(parent(100,"Shared"),parent(200,"Local Intro"),
+            parent(Int.MIN_VALUE,"Recording"),intro,shared))
+        val styles=ImportedStyleCatalog.styles(index)
+        assertEquals(listOf(100,200,0),styles.map{it.id})
+        assertEquals(listOf(shared),styles.first().sections)
+        assertEquals("Shared",styles.first().name)
+        assertEquals(listOf(intro,shared),styles[1].sections)
+    }
     @Test fun catalogKeepsStyleWhoseMainComesFromGroupZero(){
         val parent=ImportedStyleGroup(100,0,"Shared Main Style",0,false,0,0,120,type=0)
         val main=part(1,0,32);val intro=part(2,100,16)

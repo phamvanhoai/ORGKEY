@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Liệt kê nhóm style khai báo dù dùng toàn bộ section chung, 24-10-2026
+
+- MainActivity.B1 và phần vẽ phím style liệt kê nhóm Type0 theo thứ tự Group trong SET; phần khởi tạo bỏ nhóm recording Integer.MIN_VALUE. Catalog ORGX chỉ groupBy section nên nhóm Type0 không có section riêng vẫn bị bỏ sót sau sửa fallback trước.
+- Catalog nay lấy các parent Type0 khai báo trước theo thứ tự SET, giải quyết section riêng/chung, rồi kiểm tra Main. Nhóm không có section riêng nhưng có Main chung vẫn xuất hiện. Giữ nhánh suy ra parent từ section cho index cũ/thiếu metadata và nhóm chung0; bỏ parent recording. Đây chưa phải tái tạo toàn bộ phân trang/phân loại của giao diện gốc.
+- Kiểm tra trong ImportedSectionFallbackTest hiện có: thứ tự parent100/200 dù section của200 đứng trước, parent100 dùng hoàn toàn Main chung, parent200 giữ Intro riêng, recording không hiện. ImportedSectionFallbackTest/ImportedStyleSessionTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa xác minh danh sách và thứ tự bằng SET thực trên thiết bị.
+
 ## Nhận style có Main dùng chung từ nhóm 0, 24-10-2026
 
 - ImportedStyleCatalog.styles trước lọc nhóm phải có Main riêng rồi mới gọi ImportedSectionFallback.complete. Style có Intro/Fill/Ending riêng và Main dùng chung nhóm0 bị loại trước khi được giải quyết fallback, dù MainActivity.y1 của APK cho phép GroupSection(0,section).

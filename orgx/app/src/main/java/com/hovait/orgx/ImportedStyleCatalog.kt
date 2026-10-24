@@ -25,8 +25,15 @@ object ImportedStyleCatalog {
     fun isSection(section:Int)=section in 16..18 || section in 32..35 || section in 48..51 || section==64 || section in 80..82
     fun styles(index:ImportedSetIndex):List<ImportedStyleDefinition> {
         val names=index.styles.associateBy{it.id}
-        return index.styles.filter{isSection(it.section)}.groupBy{it.parent}
-            .map{(parent,sections)->
+        val sectionsByParent=index.styles.filter{isSection(it.section)}.groupBy{it.parent}
+        // The original style keys enumerate Type 0 groups in SET order, even
+        // when every playable section comes from GroupSection(0, section).
+        val parents=LinkedHashSet<Int>()
+        index.styles.filter{it.type==0 && it.id!=0 && it.id!=Int.MIN_VALUE}.forEach{parents.add(it.id)}
+        // Retain support for older/partial indexes without explicit parent metadata.
+        sectionsByParent.keys.filter{it!=Int.MIN_VALUE}.forEach{parents.add(it)}
+        return parents.map{parent->
+            val sections=sectionsByParent[parent].orEmpty()
             ImportedSectionFallback.complete(index,ImportedStyleDefinition(parent,names[parent]?.name?.takeIf{it.isNotBlank()} ?: "Style $parent",sections.sortedBy{it.section}))
         }.filter{style->style.sections.any{it.section in 32..35}}
     }
