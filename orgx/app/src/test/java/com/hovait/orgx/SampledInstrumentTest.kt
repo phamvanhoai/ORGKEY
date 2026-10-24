@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @org.junit.Test fun releaseLoopExitsAtItsCurrentPhaseAndPlaysTheStoredTail(){
+        fun voice(untilRelease:Boolean)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,shortArrayOf(1000,2000,3000,4000,5000,6000,7000,8000)),2,4,
+            loopUntilRelease=untilRelease)),1000,envelope=ImportedEnvelope(0,0,100,20,false)).voice(60)
+        val held=voice(true);val continuous=voice(false)
+        repeat(10){held.next(false);continuous.next(false)}
+        assertEquals(continuous.left,held.left,0.0)
+        held.next(true);continuous.next(true)
+        held.next(true);continuous.next(true)
+        held.next(true);continuous.next(true)
+        assertTrue(held.left>continuous.left) // Exit has reached frame4; continuous still loops frame2.
+        repeat(8){held.next(true);continuous.next(true)}
+        assertTrue(held.finished);assertFalse(continuous.finished)
+    }
     @org.junit.Test fun loopTempoScalesOnlyModeThreeAndTracksLiveBpmWithoutRestart(){
         val oldEnabled=SampledInstrument.loopTempo;val oldTempo=SampledInstrument.tempo
         try{

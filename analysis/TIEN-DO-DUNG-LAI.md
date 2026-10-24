@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Sample Loop1 giữ phím rồi đọc tail khi nhả, 24-10-2026
+
+- Đối chiếu Channels.Process nhánh InstSec.Loop: Loop>1 luôn lặp, Loop1 chỉ lặp khi channel chưa Close; khi không lặp dùng Wave.Length. Loader trước từ chối1, làm nhạc cụ/style có region này không được hỗ trợ.
+- Thêm InstrumentRegion.loopUntilRelease, loader map Loop1 riêng. Playback khi released lần đầu quy vị trí tích lũy về phase vật lý trong loop, khóa thoát loop cho voice đó và đọc tới cuối PCM qua envelope; Loop2/3 giữ hành vi cũ. Đường sample đọc trực tiếp không có noteoff vẫn coi là đang giữ.
+- Kiểm tra PCM giữ10frame cho Loop1 giống Loop2, sau nhả Loop1 đọc frame4/tail rồi finished trong khi Loop2 vẫn lặp. Kiểm tra ImportedStyleSupport/InstrumentLoader chấp nhận Loop1 có bounds hợp lệ. SampledInstrumentTest/ReferenceRhythmPlayerTest và kiểm tra style mục tiêu, assembleDebug đạt; cài APK thành công.
+- Chưa tìm/so bản thu Loop1 trong SET thực với APK. Chưa đối chiếu đầy đủ ForceLoop/keyconnection nối lại voice đã thoát loop hoặc native interpolation/boundary Length-1. Không suy ra toàn bộ tiếng nhạc cụ tương đương100%. File SET giữ nguyên.
+
 ## PAD Loop không giới hạn tiếp tục sau hết sự kiện, 24-10-2026
 
 - Đối chiếu Tracks._PlayGroup: khi Track.PlayNext hết dữ liệu gọi GroupPlayStart; GroupPlayNext giữ group hiện tại nếu Loop/tempLoop. ImportedPadSequence trước chuyển JumpGroup dương khi player.finished kể cả Loop, hoặc bank chuyển sang tail rồi đóng slot khi Loop không có jump.

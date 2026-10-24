@@ -58,7 +58,7 @@ object ImportedInstrumentLoader {
         sound.sections.forEach{region->
             if(region.frames<=0)return "Sample ${region.note} has no frames"
             if(instrument.pan.toLong()+region.pan !in -100L..100L)return "Sample ${region.note} balance outside range"
-            if(region.loop !in listOf(0,2,3))return "Sample ${region.note} uses loop mode ${region.loop}"
+            if(region.loop !in 0..3)return "Sample ${region.note} uses loop mode ${region.loop}"
             if(region.loop!=0 && (region.loopStart<0 || region.loopEnd<=region.loopStart || region.loopEnd>region.frames))
                 return "Sample ${region.note} loop ${region.loopStart}..${region.loopEnd} exceeds ${region.frames} frames"
         }
@@ -122,7 +122,7 @@ object ImportedInstrumentLoader {
                 }
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
                     section.loopStart,section.loopEnd,instrument.volume.toDouble()*section.volume/10000,instrument.pan+section.pan,section.loop!=0,
-                    section.tune+if(instrument.type==0)channel.tune+musicSettings.tune else 0,tempoSync=section.loop==3)
+                    section.tune+if(instrument.type==0)channel.tune+musicSettings.tune else 0,tempoSync=section.loop==3,loopUntilRelease=section.loop==1)
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
                 envelope=ImportedEnvelope.from(instrument.sounds.first().envelope).let{it.copy(release=ImportedMusicParameters.release(it.release,channel,musicSettings))},pitchMode=instrument.sounds.first().envelope[4],

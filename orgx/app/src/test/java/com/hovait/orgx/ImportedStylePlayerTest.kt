@@ -5,6 +5,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStylePlayerTest {
+    @Test fun sustainUntilReleaseSampleDoesNotDisableItsStyle(){
+        val source=index()
+        val sustain=source.instruments[1].copy(sounds=source.instruments[1].sounds.map{sound->
+            sound.copy(sections=sound.sections.map{it.copy(loop=1,loopStart=1,loopEnd=3)})
+        })
+        val bank=source.copy(instruments=listOf(source.instruments[0],sustain))
+        assertNull(ImportedStyleSupport.reason(bank,group,true))
+        assertTrue(ImportedInstrumentLoader.supported(sustain))
+    }
     @Test fun trailingLoaderCallbackStillSuppliesTheTargetChord(){
         val file=File.createTempFile("style-chord-callback",".pcm")
         try{
