@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Fade dùng chung giữa các track combine, 25-10-2026
+
+- ReferenceRhythmPlayer thêm ReferenceFadeController dùng chung. combine bind parent và mọi child vào cùng controller, nên event211/212 từ một track thay fadeGain của tổng style, thay vì mỗi child tự giảm riêng.
+- Group FX vẫn xử lý sau gain fade của child; parent output cộng các child đã cùng gain. Test cũ FadeStart/FadeCancel và ReferenceRhythmPlayerTest/assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa đo âm lượng nhiều track trên thiết bị. Fade duration vẫn lấy note/length event đơn giản, chưa tái tạo đầy đủ Music.FadeStart(i3,i4) theo tempo/frame gốc.
+
 ## FadeStart/FadeCancel giảm âm lượng Rhythm bus, 25-10-2026
 
 - ReferenceRhythmPlayer lưu fadeGain/target/step, event211 đặt target0, event212 target1; mỗi mixOutput tiến một bước theo độ dài event.note hoặc length. Gain áp sau mixedLeft/Right trước group FX, đuôi FX tiếp tục nhận frame.
