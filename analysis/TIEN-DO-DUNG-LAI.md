@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Giải phóng mục tiêu Main STS đã hoàn tất và tránh nạp trước bàn giao, 24-10-2026
+
+- mainStsTarget trước giữ nguyên sau khi Main đích đã phát, luôn che sectionState trong linkedMainPart. Vòng đồng bộ nay bỏ target khi session đích đã thành session phát và currentId đạt mục tiêu, hoặc target thuộc session đã rời lựa chọn; giữ target trong thời gian AutoFill đang chờ Main.
+- Effect Main STS chỉ bắt đầu prepare khi audibleStyleSession===setSession. Trước đây pending style cũng prepare rồi guard cuối bỏ kết quả, hoặc có thể commit nếu bàn giao xảy ra giữa IO; effect lại chạy khi audibleStyleSession được đồng bộ, có nguy cơ nạp/apply lặp. Guard file/index/revision/expectedSound và identity engine ở cuối vẫn giữ.
+- assembleDebug và ImportedStsSelectionTest/ImportedStsBatchTest/ReferenceStyleTransitionTest đạt. Không thêm file test; các kiểm tra nền không mô phỏng Compose effect/lịch IO. Chưa có kiểm chứng runtime Main–STS với SET Master phù hợp trên thiết bị; không tuyên bố toàn bộ STS tương đương APK. Không sửa SET hoặc tạo log mới.
+
 ## Liệt kê nhóm style khai báo dù dùng toàn bộ section chung, 24-10-2026
 
 - MainActivity.B1 và phần vẽ phím style liệt kê nhóm Type0 theo thứ tự Group trong SET; phần khởi tạo bỏ nhóm recording Integer.MIN_VALUE. Catalog ORGX chỉ groupBy section nên nhóm Type0 không có section riêng vẫn bị bỏ sót sau sửa fallback trước.

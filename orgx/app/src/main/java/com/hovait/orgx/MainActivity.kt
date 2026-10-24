@@ -292,7 +292,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         val requestRevision=mainStsRevision
         val file=engine.activeSetFile
         val index=engine.activeSetIndex
-        if(linkSts && !directStsOverride && session!=null && file!=null && index!=null && !restoringSet){
+        if(linkSts && !directStsOverride && session!=null && audibleStyleSession===session &&
+            file!=null && index!=null && !restoringSet){
             val part=session.section(linkedMainPart)
             if(part!=null && part.section in 32..35)try{
                 val slot=ImportedStsSelection.linkedMainSlot(index,session.style.id,part.section) ?: return@LaunchedEffect
@@ -325,6 +326,10 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         bankIndex=engine.activeSetIndex
         audibleStyleSession=engine.importedStyleSession
         setSession=engine.selectedStyleSession
+        mainStsTarget?.let{(requestedSession,requestedPart)->
+            if(requestedSession!==setSession ||
+                (audibleStyleSession===requestedSession && requestedSession.currentId==requestedPart))mainStsTarget=null
+        }
         temporaryLoop=setSession?.temporaryLoop==true
         setSession?.let{sectionState=it.currentId to it.pendingId;bpm=engine.bpm}
         kotlinx.coroutines.delay(100)
