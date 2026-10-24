@@ -8,6 +8,8 @@ object MidiSustain {
         val modulation=IntArray(16)
         val bends=IntArray(16){8192}
         val expression=IntArray(16){127}
+        val rpnMsb=IntArray(16){127}
+        val rpnLsb=IntArray(16){127}
         val pending=LinkedHashMap<Int,MidiNoteEvent>()
         val active=LinkedHashMap<Int,MidiNoteEvent>()
         val result=mutableListOf<MidiNoteEvent>()
@@ -29,6 +31,11 @@ object MidiSustain {
                     }
                 }
             } else if(event.controller==64 || event.controller==121){
+                if(event.controller==121 && (rpnMsb[channel]!=127 || rpnLsb[channel]!=127)){
+                    result+=event.copy(controller=101,velocity=127)
+                    result+=event.copy(controller=100,velocity=127)
+                    rpnMsb[channel]=127;rpnLsb[channel]=127
+                }
                 if(event.controller==121 && expression[channel]!=127){
                     result+=event.copy(controller=11,velocity=127)
                     expression[channel]=127
@@ -47,6 +54,11 @@ object MidiSustain {
                     }
                 }
             } else if(event.controller!=null){
+                when(event.controller){
+                    101->rpnMsb[channel]=event.velocity
+                    100->rpnLsb[channel]=event.velocity
+                    98,99->{rpnMsb[channel]=127;rpnLsb[channel]=127}
+                }
                 if(event.controller==1)modulation[channel]=event.velocity
                 if(event.controller==11)expression[channel]=event.velocity
                 if(event.controller==-2)bends[channel]=event.note or (event.velocity shl 7)

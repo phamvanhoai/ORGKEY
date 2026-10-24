@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Reset MIDI hủy bộ chọn RPN còn giữ, 25-10-2026
+
+- Resolver theo dõi RPN MSB/LSB theo channel; CC121 xuất101=127/100=127 nếu trước đó bộ chọn chưa Null. Không xóa tuning/range đã đặt. NRPN98/99 vô hiệu hóa RPN như MidiPitchState hiện có, không làm thay giá trị RPN.
+- MidiPitchStateTest đưa coarse tuning+3 qua resolver rồi reset và DataEntry80: tuning vẫn+3, increment sau đó bị bỏ khi chưa chọn RPN lại, channel khác không đổi. MidiPitchStateTest/MidiSustainTest/MidiIntegrationTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa nghe/đối chiếu reset RPN trên APK gốc hoặc file MIDI thực trên thiết bị.
+
 ## MIDI Data Increment/Decrement cập nhật RPN cao độ, 25-10-2026
 
 - Parser giữ CC96/97, AudioEngine chuyển tới MidiPitchState thay vì bỏ. Tăng/giảm một đơn vị theo RPN đang chọn: sensitivity phần coarse, fine tuning14bit, coarse tuning7bit; clamp biên, không áp khi NRPN/RPN null hoặc RPN chưa hỗ trợ.

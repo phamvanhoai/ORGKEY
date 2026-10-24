@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiPitchStateTest {
+    @Test fun controllerResetNullsRpnBeforeLaterDataEntry(){
+        val events=MidiSustain.resolve(listOf(
+            MidiNoteEvent(0,0,0,false,channel=2,controller=101),
+            MidiNoteEvent(0,0,2,false,channel=2,controller=100),
+            MidiNoteEvent(1,0,67,false,channel=2,controller=6),
+            MidiNoteEvent(2,0,0,false,channel=2,controller=121),
+            MidiNoteEvent(3,0,80,false,channel=2,controller=6)))
+        val state=MidiPitchState()
+        events.forEach{state.playbackController(it.channel,checkNotNull(it.controller),it.velocity)}
+        assertEquals(3.0,state.semitones(2,true),0.0)
+        assertFalse(state.playbackController(2,96,0))
+        assertEquals(0.0,state.semitones(1,true),0.0)
+    }
     @Test fun dataIncrementAndDecrementUseOnlyTheSelectedChannelRpn(){
         val state=MidiPitchState();state.set(16383,2,true)
         assertFalse(state.playbackController(2,96,0))
