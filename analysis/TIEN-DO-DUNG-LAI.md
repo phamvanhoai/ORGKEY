@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## LCD dùng metadata group đang phát và giữ thông báo NEXT, 24-10-2026
+
+- Session bổ sung lookup section(id) trên cả button sections và linked JumpGroup targets. LCD meter dùng metadata này thay vì fallback4/4 khi group nối tiếp nằm ngoài danh sách nút; Main link cũng nhận diện linked Main qua lookup chung. Không thêm group nối tiếp vào danh sách style/nút.
+- Thông báo NEXT của section đang chờ hiển thị ở vùng trạng thái trái, vẫn thấy khi LCD có hàng STS1..4. Trước hàng STS làm nhánh thông báo phải bị ẩn và không còn nơi báo pending.
+- Kiểm tra loader group nối tiếp3/4 tra được meter đúng, group không liên quan không tra được; hồi quy ReferenceStyleTransitionTest và build đạt. Cài APK thành công. Không thêm file test hoặc sửa SET.
+- Chưa kiểm tra hình ảnh/tap trên điện thoại ở lượt này hoặc so pixel với APK. Meter fallback khi group không lưu meter vẫn dùng quy tắc hiện có, chưa nối metronome meter tùy chỉnh toàn cục.
+
 ## Byte dự phòng STS cũ không phải độ dài tên, 24-10-2026
 
 - STS.ReadFromStream trước1.4.5 chỉ readByte và đặt Name rỗng; parser ORGX từng đọc byte này thành legacyLength rồi skip tương ứng, lệch trường nếu reserved khác0. Đã bỏ skip; nhánh tên length-prefixed1.4.5+ giữ nguyên.

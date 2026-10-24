@@ -37,7 +37,7 @@ class ImportedSetInstrumentsTest {
     @Test fun styleLoadsJumpTargetsOutsideItsButtonSections(){
         val main=ImportedStyleGroup(1,100,"Main",32,true,0,1000,120)
         val ending=ImportedStyleGroup(2,100,"Ending",80,false,0,1000,120,jumpGroup=3)
-        val linked=ImportedStyleGroup(3,200,"Linked ending",81,false,0,1000,120,jumpGroup=0)
+        val linked=ImportedStyleGroup(3,200,"Linked ending",81,false,0,1000,120,jumpGroup=0,meterX=3,meterY=4)
         val unrelated=linked.copy(id=4,parent=300)
         val index=ImportedSetIndex(emptyList(),listOf(main,ending,linked,unrelated))
         // Silent sections are valid SET groups and need no PCM file.
@@ -45,6 +45,8 @@ class ImportedSetInstrumentsTest {
             ImportedStyleDefinition(100,"Style",listOf(main,ending)))
         try{
             assertTrue(session.available(3));assertFalse(session.available(4))
+            assertEquals(3 to 4,ReferenceSectionTiming.meter(checkNotNull(session.section(3))))
+            assertNull(session.section(4))
             assertEquals(listOf(1,2),session.style.sections.map{it.id})
             session.request(2,true)
             repeat(48001){session.next(120)}

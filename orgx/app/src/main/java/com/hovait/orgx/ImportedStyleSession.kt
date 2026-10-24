@@ -63,6 +63,8 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         else restorePerformanceMute(if(chord)!chordMuted else chordMuted,if(chord)drumMuted else !drumMuted)
     }
     fun available(id:Int)=id in players
+    /** Playback metadata includes linked JumpGroup targets without adding console buttons. */
+    fun section(id:Int):ImportedStyleGroup?=groups[id]
     fun close(){players.values.forEach{it.close()}}
     @Synchronized fun stopPlayback(preserveImmediate:Boolean=false){
         val immediate=queue.firstOrNull()?.takeIf{preserveImmediate && it.immediate}

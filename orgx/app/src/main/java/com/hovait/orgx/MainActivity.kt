@@ -277,7 +277,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         val file=engine.activeSetFile
         val index=engine.activeSetIndex
         if(linkSts && session!=null && file!=null && index!=null && !restoringSet){
-            val part=session.style.sections.firstOrNull{it.id==linkedMainPart}
+            val part=session.section(linkedMainPart)
             if(part!=null && part.section in 32..35)try{
                 val slot=ImportedStsSelection.linkedMainSlot(index,session.style.id,part.section) ?: return@LaunchedEffect
                 val expectedSound=engine.importedInstrument
