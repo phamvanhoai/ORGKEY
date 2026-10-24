@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Track FadeStart/FadeCancel211/212 không loại section, 25-10-2026
+
+- Track.Play xử lý211/212 ở Music.FadeStart/FadeCancel trên bus music. ORGX chưa có bộ fade bus chung nhưng trước đây event bị unsupported và loại cả style. Nay giữ event trong timeline, không làm mất nốt/FX; Fade thực tế vẫn chưa được mô phỏng.
+- ReferenceRhythmPlayerTest dùng FadeStart0/note1/FadeCancel10, track vẫn phát bình thường. Test và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa áp fade gain trên thiết bị. Cần nối Music bus fade state để đạt âm lượng chuyển dần như APK gốc.
+
 ## Truyền STSChanges tùy chỉnh vào StylePlayer, 25-10-2026
 
 - loadStyle nhận danh sách stsChanges trước targetChord để giữ tương thích các caller cũ dùng trailing lambda. MainActivity restore và chọn style truyền mask từ ImportedStsChangeSettings; ImportedStylePlayer resolver event64 áp mask đó thay vì luôn default.

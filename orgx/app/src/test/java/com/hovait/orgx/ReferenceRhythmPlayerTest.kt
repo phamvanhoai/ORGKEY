@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun fadeCommandsDoNotInvalidateAStyleTrack(){
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(211,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000),
+            ReferenceDrumEvent(212,0,0,0,10,0)))),{10000},{_,_,_->1.0},1000)
+        try{repeat(3){player.next(0,120)};assertTrue(player.left>0)}finally{player.close()}
+    }
     @Test fun storedStsFxEventReplacesTrackFxWhenSnapshotIsAvailable(){
         val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(ImportedFxModule(6,true,false,listOf(50,0,0,0,1,0,0,0))))
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
