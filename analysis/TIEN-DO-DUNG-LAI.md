@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Voice SET trực tiếp giữ lực nhấn thấp như STS, 24-10-2026
+
+- VoiceVelocity trước áp mức sàn0.15 cho mọi noteOn live single voice, kể cả sampled SET, trong khi STS parts dùng đúng velocity0..1. Cùng nhạc cụ SET vì vậy có thể phát mạnh hơn khi chọn Voice trực tiếp ở lực nhấn thấp.
+- VoiceVelocity thêm nhánh sampled giữ đầy đủ0..1; AudioEngine chọn nhánh này cho live sampled voice có source, trước khi nhân cân bằng SET. NoteOn0 vẫn đi noteOff theo thay đổi trước. MIDI playback và nhánh factory hiện có giữ quy tắc cũ; Repeat nhận gain của nốt nguồn nên cũng giữ lực nhấn này.
+- VoiceVelocityTest kiểm tra toàn bộ128 mức và clamp trên1; VoiceVelocityTest/ImportedKeyboardPartsTest/SampledInstrumentTest và assembleDebug đạt. Không tạo file test/log mới hoặc sửa SET. Chưa đo loudness/đường cong Touch của APK gốc trên thiết bị; đây là sửa sai lệch mức sàn giữa single Voice và STS, không khẳng định mô phỏng đầy đủ velocity curve gốc.
+- Đối chiếu thêm: APK có fMaxMusicChannel/fMaxRhythmChannel và setting max_music_channel/max_rhythm_channel; giới hạn24/512/128 đang rải trong ORGX chưa đồng bộ cơ chế đó. Chưa thay đổi polyphony trong lượt này.
+
 ## Tách pedal hiệu ứng khỏi chế độ giữ âm của STS, 24-10-2026
 
 - Channels.Process kiểm tra Effect.ByPedal theo Channel.Pedal. ImportedKeyboardParts trước truyền pedalRelease (suy từ PedalMode) cho Repeat và toàn bộ Playback, khiến mode luôn giữ âm có thể kích hiệu ứng khi pedal thực tắt, và mode không giữ âm có thể chặn hiệu ứng khi pedal bật.

@@ -398,7 +398,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
         val music=activeSetIndex?.musicSettings ?: ImportedChannelSettings()
         val setBalance=if(!playback && importedInstrument!=null && !MidiVoiceKey.percussion(channel))ImportedMusicParameters.keyboardGain(music).toFloat() else 1f
-        val velocityGain=VoiceVelocity.gain(velocity,playback)*setBalance
+        val velocityGain=VoiceVelocity.gain(velocity,playback,sampled=sound!=null)*setBalance
         if (voices.size >= 24 && !voices.containsKey(key)) {
             voices.maxByOrNull { it.value.ageFrames }?.key?.let { voices.remove(it) }
         }
