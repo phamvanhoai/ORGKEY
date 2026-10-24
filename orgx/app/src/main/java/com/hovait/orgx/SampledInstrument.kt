@@ -246,11 +246,11 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private var currentKey=note
         private var alternate:Playback?=null
         private var heldModulation:Int?=null
-        fun pitchBend(semitones:Double,scriptLevel:Int?=null){
+        fun pitchBend(semitones:Double,scriptLevel:Int?=null,notifyScript:Boolean=true){
             require(semitones.isFinite()){"Pitch bend must be finite"}
             require(scriptLevel==null || scriptLevel in -8192..8191)
             bendScriptLevel=scriptLevel
-            if(ownsScriptEvents){
+            if(ownsScriptEvents && notifyScript){
                 val handled=runCatching{scriptSession?.event("pitchbend",mapOf("level" to
                     (scriptLevel ?: (semitones/2.0*8192).toInt()).coerceIn(-8192,8191))){result->
                     require(result.plays.isEmpty() && result.effects.all{it.slot in 2..3})
@@ -268,7 +268,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(bendSemitones!=semitones)bendFrames=0
             bendSemitones=semitones
             if(!hasRendered || pitchSpeed==0){bendFactor=2.0.pow(semitones/12.0);bentStep=nextStep}
-            children.forEach{it.pitchBend(semitones,scriptLevel)};alternate?.pitchBend(semitones,scriptLevel)
+            children.forEach{it.pitchBend(semitones,scriptLevel,notifyScript)};alternate?.pitchBend(semitones,scriptLevel,notifyScript)
         }
         /** Channels._Connection: keep the current sample position and move its pitch to the new key. */
         fun connectTo(targetNote:Int,effect:ImportedExpressionEffect){

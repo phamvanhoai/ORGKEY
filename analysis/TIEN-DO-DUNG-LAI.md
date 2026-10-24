@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackPitchMove không gọi nhầm script pitchbend, 24-10-2026
+
+- Playback.pitchBend thêm notifyScript mặc địnhtrue để tách cập nhật hệ số mẫu khỏi sự kiện biểu cảm. Track43 dùngfalse theo Track.Play gốc; lệnh53 giữtrue và rawTouch. Đường nạp pitch cho note/revoice/Repeat không có raw event cũng không tự tạo callback pitchbend0.
+- Cờ truyền xuống child layers/Aftertouch, không thay đổi caller live MIDI hiện có. ReferenceRhythmPlayerTest dùng script pitchbend đặt gain0: note mới sau43 vẫn giữ gain100, tổng hai voice0.5; trước có thể bị callback làm im.
+- ReferenceRhythmPlayerTest/SampledInstrumentTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa nghe track DNC thật trên điện thoại. Script pitchbend cấp Track khi không có Playback đang phát vẫn chưa được tách thành context độc lập.
+
 ## KeyPitchMove53 truyền mức thô Touch cho DNC, 24-10-2026
 
 - Track.Play53 gọi pitchbend(level=Touch-8192); player trước chỉ truyền semitone nên Playback suy level theo range2 và có thể khác dữ liệu gốc. Nay lưu pitchScriptLevel từ Touch, clamp biên script hiện có, truyền vào Playback của ID được chọn và nốt mở sau đó/revoice/Repeat.
