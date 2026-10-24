@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun repeatByPedalUsesActualPedalInsteadOfEnvelopePedalMode(){
+        for((pedal,mode,expected) in listOf(Triple(false,1,1),Triple(true,0,2))){
+            val effect=ImportedExpressionEffect(0,true,0,true,false,0,500,0,0,emptyList())
+            val source=sound(100).withExpressionEffects(listOf(effect))
+            val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+            try{
+                parts.replace(listOf(ImportedKeyboardParts.Part(1,source,pedal=pedal,pedalMode=mode)))
+                parts.noteOn(60,1.0)
+                repeat(20){frame(parts,mixer)}
+                assertEquals("pedal=$pedal mode=$mode",expected,parts.activeNotes)
+            }finally{mixer.close()}
+        }
+    }
     @Test fun connectionAfterPartReplacementUsesNewSampleInsteadOfReusingOldSound(){
         fun source(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(32){value}),0,32)),1000)

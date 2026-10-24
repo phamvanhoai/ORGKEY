@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Tách pedal hiệu ứng khỏi chế độ giữ âm của STS, 24-10-2026
+
+- Channels.Process kiểm tra Effect.ByPedal theo Channel.Pedal. ImportedKeyboardParts trước truyền pedalRelease (suy từ PedalMode) cho Repeat và toàn bộ Playback, khiến mode luôn giữ âm có thể kích hiệu ứng khi pedal thực tắt, và mode không giữ âm có thể chặn hiệu ứng khi pedal bật.
+- Repeat dùng note.pedal thực. Playback.next nhận thêm effectPedal mặc định bằng pedal để giữ tương thích các caller hiện có. STS truyền riêng pedalRelease cho envelope và note.pedal cho Connection/PitchShake/VolumeShake. Child layers/Aftertouch nhận cả hai; override pedal do script vẫn có ưu tiên.
+- ImportedKeyboardPartsTest bổ sung hai tình huống đối nghịch: pedalfalse/mode1 không tạo Repeat, pedaltrue/mode0 tạo Repeat sau20frame. ImportedKeyboardPartsTest/ImportedKeyRepeatTest/SampledInstrumentTest và assembleDebug đạt. Chưa đo PCM riêng cho mọi hiệu ứng ở cấu hình pedal tách biệt hoặc nghe so trên máy; không sửa SET hoặc tạo file test/log mới.
+
 ## Cập nhật Repeat trong lúc giữ nốt, 24-10-2026
 
 - ImportedKeyRepeat nhận configure(null) để tắt bằng cấu hình disabled dùng chung, giữ bộ đếm delay/chu kỳ. Có constructor sampleRate để tạo controller đang tắt ngay từ noteOn, thay vì không có controller nếu effect chưa bật.

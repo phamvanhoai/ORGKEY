@@ -468,7 +468,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }
             }.onFailure{scriptStatus="Timer stopped: ${it.message}"}
         }
-        fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0){
+        fun next(noteOff:Boolean,pedal:Boolean=false,inheritedPitchOffset:Double=0.0,effectPedal:Boolean=pedal){
             if(forcedCut){left=0.0;right=0.0;finished=true;return}
             if(noteOff && ownsScriptEvents && !scriptReleased){
                 scriptReleased=true
@@ -493,6 +493,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                 }}.onFailure{timerOwner?.let{scriptSession?.cancelTimer(it)};scriptStatus="Release fallback: ${it.message}"}
             }
             val effectivePedal=playbackPedal ?: pedal
+            val effectiveEffectPedal=playbackPedal ?: effectPedal
             advanceScriptTimer()
             timerFrames++
             if(autoRelease && state==null && position>=if(selected[note].looping)selected[note].loopEnd else selected[note].sample.frames.size)autoReleaseStarted=true
@@ -500,19 +501,19 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val released=effectiveNoteOff || autoReleaseStarted
             countReleased=released
             advanceBend()
-            if(connectionActive && (!connectionByPedal || effectivePedal) && (!connectionStopByRelease || !released)){
+            if(connectionActive && (!connectionByPedal || effectiveEffectPedal) && (!connectionStopByRelease || !released)){
                 if(connectionDelay>0)connectionDelay-- else if(step!=connectionTarget){
                     step=if(connectionDelta==0.0 || kotlin.math.abs(connectionTarget-step)<=kotlin.math.abs(connectionDelta))connectionTarget else step+connectionDelta
                     bentStep=step*bendFactor
                 }
             }
-            pitchShake?.next(released,effectivePedal)
+            pitchShake?.next(released,effectiveEffectPedal)
             val pitchOffset=inheritedPitchOffset+(pitchShake?.offset ?: 0.0)
-            if(aftertouch){alternate?.next(effectiveNoteOff,effectivePedal,pitchOffset);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
+            if(aftertouch){alternate?.next(effectiveNoteOff,effectivePedal,pitchOffset,effectiveEffectPedal);left=alternate?.left ?: 0.0;right=alternate?.right ?: 0.0;finished=alternate?.finished ?: true
             }else if(scriptPlan!=null && children.isEmpty()){
                 left=0.0;right=0.0;finished=timerOwner?.let{scriptSession?.hasTimer(it)}!=true
             }else if(children.isNotEmpty()){
-                children.forEach{it.next(effectiveNoteOff,effectivePedal,pitchOffset)}
+                children.forEach{it.next(effectiveNoteOff,effectivePedal,pitchOffset,effectiveEffectPedal)}
                 fun gain(child:Playback)=scriptChildren.firstOrNull{it.first===child}?.second ?: 1.0
                 left=children.sumOf{it.left*gain(it)};right=children.sumOf{it.right*gain(it)};finished=children.all{it.finished} && timerOwner?.let{scriptSession?.hasTimer(it)}!=true
             }else{
@@ -530,7 +531,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                     ((!selected[note].looping || loopExited) && position>=selected[note].sample.frames.size) || (state==null && effectiveNoteOff)
             }
             if(children.isEmpty() && state==null && autoReleaseStarted)finished=true
-            volumeShake?.let{it.next(released,effectivePedal);left*=it.left;right*=it.right}
+            volumeShake?.let{it.next(released,effectiveEffectPedal);left*=it.left;right*=it.right}
             if(finished)playbackRegistry.remove(this)
         }
     }

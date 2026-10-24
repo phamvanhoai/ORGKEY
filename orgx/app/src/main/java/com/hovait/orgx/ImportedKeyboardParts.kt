@@ -101,10 +101,10 @@ class ImportedKeyboardParts {
         while(iterator.hasNext()){
             val note=iterator.next()
             val pedalRelease=if(note.pedalMode==-1)note.pedal else note.pedalMode!=0
-            note.playback.next(note.released,pedalRelease)
+            note.playback.next(note.released,pedalRelease,effectPedal=note.pedal)
             mixer.add(note.sound,note.playback.left*note.velocity,note.playback.right*note.velocity)
             note.repeat?.configure(note.sound.keyRepeatEffect)
-            if(!note.retired && note.repeat?.next(note.released,pedalRelease)==true){
+            if(!note.retired && note.repeat?.next(note.released,note.pedal)==true){
                 val playback=note.sound.voice(note.sound.keyboardNote(note.key),autoRelease=true,effectsAllowed=false,scriptAllowed=false)
                 playback.pitchBend(bends[note.channel],scriptBends[note.channel])
                 repeated.add(Note(note.part,note.channel,note.key,note.sound,playback,note.velocity,note.pedal,note.pedalMode))
