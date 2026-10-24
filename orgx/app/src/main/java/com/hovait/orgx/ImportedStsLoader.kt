@@ -12,7 +12,7 @@ object ImportedStsLoader {
             return snapshot.copy(mode=selected.selectedMode,settings=mode.settings,effects=mode.effects)
         }
     }
-    fun prepare(file:File,index:ImportedSetIndex,snapshot:ImportedSts,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()})=Prepared(file,index,snapshot,load(file,index,snapshot,scriptOverrides))
+    fun prepare(file:File,index:ImportedSetIndex,snapshot:ImportedSts,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},keyConnectionMethod:Int=0)=Prepared(file,index,snapshot,load(file,index,snapshot,scriptOverrides,keyConnectionMethod))
     fun source(index:ImportedSetIndex,snapshot:ImportedSts):ImportedInstrument {
         ImportedStsChordSettings.validate(snapshot.chordType,snapshot.chordSingle)
         val raw=index.instruments.getOrNull(snapshot.instrument) ?: error("STS instrument unavailable")
@@ -25,12 +25,12 @@ object ImportedStsLoader {
             else->raw
         }
     }
-    fun load(file:File,index:ImportedSetIndex,snapshot:ImportedSts,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()}):SampledInstrument {
+    fun load(file:File,index:ImportedSetIndex,snapshot:ImportedSts,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},keyConnectionMethod:Int=0):SampledInstrument {
         val source=source(index,snapshot)
         require(index.systems.isEmpty() || snapshot.system in index.systems.indices){"STS system unavailable"}
         val settings=ImportedMusicParameters.pitch(snapshot.settings,index.musicSettings,index.musicSettings.octave)
-        return ImportedInstrumentLoader.load(file,source,index.systems.getOrNull(snapshot.system),settings,index.musicSettings,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,source),scriptOverridesForMode=scriptOverrides)
+        return ImportedInstrumentLoader.load(file,source,index.systems.getOrNull(snapshot.system),settings,index.musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,source),scriptOverridesForMode=scriptOverrides)
             .withKeyboardSettings(settings,source.type==0)
-            .withExpressionEffects(snapshot.effects)
+            .withExpressionEffects(ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(snapshot.effects,index.sourceVersion,keyConnectionMethod))
     }
 }

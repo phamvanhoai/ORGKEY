@@ -5,6 +5,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsLoaderTest {
+    @Test fun stsConnectionUsesSelectedLegacyMethodWithoutChangingModernStoredMode(){
+        val file=File.createTempFile("sts-connection",".pcm")
+        try{
+            val source=ImportedInstrument("Voice",100,0,0,listOf(
+                ImportedSound("Silent",listOf(0,0,100,10,0,0),emptyList())))
+            val effect=ImportedExpressionEffect.default(1).copy(enabled=true,mode=0)
+            val snapshot=ImportedSts("STS",true,0,0,0,0,0,0,0,0,emptyList(),
+                ImportedChannelSettings(),effects=listOf(effect))
+            val legacy=ImportedSetIndex(listOf(source),emptyList(),sourceVersion="1.2.8")
+            assertEquals(0,ImportedStsLoader.prepare(file,legacy,snapshot,keyConnectionMethod=0).sound.keyConnectionEffect!!.mode)
+            assertEquals(16,ImportedStsLoader.prepare(file,legacy,snapshot,keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
+            assertEquals(0,ImportedStsLoader.prepare(file,legacy.copy(sourceVersion="1.4.6"),snapshot,keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
+        }finally{file.delete()}
+    }
     @Test fun singleStsRestoreKeepsChannelFxAndExpressionInsteadOfReloadingSlotDefaults(){
         val file=File.createTempFile("sts-single-state",".pcm")
         try{
@@ -67,10 +81,10 @@ class ImportedStsLoaderTest {
             val expectedKey=ImportedDncPreferences.key(file,alias)
             val snapshot=ImportedSts("STS",false,0,0,0,0,0,0,0,0,emptyList(),ImportedChannelSettings())
             val index=ImportedSetIndex(listOf(source),emptyList())
-            val loaded=ImportedStsLoader.prepare(file,index,snapshot){bank,selected->
+            val loaded=ImportedStsLoader.prepare(file,index,snapshot,scriptOverrides={bank,selected->
                 assertEquals(expectedKey,ImportedDncPreferences.key(bank,selected))
                 mapOf("level" to "42")
-            }.sound
+            }).sound
             assertEquals(expectedKey,loaded.scriptSettingsKey)
             assertEquals(42,loaded.scriptSliderValues["level"])
             assertEquals(80,loaded.scriptSliders.single().reset)

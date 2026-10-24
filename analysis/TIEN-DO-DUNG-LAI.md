@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## STS dùng Key Connection Method đã chọn, 24-10-2026
+
+- Đường ImportedStsLoader gọi InstrumentLoader không truyền keyConnectionMethod; Batch/Request và restore cũng không nhận tham số. STS vì thế dùng mặc định0 dù Voice/Style dùng phương pháp đã chọn.
+- Truyền method từ engine qua chọn STS đơn, Main link, STS trên LCD, Master batch initial/masked/full và restore. Loader truyền tiếp khi chuẩn bị nhạc cụ/mode DNC; hiệu ứng snapshot áp quy tắc legacy trước1.4.3 bằng ImportedExpressionAutomation hiện có. Mặc định API vẫn0.
+- Thêm một trường hợp trong ImportedStsLoaderTest hiện có: snapshot legacy1.2.8 đổi mode connection0 thành16 khi method1; method0 giữ0; SET1.4.6 không bị đổi stored mode. ImportedStsLoaderTest/ImportedStsBatchTest/ImportedKeyboardPartsTest và assembleDebug đạt. Chưa so âm legato STS thực trên thiết bị. Nhánh hiệu ứng snapshot hiện dùng phiên bản container index; chưa giải quyết riêng STS thuộc track legacy nằm trong container mới. Không sửa SET hoặc thêm file test/log mới.
+
 ## Bảng chọn Voice nhận diện đúng các mục trùng tên, 24-10-2026
 
 - Màn chọn Voice vẫn dùng indexOfFirst(name) dù restore đã dùng identity. SET có nhiều instrument/sound/mode trùng tên vì vậy có thể đánh dấu mục đầu tiên, không phải voice đã nạp.

@@ -35,7 +35,7 @@ object ImportedStsBatch {
     }
     /** Before the first STSPut, Track state comes from the SET, not the incoming STS. */
     fun prepareInitial(file:File,index:ImportedSetIndex,slot:Int,changes:List<Boolean>,
-        scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()}):Prepared {
+        scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},keyConnectionMethod:Int=0):Prepared {
         val current=index.tracks.filter{it.group==0}.drop(1).mapIndexedNotNull{offset,track->
             val position=offset+1
             if(position>4 || track.kind !in 0..1)null else position to ImportedSts(
@@ -45,10 +45,10 @@ object ImportedStsBatch {
                 data1=0,data2=0,chordType=0,chordSingle=emptyList(),
                 settings=track.settings.copy(volume=track.volume,pan=track.pan),effects=track.effects)
         }.toMap()
-        return prepareMasked(file,index,slot,current,changes,scriptOverrides)
+        return prepareMasked(file,index,slot,current,changes,scriptOverrides,keyConnectionMethod)
     }
     /** Masked PCM preparation requires the effective current Track state. */
-    fun prepareMasked(file:File,index:ImportedSetIndex,slot:Int,current:Map<Int,ImportedSts>,changes:List<Boolean>,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()}):Prepared {
+    fun prepareMasked(file:File,index:ImportedSetIndex,slot:Int,current:Map<Int,ImportedSts>,changes:List<Boolean>,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},keyConnectionMethod:Int=0):Prepared {
         val resolved=resolve(index,slot,changes)
         val actions=ImportedStsPlan.create(slot,resolved.master,resolved.members.map{member->
             val track=index.tracks[member.trackIndex]
@@ -65,17 +65,17 @@ object ImportedStsBatch {
                 member.position to ImportedStsChanges.transition(index,member.position,prior,member.snapshot,selection.actions,changes)
             }
         ImportedStsMemory.check(loadIndex,effective.values)
-        val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot,scriptOverrides)}
+        val voices=effective.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot,scriptOverrides,keyConnectionMethod)}
         return Prepared(file,index,selection,voices,master)
     }
-    fun prepareFull(file:File,index:ImportedSetIndex,slot:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},restoredModes:Map<Int,Int> = emptyMap(),restoredParts:Map<Int,ImportedSts> = emptyMap(),restoredMaster:ImportedStsMaster.Prepared?=null):Prepared {
+    fun prepareFull(file:File,index:ImportedSetIndex,slot:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},restoredModes:Map<Int,Int> = emptyMap(),restoredParts:Map<Int,ImportedSts> = emptyMap(),restoredMaster:ImportedStsMaster.Prepared?=null,keyConnectionMethod:Int=0):Prepared {
         val selection=resolve(index,slot)
         // Resolve all slots first, so a missing later Track cannot cause partial apply.
         val members=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
         val snapshots=members.associate{it.position to (restoredParts[it.position] ?: ImportedStsModeState.restore(index,it.snapshot,restoredModes[it.position]))}
         val loadIndex=if(restoredMaster==null)index else index.copy(musicSettings=restoredMaster.music,systems=restoredMaster.systems)
         ImportedStsMemory.check(loadIndex,snapshots.values)
-        val voices=snapshots.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot,scriptOverrides)}
+        val voices=snapshots.mapValues{(_,snapshot)->ImportedStsLoader.prepare(file,loadIndex,snapshot,scriptOverrides,keyConnectionMethod)}
         return Prepared(file,index,selection,voices,restoredMaster)
     }
 }

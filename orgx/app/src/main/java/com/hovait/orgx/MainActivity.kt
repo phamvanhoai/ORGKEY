@@ -215,11 +215,11 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         val modes=ImportedStsModeState.decode(preferences.getString(ImportedStsModeState.preferenceKey,"").orEmpty(),file,snapshot.slot)
                         val parts=ImportedStsModeState.decodeParts(preferences.getString(ImportedStsModeState.partsPreferenceKey,"").orEmpty(),file,snapshot.slot,index)
                         val master=ImportedStsMaster.decode(preferences.getString(ImportedStsMaster.preferenceKey,"").orEmpty(),file,snapshot.slot,index)
-                        ImportedStsRequest.Prepared.Group(ImportedStsBatch.prepareFull(file,index,snapshot.slot,ImportedDncPreferences(context)::read,modes,parts,master))
+                        ImportedStsRequest.Prepared.Group(ImportedStsBatch.prepareFull(file,index,snapshot.slot,ImportedDncPreferences(context)::read,modes,parts,master,keyConnectionMethod=engine.keyConnectionMethod))
                     }else {
                         val restored=ImportedStsModeState.restoreSingle(preferences.getString(ImportedStsModeState.singlePreferenceKey,"").orEmpty(),
                             file,preferences.getInt("selectedStsTrack",-1),index,snapshot)
-                        ImportedStsRequest.Prepared.Single(ImportedStsLoader.prepare(file,index,restored,ImportedDncPreferences(context)::read))
+                        ImportedStsRequest.Prepared.Single(ImportedStsLoader.prepare(file,index,restored,ImportedDncPreferences(context)::read,keyConnectionMethod=engine.keyConnectionMethod))
                     }
                 }
                 if(preferences.getString("selectedStsSet",null)==savedStsSet){
@@ -301,7 +301,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
                 val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
-                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,0,slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,0,slot,expectedGroup,changes,ImportedDncPreferences(context)::read,keyConnectionMethod=engine.keyConnectionMethod)}
                 val wanted=mainStsTarget?.takeIf{it.first===session}?.second ?: session.currentId
                 if(!directStsOverride && engine.importedStyleSession===session && wanted==part.id && mainStsRevision==requestRevision &&
                     engine.activeSetFile==file && engine.activeSetIndex===index &&
@@ -403,7 +403,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
                 val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
-                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,0,slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
+                val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,0,slot,expectedGroup,changes,ImportedDncPreferences(context)::read,keyConnectionMethod=engine.keyConnectionMethod)}
                 if(stsLoadRevision==revision && engine.activeSetIndex===index && engine.activeSetFile==file && engine.awaitStsRequest(prepared,expectedSound)){
                     preferences.edit().putString("selectedStsSet",file.name).putInt("selectedStsTrack",0).putInt("selectedStsSlot",slot).apply()
                     selectedConsoleSts=slot;restoredSetName=engine.importedInstrumentName
@@ -935,7 +935,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         val index=checkNotNull(engine.activeSetIndex)
                         val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
-                        val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,stsChanges,ImportedDncPreferences(context)::read)}
+                        val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,trackIndex,snapshot.slot,expectedGroup,stsChanges,ImportedDncPreferences(context)::read,keyConnectionMethod=engine.keyConnectionMethod)}
                         val applied=engine.awaitStsRequest(prepared,expectedSound)
                         if(applied)preferences.edit().putString("selectedStsSet",setFile?.name)
                             .putInt("selectedStsTrack",trackIndex).putInt("selectedStsSlot",snapshot.slot)
