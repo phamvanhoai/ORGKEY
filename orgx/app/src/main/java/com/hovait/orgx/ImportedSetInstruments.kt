@@ -13,7 +13,7 @@ data class ImportedChannelSettings(val volume:Int=100,val pan:Int=0,val tune:Int
 data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix:List<Int>,val mixVolume:List<Int>,val mixPan:List<Int>,val settings:ImportedChannelSettings=ImportedChannelSettings(),val effects:List<ImportedExpressionEffect> = emptyList(),val script:String="",val scriptSettings:Map<String,String> = emptyMap()) {
     val parsedScript:ImportedModeScript get()=ImportedModeScript.parse(script)
 }
-data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList(),val sourceIdentity:String?=null,val defaultMode:ImportedMode?=modes.firstOrNull(),val selectedMode:Int=0,val sourceName:String=name,val layerGain:Double=1.0,val layerPan:Int=0,val sourceVersion:String?=null)
+data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList(),val sourceIdentity:String?=null,val defaultMode:ImportedMode?=modes.firstOrNull(),val selectedMode:Int=0,val sourceName:String=name,val layerGain:Double=1.0,val layerPan:Int=0,val sourceVersion:String?=null,val selectedSound:Int?=null)
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4,val settings:ImportedChannelSettings=ImportedChannelSettings(),
     val chordType:Int=0,val chordBase:Int=0,val stsIndices:List<Int> = emptyList(),

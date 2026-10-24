@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Voice trùng tên khôi phục bằng định danh, 24-10-2026
+
+- Thêm selectedSound giữ số sound gốc trên lựa chọn raw sound; mode giữ selectedMode. ImportedSoundSelection.key kết hợp sourceIdentity của nhạc cụ với sound/mode index. Hai nơi chọn voice lưu importedSetSoundKey cùng file/name; mode exit có đổi tên lưu key mới qua đường changedMode hiện có.
+- Resolve dùng key khi có, tên chỉ fallback cho dữ liệu lưu cũ. Key thiếu trong SET không tự chọn voice khác dù tên khớp. Restore chụp key trước IO và kiểm tra key/file/name chưa đổi trước apply để tránh ghi đè lựa chọn mới trùng tên.
+- Kiểm tra4voice cùng tên thuộc2nhạc cụ/2sound, keyinstrument2:sound1 chọn đúng object; legacy tên mơ hồ và key không tồn tại bị từ chối. ImportedSoundSelectionTest/ImportedModeTest và build đạt; cài APK thành công.
+- Chưa kiểm tra restart thiết bị với SET trùng tên. Các mode có cùng display name và script exit về mode trùng tên có thể chưa kích hoạt changedMode; chưa chuyển mọi lựa chọn sang một identity bus chung. Không sửa SET hoặc tuyên bố100% parity.
+
 ## Hủy yêu cầu STS cũ giữa nút trực tiếp và Main-link, 24-10-2026
 
 - Hai đường nạp trước dùng job riêng nên có thể tranh commit cùng expected group. Thêm directStsOverride/revision: bấm STS trực tiếp làm Main effect mất hiệu lực và bị cancel; bấm Main khi link bật cancel direct job, tăng generation UI và tạo yêu cầu Main mới. Link tắt không hủy direct khi chỉ chuyển Main.

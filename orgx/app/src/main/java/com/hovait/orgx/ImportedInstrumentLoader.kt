@@ -35,11 +35,11 @@ object ImportedInstrumentLoader {
         instruments.flatMap { instrument ->
             val sounds=instrument.sounds.mapIndexedNotNull { index,sound ->
                 val selected=instrument.copy(name="${instrument.name} / ${sound.name.ifBlank{"Sound ${index+1}"}}",
-                    sounds=listOf(sound),modes=emptyList())
+                    sounds=listOf(sound),modes=emptyList(),selectedSound=index)
                 selected.takeIf(::supported)
             }
             sounds+instrument.modes.mapIndexedNotNull{index,mode->
-                instrument.copy(name="${instrument.name} / MODE ${mode.name}",modes=listOf(mode),selectedMode=index).takeIf(::supported)
+                instrument.copy(name="${instrument.name} / MODE ${mode.name}",modes=listOf(mode),selectedMode=index,selectedSound=null).takeIf(::supported)
             }
         }
     fun supported(instrument:ImportedInstrument)=unsupportedReason(instrument)==null

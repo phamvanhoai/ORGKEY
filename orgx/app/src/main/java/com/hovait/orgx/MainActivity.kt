@@ -147,7 +147,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 }
                 if(changed!=null){
                     engine.importedInstrumentName=changed;restoredSetName=changed
-                    preferences.edit().putString("importedSetSound",changed).apply()
+                    preferences.edit().putString("importedSetSound",changed).putString("importedSetSoundKey",engine.importedInstrument?.modeSelection?.instrument?.let(ImportedSoundSelection::key)).apply()
                 }
             }
             kotlinx.coroutines.delay(100)
@@ -168,15 +168,16 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         engine.setChordDualMappings(ChordDualSettings.decode(preferences.getString("chordDualMappings","").orEmpty()))
         val fileName=preferences.getString("importedSetFile",null)
         val soundName=preferences.getString("importedSetSound",null)
+        val soundKey=preferences.getString("importedSetSoundKey",null)
         if(fileName!=null && soundName!=null){
             try{
                 val loaded=withContext(Dispatchers.IO){
-                    val (file,sound)=ImportedSoundSelection.resolve(File(context.filesDir,"ReferenceSets"),fileName,soundName)
+                    val (file,sound)=ImportedSoundSelection.resolve(File(context.filesDir,"ReferenceSets"),fileName,soundName,soundKey)
                     val index=ImportedSetInstruments.index(file)
                     Triple(ImportedInstrumentLoader.load(file,sound,index.systems.firstOrNull(),musicSettings=index.musicSettings,keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=index.sourceVersion,scriptOverrides=ImportedDncPreferences(context).read(file,sound),scriptOverridesForMode=ImportedDncPreferences(context)::read),file,index)
                 }
                 // A user may have changed voices while the file was loading.
-                if(preferences.getString("importedSetFile",null)==fileName && preferences.getString("importedSetSound",null)==soundName){
+                if(preferences.getString("importedSetFile",null)==fileName && preferences.getString("importedSetSound",null)==soundName && preferences.getString("importedSetSoundKey",null)==soundKey){
                     engine.importedInstrument=loaded.first;engine.activeSetFile=loaded.second;engine.activeSetIndex=loaded.third;engine.activeSetSounds=ImportedInstrumentLoader.playableSounds(loaded.third.instruments);engine.importedInstrumentName=soundName;restoredSetName=soundName
                 }
             }catch(error:Exception){Toast.makeText(context,"SET restore: ${error.message}",Toast.LENGTH_LONG).show()}
@@ -541,7 +542,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                                             val sound=voiceSounds[chosen];val file=checkNotNull(engine.activeSetFile)
                                             val loaded=withContext(Dispatchers.IO){val bank=engine.activeSetIndex;ImportedInstrumentLoader.load(file,sound,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=bank?.sourceVersion ?: "1.4.6",scriptOverrides=ImportedDncPreferences(context).read(file,sound),scriptOverridesForMode=ImportedDncPreferences(context)::read)}
                                             engine.importedInstrument=loaded;engine.importedInstrumentName=sound.name;restoredSetName=sound.name
-                                            preferences.edit().remove("selectedStsSet").putString("importedSetFile",file.name).putString("importedSetSound",sound.name).apply()
+                                            preferences.edit().remove("selectedStsSet").putString("importedSetFile",file.name).putString("importedSetSound",sound.name).putString("importedSetSoundKey",ImportedSoundSelection.key(sound)).apply()
                                             bankStatus="SELECTED: ${sound.name}"
                                         }catch(error:Exception){bankStatus=error.message ?: "Cannot load voice"}
                                         finally{bankBusy=false}
@@ -860,7 +861,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 try{
                     val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item,setIndex?.systems?.firstOrNull(),musicSettings=setIndex?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=setIndex?.sourceVersion ?: "1.4.6",scriptOverrides=ImportedDncPreferences(context).read(checkNotNull(setFile),item),scriptOverridesForMode=ImportedDncPreferences(context)::read)}
                     engine.importedInstrument=loaded;engine.importedInstrumentName=item.name
-                    preferences.edit().remove("selectedStsSet").putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).apply()
+                    preferences.edit().remove("selectedStsSet").putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).putString("importedSetSoundKey",ImportedSoundSelection.key(item)).apply()
                     importStatus="Keyboard: ${item.name}. Select a built-in voice in Mixer to switch back."
                 }catch(error:Exception){importStatus=error.message ?: "Cannot load instrument"}
                 finally{importing=false}

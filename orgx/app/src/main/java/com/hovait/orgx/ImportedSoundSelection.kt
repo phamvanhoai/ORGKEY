@@ -3,6 +3,16 @@ package com.hovait.orgx
 import java.io.File
 
 object ImportedSoundSelection {
+    fun key(sound:ImportedInstrument):String? {
+        val source=sound.sourceIdentity ?: return null
+        return if(sound.modes.isNotEmpty())"$source:mode:${sound.selectedMode}"
+            else sound.selectedSound?.let{"$source:sound:$it"}
+    }
+    fun choose(sounds:List<ImportedInstrument>,name:String,key:String?=null):ImportedInstrument {
+        val matches=if(key!=null)sounds.filter{key(it)==key} else sounds.filter{it.name==name}
+        require(matches.size==1){"Saved SET sound is missing or ambiguous"}
+        return matches.single()
+    }
     data class Mode(val file:File,val instrument:ImportedInstrument){
         val name:String get()="${instrument.sourceName} / MODE ${instrument.modes.first().name}"
     }
@@ -13,13 +23,11 @@ object ImportedSoundSelection {
         if(mode.file!=file)return null
         return mode.name.takeIf{it!=savedName}
     }
-    fun resolve(directory:File,fileName:String,soundName:String):Pair<File,ImportedInstrument> {
+    fun resolve(directory:File,fileName:String,soundName:String,soundKey:String?=null):Pair<File,ImportedInstrument> {
         require(Regex("[0-9a-f]{64}\\.orgset").matches(fileName)){"Invalid saved SET reference"}
         val file=File(directory,fileName)
         require(file.isFile){"Saved SET file is missing"}
         val sounds=ImportedInstrumentLoader.playableSounds(ImportedSetInstruments.read(file))
-        val matches=sounds.filter{it.name==soundName}
-        require(matches.size==1){"Saved SET sound is missing or ambiguous"}
-        return file to matches.single()
+        return file to choose(sounds,soundName,soundKey)
     }
 }
