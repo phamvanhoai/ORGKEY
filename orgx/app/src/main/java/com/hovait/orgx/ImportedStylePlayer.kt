@@ -20,13 +20,14 @@ object ImportedStylePlayer {
     }
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
-        chordControl:()->Int={0},chordOctaveMove:()->Int={0},chordQuality:()->Int={2},targetChord:(()->Int?)?=null):ImportedStyleSession {
+        chordControl:()->Int={0},chordOctaveMove:()->Int={0},chordQuality:()->Int={2},
+        stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges,targetChord:(()->Int?)?=null):ImportedStyleSession {
         val complete=ImportedSectionFallback.complete(index,style)
         val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
         val linked=ImportedStyleCatalog.jumpTargets(index,sections)
         val playableLinked=linked.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
-        val players=loadSections(file,index,sections+playableLinked,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality)
+        val players=loadSections(file,index,sections+playableLinked,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality,stsChanges)
         return ImportedStyleSession(complete,players,linkedGroups=linked)
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
@@ -36,7 +37,7 @@ object ImportedStylePlayer {
     }
     private fun loadSections(file:File,index:ImportedSetIndex,groups:List<ImportedStyleGroup>,includeAccompaniment:Boolean,
         transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?,keyConnectionMethod:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String>,
-        chordControl:()->Int,chordOctaveMove:()->Int,chordQuality:()->Int):Map<Int,ReferenceRhythmPlayer> {
+        chordControl:()->Int,chordOctaveMove:()->Int,chordQuality:()->Int,stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges):Map<Int,ReferenceRhythmPlayer> {
         require(keyConnectionMethod in 0..1)
         val follow=targetChord!=null
         require(!follow || (includeAccompaniment && transposer!=null)){"Chord mapping requires accompaniment and chord table"}
@@ -86,7 +87,7 @@ object ImportedStylePlayer {
                 expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track),keyConnectionMethod=keyConnectionMethod,pedalMode=track.pedalMode,
                 storedTranspose=track.settings.transpose,storedOctave=track.settings.octave,
                 stsFxResolver={slot->track.sts.firstOrNull{it.slot==slot}?.let{sts->
-                    ImportedStsChanges.channel(settings,sts.settings,ImportedStsPlan.defaultChanges)
+                    ImportedStsChanges.channel(settings,sts.settings,stsChanges)
                 }})
                 .withChordFollowing(control=chordControl,octaveMove=chordOctaveMove,target=if(follow && melodic)targetChord else null)
                 .withTrackGate{muted->quality.allows(track.instrument,melodic,muted)}

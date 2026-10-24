@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Truyền STSChanges tùy chỉnh vào StylePlayer, 25-10-2026
+
+- loadStyle nhận danh sách stsChanges trước targetChord để giữ tương thích các caller cũ dùng trailing lambda. MainActivity restore và chọn style truyền mask từ ImportedStsChangeSettings; ImportedStylePlayer resolver event64 áp mask đó thay vì luôn default.
+- Sửa chữ ký API để LocalStyleCompatibilityTest và các caller cũ vẫn biên dịch; test style/targetChord tiếp tục chạy. assembleDebug và ReferenceRhythmPlayerTest đạt. Không sửa SET hoặc tạo file test/log mới; chưa kiểm chứng event64 bằng Master STS thực trên thiết bị. Mask chỉ áp channel fields/FX hiện có trong ImportedStsChanges, chưa cover mọi STS FX effect-array theo gốc.
+
 ## Event64 áp mask STS mặc định vào FX track, 25-10-2026
 
 - Resolver event64 trước lấy thẳng ImportedSts.settings, có thể thay cả thông số kênh dù STSChanges không cho phép. ImportedStylePlayer nay dùng ImportedStsChanges.channel với defaultChanges: volume/pan/transpose/octave/release và FX chỉ thay theo các cờ tương ứng, giữ các trường bị khóa từ track hiện tại.

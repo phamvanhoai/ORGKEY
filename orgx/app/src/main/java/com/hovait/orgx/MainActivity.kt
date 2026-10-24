@@ -244,6 +244,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                     val mode=preferences.getInt("bankMode",0).coerceIn(0,2)
                     val session=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
                         engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                        stsChanges=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask)),
                         chordQuality={engine.chordQuality},chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(mode==2)engine::selectedSetChord else null)}
                     engine.selectImportedStyle(session)
                     if(!engine.styleTempoLock)engine.bpm=session.selectedTempo.coerceIn(40,240)
