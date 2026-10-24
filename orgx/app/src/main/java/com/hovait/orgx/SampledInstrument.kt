@@ -8,7 +8,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private val pitchMode:Int=if(exactNotes)2 else 0,private val tuning:List<Double> = emptyList(),private val tuningTranspose:Int=0) {
     init {
         regions.forEach {
-            require(it.sample.frames.isNotEmpty() && it.gain.isFinite() && it.gain>=0 && it.pan in -100..100)
+            require(it.sample.frames.isNotEmpty() && it.gain.isFinite() && it.gain>=0)
             if(it.looping)require(it.loopStart>=0 && it.loopEnd>it.loopStart && it.loopEnd<=it.sample.frames.size)
         }
     }
@@ -576,8 +576,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         if(note !in 0..127 || position<0)return 0.0
         if(missing(note))return 0.0
         val region=selected[note]
-        val pan=region.pan+notePan
-        val panGain=if(channel==0)minOf(100,100-pan) else minOf(100,100+pan)
+        val pan=region.pan.toLong()+notePan
+        val panGain=(if(channel==0)100L-pan else 100L+pan).coerceIn(0L,100L)
         val value=if(region.looping && allowLoop)SampleResampler.looped(region.sample,position,channel,region.loopStart,region.loopEnd)
             else SampleResampler.channel(region.sample,position,channel)
         return value*region.gain*panGain/100

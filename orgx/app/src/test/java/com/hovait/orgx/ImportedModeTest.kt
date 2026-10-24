@@ -98,7 +98,7 @@ class ImportedModeTest {
     @Test fun defaultModeSelectsPrimarySoundAndMixGainPan(){
         val layers=ImportedInstrumentLoader.layers(instrument())
         assertEquals(listOf("B","A"),layers.map{it.sounds.single().name})
-        assertEquals(100,layers[1].volume);assertEquals(.5,layers[1].layerGain,0.0);assertEquals(-100,layers[1].pan)
+        assertEquals(100,layers[1].volume);assertEquals(.5,layers[1].layerGain,0.0);assertEquals(-100,layers[1].layerPan)
         assertTrue(layers.all{it.modes.isEmpty()})
     }
     @Test fun eachMixedLayerHasIndependentEnvelopeAndStereoPan(){

@@ -60,7 +60,7 @@ object ImportedInstrumentLoader {
         // silent, rather than making the entire rhythm group invalid.
         sound.sections.forEach{region->
             if(region.frames<=0)return "Sample ${region.note} has no frames"
-            if(instrument.pan.toLong()+region.pan !in -100L..100L)return "Sample ${region.note} balance outside range"
+            if(instrument.pan !in -100..100 || region.pan !in -100..100)return "Sample ${region.note} balance outside range"
             if(region.loop !in 0..3)return "Sample ${region.note} uses loop mode ${region.loop}"
             if(region.loop!=0 && (region.loopStart<0 || region.loopEnd<=region.loopStart || region.loopEnd>region.frames))
                 return "Sample ${region.note} loop ${region.loopStart}..${region.loopEnd} exceeds ${region.frames} frames"
@@ -124,7 +124,8 @@ object ImportedInstrumentLoader {
                     if(stereo==null)value(frame*2) else ((stereo[frame*2].toInt()+stereo[frame*2+1])/2).toShort()
                 }
                 InstrumentRegion(section.note,SamplePcm(section.rate,section.channels,mono,stereo),
-                    section.loopStart,section.loopEnd,regionGain(instrument.volume,section.volume)*instrument.layerGain,instrument.pan+section.pan,section.loop!=0,
+                    section.loopStart,section.loopEnd,regionGain(instrument.volume,section.volume)*instrument.layerGain,
+                    (instrument.pan.toLong()+section.pan+instrument.layerPan).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt(),section.loop!=0,
                     section.tune+if(instrument.type==0)channel.tune+musicSettings.tune else 0,tempoSync=section.loop==3,loopUntilRelease=section.loop==1)
             }
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
@@ -136,7 +137,7 @@ object ImportedInstrumentLoader {
     fun layers(instrument:ImportedInstrument,aftertouch:Boolean=false):List<ImportedInstrument>{
         val mode=instrument.modes.firstOrNull() ?: return listOf(instrument)
         fun layer(sound:Int,volume:Int,pan:Int)=instrument.sounds.getOrNull(sound)?.let{selected->
-            instrument.copy(layerGain=instrument.layerGain*volume/100,pan=instrument.pan+pan,sounds=listOf(selected),modes=emptyList())
+            instrument.copy(layerGain=instrument.layerGain*volume/100,layerPan=instrument.layerPan+pan,sounds=listOf(selected),modes=emptyList())
         }
         return buildList {
             val primary=if(aftertouch && mode.aftertouch>=0)mode.aftertouch else mode.sound

@@ -5,6 +5,28 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStylePlayerTest {
+    @Test fun combinedSampleAndInstrumentPanSaturatesWithoutRejectingOrInvertingAudio(){
+        val file=File.createTempFile("style-pan-sum",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,32,0,32))
+            val original=index().instruments.first()
+            fun source(pan:Int)=original.copy(pan=pan,sounds=original.sounds.map{sound->
+                sound.copy(sections=sound.sections.map{it.copy(pan=pan)})
+            })
+            val baseline=ImportedInstrumentLoader.load(file,original).sample(60,0)
+            for(pan in listOf(-100,100)){
+                val combined=source(pan)
+                assertTrue(ImportedInstrumentLoader.supported(combined))
+                val loaded=ImportedInstrumentLoader.load(file,combined)
+                assertEquals(if(pan>0)0.0 else baseline,loaded.sample(60,0,0),1e-12)
+                assertEquals(if(pan<0)0.0 else baseline,loaded.sample(60,0,1),1e-12)
+            }
+            val mode=ImportedMode("Mix pan",-1,-1,listOf(0),listOf(0),listOf(-100))
+            val mixed=ImportedInstrumentLoader.load(file,source(75).copy(modes=listOf(mode)))
+            assertEquals(baseline*.5,mixed.sample(60,0,0),1e-12)
+            assertEquals(baseline,mixed.sample(60,0,1),1e-12)
+        }finally{file.delete()}
+    }
     @Test fun zeroStoredInstrumentOrSectionVolumeUsesUnscaledSampleLikeOpenKey(){
         val file=File.createTempFile("style-zero-volume",".pcm")
         try{

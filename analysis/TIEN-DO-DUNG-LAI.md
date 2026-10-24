@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Cộng pan sample/nhạc cụ/Mix trước khi giới hạn kênh, 24-10-2026
+
+- Channels.OpenKey cộng notePan+Instrument.fPan+InstSec.Pan rồi tính min100; Channels.Process chặn iVolumeL/R âm về0. ORGX từng từ chối tổng pan instrument+section vượt100 và samplePosition có thể tạo panGain âm khi cộng notePan.
+- Loader kiểm tra từng metadata pan nhạc cụ/sample trong-100..100 thay vì từ chối tổng; SampledInstrument cho region lưu tổng pan, dùng Long khi cộng notePan và giới hạn gain từng kênh0..100 để không đảo dấu PCM.
+- Tách layerPan cho Mix khỏi metadata pan nhạc cụ, cộng vào region khi load; không clamp sớm từng tổng trung gian nên Mix có thể bù pan nhạc cụ/sample đúng. Gain layer độc lập từ lượt trước giữ nguyên. Không sửa SET.
+- Kiểm tra PCM pan±100 ở cả instrument+section cho kênh đối diện0 và kênh còn lại đầy đủ; instrument75+section75+Mix-100 cho left50%/right100%. ImportedModeTest/SampledInstrumentTest và kiểm tra loader mục tiêu, assembleDebug đạt; cài APK thành công.
+- Chưa đối chiếu bản thu APK, native integer rounding hoặc mọi channelPan/TouchBalance route. Chưa thay đổi cấu trúc track FX/mixer tổng; không coi stereo routing hoàn chỉnh100%.
+
 ## Volume nhạc cụ/sample bằng0 theo OpenKey, 24-10-2026
 
 - Hai nhánh Channels.OpenKey chỉ nhân Instrument.fVolume và InstSec.Volume khi cả hai khác0; ORGX trước nhân trực tiếp gây im lặng khi metadata một trong hai bằng0. regionGain nay trả1 khi có0, còn cả hai khác0 giữ product/10000.
