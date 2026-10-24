@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Thoát STS cho nốt cũ nhả tiếng thay vì xóa ngay, 24-10-2026
+
+- clearStsParts trước gọi queue.clear, xóa notes khi đổi voice/SET. Thêm ImportedKeyboardParts.retire và queue.retire: xóa định tuyến part cho nốt mới, forceRelease voice cũ và giữ render vào mixer hiện có cho tới khi finished. Engine thoát STS dùng retire; clear/reset hoàn toàn vẫn giữ cho caller cần hard reset.
+- Note retired không chạy KeyRepeat để không tiếp tục tạo note mới sau khi đã rời KeyboardSet. Queue xử lý trên audio thread; generation/commit guard từ lượt trước giữ nguyên. Không thay SET.
+- Kiểm tra PCM envelope0.25 trước retire, frame kế vẫn>0 và<0.25, sau release về0; noteOn sau retire không phát tiếng cũ, replace nhóm mới lại phát0.25. ImportedKeyboardPartQueueTest/ImportedKeyboardPartsTest/StsCommitWaitersTest và build đạt; cài APK thành công.
+- Chưa nghe so STS->voice thực trên thiết bị/APK. Music FX tổng có thể đổi cấu hình khi clear stsMusic, nên chưa bảo toàn mọi đuôi Master DSP khác cấu hình. Không coi mọi kiểu channel transition tương đương100%.
+
 ## Chọn factory voice thoát Master STS dù single voice đã null, 24-10-2026
 
 - Master STS thay nhóm keyboard parts mà có thể giữ importedInstrument=null. Setter cũ chỉ clearStsParts khi field!==value; UI chọn factory gánnull lại không clear, nên noteOn vẫn định tuyến vào parts STS.

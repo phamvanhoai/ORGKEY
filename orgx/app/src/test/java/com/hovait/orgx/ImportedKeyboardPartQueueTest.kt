@@ -4,6 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartQueueTest {
+    @Test fun retiringSetKeepsItsReleaseAudioButCannotTriggerNewOldPartNotes(){
+        val queue=ImportedKeyboardPartQueue();val mixer=ImportedKeyboardMixer()
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(32){8192}),0,32)),
+            1000,envelope=ImportedEnvelope(0,0,100,10,false))
+        try{
+            queue.replace(listOf(ImportedKeyboardParts.Part(1,sound)))
+            queue.noteOn(60,1.0);assertEquals(.25,frame(queue,mixer),1e-12)
+            var retired=false
+            queue.retire{retired=true};queue.noteOn(61,1.0)
+            val first=frame(queue,mixer)
+            assertTrue(retired);assertTrue(first>0 && first<.25)
+            repeat(120){frame(queue,mixer)}
+            assertEquals(0.0,frame(queue,mixer),0.0)
+            queue.noteOn(60,1.0);assertEquals(0.0,frame(queue,mixer),0.0)
+            queue.replace(listOf(ImportedKeyboardParts.Part(1,sound)))
+            queue.noteOn(60,1.0);assertEquals(.25,frame(queue,mixer),1e-12)
+        }finally{mixer.close()}
+    }
     @Test fun invalidRawBendIsRejectedBeforeAudioDrain(){
         val queue=ImportedKeyboardPartQueue()
         try{queue.pitchBend(0.0,scriptLevel=8192);fail("Invalid raw bend queued")}

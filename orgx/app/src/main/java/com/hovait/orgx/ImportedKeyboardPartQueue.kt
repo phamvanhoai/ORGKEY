@@ -55,6 +55,7 @@ class ImportedKeyboardPartQueue {
         commands.add{parts.channelPressure(value,channel)}
     }
     fun clear(afterClear:()->Unit = {}){commands.add{parts.reset();parts.replace(emptyList());afterClear()}}
+    fun retire(afterRetire:()->Unit = {}){commands.add{parts.retire();afterRetire()}}
     fun drain(){
         while(true){val command=commands.poll() ?: break;command()}
     }

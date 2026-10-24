@@ -123,7 +123,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         currentStsSingle=null
         stsGeneration.incrementAndGet();stsPartsEnabled=false
         currentStsGroup=null
-        stsParts.clear{stsMusic=null}
+        stsParts.retire{stsMusic=null}
     }
     fun applyStsRequest(prepared:ImportedStsRequest.Prepared,expectedSound:SampledInstrument?):Boolean {
         if(importedInstrument!==expectedSound)return false

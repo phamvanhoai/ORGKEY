@@ -7,7 +7,7 @@ class ImportedKeyboardParts {
         val pedalMode:Int=0)
     private data class Note(val part:Int,val channel:Int,var key:Int,val sound:SampledInstrument,
         val playback:SampledInstrument.Playback,val velocity:Double,var pedal:Boolean,
-        val pedalMode:Int,var released:Boolean=false,val repeat:ImportedKeyRepeat?=null)
+        val pedalMode:Int,var released:Boolean=false,val repeat:ImportedKeyRepeat?=null,var retired:Boolean=false)
     private var parts:Map<Int,Part> = emptyMap()
     private val notes=ArrayList<Note>()
     private val bends=DoubleArray(16)
@@ -26,6 +26,11 @@ class ImportedKeyboardParts {
         require(values.size<=4 && values.all{it.id in 1..4} && values.map{it.id}.distinct().size==values.size)
         require(values.all{it.inputGain.isFinite() && it.inputGain in 0.0..1.0})
         parts=values.associateBy{it.id}
+    }
+    /** Retire a keyboard set without erasing PCM/envelope or its mixer FX tails. */
+    fun retire(){
+        parts=emptyMap()
+        notes.forEach{it.released=true;it.retired=true;it.playback.forceRelease()}
     }
     fun noteOn(key:Int,velocity:Double,channel:Int=0){
         require(channel in 0..15 && key in 0..127 && velocity.isFinite() && velocity in 0.0..1.0)
@@ -98,7 +103,7 @@ class ImportedKeyboardParts {
             val pedalRelease=if(note.pedalMode==-1)note.pedal else note.pedalMode!=0
             note.playback.next(note.released,pedalRelease)
             mixer.add(note.sound,note.playback.left*note.velocity,note.playback.right*note.velocity)
-            if(note.repeat?.next(note.released,pedalRelease)==true){
+            if(!note.retired && note.repeat?.next(note.released,pedalRelease)==true){
                 val playback=note.sound.voice(note.sound.keyboardNote(note.key),autoRelease=true,effectsAllowed=false,scriptAllowed=false)
                 playback.pitchBend(bends[note.channel],scriptBends[note.channel])
                 repeated.add(Note(note.part,note.channel,note.key,note.sound,playback,note.velocity,note.pedal,note.pedalMode))
