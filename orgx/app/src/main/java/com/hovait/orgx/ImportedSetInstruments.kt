@@ -16,7 +16,8 @@ data class ImportedMode(val name:String,val sound:Int,val aftertouch:Int,val mix
 data class ImportedInstrument(val name:String,val volume:Int,val pan:Int,val type:Int,val sounds:List<ImportedSound>,val modes:List<ImportedMode> = emptyList(),val sourceIdentity:String?=null,val defaultMode:ImportedMode?=modes.firstOrNull(),val selectedMode:Int=0,val sourceName:String=name)
 data class ImportedStyleGroup(val id:Int,val parent:Int,val name:String,val section:Int,val loop:Boolean,val start:Int,val end:Int,val tempo:Int,
     val type:Int=1,val limit:Boolean=true,val jumpGroup:Int=-1,val meterX:Int=4,val meterY:Int=4,val settings:ImportedChannelSettings=ImportedChannelSettings(),
-    val chordType:Int=0,val chordBase:Int=0,val stsIndices:List<Int> = emptyList())
+    val chordType:Int=0,val chordBase:Int=0,val stsIndices:List<Int> = emptyList(),
+    val color:Int=0,val shortcutDevice:Int=0,val shortcutMidi:Int=0)
 data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val muted:Boolean,val events:List<ReferenceDrumEvent>,val chordRoot:Int=0,val chordType:Int=0,
     val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList(),val effects:List<ImportedExpressionEffect> = emptyList(),
     val pedalMode:Int=0,val pedal:Int=0,val keyAreaFrom:Int=0,val keyAreaTo:Int=127,
@@ -173,16 +174,27 @@ object ImportedSetInstruments {
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
-            val section=f.readUnsignedByte();val type=f.readUnsignedByte();val loop=f.readBoolean();val limit=f.readBoolean()
-            val start=int();val rawEnd=int();val jump=int();skip(4);val chordType=f.readByte().toInt();val chordBase=f.readByte().toInt()
+            val rawSection=f.readUnsignedByte();val type=f.readUnsignedByte();val loop=f.readBoolean();val limit=f.readBoolean()
+            val start=int();val rawEnd=int();val jump=int();val rawColor=int();val chordType=f.readByte().toInt();val chordBase=f.readByte().toInt()
             val end=if(limit && start>=rawEnd)Math.addExact(start,1000) else rawEnd
             val tempo=java.lang.Short.reverseBytes(f.readShort()).toInt()
-            skip(6);val storedX=f.readUnsignedByte();val storedY=f.readUnsignedByte()
+            val shortcutDevice=int();val shortcutMidi=f.readByte().toInt();skip(1)
+            val storedX=f.readUnsignedByte();val storedY=f.readUnsignedByte()
             val meterX=if(musicVersion!!<"1.4.8")storedY shr 4 else storedX
             val meterY=if(musicVersion<"1.4.8")storedY and 15 else storedY
             val stsIndices=if(musicVersion!!>="1.4.6")List(4){int()} else emptyList()
             val settings=if(musicVersion>="1.4.2")fx() else ImportedChannelSettings()
-            ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo,type,limit,jump,meterX,meterY,settings,chordType,chordBase,stsIndices)
+            // TrackGroup.ReadFromStream upgrades legacy function-key groups only
+            // when no explicit section was stored. F1..F11 are device codes113..123.
+            val section=if(rawSection==0)when(shortcutDevice){
+                113->16;114->17;115->32;116->33;117->34;118->35
+                119->48;120->49;121->80;122->81;123->64
+                else->0
+            } else rawSection
+            val color=if(rawSection==0 && section!=0)when(section shr 4){
+                1->255;2->16711680;3->32768;5->32896;4->8421376;else->rawColor
+            } else rawColor
+            ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo,type,limit,jump,meterX,meterY,settings,chordType,chordBase,stsIndices,color,shortcutDevice,shortcutMidi)
         }
         ImportedSetIndex(instruments,styles,tracks,systems,musicSettings,waveSettings,rhythmSettings,musicVersion!!)
     }

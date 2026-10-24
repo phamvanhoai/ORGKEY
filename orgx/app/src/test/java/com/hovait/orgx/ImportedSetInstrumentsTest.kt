@@ -5,6 +5,36 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSetInstrumentsTest {
+    @Test fun legacyFunctionKeysBecomeSectionsWithoutOverridingExplicitSections(){
+        val bytes=java.io.ByteArrayOutputStream()
+        val out=java.io.DataOutputStream(bytes)
+        fun int(value:Int)=out.writeInt(Integer.reverseBytes(value))
+        fun text(value:String){val encoded=value.toByteArray();int(encoded.size);out.write(encoded)}
+        fun common(value:String=""){text(value);int(0)}
+        out.write("Music Studio Music".toByteArray().copyOf(32));common("Example\r1.4.6\r")
+        repeat(3){text("")};int(0);out.write(ByteArray(130));int(0);int(0)
+        repeat(3){out.write(ByteArray(52))}
+        common();int(0);common();int(0);common();int(0)
+        val keys=(113..123).toList()+999+113
+        int(keys.size)
+        keys.forEachIndexed{position,key->
+            int(position+1);int(100);out.write((byteArrayOf(32)+"Part $position".toByteArray()).copyOf(32))
+            out.writeByte(if(position==12)35 else 0);out.writeByte(1);out.writeBoolean(true);out.writeBoolean(true)
+            int(0);int(1000);int(0);int(123456);out.writeByte(0);out.writeByte(0);out.writeShort(java.lang.Short.reverseBytes(120.toShort()).toInt())
+            int(key);out.writeByte(60);out.writeByte(0);out.writeByte(0);out.writeByte(0x44)
+            repeat(4){int(0)};out.write(ByteArray(52))
+        }
+        val file=File.createTempFile("orgx-legacy-sections",".set")
+        try{
+            file.writeBytes(bytes.toByteArray())
+            val index=ImportedSetInstruments.index(file)
+            assertEquals(listOf(16,17,32,33,34,35,48,49,80,81,64,0,35),index.styles.map{it.section})
+            assertEquals(listOf(255,255,16711680,16711680,16711680,16711680,32768,32768,32896,32896,8421376,123456,123456),index.styles.map{it.color})
+            assertEquals(keys,index.styles.map{it.shortcutDevice});assertTrue(index.styles.all{it.shortcutMidi==60})
+            val style=ImportedStyleCatalog.styles(index).single()
+            assertEquals(4,style.sections.count{it.section in 32..35 && it.id!=13})
+        }finally{file.delete()}
+    }
     @Test fun localSetPreservesTrackMidiHeaderWhenProvided(){
         val path=System.getProperty("orgx.legacySet") ?: return
         val tracks=ImportedSetInstruments.index(File(path)).tracks

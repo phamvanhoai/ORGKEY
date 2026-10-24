@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nhận diện section SET cũ qua phím chức năng, 24-10-2026
+
+- Đối chiếu TrackGroup.ReadFromStream: khi Section==0, ShortCutKeyDevice113..123 lần lượt đổi thành Intro16/17, Main32..35, Fill48/49, Ending80/81, Break64 và màu tương ứng. ORGX từng skip6 byte nên bỏ mất cơ chế này; parser nay đọc shortcutDevice/shortcutMidi và Color, chuẩn hóa section theo bảng gốc.
+- Section đã khác0 giữ nguyên cả section lẫn màu dù shortcut trùng; shortcut không được nhận diện vẫn giữ Section0. Không đoán thêm Intro3/Fill3/Fill4/Ending3 từ mã ngoài bảng. Dữ liệu gốc trên đĩa không bị sửa.
+- Các section sau chuẩn hóa đi qua ImportedStyleCatalog/SectionFallback/loader hiện có nên xuất hiện trong style và được phát như các section rõ ràng. Không thêm layout hoặc skill UI.
+- Kiểm tra binary SET tối thiểu qua parser cho đủ11 mã, mã lạ và explicit section; kiểm tra catalog nhận các Main. Nhóm ReferenceStyleTransitionTest, đọc SET mẫu có sẵn và92 nhạc cụ template đạt; build/cài APK thành công. Không tạo file test mới.
+- Chưa xác định SET đang dùng trên thiết bị có section thuộc nhánh này hay không; không tuyên bố đã sửa mọi style lỗi. Chưa thêm điều khiển ngoài bằng shortcut MIDI/device hoặc hỗ trợ ChordVars ở layout1.4.9+.
+
 ## Nhịp chuyển đoạn dùng chung PAD/style, 24-10-2026
 
 - Đối chiếu Tracks.CalcRhythmScale và GroupPlayNext: PAD Auto trả-1 giữ scale trước; các method khác tính scale theo meter/LimitEnd-LimitStart. Giá trị<=10 áp trước GroupPlayStart, giá trị dương còn lại áp sau.
