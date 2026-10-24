@@ -8,7 +8,9 @@ class MidiPitchState {
     private val rpnLsb=IntArray(16){127}
     private val playbackCoarse=IntArray(16){2}
     private val playbackCents=IntArray(16)
-    fun resetPlayback(){for(channel in 0..15){rpnMsb[channel]=127;rpnLsb[channel]=127;playbackCoarse[channel]=2;playbackCents[channel]=0;set(8192,channel,true)}}
+    private val fineTuning=IntArray(16){8192}
+    private val coarseTuning=IntArray(16){64}
+    fun resetPlayback(){for(channel in 0..15){rpnMsb[channel]=127;rpnLsb[channel]=127;playbackCoarse[channel]=2;playbackCents[channel]=0;fineTuning[channel]=8192;coarseTuning[channel]=64;set(8192,channel,true)}}
     /** Pitch bend sensitivity is RPN 0,0; unrelated Data Entry must be ignored. */
     fun playbackController(channel:Int,controller:Int,value:Int):Boolean{
         require(channel in 0..15 && value in 0..127)
@@ -16,8 +18,15 @@ class MidiPitchState {
             98,99->{rpnMsb[channel]=127;rpnLsb[channel]=127}
             101->rpnMsb[channel]=value
             100->rpnLsb[channel]=value
-            6->if(rpnMsb[channel]==0 && rpnLsb[channel]==0){playbackCoarse[channel]=value;return true}
-            38->if(rpnMsb[channel]==0 && rpnLsb[channel]==0){playbackCents[channel]=value.coerceAtMost(99);return true}
+            6->if(rpnMsb[channel]==0)when(rpnLsb[channel]){
+                0->{playbackCoarse[channel]=value;return true}
+                1->{fineTuning[channel]=(value shl 7) or (fineTuning[channel] and 127);return true}
+                2->{coarseTuning[channel]=value;return true}
+            }
+            38->if(rpnMsb[channel]==0)when(rpnLsb[channel]){
+                0->{playbackCents[channel]=value.coerceAtMost(99);return true}
+                1->{fineTuning[channel]=(fineTuning[channel] and 16256) or value;return true}
+            }
         }
         return false
     }
@@ -38,6 +47,7 @@ class MidiPitchState {
         if(bend==MidiPitchBend.CENTER)null else MidiChannelMessage.bytes(0xe0 or channel,bend and 127,bend shr 7)
     }
     fun semitones(channel:Int,playback:Boolean=false)=MidiPitchBend.semitones(values.get(index(channel,playback)),1)*
-        (if(playback)playbackCoarse[channel]+playbackCents[channel]/100.0 else liveRange.toDouble())
+        (if(playback)playbackCoarse[channel]+playbackCents[channel]/100.0 else liveRange.toDouble())+
+        (if(playback)coarseTuning[channel]-64+(fineTuning[channel]-8192)/8192.0 else 0.0)
     fun scriptLevel(channel:Int,playback:Boolean=false)=values.get(index(channel,playback))-MidiPitchBend.CENTER
 }

@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiPitchStateTest {
+    @Test fun fineAndCoarseTuningRemainIndependentOfBendAndOtherChannels(){
+        val state=MidiPitchState()
+        fun rpn(number:Int){state.playbackController(2,101,0);state.playbackController(2,100,number)}
+        rpn(1);assertTrue(state.playbackController(2,6,96))
+        assertTrue(state.playbackController(2,38,0))
+        assertEquals(.5,state.semitones(2,true),0.0)
+        rpn(2);assertTrue(state.playbackController(2,6,67))
+        assertFalse(state.playbackController(2,38,50))
+        state.set(16383,2,true)
+        assertEquals(5.5,state.semitones(2,true),0.0)
+        assertEquals(0.0,state.semitones(1,true),0.0)
+        assertEquals(0.0,state.semitones(2,false),0.0)
+        state.playbackController(2,101,127);state.playbackController(2,100,127)
+        assertFalse(state.playbackController(2,6,10))
+        state.resetPlayback();assertEquals(0.0,state.semitones(2,true),0.0)
+    }
     @Test fun factoryBendStartsAtCurrentPitchAndSmoothsHeldChangesOnTenMillisecondClock(){
         val slew=MidiPitchSlew(1000)
         assertEquals(2.0,slew.next(12.0,2),0.0)

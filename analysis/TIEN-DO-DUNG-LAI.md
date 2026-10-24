@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## MIDI nhận RPN Fine/Coarse Tuning theo channel, 24-10-2026
+
+- MidiPitchState trước chỉ giải RPN0,0 cho bend sensitivity. Bổ sung RPN0,1 Fine Tuning14bit center8192 và RPN0,2 Coarse Tuning MSB center64. Data Entry LSB không đổi coarse; NRPN/RPN null không làm đổi tuning.
+- Cao độ playback cộng fine/coarse vào bend hiện hành; đường AudioEngine đã tính lại bend khi Data Entry được nhận nên nốt đang giữ cũng nhận thay đổi. Miền live keyboard và channel khác độc lập, mở playback mới reset tuning. Không mở rộng RPN tuning cho live MIDI input trong lượt này.
+- MidiPitchStateTest kiểm tra fine+0.5, coarse+3, bend+2 ra5.5semitone, isolation, RPN null và reset. MidiPitchStateTest/MidiScriptBendStateTest/MidiProgramTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa nghe/đo tuning trên điện thoại hoặc xác nhận đầy đủ hành vi RPN của APK gốc. Đây là bổ sung tương thích MIDI, không phải thay đổi tuning table SET.
+
 ## Kiểm tra thao tác style trên điện thoại thật, 24-10-2026
 
 - Dùng ADB trên thiết bị đang kết nối, mở ORGX hiện có. Ảnh ban đầu hiển thị DJ VIP KVT1/Main1, Dance9KBT/Primary, tempo141, READY. Chọn Main2 rồi nhấn Intro1; ảnh sau6giây hiển thị Main2/RUNNING. Không chụp giữa Intro nên chỉ xác nhận trạng thái sau chuỗi thao tác, chưa xác nhận từng frame chuyển.
