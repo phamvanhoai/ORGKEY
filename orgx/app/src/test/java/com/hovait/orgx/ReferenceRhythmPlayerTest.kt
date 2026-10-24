@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedPitchMovePassesRawTouchLevelToDncInsteadOfDerivingItFromSemitones(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)
+            .withModeScript("main(){gain=100;} on(touch){play(volume:gain);return(true);} on(pitchbend){gain=level;return(true);}")
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(53,0,2000,8242,10,0),
+            ReferenceDrumEvent(2,2,64,100,20,1000)))),{10000},{_,_,_->0.0},1000,sampled=source)
+        try{
+            repeat(21){player.next(0,120)}
+            assertEquals(.375,player.left,1e-12)
+        }finally{player.close()}
+    }
     @Test fun aftertouchDoesNotFallBackToOlderNoteWhenLatestNoteHasEnded(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,

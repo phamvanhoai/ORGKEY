@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## KeyPitchMove53 truyền mức thô Touch cho DNC, 24-10-2026
+
+- Track.Play53 gọi pitchbend(level=Touch-8192); player trước chỉ truyền semitone nên Playback suy level theo range2 và có thể khác dữ liệu gốc. Nay lưu pitchScriptLevel từ Touch, clamp biên script hiện có, truyền vào Playback của ID được chọn và nốt mở sau đó/revoice/Repeat.
+- Reset xóa raw level; TrackPitchMove43 xóa raw level để giữ đường cập nhật hệ số không gắn Touch53. Chưa tách hẳn việc gọi script cho nhánh43 hoặc định tuyến script cấp Track khi chưa có voice đang phát.
+- ReferenceRhythmPlayerTest dùng pitchMove2000 nhưng Touch8242 (level50), script đổi gain cho note kế tiếp: PCM tổng0.375 thay vì suy level8191. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa thử SET thật có53/DNC trên điện thoại.
+
 ## Aftertouch giữ noteID theo lịch sử mở phím, 24-10-2026
 
 - Track gốc ghi KeyIDs[0]/KeyIDs[key+1] mỗi KeyOpen. Bộ phát trước tìm latest trong voice còn sống nên Aftertouch-1 có thể rơi sang nốt trước khi nốt mới nhất đã kết thúc. Thêm bảng129 entry nullable để giữ noteID mới nhất toàn track và theo phím, cập nhật từ event2 trước chọn vùng sample.
