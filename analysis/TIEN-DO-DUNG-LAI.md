@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nhấn lại cùng phím không bỏ mất release tail của Voice SET, 24-10-2026
+
+- AudioEngine dùng map theo note/channel nên entry Voice cũ bị bỏ khi retrigger cùng phím. Nếu entry đó đã nhả và Playback còn release, PCM/envelope bị cắt thay vì giữ kênh như Channels.Open.
+- Trước khi thêm Voice mới, entry sampled live đã releasing nhưng chưa finished được chuyển sang danh sách phát phụ đang dùng cho Repeat, giữ nguyên Playback/gain/channel/order và đánh dấu noteOff. Render tiếp release qua ImportedKeyboardMixer; ngân sách Music/Rhythm chung vẫn có thể thay tail cũ nhất khi đầy. Không sinh lại controller Repeat cho tail.
+- SampledInstrumentTest/ImportedKeyboardMixerTest/ImportedKeyboardPartsTest và assembleDebug đạt. Không thêm file test/log hoặc sửa SET. Kiểm tra nền không khởi tạo AudioEngine Android; chưa nghe/đo PCM retrigger qua điện thoại.
+- Chỉ bảo toàn entry đã releasing của sampled live Voice. Nhiều noteOn đồng phím còn đang giữ, pending sustain chưa releasing, factory/MIDI playback và nhánh legato tái sử dụng vẫn chưa chuyển sang mô hình nhiều entry độc lập; không coi toàn bộ retrigger/polyphony tương đương gốc.
+
 ## Voice trực tiếp và MIDI dùng cấu hình đa âm chung, 24-10-2026
 
 - Thay giới hạn24 tổng của AudioEngine bằng Music/Rhythm đã cấu hình. Phân ngân sách theo MIDI channel và miền live/playback; channel percussion dùng Rhythm, các channel khác dùng Music. Nốt Repeat live dùng chung ngân sách với note nguồn thay vì một giới hạn512 độc lập.

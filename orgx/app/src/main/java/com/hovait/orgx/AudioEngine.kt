@@ -318,7 +318,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val repeat=imported?.let{ImportedKeyRepeat(it.outputSampleRate)}
     }
     private data class RepeatedVoice(val sound:SampledInstrument,val playback:SampledInstrument.Playback,
-        val gain:Float,val channel:Int,val order:Long)
+        val gain:Float,val channel:Int,val order:Long,val noteOff:Boolean=false)
     private val repeatedVoices=java.util.concurrent.ConcurrentLinkedQueue<RepeatedVoice>()
     private val voiceOrder=java.util.concurrent.atomic.AtomicLong()
     private val voiceBudgetLock=Any()
@@ -423,7 +423,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val modulation=(if(playback)playbackModulation else liveModulation)[channel]
         if(modulation!=0)voice.sampledPlayback?.modulate(modulation)
         synchronized(voiceBudgetLock){
-            voices.remove(key)
+            val retiring=voices.remove(key)
+            val tail=retiring?.sampledPlayback
+            if(retiring?.imported!=null && retiring.releasing && tail!=null && !tail.finished && !playback){
+                // Channels.Open allocates another channel while the previous
+                // note completes its release. Keep that PCM/envelope alive.
+                repeatedVoices.add(RepeatedVoice(retiring.imported,tail,retiring.velocity,channel,retiring.order,noteOff=true))
+            }
             reserveVoice(channel,playback,1)
             voices[key]=voice
         }
@@ -829,7 +835,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     if (voice.sampledPlayback?.finished==true || (voice.gain <= 0f && voice.releasing) || (voice.sampledPlayback==null && voice.instrument == -1 && voice.ageFrames >= (sampleBank?.drumLength(voice.note) ?: 0))) voices.remove(note, voice)
                 }
                 repeatedVoices.forEach{voice->
-                    voice.playback.next(false,false)
+                    voice.playback.next(voice.noteOff,if(voice.noteOff)sustain else false)
                     importedKeyboardMixer.add(voice.sound,voice.playback.left*voice.gain,voice.playback.right*voice.gain)
                     if(voice.playback.finished)repeatedVoices.remove(voice)
                 }
