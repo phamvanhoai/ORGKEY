@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nốt mới trong track nhận mức Modulation hiện hành, 24-10-2026
+
+- ReferenceRhythmPlayer giữ modulationLevel sau event46/56, áp cho Playback mới sau khởi tạo touch/pedal; trước chỉ Playback đã tồn tại nhận modulate. resetExpression xóa trạng thái, restartAt giữ như các control track khác.
+- ReferenceRhythmPlayerTest thêm modulation40 tại0 trước noteOn10 với script stopall(cut), kiểm tra note mới im đúng và replay sau reset ra cùng kết quả. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa nghe SET thật trên thiết bị, chưa giải quyết script state dùng chung của các track cùng SoundKey hoặc mọi điều kiện DNC track của APK gốc.
+
 ## Track SET nhận sự kiện Modulation46/56, 24-10-2026
 
 - Đối chiếu Track.Play: event46 hoặc56 gọi ScriptEvent(modulate,level=Key). ImportedStyleSupport trước chặn hai event, khiến section có chúng không được nạp. Nay chấp nhận giá trị level trong-127..127.

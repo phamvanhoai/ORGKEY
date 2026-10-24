@@ -13,7 +13,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2}
     private var keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0}
     private var keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1}
-    private fun resetExpression(){keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0};keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1};pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2};keyTouch=100;keyBalance=0;pitchMove=1000;volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
+    private fun resetExpression(){modulationLevel=null;keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0};keyConnectionEffect=expressionEffects.firstOrNull{it.slot==1};pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2};keyTouch=100;keyBalance=0;pitchMove=1000;volumeShake=expressionEffects.firstOrNull{it.slot==3};pedalDown=initialPedal}
     constructor(tracks:List<ReferenceDrumTrack>,bank:SampleBank,sampleRate:Int):
         this(tracks,bank::drumLength,bank::drum,sampleRate)
     private val clock=ReferenceStyleClock(sampleRate)
@@ -72,6 +72,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         performanceMuted=if(accompaniment)chord else drum
     }
     private var pedalDown=initialPedal
+    private var modulationLevel:Int?=null
     private var pitchMove=1000
     private var keyBalance=0
     private var keyTouch=100
@@ -285,6 +286,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==44){channelVolume=event.note;return@advance}
             if(event.type==45){channelPan=event.note;return@advance}
             if(event.type==46 || event.type==56){
+                modulationLevel=event.note
                 sampled?.updateScriptModulation(event.note)
                 voices.values.forEach{it.playback?.modulate(event.note)}
                 return@advance
@@ -305,6 +307,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 val playback=sampled?.voice(note,event.tune,samplePan,scriptVelocity=event.touch and 65535,
                     initialScriptPedal=pedalDown,scriptId=event.id)?.also{playback->
                     if(pedalDown)playback.scriptPedal(true)
+                    modulationLevel?.let(playback::modulate)
                     if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || pedalDown))playback.connectFrom(previous.note,connection)
                     if(expressionAllowed){volumeShake?.let{playback.configureVolumeShake(it)};pitchShakeEffect?.let{playback.configurePitchShake(it)}}
                     playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0))
