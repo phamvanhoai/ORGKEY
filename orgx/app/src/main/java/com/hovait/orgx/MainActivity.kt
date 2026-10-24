@@ -263,20 +263,25 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var linkSts by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
     var mainStsTarget by remember{mutableStateOf<Pair<ImportedStyleSession,Int>?>(null)}
     var mainStsRevision by remember{mutableIntStateOf(0)}
+    var directStsOverride by remember{mutableStateOf(false)}
+    LaunchedEffect(setSession){directStsOverride=false}
     DisposableEffect(preferences){
         val listener=SharedPreferences.OnSharedPreferenceChangeListener{prefs,key->
-            if(key=="linkMainSts")linkSts=prefs.getBoolean(key,false)
+            if(key=="linkMainSts"){
+                linkSts=prefs.getBoolean(key,false)
+                directStsOverride=false
+            }
         }
         preferences.registerOnSharedPreferenceChangeListener(listener)
         onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
     }
     val linkedMainPart=mainStsTarget?.takeIf{it.first===setSession}?.second ?: sectionState.first
-    LaunchedEffect(setSession,linkedMainPart,mainStsRevision,linkSts,restoringSet){
+    LaunchedEffect(setSession,linkedMainPart,mainStsRevision,linkSts,restoringSet,directStsOverride){
         val session=setSession
         val requestRevision=mainStsRevision
         val file=engine.activeSetFile
         val index=engine.activeSetIndex
-        if(linkSts && session!=null && file!=null && index!=null && !restoringSet){
+        if(linkSts && !directStsOverride && session!=null && file!=null && index!=null && !restoringSet){
             val part=session.section(linkedMainPart)
             if(part!=null && part.section in 32..35)try{
                 val slot=ImportedStsSelection.linkedMainSlot(index,session.style.id,part.section) ?: return@LaunchedEffect
@@ -285,7 +290,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
                 val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,0,slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
                 val wanted=mainStsTarget?.takeIf{it.first===session}?.second ?: session.currentId
-                if(engine.importedStyleSession===session && wanted==part.id && mainStsRevision==requestRevision &&
+                if(!directStsOverride && engine.importedStyleSession===session && wanted==part.id && mainStsRevision==requestRevision &&
                     engine.activeSetFile==file && engine.activeSetIndex===index &&
                     preferences.getBoolean("linkMainSts",false) && engine.awaitStsRequest(prepared,expectedSound)){
                     preferences.edit().putString("selectedStsSet",file.name).putInt("selectedStsTrack",0).putInt("selectedStsSlot",slot).apply()
@@ -367,6 +372,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         val file=engine.activeSetFile ?: return
         val index=engine.activeSetIndex ?: return
         if(restoringSet)return
+        directStsOverride=true
+        mainStsRevision++
         stsLoadJob?.cancel()
         val revision=++stsLoadRevision
         loadingSts=slot
@@ -503,6 +510,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                             val session=setSession
                             val part=session?.style?.sections?.firstOrNull{it.id==id}
                             if(session!=null && session.available(id) && part?.section in 32..35){
+                                if(linkSts){stsLoadJob?.cancel();stsLoadRevision++;loadingSts=-1}
+                                directStsOverride=false
                                 mainStsTarget=session to id;mainStsRevision++
                             }
                             engine.requestStyleSection(id)

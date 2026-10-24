@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Hủy yêu cầu STS cũ giữa nút trực tiếp và Main-link, 24-10-2026
+
+- Hai đường nạp trước dùng job riêng nên có thể tranh commit cùng expected group. Thêm directStsOverride/revision: bấm STS trực tiếp làm Main effect mất hiệu lực và bị cancel; bấm Main khi link bật cancel direct job, tăng generation UI và tạo yêu cầu Main mới. Link tắt không hủy direct khi chỉ chuyển Main.
+- Override kết thúc khi chọn Main, đổi session hoặc thay preference link; không tự bật/tắt preference. Main effect kiểm tra override/revision trước await commit, tiếp tục dùng cancellation gate hiện có của STS. Không thay dữ liệu SET hoặc tạo test phản chiếu Compose.
+- StsCommitWaitersTest/ImportedStsBatchTest và assembleDebug đạt; cài APK thành công. Chưa kiểm chứng thao tác đua trên thiết bị với SET có Master STS; chưa có bằng chứng hành vi cạnh tranh IO này giống timing gốc100%.
+
 ## Legato tính pitch theo region đang phát, 24-10-2026
 
 - Channels._Connection tính key mới với lastChannel.BaseKey và sample rate của region đang dùng. Playback.connectTo trước gọi pitchStep(targetNote) chọn region theo target, dù PCM vẫn là region cũ; connectFrom cũng chọn source region sai khi voice mới dùng target sample.
