@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Reset MIDI khôi phục Expression của đúng channel, 24-10-2026
+
+- Sau khi thêm CC11 vào bộ trộn, CC121 trước vẫn chỉ giải pedal/modulation/bend, khiến channel giữ Expression thấp hoặc0 sau reset. Resolver nay theo dõi Expression riêng16channel và xuất CC11=127 tại tick reset khi cần; reset lặp không tạo thêm event.
+- Giữ Volume CC7 và Pan CC10 đã chọn, không kéo theo reset mix toàn channel hoặc channel khác. Không thay đổi các lệnh reset pedal/bend hiện có.
+- MidiExpressionSustainTest đưa chuỗi controller qua resolver rồi MidiChannelMix, xác minh Expression trở127, volume80/panleft còn giữ, channel1 Expression30 không đổi và chỉ một event khôi phục. MidiExpressionSustainTest/MidiSustainTest/MidiIntegrationTest/VoiceMixerTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa nghe MIDI thực trên thiết bị hoặc đối chiếu reset controller APK gốc. Các controller/RPN còn lại chưa được tuyên bố tương đương đầy đủ.
+
 ## Phát MIDI dùng Volume, Expression và Pan riêng từng channel, 24-10-2026
 
 - MidiFile giữ CC7/10/11 thay vì bỏ. Thêm MidiChannelMix trong file MidiPan hiện có, trạng thái16channel độc lập dùng atomic, mặc định volume100/expression127/pan64, reset khi mở lượt phát mới.

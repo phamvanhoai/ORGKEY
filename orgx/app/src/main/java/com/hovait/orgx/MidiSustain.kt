@@ -6,6 +6,7 @@ object MidiSustain {
         val pedal=BooleanArray(16)
         val modulation=IntArray(16)
         val bends=IntArray(16){8192}
+        val expression=IntArray(16){127}
         val pending=LinkedHashMap<Int,MidiNoteEvent>()
         val active=LinkedHashMap<Int,MidiNoteEvent>()
         val result=mutableListOf<MidiNoteEvent>()
@@ -27,6 +28,10 @@ object MidiSustain {
                     }
                 }
             } else if(event.controller==64 || event.controller==121){
+                if(event.controller==121 && expression[channel]!=127){
+                    result+=event.copy(controller=11,velocity=127)
+                    expression[channel]=127
+                }
                 if(event.controller==121 && modulation[channel]!=0){result+=event.copy(controller=1,velocity=0);modulation[channel]=0}
                 if(event.controller==121 && bends[channel]!=8192){
                     result+=event.copy(controller=-2,note=0,velocity=64)
@@ -42,6 +47,7 @@ object MidiSustain {
                 }
             } else if(event.controller!=null){
                 if(event.controller==1)modulation[channel]=event.velocity
+                if(event.controller==11)expression[channel]=event.velocity
                 if(event.controller==-2)bends[channel]=event.note or (event.velocity shl 7)
                 // Expression is neither a note release nor a sustained key.
                 result+=event
