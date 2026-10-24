@@ -569,6 +569,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                         }
                     })return@thread
                 }
+                elapsedMicros+=clock.advance(maxOf(song.endTick,song.events.lastOrNull()?.tick ?: 0L))
+                val endDeadline=start+elapsedMicros*1000
+                while(true){
+                    val remaining=endDeadline-System.nanoTime()
+                    if(remaining<=0)break
+                    Thread.sleep(remaining/1_000_000,(remaining%1_000_000).toInt())
+                }
             } catch(_:InterruptedException){} finally {
                 midiSessionGate.runIfCurrent(session){
                     playbackModulation.fill(0)

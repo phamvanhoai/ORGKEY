@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## MIDI giữ thời gian cuối track và khoảng nghỉ cuối bài, 24-10-2026
+
+- MidiSong bổ sung endTick, parser giữ tick lớn nhất cuối các track thay vì chỉ sự kiện note/controller được hỗ trợ. MidiSustain flush noteOff đang pedal tại endTick này, không lấy tick sự kiện đã lọc cuối cùng.
+- AudioEngine đợi đến endTick qua MidiPlaybackClock sau khi xử lý sự kiện cuối, nên giữ khoảng nghỉ và tempo changes cuối bài trước completion. Thread.sleep vẫn interruptible khi stop/đổi lượt phát; session guard cuối giữ nguyên.
+- MidiProgramTest dùng dữ liệu MIDI nhị phân với noteOff10 nhưng EndOfTrack100: endTick100, noteOff pedal được dời tới100, clock tính104166microsecond ở480PPQ/120BPM. MidiProgramTest/MidiSustainTest/MidiIntegrationTest/MidiPlaybackClockTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa đo lịch phát Android/nghe đoạn cuối trên máy. Chưa xử lý mọi định dạng EndOfTrack bất thường hoặc bảo toàn release tail sau callback hoàn tất.
+
 ## Factory/MIDI áp Pitch Speed khi bend nốt đang giữ, 24-10-2026
 
 - Bổ sung MidiPitchSlew trong file MidiPitchBend hiện có: nội suy hệ số pitch theo khối10ms và pitchSpeed giống quy tắc advanceBend của SampledInstrument. Nốt mới snap về bend hiện hành, speed0 tức thời, đổi target khởi động lại khối tính delta.

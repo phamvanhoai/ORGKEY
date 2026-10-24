@@ -5,7 +5,7 @@ import java.io.InputStream
 data class MidiNoteEvent(val tick:Long,val note:Int,val velocity:Int,val on:Boolean,val channel:Int=0,val program:Int=0,val controller:Int?=null)
 data class MidiTempoEvent(val tick:Long,val microsPerQuarter:Int)
 data class MidiSong(val events:List<MidiNoteEvent>,val division:Int,val tempoMicros:Int,
-    val tempos:List<MidiTempoEvent> = emptyList())
+    val tempos:List<MidiTempoEvent> = emptyList(),val endTick:Long=events.maxOfOrNull{it.tick} ?: 0L)
 
 object MidiFile {
     fun read(input:InputStream):MidiSong{
@@ -19,7 +19,7 @@ object MidiFile {
         fun variable(end:Int):Long{var value=0L;repeat(4){require(p<end);val b=u8();value=(value shl 7) or (b and 127).toLong();if(b and 128==0)return value};error("MIDI variable integer exceeds four bytes")}
         require(text(4)=="MThd");val header=u32();require(header>=6);val format=u16();val tracks=u16();val division=u16();require(format in 0..1&&division>0&&division and 0x8000==0&&tracks>0);requireBytes(header-6);p+=header-6
         val notes=mutableListOf<MidiNoteEvent>();var tempo=500_000
-        val tempos=mutableListOf<MidiTempoEvent>()
+        val tempos=mutableListOf<MidiTempoEvent>();var endTick=0L
         data class Program(val tick:Long,val channel:Int,val value:Int,val order:Int)
         val noteOrders=mutableListOf<Int>();var order=0
         val programs=mutableListOf<Program>()
@@ -43,7 +43,7 @@ object MidiFile {
                     status and 0xf0==0xd0->{val pressure=dataByte();noteOrders+=eventOrder;notes+=MidiNoteEvent(tick,0,pressure,false,status and 15,controller=-4)}
                     else->error("Unsupported MIDI event")
                 }
-            };p=end;readEnd=data.size
+            };endTick=maxOf(endTick,tick);p=end;readEnd=data.size
         }
         require(notes.any{it.controller==null}){"MIDI has no notes"};val orderedPrograms=programs.sortedBy{it.tick}
         val channelPrograms=IntArray(16);var programIndex=0
@@ -54,6 +54,6 @@ object MidiFile {
         }
         val orderedTempos=tempos.sortedBy{it.tick}
         tempo=orderedTempos.lastOrNull{it.tick==0L}?.microsPerQuarter ?: 500_000
-        return MidiSong(MidiSustain.resolve(mapped),division,tempo,orderedTempos)
+        return MidiSong(MidiSustain.resolve(mapped,endTick),division,tempo,orderedTempos,endTick)
     }
 }

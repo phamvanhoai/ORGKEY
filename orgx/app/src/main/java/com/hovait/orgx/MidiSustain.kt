@@ -2,7 +2,8 @@ package com.hovait.orgx
 
 /** Converts per-channel pedal holds into delayed note-offs before playback. */
 object MidiSustain {
-    fun resolve(events:List<MidiNoteEvent>):List<MidiNoteEvent> {
+    fun resolve(events:List<MidiNoteEvent>,endTick:Long=events.lastOrNull()?.tick ?: 0L):List<MidiNoteEvent> {
+        require(endTick>=(events.lastOrNull()?.tick ?: 0L))
         val pedal=BooleanArray(16)
         val modulation=IntArray(16)
         val bends=IntArray(16){8192}
@@ -61,8 +62,7 @@ object MidiSustain {
                 else result+=event
             }
         }
-        val end=events.lastOrNull()?.tick ?: 0L
-        result+=pending.values.map{it.copy(tick=end)}
+        result+=pending.values.map{it.copy(tick=endTick)}
         return result
     }
 }

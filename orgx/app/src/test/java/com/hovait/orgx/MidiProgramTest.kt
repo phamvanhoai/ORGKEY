@@ -6,6 +6,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiProgramTest {
+    @Test fun endOfTrackKeepsFinalRestAndSustainedReleaseTime(){
+        val track=byteArrayOf(0,0xb0.toByte(),64,127,0,0x90.toByte(),60,100,
+            10,0x80.toByte(),60,0,90,0xff.toByte(),0x2f,0)
+        val bytes=ByteArrayOutputStream()
+        DataOutputStream(bytes).use{out->
+            out.writeBytes("MThd");out.writeInt(6);out.writeShort(0);out.writeShort(1);out.writeShort(480)
+            out.writeBytes("MTrk");out.writeInt(track.size);out.write(track)
+        }
+        val song=MidiFile.read(bytes.toByteArray().inputStream())
+        assertEquals(100L,song.endTick)
+        assertEquals(100L,song.events.single{it.controller==null && !it.on}.tick)
+        assertEquals(104166L,MidiPlaybackClock(song).advance(song.endTick))
+    }
     @Test fun channelPressureKeepsRunningStatusAndTime(){
         val track=byteArrayOf(0,0x91.toByte(),60,100,2,0xd1.toByte(),70,3,90,
             1,0x81.toByte(),60,0,0,0xff.toByte(),0x2f,0)
