@@ -16,6 +16,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     private val main=style.sections.first{it.section in 32..35 && it.id in players}
     private val clock=ReferenceStyleClock(sampleRate)
     private data class Request(val id:Int,val immediate:Boolean,val mute:Int=0)
+    private data class Continuation(val section:Int,val time:Long,val scale:Int,val returnSection:Int)
     private val queue=ArrayDeque<Request>()
     private var jumpId:Int?=null
     private val temporaryLoops=HashSet<Int>()
@@ -88,13 +89,17 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     }
     /** MainActivity.B1 keeps the section, with Fill/Break returning to Main. */
     fun continueFrom(previous:ImportedStyleSession){
-        val (section,time,scale)=synchronized(previous){
-            Triple(previous.groups.getValue(previous.currentId).section,previous.clock.time,previous.rhythmScale)
+        val (section,time,scale,returnSection)=synchronized(previous){
+            Continuation(previous.groups.getValue(previous.currentId).section,previous.clock.time,
+                previous.rhythmScale,previous.lastLoop?.let{previous.groups[it]?.section} ?: 32)
         }
         synchronized(this){
             val wanted=if(section in 48..64)32+(section and 15) else section
             val target=style.sections.firstOrNull{it.section==wanted && available(it.id)}
                 ?: style.sections.firstOrNull{it.section==32 && available(it.id)} ?: main
+            val returnMain=style.sections.firstOrNull{it.section==returnSection && it.loop && available(it.id)}
+                ?: main
+            lastLoop=returnMain.id.takeIf{returnMain.loop}
             queue.clear();jumpId=null;clock.seek(time);rhythmScale=scale;select(target.id)
             player.continueGroupFxFrom(previous.player)
             player.releaseVoicesFrom(previous.player)

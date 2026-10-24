@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun changingStyleDuringIntroPreservesTheLastMainVariation(){
+        val old=session();val replacement=session()
+        try{
+            old.request(2,true);repeat(100){old.next(120)}
+            old.press(3,true,false);repeat(1000){old.next(120)}
+            assertEquals(3,old.currentId)
+            replacement.continueFrom(old)
+            assertEquals(3,replacement.currentId)
+            repeat(1001){replacement.next(120)}
+            assertEquals(2,replacement.currentId)
+        }finally{old.close();replacement.close()}
+    }
     @Test fun sessionResetClearsVoicesFromInactiveSectionsToo(){
         val parts=listOf(part(1,32),part(2,33))
         val players=parts.associate{p->p.id to ReferenceRhythmPlayer(listOf(

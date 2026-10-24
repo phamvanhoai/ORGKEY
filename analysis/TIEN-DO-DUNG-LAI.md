@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Đổi style trong Intro giữ biến thể Main trước đó, 24-10-2026
+
+- continueFrom trước chỉ chuyển current section/time/scale; lastLoop của style mới luôn bắt đầu bằng Main đầu tiên. Khi đang Intro sau Main2 rồi đổi style, Intro mới có JumpGroup âm có thể trởMain1 thay vì Main2.
+- Snapshot bàn giao bổ sung section của lastLoop dưới khóa session cũ, ánh xạ sang phần loop tương ứng trong style mới trước select. Nếu không có phần tương ứng dùng Main đầu tiên hiện có. Nếu select đích chính là Main loop, select vẫn cập nhật lastLoop như trước.
+- ImportedStyleSessionTest thêm chuỗi Main2->Intro->continueFrom->Intro kết thúc->Main2. ImportedStyleSessionTest/ReferenceStyleTransitionTest/ImportedTempLoopTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa nghe/chạm chuyển style thực trên máy. Không coi mọi RhythmJump hoặc điều kiện g2 của APK gốc đã được tái tạo hoàn toàn.
+
 ## MIDI giữ thời gian cuối track và khoảng nghỉ cuối bài, 24-10-2026
 
 - MidiSong bổ sung endTick, parser giữ tick lớn nhất cuối các track thay vì chỉ sự kiện note/controller được hỗ trợ. MidiSustain flush noteOff đang pedal tại endTick này, không lấy tick sự kiện đã lọc cuối cùng.
