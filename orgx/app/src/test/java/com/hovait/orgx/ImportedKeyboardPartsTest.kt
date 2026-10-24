@@ -4,6 +4,36 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun connectionAfterPartReplacementUsesNewSampleInsteadOfReusingOldSound(){
+        fun source(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(32){value}),0,32)),1000)
+            .withExpressionEffects(listOf(ImportedExpressionEffect.default(1).copy(enabled=true,mode=16,stopByRelease=false)))
+        val first=source(8192);val second=source(16384)
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,first)))
+            parts.noteOn(60,1.0);assertEquals(.25,frame(parts,mixer),0.0)
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,second)))
+            parts.noteOn(72,1.0)
+            assertEquals(2,parts.activeNotes);assertEquals(.75,frame(parts,mixer),0.0)
+            parts.noteOff(60);assertEquals(.5,frame(parts,mixer),0.0)
+        }finally{mixer.close()}
+    }
+    @Test fun retiredVoiceCannotBeReconnectedEvenWhenTheSameSoundIsSelectedAgain(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(32){8192}),0,32)),1000,envelope=ImportedEnvelope(0,0,100,10,false))
+            .withExpressionEffects(listOf(ImportedExpressionEffect.default(1).copy(enabled=true,mode=16,stopByRelease=false)))
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
+            parts.noteOn(60,1.0);frame(parts,mixer);parts.retire()
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
+            parts.noteOn(72,1.0)
+            assertEquals(2,parts.activeNotes)
+            repeat(120){frame(parts,mixer)}
+            assertEquals(1,parts.activeNotes)
+        }finally{mixer.close()}
+    }
     @Test fun modulationStopAllCutsReleasedTailsWithoutAffectingAnotherMidiChannel(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
             envelope=ImportedEnvelope(0,0,100,10,false))

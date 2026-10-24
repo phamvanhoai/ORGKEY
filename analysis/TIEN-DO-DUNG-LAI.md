@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Key Connection không tái dùng sample của part cũ, 24-10-2026
+
+- ImportedKeyboardParts.noteOn trước tìm previous theo partID/MIDI channel, có thể connectTo vào playback của nguồn âm trước sau khi replace part; low mode cũng lấy source key từ nguồn không còn hiện hành. Nay yêu cầu sound identity trùng và note chưa retired trước khi nối.
+- Nốt đang ngân của bộ trước vẫn render theo cơ chế tail hiện có; nốt mới mở đúng SampledInstrument của bộ mới. Retire rồi chọn lại cùng sound cũng không hồi sinh note đã retired. Các nối nốt trong cùng nguồn/kênh vẫn dùng luật cũ.
+- Kiểm tra source0.25 đổi source0.5 cùng part/mode16: nốt mới tạo playback riêng tổng0.75, noteoff cũ còn0.5. Retire/chọn lại cùng sound có2voice rồi tail cũ hết còn1. ImportedKeyboardPartsTest/ImportedKeyboardPartQueueTest và build đạt; cài APK thành công.
+- Chưa thử thao tác giữ phím đổi STS thực trên điện thoại/so bản thu APK. Sound identity là ranh giới prepared context ORGX, chưa mô phỏng tái sử dụng native channel qua mọi instrument-mode change. Không sửa SET hoặc thêm file test mới.
+
 ## Thoát STS cho nốt cũ nhả tiếng thay vì xóa ngay, 24-10-2026
 
 - clearStsParts trước gọi queue.clear, xóa notes khi đổi voice/SET. Thêm ImportedKeyboardParts.retire và queue.retire: xóa định tuyến part cho nốt mới, forceRelease voice cũ và giữ render vào mixer hiện có cho tới khi finished. Engine thoát STS dùng retire; clear/reset hoàn toàn vẫn giữ cho caller cần hard reset.
