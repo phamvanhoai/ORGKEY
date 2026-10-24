@@ -557,7 +557,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                             7,10,11->playbackMix.controller(event.channel,checkNotNull(event.controller),event.velocity)
                             120->voices.entries.filter{MidiVoiceKey.isChannel(it.key,event.channel,true)}
                                 .forEach{voices.remove(it.key,it.value)}
-                            6,38,98,99,100,101->{
+                            6,38,96,97,98,99,100,101->{
                                 if(pitchState.playbackController(event.channel,checkNotNull(event.controller),event.velocity))
                                     midiPitchBend(pitchState.scriptLevel(event.channel,true)+8192,event.channel,true)
                             }

@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiPitchStateTest {
+    @Test fun dataIncrementAndDecrementUseOnlyTheSelectedChannelRpn(){
+        val state=MidiPitchState();state.set(16383,2,true)
+        assertFalse(state.playbackController(2,96,0))
+        state.playbackController(2,101,0);state.playbackController(2,100,0)
+        state.playbackController(2,96,0);assertEquals(3.0,state.semitones(2,true),0.0)
+        state.playbackController(2,97,127);assertEquals(2.0,state.semitones(2,true),0.0)
+        state.playbackController(2,100,1);state.playbackController(2,96,0)
+        assertEquals(2+1/8192.0,state.semitones(2,true),0.0)
+        state.playbackController(2,100,2);state.playbackController(2,97,0)
+        assertEquals(1+1/8192.0,state.semitones(2,true),0.0)
+        assertEquals(0.0,state.semitones(1,true),0.0)
+        state.playbackController(2,99,0);assertFalse(state.playbackController(2,96,0))
+    }
     @Test fun fineAndCoarseTuningRemainIndependentOfBendAndOtherChannels(){
         val state=MidiPitchState()
         fun rpn(number:Int){state.playbackController(2,101,0);state.playbackController(2,100,number)}

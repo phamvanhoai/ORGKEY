@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## MIDI Data Increment/Decrement cập nhật RPN cao độ, 25-10-2026
+
+- Parser giữ CC96/97, AudioEngine chuyển tới MidiPitchState thay vì bỏ. Tăng/giảm một đơn vị theo RPN đang chọn: sensitivity phần coarse, fine tuning14bit, coarse tuning7bit; clamp biên, không áp khi NRPN/RPN null hoặc RPN chưa hỗ trợ.
+- MidiPitchStateTest kiểm tra tăng/giảm range, fine/coarse tuning, bỏ value của CC96/97 trong công thức bước, isolation channel và NRPN vô hiệu hóa. MidiPitchStateTest/MidiIntegrationTest/MidiProgramTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa nghe MIDI thật hoặc đối chiếu mức bước Data Increment của APK gốc. Đây là bổ sung tương thích MIDI trong phạm vi ba RPN đang hỗ trợ.
+
 ## Track không bounded kết thúc ở CloseAll mà vẫn giữ release tail, 25-10-2026
 
 - Timeline trước chỉ nhận event1 cuối như dấu nhả nốt hoàn tất; unbounded track kết thúc bằng event3 còn chờ voices rỗng, làm kéo dài thời điểm session nhận hoàn tất theo envelope. Cho event3 cuối vào điều kiện hết timeline; renderTail tiếp tục giữ PCM/envelope.

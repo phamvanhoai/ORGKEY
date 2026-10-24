@@ -15,6 +15,16 @@ class MidiPitchState {
     fun playbackController(channel:Int,controller:Int,value:Int):Boolean{
         require(channel in 0..15 && value in 0..127)
         when(controller){
+            96,97->if(rpnMsb[channel]==0){
+                val delta=if(controller==96)1 else -1
+                when(rpnLsb[channel]){
+                    0->playbackCoarse[channel]=(playbackCoarse[channel]+delta).coerceIn(0,127)
+                    1->fineTuning[channel]=(fineTuning[channel]+delta).coerceIn(0,16383)
+                    2->coarseTuning[channel]=(coarseTuning[channel]+delta).coerceIn(0,127)
+                    else->return false
+                }
+                return true
+            }
             98,99->{rpnMsb[channel]=127;rpnLsb[channel]=127}
             101->rpnMsb[channel]=value
             100->rpnLsb[channel]=value
