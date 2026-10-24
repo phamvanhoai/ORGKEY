@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Restore part STS hiệu lực sau SET CONTROL, 24-10-2026
+
+- Trước chỉ lưu mode theo part rồi nạp lại snapshot gốc; mất instrument/record/pedal/system và channel levels được giữ bởi SET CONTROL. Thêm stsEffectiveParts lưu các trường này cùng volume/pan/tune/transpose/octave/release, gắn filename/length/mtime/slot.
+- Restore xác thực part1..4, instrument/mode/system tồn tại, slot duy nhất và không trùng part; dữ liệu lỗi hoặc khác file/slot trả rỗng, fallback restore cũ. prepareFull nhận restoredParts trước restoredModes rồi kiểm tra budget/nạp PCM như trước. Không sửa SET.
+- Kiểm tra roundtrip qua prepareFull giữ instrument0 thay vì slot instrument1, record/pedal và volume43/pan-28/transpose3/octave-1; sai slot, part trùng, file đổi bị từ chối. ImportedStsBatchTest/ImportedStsSelectionTest và build đạt; cài APK thành công.
+- Chưa lưu toàn bộ FX modules/expression effects hiệu lực hoặc Master music/tuning. Khi instrument/mode khác snapshot, FX/effects lấy từ mode tương ứng. Chưa kiểm tra đóng/mở process thực trên điện thoại; vòng lưu UI hiện lấy mẫu định kỳ nên đóng đột ngột vẫn có thể mất thay đổi cuối. Chưa coi restore STS hoàn chỉnh.
+
 ## SET CONTROL áp dụng ngay lần Master STS đầu tiên, 24-10-2026
 
 - ImportedStsRequest trước gọi prepareFull khi chưa có current group, bỏ qua mask người dùng. Thêm prepareInitial dựng basis cho các main track1..4 kind0/1 từ metadata track của SET: record, instrument/mode, system, pedal, settings volume/pan và expression effects; sau đó dùng chung prepareMasked/ImportedStsChanges/ImportedStsMaster.

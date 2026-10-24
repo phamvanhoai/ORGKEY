@@ -5,6 +5,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsBatchTest {
+    @Test fun effectivePartStateRestoresMaskedSelectionAndChannelLevels(){
+        val file=File.createTempFile("sts-effective",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val sound=ImportedInstrument("Voice",100,0,0,listOf(ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))))))
+            val original=snapshot("Slot").copy(instrument=1)
+            val track=ImportedTrack("Master",0,0,false,emptyList(),sts=listOf(original))
+            val index=ImportedSetIndex(listOf(sound,sound),emptyList(),listOf(track,track.copy(name="Right")))
+            val effective=original.copy(instrument=0,record=true,pedal=1,settings=ImportedChannelSettings(volume=43,pan=-28,transpose=3,octave=-1))
+            val encoded=ImportedStsModeState.encodeParts(file,1,mapOf(1 to effective))
+            val parts=ImportedStsModeState.decodeParts(encoded,file,1,index)
+            val restored=ImportedStsBatch.prepareFull(file,index,1,restoredParts=parts)
+            assertEquals(effective,restored.voices.getValue(1).snapshot)
+            assertEquals(43,restored.keyboardParts().single().sound.keyboardSettings.volume)
+            assertTrue(ImportedStsModeState.decodeParts(encoded,file,2,index).isEmpty())
+            assertTrue(ImportedStsModeState.decodeParts(encoded+";"+encoded.substringAfter('|'),file,1,index).isEmpty())
+            file.appendBytes(byteArrayOf(0))
+            assertTrue(ImportedStsModeState.decodeParts(encoded,file,1,index).isEmpty())
+        }finally{file.delete()}
+    }
     @Test fun firstMasterRequestHonorsSetControlAgainstStoredTrackState(){
         val file=File.createTempFile("sts-initial-mask",".pcm")
         try{

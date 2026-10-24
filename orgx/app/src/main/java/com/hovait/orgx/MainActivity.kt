@@ -105,6 +105,9 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                     val state=ImportedStsModeState.encode(group.file,group.selection.slot,group.currentSnapshots().mapValues{it.value.mode})
                     if(preferences.getString(ImportedStsModeState.preferenceKey,null)!=state)
                         preferences.edit().putString(ImportedStsModeState.preferenceKey,state).apply()
+                    val parts=ImportedStsModeState.encodeParts(group.file,group.selection.slot,group.currentSnapshots())
+                    if(preferences.getString(ImportedStsModeState.partsPreferenceKey,null)!=parts)
+                        preferences.edit().putString(ImportedStsModeState.partsPreferenceKey,parts).apply()
                 }
                 if(changed!=null){
                     engine.importedInstrumentName=changed;restoredSetName=changed
@@ -164,7 +167,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 val prepared=withContext(Dispatchers.IO){
                     if(preferences.getInt("selectedStsTrack",-1)==0){
                         val modes=ImportedStsModeState.decode(preferences.getString(ImportedStsModeState.preferenceKey,"").orEmpty(),file,snapshot.slot)
-                        ImportedStsRequest.Prepared.Group(ImportedStsBatch.prepareFull(file,index,snapshot.slot,ImportedDncPreferences(context)::read,modes))
+                        val parts=ImportedStsModeState.decodeParts(preferences.getString(ImportedStsModeState.partsPreferenceKey,"").orEmpty(),file,snapshot.slot,index)
+                        ImportedStsRequest.Prepared.Group(ImportedStsBatch.prepareFull(file,index,snapshot.slot,ImportedDncPreferences(context)::read,modes,parts))
                     }else {
                         val restored=ImportedStsModeState.restoreSingle(preferences.getString(ImportedStsModeState.singlePreferenceKey,"").orEmpty(),
                             file,preferences.getInt("selectedStsTrack",-1),index,snapshot)
