@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Lưu origin version của hiệu ứng STS qua mở lại phiên, 24-10-2026
+
+- encodeParts bổ sung trường sourceVersion thứ5 sau dữ liệu FX/effect; encodeSingle dùng chung nên cả nhóm và STS đơn giữ nguồn phiên bản sau đổi mode/nhạc cụ. decode chấp nhận bản mới, bản4 trường cũ và bản chỉ số12 giá trị; kiểm tra chuỗi version có định dạng số chấm và giữ giới hạn dữ liệu/fingerprint hiện có.
+- Khi khôi phục lựa chọn khác instrument/mode ban đầu và dữ liệu cũ chưa có trường version, lấy origin từ instrument mode đang chọn thay vì vô điều kiện giữ version của incoming STS. Dữ liệu cũ không lưu origin sau hiệu chỉnh tùy ý vẫn không thể suy ra đầy đủ lịch sử đã mất.
+- Kiểm tra nhóm lưu/khôi phục sourceVersion1.2.8, đọc định dạng4 trường cũ, từ chối version sai; STS đơn trong container1.4.6 lưu effectlegacy rồi khôi phục vẫn áp method1 ra connection mode16. ImportedStsLoaderTest/ImportedStsBatchTest/ImportedStsChangesTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới. Chưa kiểm chứng process-death restore bằng STS Master thực trên thiết bị; kiểm tra nêu trên là vòng encode/decode và nạp PCM trên JVM.
+
 ## STS giữ phiên bản track trong container SET khác phiên bản, 24-10-2026
 
 - Thêm sourceVersion tùy chọn cho snapshot STS; parser gán trackVersion khi đọc từng slot. Loader dùng snapshot.sourceVersion trước container để áp quy tắc Key Connection legacy. Snapshot dựng thủ công không có metadata vẫn dùng container như trước.

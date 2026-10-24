@@ -17,7 +17,7 @@ object ImportedStsModeState {
                 }+"~"+part.effects.joinToString("/"){effect->
                     (listOf(effect.slot,if(effect.enabled)1 else 0,effect.startDelay,if(effect.byPedal)1 else 0,
                         if(effect.stopByRelease)1 else 0,effect.mode,effect.speed,effect.depth,effect.gain)+effect.raw).joinToString(",")
-                }
+                }+"~"+part.sourceVersion.orEmpty()
         }
     fun decodeParts(value:String,file:File,slot:Int,index:ImportedSetIndex,
         originalParts:Map<Int,ImportedSts>?=null):Map<Int,ImportedSts> {
@@ -28,7 +28,7 @@ object ImportedStsModeState {
             val result=linkedMapOf<Int,ImportedSts>()
             for(row in value.removePrefix(prefix).split(';').filter{it.isNotEmpty()}){
                 val fields=row.split('~')
-                require(fields.size==1 || fields.size==4)
+                require(fields.size==1 || fields.size==4 || fields.size==5)
                 val v=fields[0].split(',').map{it.toInt()}
                 require(v.size==12 && v[0] in 1..4 && v[5] in 0..1 && v[6] in 0..200 && v[7] in -100..100)
                 val incoming=if(originalParts!=null)originalParts.getValue(v[0]) else {
@@ -40,10 +40,11 @@ object ImportedStsModeState {
                 require(index.systems.isEmpty() || v[3] in index.systems.indices)
                 val selected=if(v[1]==incoming.instrument && v[2]==incoming.mode)incoming
                     else incoming.copy(settings=instrument.modes.getOrNull(v[2])?.settings ?: ImportedChannelSettings(),
-                        effects=instrument.modes.getOrNull(v[2])?.effects.orEmpty())
+                        effects=instrument.modes.getOrNull(v[2])?.effects.orEmpty(),
+                        sourceVersion=instrument.sourceVersion ?: incoming.sourceVersion)
                 var settings=selected.settings.copy(volume=v[6],pan=v[7],tune=v[8],transpose=v[9],octave=v[10],releasePercent=v[11])
                 var effects=selected.effects
-                if(fields.size==4){
+                if(fields.size>=4){
                     require(fields[1] in listOf("0","1"))
                     val modules=fields[2].split('/').filter{it.isNotEmpty()}.map{entry->
                         val m=entry.split(',').map{it.toInt()}
@@ -60,8 +61,10 @@ object ImportedStsModeState {
                     }
                     require(effects.size<=8 && effects.distinctBy{it.slot}.size==effects.size)
                 }
+                val version=if(fields.size==5)fields[4].takeIf{it.isNotEmpty()} else selected.sourceVersion
+                require(version==null || Regex("""[0-9]{1,4}(\.[0-9]{1,4}){1,3}""").matches(version))
                 val restored=selected.copy(instrument=v[1],mode=v[2],system=v[3],pedal=v[4],record=v[5]==1,
-                    settings=settings,effects=effects)
+                    settings=settings,effects=effects,sourceVersion=version)
                 require(result.put(v[0],restored)==null)
             }
             result

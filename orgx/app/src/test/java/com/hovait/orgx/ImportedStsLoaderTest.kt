@@ -21,6 +21,12 @@ class ImportedStsLoaderTest {
                 snapshot.copy(sourceVersion="1.2.8"),keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
             assertEquals(0,ImportedStsLoader.prepare(file,legacy,
                 snapshot.copy(sourceVersion="1.4.6"),keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
+            val effective=snapshot.copy(sourceVersion="1.2.8")
+            val modern=legacy.copy(sourceVersion="1.4.6")
+            val encoded=ImportedStsModeState.encodeSingle(file,3,effective)
+            val restored=ImportedStsModeState.restoreSingle(encoded,file,3,modern,snapshot.copy(sourceVersion="1.4.6"))
+            assertEquals("1.2.8",restored.sourceVersion)
+            assertEquals(16,ImportedStsLoader.prepare(file,modern,restored,keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
         }finally{file.delete()}
     }
     @Test fun singleStsRestoreKeepsChannelFxAndExpressionInsteadOfReloadingSlotDefaults(){

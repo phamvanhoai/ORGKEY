@@ -18,7 +18,7 @@ class ImportedStsBatchTest {
             val effect=ImportedExpressionEffect.default(2).copy(enabled=true,speed=36,depth=12)
             val effective=original.copy(instrument=0,record=true,pedal=1,
                 settings=ImportedChannelSettings(volume=43,pan=-28,transpose=3,octave=-1,fxEnabled=true,modules=listOf(fx)),
-                effects=listOf(effect))
+                effects=listOf(effect),sourceVersion="1.2.8")
             val encoded=ImportedStsModeState.encodeParts(file,1,mapOf(1 to effective))
             val parts=ImportedStsModeState.decodeParts(encoded,file,1,index)
             val restored=ImportedStsBatch.prepareFull(file,index,1,restoredParts=parts)
@@ -26,6 +26,10 @@ class ImportedStsBatchTest {
             assertEquals(43,restored.keyboardParts().single().sound.keyboardSettings.volume)
             assertEquals(listOf(fx),restored.voices.getValue(1).snapshot.settings.modules)
             assertEquals(listOf(effect),restored.voices.getValue(1).snapshot.effects)
+            assertEquals("1.2.8",restored.voices.getValue(1).snapshot.sourceVersion)
+            val previousFormat=encoded.substringBeforeLast('~')
+            assertEquals(listOf(effect),ImportedStsModeState.decodeParts(previousFormat,file,1,index).getValue(1).effects)
+            assertTrue(ImportedStsModeState.decodeParts(previousFormat+"~invalid-version",file,1,index).isEmpty())
             val legacy=encoded.substringBefore('~')
             assertEquals(43,ImportedStsModeState.decodeParts(legacy,file,1,index).getValue(1).settings.volume)
             assertTrue(ImportedStsModeState.decodeParts(encoded.replace("~1~","~2~"),file,1,index).isEmpty())
