@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## KeyAftertouch4 mở đường Aftertouch của nhạc cụ, 25-10-2026
+
+- ImportedStyleSupport trước chỉ coi event2 là note mở; track chỉ có KeyAftertouch4 bị loại, loader không giữ region cần dùng. Nay activeTracks/support/forTrack nhận cả2/4, timeline xử lý cả hai.
+- ReferenceRhythmPlayer mở Playback cho event4 rồi gọi aftertouch với touch, cho phép SampledInstrument chuyển sang aftertouchInstrument hoặc script touch xử lý. Event5 vẫn là áp lực trên note đang sống, không trộn hai semantics.
+- ReferenceRhythmPlayerTest dùng base/alternate PCM khác nhau, event4 phát alternate và output>0.4. ReferenceRhythmPlayerTest/ImportedSectionFallbackTest và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa thử SET thực có event4 trên điện thoại. Track/Instrument mode Aftertouch loader vẫn phụ thuộc metadata alternate đã đọc; không tuyên bố toàn bộ aftertouch scripts tương đương.
+
 ## Reset MIDI hủy bộ chọn RPN còn giữ, 25-10-2026
 
 - Resolver theo dõi RPN MSB/LSB theo channel; CC121 xuất101=127/100=127 nếu trước đó bộ chọn chưa Null. Không xóa tuning/range đã đặt. NRPN98/99 vô hiệu hóa RPN như MidiPitchState hiện có, không làm thay giá trị RPN.

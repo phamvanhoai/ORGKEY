@@ -49,7 +49,7 @@ object ImportedStyleSupport {
         // Tracks.PlayNext sets _solo=false for ordinary rhythm playback.
         // Stored editor Solo flags must not remove the other style/PAD tracks.
         val solo=group.type!=1 && tracks.any{it.solo}
-        return tracks.filter{(!it.muted || it.events.any{event->event.type==14}) && (!solo || it.solo) && it.events.any{event->event.type==2}}
+        return tracks.filter{(!it.muted || it.events.any{event->event.type==14}) && (!solo || it.solo) && it.events.any{event->event.type==2 || event.type==4}}
     }
     fun drumTracks(index:ImportedSetIndex,group:ImportedStyleGroup)=activeTracks(index,group).filter{
             instrument(index,it)?.type in 1..2
@@ -69,7 +69,7 @@ object ImportedStyleSupport {
                 val detail=if(event.type==65)" (Effect slot ${event.id}, parameter ${event.note})" else ""
                 return "Track '${track.name}': unsupported event ${event.type}$detail at time ${event.time}"
             }
-            if(event.type==2 && event.note !in 0..127)
+            if(event.type in listOf(2,4) && event.note !in 0..127)
                 return "Track '${track.name}': invalid note ${event.note} at time ${event.time}"
         }}
         if(group.limit && (group.start<0 || group.end<=group.start))return "Unsupported loop boundaries"

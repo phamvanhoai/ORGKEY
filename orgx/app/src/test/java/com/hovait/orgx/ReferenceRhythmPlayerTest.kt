@@ -4,6 +4,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun keyAftertouchOpensTheInstrumentAftertouchPath(){
+        val base=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)
+        val alternate=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){16384}),0,128)),1000)
+        val sound=base.withAftertouch(alternate)
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(4,1,60,100,0,1000)))),
+            {10000},{_,_,_->0.0},1000,sampled=sound)
+        try{player.next(0,120);assertTrue(player.left>0.4)}finally{player.close()}
+    }
     @Test fun unboundedTrackCloseAllFinishesTimelineWhileReleaseTailRemains(){
         val sound=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,

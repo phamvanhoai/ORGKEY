@@ -321,11 +321,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voices.values.forEach{it.playback?.modulate(event.note)}
                 return@advance
             }
-            val note=if(event.type==2)mappedNote(event.note) else event.note
-            if(event.type==2 && event.note in 0..127){
+            val note=if(event.type in listOf(2,4))mappedNote(event.note) else event.note
+            if(event.type in listOf(2,4) && event.note in 0..127){
                 openedKeyIds[0]=event.id;openedKeyIds[event.note+1]=event.id
             }
-            if(event.type==2 && !eventMuted && !performanceMuted && drumLength(note)>0){
+            if(event.type in listOf(2,4) && !eventMuted && !performanceMuted && drumLength(note)>0){
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 val connection=keyConnectionEffect?.takeIf{expressionAllowed && it.enabled}
                 val previous=voices.values.lastOrNull{it.playback!=null && !it.playback.finished &&
@@ -341,6 +341,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                     initialScriptPedal=pedalDown,scriptId=event.id)?.also{playback->
                     if(pedalDown)playback.scriptPedal(true)
                     modulationLevel?.let(playback::modulate)
+                    if(event.type==4)playback.aftertouch((event.touch and 65535)/127f)
                     if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || pedalDown))playback.connectFrom(previous.note,connection)
                     if(expressionAllowed){volumeShake?.let{playback.configureVolumeShake(it)};pitchShakeEffect?.let{playback.configurePitchShake(it)}}
                     playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0),pitchScriptLevel,notifyScript=pitchScriptLevel!=null)
