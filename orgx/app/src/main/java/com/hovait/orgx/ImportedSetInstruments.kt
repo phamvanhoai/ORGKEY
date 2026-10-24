@@ -22,7 +22,7 @@ data class ImportedTrack(val name:String,val group:Int,val instrument:Int,val mu
     val kind:Int=0,val solo:Boolean=false,val volume:Int=100,val pan:Int=0,val system:Int=0,val settings:ImportedChannelSettings=ImportedChannelSettings(),val sts:List<ImportedSts> = emptyList(),val effects:List<ImportedExpressionEffect> = emptyList(),
     val pedalMode:Int=0,val pedal:Int=0,val keyAreaFrom:Int=0,val keyAreaTo:Int=127,
     val midiChannelOut:Int=0,val midiProgram:Int=0,val record:Boolean=false,val midiChannelIn:Int=0,
-    val midiBankMsb:Int=0,val midiBankLsb:Int=0)
+    val midiBankMsb:Int=0,val midiBankLsb:Int=0,val sourceVersion:String?=null)
 data class ImportedSystem(val name:String,val startKey:Int,val selectedKeys:Int,val table:List<Double>)
 data class ImportedSts(val name:String,val record:Boolean,val midiChannel:Int,val instrument:Int,val system:Int,
     val pedal:Int,val mode:Int,val data1:Int,val data2:Int,val chordType:Int,val chordSingle:List<Int>,
@@ -121,11 +121,11 @@ object ImportedSetInstruments {
             ImportedSystem(metadata.firstOrNull().orEmpty(),startKey,selectedKeys,table)
         }
         common()
-        fun parseSts():ImportedSts{
+        fun parseSts(trackVersion:String):ImportedSts{
             val record=f.readBoolean()
             // STS names were added in 1.4.5. Older SET layouts retain the
             // surrounding snapshot fields but have no length-prefixed name.
-            val name=if(musicVersion!!>="1.4.5"){
+            val name=if(trackVersion>="1.4.5"){
                 val nameLength=f.readUnsignedByte()
                 require(nameLength.toLong()<=f.length()-f.filePointer)
                 bytes(nameLength).toString(Charsets.UTF_8)
@@ -145,6 +145,7 @@ object ImportedSetInstruments {
         }
         val tracks=List(count(100000)){
             val metadata=common();val trackGroup=lastGroup
+            val trackVersion=metadata.getOrNull(1)?.takeIf{it.isNotBlank()} ?: musicVersion!!
             f.readUnsignedByte();val kind=f.readByte().toInt()
             val midiChannelOut=java.lang.Short.reverseBytes(f.readShort()).toInt()
             val system=int();val instrument=int();val midiProgram=f.readByte().toInt()
@@ -152,10 +153,10 @@ object ImportedSetInstruments {
             val midiChannelIn=java.lang.Short.reverseBytes(f.readShort()).toInt()
             val midiBankMsb=f.readByte().toInt();val midiBankLsb=f.readByte().toInt()
             val chordRoot=f.readUnsignedByte();val chordType=f.readUnsignedByte();skip(106)
-            val stored=count(10000);val number=if(musicVersion!!<"1.2.9")13 else stored
+            val stored=count(10000);val number=if(trackVersion<"1.2.9")13 else stored
             val sts=buildList{
-                if(trackGroup==0 || musicVersion<"1.2.8"){
-                    val enabled=List(number){f.readBoolean()};enabled.forEachIndexed{slot,on->if(on)add(parseSts().copy(slot=slot))}
+                if(trackGroup==0 || trackVersion<"1.2.8"){
+                    val enabled=List(number){f.readBoolean()};enabled.forEachIndexed{slot,on->if(on)add(parseSts(trackVersion).copy(slot=slot))}
                 }
             }
             skip(7);val pedalMode=int();val pedal=int();val keyAreaFrom=int();val keyAreaTo=int()
@@ -170,7 +171,7 @@ object ImportedSetInstruments {
             ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts,effects=channelEffects,
                 pedalMode=pedalMode,pedal=pedal,keyAreaFrom=keyAreaFrom,keyAreaTo=keyAreaTo,
                 midiChannelOut=midiChannelOut,midiProgram=midiProgram,record=record,midiChannelIn=midiChannelIn,
-                midiBankMsb=midiBankMsb,midiBankLsb=midiBankLsb)
+                midiBankMsb=midiBankMsb,midiBankLsb=midiBankLsb,sourceVersion=trackVersion)
         }
         val styles=List(count(100000)){
             val id=int();val parent=int();val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)

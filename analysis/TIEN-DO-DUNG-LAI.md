@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Track giữ phiên bản riêng khi đọc STS, 24-10-2026
+
+- Track.ReadFromStream gốc dùng fVersion của track để quyết định STSCount13 trước1.2.9, có STS hay không và cách đọc tên snapshot. ORGX trước dùng musicVersion của container. Parser nay lấy metadata version của track, fallback SET version nếu rỗng và lưu ImportedTrack.sourceVersion.
+- parseSts nhận trackVersion cho tên legacy/new; sốflags và điều kiện lưu STS dùng trackVersion. Style loader dùng version track cho legacy KeyConnection effects, không dùng version instrument hay container khi metadata track có sẵn. Không mở rộng hỗ trợ toàn bộ schema mới ngoài các nhánh hiện có.
+- Kiểm tra binary Track1.2.8 giữ nguyên, đổi header Music sang1.4.6: STS/instrument/MIDI/mode/keyarea đọc giống trước, version track còn1.2.8. Kiểm tra SET mẫu có sẵn/template92instrument và ImportedModeTest, build đạt; cài APK thành công.
+- Chưa thống kê mixed-version trên SET điện thoại hoặc so thao tác/âm thanh APK. Một số layout channel/event rất cũ vẫn chưa hỗ trợ đầy đủ; không tuyên bố parser mọi version. Không sửa SET hoặc thêm file test mới.
+
 ## Key Connection không tái dùng sample của part cũ, 24-10-2026
 
 - ImportedKeyboardParts.noteOn trước tìm previous theo partID/MIDI channel, có thể connectTo vào playback của nguồn âm trước sau khi replace part; low mode cũng lấy source key từ nguồn không còn hiện hành. Nay yêu cầu sound identity trùng và note chưa retired trước khi nối.

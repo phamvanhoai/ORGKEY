@@ -32,6 +32,17 @@ class ImportedSetInstrumentsTest {
             assertEquals(27,sts.instrument);assertEquals(3,sts.system);assertEquals(2,sts.mode)
             assertEquals(142,sts.data1);assertEquals(9,sts.data2)
             assertEquals(24,track.keyAreaFrom);assertEquals(100,track.keyAreaTo);assertTrue(index.styles.isEmpty())
+            // Same legacy Track embedded in a newer Music container must keep its own STS layout.
+            val mixed=bytes.toByteArray()
+            val oldHeader="Legacy\r1.2.8\r".toByteArray()
+            val headerAt=mixed.indices.first{offset->offset+oldHeader.size<=mixed.size && oldHeader.indices.all{mixed[offset+it]==oldHeader[it]}}
+            "Legacy\r1.4.6\r".toByteArray().copyInto(mixed,headerAt)
+            file.writeBytes(mixed)
+            val newer=ImportedSetInstruments.index(file)
+            assertEquals("1.4.6",newer.sourceVersion)
+            assertEquals("1.2.8",newer.tracks.single().sourceVersion)
+            assertEquals(track.sts,newer.tracks.single().sts)
+            assertEquals(track.keyAreaTo,newer.tracks.single().keyAreaTo)
         }finally{file.delete()}
     }
     @Test fun styleLoadsJumpTargetsOutsideItsButtonSections(){

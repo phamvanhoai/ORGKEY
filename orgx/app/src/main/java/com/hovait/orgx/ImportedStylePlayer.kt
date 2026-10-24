@@ -80,7 +80,7 @@ object ImportedStylePlayer {
                     ImportedStyleSupport.shiftedNote(mapped,track.copy(settings=settings),melodic)
                     }
                 },sampled=sound,fx=ImportedFxChain(settings),initiallyMuted=track.muted,initialChannel=settings,
-                expressionEffects=ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(track.effects,index.sourceVersion,keyConnectionMethod),initialPedal=track.pedal!=0,
+                expressionEffects=ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(track.effects,track.sourceVersion ?: index.sourceVersion,keyConnectionMethod),initialPedal=track.pedal!=0,
                 // Tracks.ReadFromStream assigns channel type 1 to rhythm groups
                 // and Type 3 tracks. Channels.Process excludes that channel type.
                 expressionAllowed=ImportedStyleSupport.expressionAllowed(index,track),keyConnectionMethod=keyConnectionMethod)
