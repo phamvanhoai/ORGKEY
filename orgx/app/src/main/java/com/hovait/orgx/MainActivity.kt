@@ -551,7 +551,11 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                                         bankBusy=true;bankStatus="LOADING VOICE..."
                                         try{
                                             val sound=voiceSounds[chosen];val file=checkNotNull(engine.activeSetFile)
-                                            val loaded=withContext(Dispatchers.IO){val bank=engine.activeSetIndex;ImportedInstrumentLoader.load(file,sound,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=bank?.sourceVersion ?: "1.4.6",scriptOverrides=ImportedDncPreferences(context).read(file,sound),scriptOverridesForMode=ImportedDncPreferences(context)::read)}
+                                            val bank=engine.activeSetIndex;val expectedSound=engine.importedInstrument
+                                            val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(file,sound,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=bank?.sourceVersion ?: "1.4.6",scriptOverrides=ImportedDncPreferences(context).read(file,sound),scriptOverridesForMode=ImportedDncPreferences(context)::read)}
+                                            if(engine.activeSetIndex!==bank || engine.activeSetFile!=file || engine.importedInstrument!==expectedSound){
+                                                bankStatus="VOICE SELECTION CHANGED";return@launch
+                                            }
                                             engine.importedInstrument=loaded;engine.importedInstrumentName=sound.name;restoredSetName=sound.name
                                             preferences.edit().remove("selectedStsSet").putString("importedSetFile",file.name).putString("importedSetSound",sound.name).putString("importedSetSoundKey",ImportedSoundSelection.key(sound)).apply()
                                             bankStatus="SELECTED: ${sound.name}"
@@ -570,8 +574,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         })
                 }
                 Row(Modifier.weight(.45f).fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(4.dp)){
-                    PerformanceWheels(engine,keyboardActive,Modifier.width(72.dp).fillMaxHeight())
-                    PianoKeyboard(octave, engine, Modifier.weight(1f).fillMaxHeight(),leftChord,enabled=keyboardActive)
+                    PerformanceWheels(engine,keyboardActive && !restoringSet,Modifier.width(72.dp).fillMaxHeight())
+                    PianoKeyboard(octave, engine, Modifier.weight(1f).fillMaxHeight(),leftChord,enabled=keyboardActive && !restoringSet)
                 }
             }
                         if(showTools) InstrumentPage(onDismissRequest={showTools=false},title={Text("MENU")},text={Column(Modifier.verticalScroll(rememberScrollState())){InstrumentMenu{
@@ -870,9 +874,13 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             OutlinedButton(enabled=!importing,onClick={scope.launch{
                 importing=true
                 try{
-                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(checkNotNull(setFile),item,setIndex?.systems?.firstOrNull(),musicSettings=setIndex?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=setIndex?.sourceVersion ?: "1.4.6",scriptOverrides=ImportedDncPreferences(context).read(checkNotNull(setFile),item),scriptOverridesForMode=ImportedDncPreferences(context)::read)}
+                    val file=checkNotNull(setFile);val bank=setIndex;val expectedSound=engine.importedInstrument
+                    val loaded=withContext(Dispatchers.IO){ImportedInstrumentLoader.load(file,item,bank?.systems?.firstOrNull(),musicSettings=bank?.musicSettings ?: ImportedChannelSettings(),keyConnectionMethod=engine.keyConnectionMethod,sourceVersion=bank?.sourceVersion ?: "1.4.6",scriptOverrides=ImportedDncPreferences(context).read(file,item),scriptOverridesForMode=ImportedDncPreferences(context)::read)}
+                    if(engine.activeSetIndex!==bank || engine.activeSetFile!=file || engine.importedInstrument!==expectedSound){
+                        importStatus="Voice selection changed while loading";return@launch
+                    }
                     engine.importedInstrument=loaded;engine.importedInstrumentName=item.name
-                    preferences.edit().remove("selectedStsSet").putString("importedSetFile",checkNotNull(setFile).name).putString("importedSetSound",item.name).putString("importedSetSoundKey",ImportedSoundSelection.key(item)).apply()
+                    preferences.edit().remove("selectedStsSet").putString("importedSetFile",file.name).putString("importedSetSound",item.name).putString("importedSetSoundKey",ImportedSoundSelection.key(item)).apply()
                     importStatus="Keyboard: ${item.name}. Select a built-in voice in Mixer to switch back."
                 }catch(error:Exception){importStatus=error.message ?: "Cannot load instrument"}
                 finally{importing=false}

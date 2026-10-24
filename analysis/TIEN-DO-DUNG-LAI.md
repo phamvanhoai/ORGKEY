@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chặn tiếng mặc định lúc restore và kết quả voice nạp cũ, 24-10-2026
+
+- PianoKeyboard/PerformanceWheels trước chỉ dựa keyboardActive của lifecycle, vẫn nhận chạm khi restoringSet=true và engine còn voice factory. Nay enabled yêu cầu đã hoàn tất restore; pointer cancellation/finally hiện có xử lý nhả khi đổi trạng thái.
+- Hai nơi chọn SET voice chụp file/index/expectedSound trước IO, dùng snapshot index cho tuning/music/version; trước apply kiểm tra cả ba còn hiệu lực. Nếu người dùng đổi SET/voice khi đang nạp, trả trạng thái selection changed thay vì gán tiếng cũ và ghi prefs cũ. Cuối nhánh vẫn chạy finally giải phóng busy flag.
+- assembleDebug đạt, đã cài APK; force-stop rồi mở Activity COLD thành công trên88d75c04. Không thêm test cho gate UI đơn giản; chưa kiểm chứng âm thanh trong thời gian restore hoặc chủ động tái hiện race đổi SET trên điện thoại. Không sửa SET.
+- Chặn restore chỉ áp input cảm ứng của màn hình; MIDI/controller ngoài chưa có gate chung ở đây. Check identity không phải generation chung cho mọi nguồn chọn voice, nên chưa tuyên bố loại bỏ toàn bộ race.
+
 ## Phân trang Keyboard Set trên LCD, 24-10-2026
 
 - ImportedStsSelection.consoleSlots giữ bốn vị trí Main/STSIndex ở đầu, rồi bổ sung tất cả slot Master đang bật chưa nằm trong bốn vị trí đó, sorted/distinct. Theo Music.STSExists, không dùng slot chỉ có ở member track làm KeyboardSet toàn nhóm.
