@@ -5,6 +5,37 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsBatchTest {
+    @Test fun firstMasterRequestHonorsSetControlAgainstStoredTrackState(){
+        val file=File.createTempFile("sts-initial-mask",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val sound=ImportedInstrument("Voice",100,0,0,listOf(ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))))))
+            val incoming=snapshot("Incoming").copy(instrument=1,record=false,pedal=1,
+                settings=ImportedChannelSettings(volume=90,pan=70,transpose=5,octave=2))
+            val master=ImportedTrack("Master",0,0,false,emptyList(),sts=listOf(incoming))
+            val right=master.copy(name="Right",instrument=0,record=true,pedal=0,volume=40,pan=-25,
+                settings=ImportedChannelSettings(volume=40,pan=-25,transpose=2,octave=-1))
+            val index=ImportedSetIndex(listOf(sound,sound),emptyList(),listOf(master,right),
+                musicSettings=ImportedChannelSettings(volume=65,pan=-10))
+            fun request(mask:List<Boolean>)=(ImportedStsRequest.prepare(file,index,0,1,changes=mask) as ImportedStsRequest.Prepared.Group).value
+            val kept=request(List(21){false})
+            val prior=kept.voices.getValue(1).snapshot
+            assertEquals(0,prior.instrument);assertTrue(prior.record);assertEquals(0,prior.pedal)
+            assertEquals(40,prior.settings.volume);assertEquals(-25,prior.settings.pan)
+            assertEquals(2,prior.settings.transpose);assertEquals(-1,prior.settings.octave)
+            assertEquals(65,kept.master!!.music.volume)
+            val selected=request(List(21){it in listOf(2,8,10,13)})
+            val changed=selected.voices.getValue(1).snapshot
+            assertEquals(0,changed.instrument);assertFalse(changed.record);assertEquals(1,changed.pedal)
+            assertEquals(90,changed.settings.volume);assertEquals(-25,changed.settings.pan)
+            assertEquals(90,selected.master!!.music.volume)
+            val replaced=request(List(21){it==9}).voices.getValue(1).snapshot
+            assertEquals(1,replaced.instrument)
+            assertEquals(0,replaced.settings.pan) // Instrument replacement loads its default mode first.
+            assertEquals(40,index.tracks[1].volume);assertEquals(90,incoming.settings.volume)
+        }finally{file.delete()}
+    }
     @Test fun maskedStsKeepsExitedModeAndRejectsPreparationFromOlderMode(){
         val file=File.createTempFile("sts-exit-state",".pcm")
         try{

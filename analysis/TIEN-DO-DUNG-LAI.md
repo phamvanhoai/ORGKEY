@@ -2,12 +2,20 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## SET CONTROL áp dụng ngay lần Master STS đầu tiên, 24-10-2026
+
+- ImportedStsRequest trước gọi prepareFull khi chưa có current group, bỏ qua mask người dùng. Thêm prepareInitial dựng basis cho các main track1..4 kind0/1 từ metadata track của SET: record, instrument/mode, system, pedal, settings volume/pan và expression effects; sau đó dùng chung prepareMasked/ImportedStsChanges/ImportedStsMaster.
+- Nhánh chọn Master lần đầu nay giữ dữ liệu track ở các cờ tắt và chỉ chuyển các cờ bật. Khi đã có current group vẫn lấy effective current snapshots và kiểm tra basis như trước. Đường restore snapshot đầy đủ bằng prepareFull không bị đổi.
+- Kiểm tra request thực tế với toàn bộ cờfalse giữ instrument0/recordtrue/pedal0/volume40/pan-25/transpose2/octave-1 và Master volume65; bật volume/record/pedal đổi đúng sang90/false/1, pan giữ-25; bật instrument riêng đổi sang1 và nạp default mode trước theo plan hiện có. SET metadata giữ nguyên.
+- ImportedStsBatchTest/ImportedStsChangesTest/ImportedStsMasterTest/ImportedStsPlanTest và assembleDebug đạt; cài APK thành công. Không tạo file test mới. Sửa tên nhóm kiểm tra ở hai mục trước: không có lớp ImportedStsRequestTest; hành vi request được kiểm tra trong ImportedStsBatchTest, các pattern Gradle không khớp không được tính thành kiểm tra đã chạy.
+- Basis lần đầu lấy từ SET, chưa chụp mọi sửa đổi bàn phím thủ công trước khi có batch STS; không tuyên bố giữ toàn bộ live state đó. Restore theo slot còn dùng full snapshot và chưa lưu mọi trường masked hiệu lực qua đóng app. Chưa đối chiếu thao tác/thu âm với APK gốc.
+
 ## Main button yêu cầu STS trước cửa sổ chuyển nhịp, 24-10-2026
 
 - Tiếp tục đối chiếu MainActivity.z1: STSPut chạy trước y1 khi bấm Main, không đợi đoạn Main thành Current. UI ORGX nay ghi nhận mainStsTarget/session và revision ngay trong onPart rồi gửi lệnh rhythm như trước.
 - LaunchedEffect của Main link dùng Main được bấm, không chỉ currentId. Có thể chuẩn bị/apply STS khi Main còn pending hoặc Auto Fill đang chạy; chuyển Fill->Main không tự tạo lại cùng yêu cầu STS. Bấm lại cùng Main tăng revision để chủ động gọi lại STS theo thao tác gốc.
 - Yêu cầu gắn với session; đổi style khiến target cũ mất hiệu lực. Bấm Main khác hủy effect trước, kiểm tra revision/target/SET/session/âm sắc trước awaitStsRequest, dùng cơ chế cancellation/commit gate hiện có để hạn chế apply kết quả cũ. Nếu chưa có thao tác nút, vẫn giữ đường liên kết theo current section khi restore/bật tùy chọn.
-- assembleDebug và hồi quy ImportedStsSelectionTest/ImportedStsRequestTest/ReferenceStyleTransitionTest đạt; cài APK thành công. Không thêm file hoặc test UI phản chiếu implementation. Chưa thao tác timing hoặc thu âm trên thiết bị trong lượt này.
+- assembleDebug và hồi quy ImportedStsSelectionTest/ReferenceStyleTransitionTest đạt; cài APK thành công. Không thêm file hoặc test UI phản chiếu implementation. Chưa thao tác timing hoặc thu âm trên thiết bị trong lượt này.
 - Nạp PCM vẫn bất đồng bộ trên IO: bắt đầu yêu cầu lúc bấm không đồng nghĩa tiếng đổi ngay trong cùng frame. Đây là đường nút Main trên console; các input điều khiển ngoài chưa được gom chung. Giới hạn SET CONTROL ở lần đầu chưa có basis group vẫn còn.
 
 ## Main link chọn STS toàn nhóm bàn phím, 24-10-2026
@@ -15,7 +23,7 @@
 - Đối chiếu MainActivity.z1: khi Y1 bật và section Main, tính slot từ variation/GroupOf(style).STSIndex rồi gọi Music.STSPut(slot); STSPut áp Master và các main track, không chỉ track editor đang chọn.
 - Sửa Main link trong ORGX: bỏ điều kiện đã chọn STS thủ công từ đúng SET và bỏ selectedStsTrack khỏi cách chọn đích. Dùng ImportedStsRequest.prepare track0 để chuẩn bị cả group; chỉ apply nếu session/section/SET/âm sắc vẫn đúng sau nạp IO. Lưu selectedStsTrack0/SET/slot sau apply thành công để restore theo batch.
 - linkedMainSlot kiểm tra slot tồn tại duy nhất trên Master group0; slot vắng không đổi âm sắc. Nếu metadata group của style vắng, dùng slot1..4 thay vì lấy STSIndex của section con. Nhãn UI đổi thành Đổi toàn bộ STS theo Main1–4.
-- ImportedStsSelectionTest/ImportedStsRequestTest/ImportedStsBatchTest và assembleDebug đạt; cài APK thành công. Có kiểm tra Main override8, Master thiếuslot, chỉ member cóslot, thiếuMaster và fallbackdefault. Không tạo file test mới hoặc sửa SET.
+- ImportedStsSelectionTest/ImportedStsBatchTest và assembleDebug đạt; cài APK thành công. Có kiểm tra Main override8, Master thiếuslot, chỉ member cóslot, thiếuMaster và fallbackdefault. Không tạo file test mới hoặc sửa SET.
 - Chưa thao tác/thu âm đối chiếu trên thiết bị. Main link vẫn kích hoạt theo section đang phát, chưa theo thời điểm bấm Main trước cửa sổ chuyển nhịp như z1. ImportedStsRequest hiện áp full snapshot ở lần đầu chưa có current group; SET CONTROL mask áp cho các chuyển tiếp có basis group, chưa bảo toàn mọi trạng thái bàn phím trước lần đầu.
 
 ## STOP giữ release tail của style, 24-10-2026
