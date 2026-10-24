@@ -11,6 +11,16 @@ class ReferenceRhythmPlayerTest {
             {10000},{_,_,_->0.0},1000,initialChannel=ImportedChannelSettings(),stsFxResolver={if(it==2)settings else null})
         try{repeat(3){player.next(0,120)}}finally{player.close()}
     }
+    @Test fun stsFxResolverKeepsTrackVolumeWhenMaskDoesNotReplaceIt(){
+        val current=ImportedChannelSettings(volume=37,pan=-12,transpose=2,octave=1)
+        val incoming=ImportedChannelSettings(volume=90,pan=40,transpose=7,octave=3,fxEnabled=true)
+        val applied=ImportedStsChanges.channel(current,incoming,ImportedStsPlan.defaultChanges)
+        assertEquals(90,applied.volume)
+        assertEquals(40,applied.pan)
+        assertEquals(7,applied.transpose)
+        assertEquals(3,applied.octave)
+        assertTrue(applied.fxEnabled)
+    }
     @Test fun storedStsFxEventDoesNotInvalidateOrStopTheTrack(){
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
             ReferenceDrumEvent(64,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),

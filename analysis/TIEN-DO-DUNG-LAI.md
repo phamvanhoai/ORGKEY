@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Event64 áp mask STS mặc định vào FX track, 25-10-2026
+
+- Resolver event64 trước lấy thẳng ImportedSts.settings, có thể thay cả thông số kênh dù STSChanges không cho phép. ImportedStylePlayer nay dùng ImportedStsChanges.channel với defaultChanges: volume/pan/transpose/octave/release và FX chỉ thay theo các cờ tương ứng, giữ các trường bị khóa từ track hiện tại.
+- ReferenceRhythmPlayerTest thêm kiểm tra channel mask nhận incoming volume/pan/transpose/octave/FX theo default. Build và test ReferenceRhythmPlayer/ImportedStsChanges đạt. Không sửa SET hoặc tạo file test/log mới; chưa xác minh STSChanges mask tùy chỉnh trên thiết bị. Event64 hiện dùng defaultChanges vì player chưa nhận snapshot mask runtime của Master link; mask tùy biến vẫn cần truyền từ ImportedStsRequest vào style session.
+
 ## TrackSTSFXEffect64 áp snapshot FX theo slot khi có dữ liệu, 25-10-2026
 
 - ReferenceRhythmPlayer nhận resolver slot->ImportedChannelSettings; event64 tìm STS cùng slot trên track, thay FX chain của track nếu snapshot có. Khi thiếu snapshot vẫn no-op an toàn như bước trước.
