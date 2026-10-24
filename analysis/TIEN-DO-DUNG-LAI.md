@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Legato tính pitch theo region đang phát, 24-10-2026
+
+- Channels._Connection tính key mới với lastChannel.BaseKey và sample rate của region đang dùng. Playback.connectTo trước gọi pitchStep(targetNote) chọn region theo target, dù PCM vẫn là region cũ; connectFrom cũng chọn source region sai khi voice mới dùng target sample.
+- pitchStep nhận region tùy chọn; connectTo dùng selected[note] của voice cũ, connectFrom tính pitch source theo selected[note] của voice mới. PitchMode1 dùng root của region thực tế. Không đổi mapping của note-on thông thường hoặc tự thay PCM khi legato giữ voice.
+- Kiểm tra hai region root60/rate1000 và root72/rate2000: nối60->72 trên PCM cũ tiến bước2, nối về60 bước1; connectFrom trên PCM mới khởi động theo source key đúng. SampledInstrumentTest/ReferenceRhythmPlayerTest và build đạt; cài APK thành công.
+- Chưa thu âm nhạc cụ đa-region trên SET thực/so APK. Chưa đối chiếu mọi tuning/pitchMode/legato speed integer hoặc ForceLoop; không tuyên bố hoàn thành toàn bộ nối nốt. Không tạo file test mới hoặc sửa SET.
+
 ## Style/PAD truyền Key Connection Method tới mode loader, 24-10-2026
 
 - loadSections đã nhận keyConnectionMethod cho expression track nhưng bỏ sót khi gọi ImportedInstrumentLoader.load. Nay truyền tham số này để các mode context/fallback exit được chuẩn bị cùng phương thức engine, thay vì mặc định0. Đường style và PAD cùng dùng loadSections.

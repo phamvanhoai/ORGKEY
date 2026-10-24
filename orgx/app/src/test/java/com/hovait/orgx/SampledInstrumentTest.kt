@@ -4,6 +4,26 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @org.junit.Test fun legatoPitchUsesTheSampleStillPlayingAcrossRegionBoundaries(){
+        val samples=ShortArray(128){(it*100).toShort()}
+        val instrument=SampledInstrument(listOf(
+            InstrumentRegion(60,SamplePcm(1000,1,samples),0,128),
+            InstrumentRegion(72,SamplePcm(2000,1,samples),0,128)),1000)
+        val connection=ImportedExpressionEffect.default(1).copy(enabled=true,mode=2,stopByRelease=false)
+        val voice=instrument.voice(60)
+        repeat(3){voice.next(false)} // old sample position3
+        voice.connectTo(72,connection)
+        voice.next(false);assertEquals(300.0/32768,voice.left,1e-12)
+        voice.next(false);assertEquals(500.0/32768,voice.left,1e-12) // old root60 -> key72 = step2
+        voice.connectTo(60,connection)
+        voice.next(false);voice.next(false)
+        assertEquals(800.0/32768,voice.left,1e-12)
+        val opened=instrument.voice(72)
+        opened.connectFrom(60,connection.copy(mode=3,speed=1))
+        opened.next(false);opened.next(false)
+        // New root72/sampleRate2000 starts at key60: step ~1, not the old region's unrelated mapping.
+        assertEquals(100.0/32768,opened.left,1e-6)
+    }
     @org.junit.Test fun connectionReopensForcedReleaseAndSustainLoopForTheNewKey(){
         val instrument=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(40){if(it<4)4000 else 16000}),0,4,loopUntilRelease=true)),

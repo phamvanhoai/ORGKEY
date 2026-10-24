@@ -277,7 +277,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(!effect.stopByRelease && effectiveEnvelope?.autoRelease==false)state?.reconnect()
             children.forEach{it.connectTo(targetNote,effect)};alternate?.connectTo(targetNote,effect)
             if(children.isNotEmpty())return
-            val target=pitchStep(targetNote,tune)
+            val target=pitchStep(targetNote,tune,selected[note])
             connectionTarget=target
             connectionDelay=(effect.startDelay.coerceAtLeast(0).toLong()*outputRate/1000).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
             connectionByPedal=effect.byPedal
@@ -299,7 +299,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(effect.mode>1 && selected[note].looping)position=selected[note].loopStart.toDouble()
             if(effect.playbackSpeed==0)position=0.0
             val target=pitchStep(note,tune)
-            step=if(effect.mode==1 && effect.playbackSpeed!=0)target else pitchStep(sourceNote,tune)
+            step=if(effect.mode==1 && effect.playbackSpeed!=0)target else pitchStep(sourceNote,tune,selected[note])
             bentStep=step*2.0.pow(bendSemitones/12.0)
             connectionTarget=target
             connectionDelay=(effect.startDelay.coerceAtLeast(0).toLong()*outputRate/1000).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
@@ -541,9 +541,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     // a MIDI key; it only keeps interpolation/envelope setup allocation-free.
     private val emptyRegion=InstrumentRegion(60,SamplePcm(outputRate,1,shortArrayOf(0)),0,1,looping=false)
     private val selected=Array(128){note->regions.firstOrNull{it.root==mapped[note]} ?: regions.firstOrNull() ?: emptyRegion}
-    private fun pitchStep(note:Int,tune:Int=0):Double {
-        val key=if(pitchMode==1)mapped[note] ?: note else note
-        val region=selected[note]
+    private fun pitchStep(note:Int,tune:Int=0,region:InstrumentRegion=selected[note]):Double {
+        val key=if(pitchMode==1)region.root else note
         return if(tuning.isEmpty())SamplePitch.step(key,region.root,region.sample.sampleRate,outputRate,region.tune+tune)
         else SamplePitch.referenceStep(key,region.root,region.sample.sampleRate,outputRate,region.tune+tune,tuning,tuningTranspose)
     }
