@@ -220,6 +220,8 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     LaunchedEffect(styleAutoFill){engine.styleAutoFill=styleAutoFill}
     var sectionState by remember{mutableStateOf<Pair<Int,Int?>>(0 to null)}
     var linkSts by remember{mutableStateOf(preferences.getBoolean("linkMainSts",false))}
+    var mainStsTarget by remember{mutableStateOf<Pair<ImportedStyleSession,Int>?>(null)}
+    var mainStsRevision by remember{mutableIntStateOf(0)}
     DisposableEffect(preferences){
         val listener=SharedPreferences.OnSharedPreferenceChangeListener{prefs,key->
             if(key=="linkMainSts")linkSts=prefs.getBoolean(key,false)
@@ -227,19 +229,22 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         preferences.registerOnSharedPreferenceChangeListener(listener)
         onDispose{preferences.unregisterOnSharedPreferenceChangeListener(listener)}
     }
-    LaunchedEffect(setSession,sectionState.first,linkSts,restoringSet){
+    val linkedMainPart=mainStsTarget?.takeIf{it.first===setSession}?.second ?: sectionState.first
+    LaunchedEffect(setSession,linkedMainPart,mainStsRevision,linkSts,restoringSet){
         val session=setSession
+        val requestRevision=mainStsRevision
         val file=engine.activeSetFile
         val index=engine.activeSetIndex
         if(linkSts && session!=null && file!=null && index!=null && !restoringSet){
-            val part=session.style.sections.firstOrNull{it.id==sectionState.first}
+            val part=session.style.sections.firstOrNull{it.id==linkedMainPart}
             if(part!=null && part.section in 32..35)try{
                 val slot=ImportedStsSelection.linkedMainSlot(index,session.style.id,part.section) ?: return@LaunchedEffect
                 val expectedSound=engine.importedInstrument
                 val expectedGroup=engine.currentStsGroup
                 val changes=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask))
                 val prepared=withContext(Dispatchers.IO){ImportedStsRequest.prepare(file,index,0,slot,expectedGroup,changes,ImportedDncPreferences(context)::read)}
-                if(engine.importedStyleSession===session && session.currentId==part.id &&
+                val wanted=mainStsTarget?.takeIf{it.first===session}?.second ?: session.currentId
+                if(engine.importedStyleSession===session && wanted==part.id && mainStsRevision==requestRevision &&
                     engine.activeSetFile==file && engine.activeSetIndex===index &&
                     preferences.getBoolean("linkMainSts",false) && engine.awaitStsRequest(prepared,expectedSound)){
                     preferences.edit().putString("selectedStsSet",file.name).putInt("selectedStsTrack",0).putInt("selectedStsSlot",slot).apply()
@@ -415,7 +420,14 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         },onOctave={octave=(octave+it).coerceIn(1,7)},
                         onSustain={engine.setSustainEnabled(!engine.sustain);sustain=engine.sustain},
                         onAutoFill={styleAutoFill=!styleAutoFill;preferences.edit().putBoolean("styleAutoFill",styleAutoFill).apply()},
-                        onPart={engine.requestStyleSection(it)},
+                        onPart={id->
+                            val session=setSession
+                            val part=session?.style?.sections?.firstOrNull{it.id==id}
+                            if(session!=null && session.available(id) && part?.section in 32..35){
+                                mainStsTarget=session to id;mainStsRevision++
+                            }
+                            engine.requestStyleSection(id)
+                        },
                         stylePage=browseStyles || browseVoices,
                         selectionTitle=if(browseVoices)"VOICE SELECT" else "STYLE SELECT",
                         selectedChoice=if(!browseVoices){if(bankIndex!=null)bankStyles.indexOfFirst{it.id==setSession?.style?.id} else style} else if(useSetVoices)voiceSounds.indexOfFirst{it.name==engine.importedInstrumentName} else if(engine.importedInstrument==null)instrument else -1,

@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Main button yêu cầu STS trước cửa sổ chuyển nhịp, 24-10-2026
+
+- Tiếp tục đối chiếu MainActivity.z1: STSPut chạy trước y1 khi bấm Main, không đợi đoạn Main thành Current. UI ORGX nay ghi nhận mainStsTarget/session và revision ngay trong onPart rồi gửi lệnh rhythm như trước.
+- LaunchedEffect của Main link dùng Main được bấm, không chỉ currentId. Có thể chuẩn bị/apply STS khi Main còn pending hoặc Auto Fill đang chạy; chuyển Fill->Main không tự tạo lại cùng yêu cầu STS. Bấm lại cùng Main tăng revision để chủ động gọi lại STS theo thao tác gốc.
+- Yêu cầu gắn với session; đổi style khiến target cũ mất hiệu lực. Bấm Main khác hủy effect trước, kiểm tra revision/target/SET/session/âm sắc trước awaitStsRequest, dùng cơ chế cancellation/commit gate hiện có để hạn chế apply kết quả cũ. Nếu chưa có thao tác nút, vẫn giữ đường liên kết theo current section khi restore/bật tùy chọn.
+- assembleDebug và hồi quy ImportedStsSelectionTest/ImportedStsRequestTest/ReferenceStyleTransitionTest đạt; cài APK thành công. Không thêm file hoặc test UI phản chiếu implementation. Chưa thao tác timing hoặc thu âm trên thiết bị trong lượt này.
+- Nạp PCM vẫn bất đồng bộ trên IO: bắt đầu yêu cầu lúc bấm không đồng nghĩa tiếng đổi ngay trong cùng frame. Đây là đường nút Main trên console; các input điều khiển ngoài chưa được gom chung. Giới hạn SET CONTROL ở lần đầu chưa có basis group vẫn còn.
+
 ## Main link chọn STS toàn nhóm bàn phím, 24-10-2026
 
 - Đối chiếu MainActivity.z1: khi Y1 bật và section Main, tính slot từ variation/GroupOf(style).STSIndex rồi gọi Music.STSPut(slot); STSPut áp Master và các main track, không chỉ track editor đang chọn.
