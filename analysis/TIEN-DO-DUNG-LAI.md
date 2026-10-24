@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nhận style có Main dùng chung từ nhóm 0, 24-10-2026
+
+- ImportedStyleCatalog.styles trước lọc nhóm phải có Main riêng rồi mới gọi ImportedSectionFallback.complete. Style có Intro/Fill/Ending riêng và Main dùng chung nhóm0 bị loại trước khi được giải quyết fallback, dù MainActivity.y1 của APK cho phép GroupSection(0,section).
+- Chuyển kiểm tra Main sang sau complete: danh sách nhận style có Main kế thừa; phần riêng vẫn ưu tiên theo ImportedSectionFallback. Style không có Main cả riêng lẫn chung vẫn bị loại. Chưa mở rộng liệt kê nhóm hoàn toàn không có section riêng.
+- Bổ sung hai trường hợp trong ImportedSectionFallbackTest hiện có: catalog giữ tên style và Intro riêng/Main chung; nạp style từ catalog với section im lặng, chạy Intro rồi trở về Main chung. ImportedSectionFallbackTest/ImportedStyleSessionTest/ReferenceStyleTransitionTest và assembleDebug đạt. Không sửa SET, không tạo file test/log mới; chưa xác minh SET thực trên máy có trường hợp Main dùng chung này.
+
 ## Bảng điều khiển giữ style đang chọn, tempo đổi lúc bàn giao, 24-10-2026
 
 - Sau khi thêm chờ cửa sổ nhịp, vòng đồng bộ UI vẫn ghi đè setSession bằng session đang phát cũ mỗi100ms. Người dùng có thể thấy danh sách/nút quay về style cũ trong khi requestStyleSection đã nhắm style mới. AudioEngine.selectedStyleSession nay trả pending selection nếu có (kể cả null khi clear), nếu không trả session đang phát. UI và điều kiện nút Play sử dụng lựa chọn này.

@@ -26,9 +26,9 @@ object ImportedStyleCatalog {
     fun styles(index:ImportedSetIndex):List<ImportedStyleDefinition> {
         val names=index.styles.associateBy{it.id}
         return index.styles.filter{isSection(it.section)}.groupBy{it.parent}
-            .filterValues{sections->sections.any{it.section in 32..35}}.map{(parent,sections)->
+            .map{(parent,sections)->
             ImportedSectionFallback.complete(index,ImportedStyleDefinition(parent,names[parent]?.name?.takeIf{it.isNotBlank()} ?: "Style $parent",sections.sortedBy{it.section}))
-        }
+        }.filter{style->style.sections.any{it.section in 32..35}}
     }
     fun label(section:Int)=when(section){
         in 16..18->"INTRO ${section-15}"
