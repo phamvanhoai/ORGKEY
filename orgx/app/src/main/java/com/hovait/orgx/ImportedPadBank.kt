@@ -22,7 +22,14 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     }
     fun advance(time:Long,scale:Int,method:Int,tempo:Int):ReferenceRhythmPlayer {
         val complete=player.finished || (!group.loop && group.limit && group.end>group.start && time-startedAt>=group.end.toLong()-group.start)
-        if(complete && group.jumpGroup>0 && ReferenceSectionTiming.inWindow(time,scale,tempo)){
+        if(player.finished && group.loop){
+            // _PlayGroup calls GroupPlayStart on exhaustion. GroupPlayNext keeps
+            // a Loop group current, irrespective of its stored JumpGroup.
+            val offset=ReferenceSectionTiming.startOffset(time,group,scale,method)
+            startedAt=time-offset
+            player.restartAt(offset)
+        }
+        else if(complete && !group.loop && group.jumpGroup>0 && ReferenceSectionTiming.inWindow(time,scale,tempo)){
             val next=group.jumpGroup
             if(next in players){
                 val previous=player
@@ -38,7 +45,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
         player.next(0,tempo)
         return player
     }
-    val awaitingJump get()=player.finished && group.jumpGroup>0 && group.jumpGroup in players
+    val awaitingContinuation get()=player.finished && (group.loop || (group.jumpGroup>0 && group.jumpGroup in players))
     fun close(){players.values.forEach{it.close()}}
 }
 
@@ -126,7 +133,7 @@ class ImportedPadBank(sampleRate:Int=48000) {
                     updateScale(sequence.takeScaleChange());scale=rhythmScale
                 }
                 else player.next(0,tempo)
-                if(player.finished && sequence?.awaitingJump!=true){player.releaseAll();tails[slot]=true}
+                if(player.finished && sequence?.awaitingContinuation!=true){player.releaseAll();tails[slot]=true}
             }
             player.mixOutput(drumGain,chordGain);left+=player.outputLeft;right+=player.outputRight
             if(tails[slot] && !player.hasTail){closeSlot(slot);tails[slot]=false}

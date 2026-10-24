@@ -4,6 +4,26 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun unboundedPadLoopsUntilStopAndDoesNotFollowStoredJump(){
+        val group=ImportedStyleGroup(1,100,"Loop pad",96,true,0,0,120,limit=false,jumpGroup=2)
+        val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(1,1,60,0,5,0))
+        val player=ReferenceRhythmPlayer(listOf(track(events).copy(loop=true,bounded=false)),{10000},{_,_,_->1.0},1000)
+        val wrong=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,61,100,0,1000)))),{10000},{_,_,_->100.0},1000)
+        val sequence=ImportedPadSequence(1,mapOf(1 to group,2 to group.copy(id=2)),mapOf(1 to player,2 to wrong))
+        val bank=ImportedPadBank(1000)
+        try{
+            assertTrue(bank.playPrepared(0,bank.beginLoad(0),sequence))
+            var laterEnergy=0.0
+            repeat(80){frame->
+                bank.next(120,1f,1f)
+                assertEquals(1,sequence.currentId);assertEquals(1,bank.runningMask)
+                if(frame>30)laterEnergy+=bank.left*bank.left
+            }
+            assertTrue(laterEnergy>0)
+            bank.stop(0);repeat(30){bank.next(120,1f,1f)}
+            assertEquals(0,bank.runningMask);assertEquals(0.0,bank.left,0.0)
+        }finally{bank.close()}
+    }
     @Test fun sectionRestartKeepsChannelControlsAndReleasesOldNotes(){
         val events=listOf(ReferenceDrumEvent(2,1,60,100,0,1000),
             ReferenceDrumEvent(44,0,50,0,5,0),ReferenceDrumEvent(45,0,100,0,6,0))

@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## PAD Loop không giới hạn tiếp tục sau hết sự kiện, 24-10-2026
+
+- Đối chiếu Tracks._PlayGroup: khi Track.PlayNext hết dữ liệu gọi GroupPlayStart; GroupPlayNext giữ group hiện tại nếu Loop/tempLoop. ImportedPadSequence trước chuyển JumpGroup dương khi player.finished kể cả Loop, hoặc bank chuyển sang tail rồi đóng slot khi Loop không có jump.
+- Nhánh player.finished && group.loop nay restartAt với startOffset của clock chung, giữ channel controls/nhả voice/selective FX như đường Track.Start. Chỉ group khôngLoop mới theo JumpGroup dương. Bank nhận awaitingContinuation để không đóng slot Loop vừa hết dữ liệu.
+- Kiểm tra PCM unbounded PAD có NoteOn/NoteOff và JumpGroup tới player giá trị100: slot vẫn chạy qua nhiều frame/cycle, có năng lượng sau lượt đầu, không chuyển group2; STOP hết release về0. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest và build đạt; cài APK thành công. Không tạo file test mới hoặc sửa SET.
+- Chưa đối chiếu PAD unbounded trong SET thực/thu âm APK. Empty group vẫn có thể restart mỗi frame như đường hết sự kiện; chưa gom scheduler style/PAD hoặc tái tạo LastLoop/tempLoop của PAD. Không coi mọi loại PAD hoàn chỉnh100%.
+
 ## Lưu Master lấy tempo/chord live thay vì apply plan, 24-10-2026
 
 - Prepared Master dùng tempo/chord null để biểu thị không thay đổi khi áp STS. Lưu trực tiếp object này từng mất giá trị hiệu lực sau đổi BPM/chord thủ công hoặc sau STS có cờ tempo/chord tắt.
