@@ -311,7 +311,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 fadeController.command(event.type==212,duration,event.touch.toLong())
                 return@advance
             }
-            if(event.type in 241..246){
+            if(event.type==231 || event.type==232 || event.type in 241..246){
                 // FX enable/disable is a Music-bus command. Keep transport
                 // semantics; the owning group FX chain remains active.
                 return@advance

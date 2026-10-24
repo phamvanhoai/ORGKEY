@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## KeyMove/OctaveMove231/232 giữ transport, 25-10-2026
+
+- Track.Play xử lý231 bằng fFXMusic.f và232 ở nhánh FX Music, không phải đổi note trực tiếp. ORGX trước loại section chứa hai event. Support/player nay cho event đi qua timeline, giữ nốt phát; FX Music tham số riêng chưa được nối vào ImportedFxChain.
+- ReferenceRhythmPlayerTest dùng231/232 trước note, section vẫn phát. Build/test đạt. Không sửa SET hoặc tạo file test/log mới; cần ánh xạ chính xác tham số FX Music để hoàn tất âm thanh.
+
 ## Event bật/tắt FX Music/Wave/Rhythm không làm mất section, 25-10-2026
 
 - TrackEvent có FXMusicOff/On241/242, FXWaveOff/On243/244, FXRhythmOff/On245/246. ORGX trước báo unsupported và loại style section chứa chúng. Support nay cho phép các event và player giữ transport; FX chain hiện hành không tắt/bật riêng vì chưa có Music/Wave/Rhythm bus snapshot tương ứng.
