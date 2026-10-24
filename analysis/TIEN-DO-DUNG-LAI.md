@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Restore STS một track giữ hiệu lực channel/FX, 24-10-2026
+
+- encodeSingle chuyển sang payload v2 dùng codec part state chung, giữ record/pedal/system/nhạc cụ/mode/channel numeric/FX modules/expression thay vì chỉ mode. Prefix track/instrument và file fingerprint/slot vẫn chặn restore nhầm. restoreSingle đọc cả v2 và định dạng cũ.
+- decodeParts nhận baseline snapshots tùy chọn, để single dùng đúng snapshot track riêng mà không giả lập Group0. Cả vòng lưu và onPause hiện có tự dùng encodeSingle mới; restore hiện có tự nhận đầy đủ state.
+- Kiểm tra loader giữ volume37/pan-12, Echo và expression depth29, pedal1/recordfalse; payload hỏng fallback snapshot, định dạng cũ đọc được. ImportedStsLoaderTest/ImportedStsBatchTest và build đạt; cài APK thành công. Không tạo file test mới hoặc sửa SET.
+- Chưa kiểm tra đóng/mở với STS được chọn trên thiết bị. Không lưu phase PCM/FX, không tái tạo mọi điều khiển live ngoài Prepared snapshot; các giới hạn lưu định kỳ và Master thủ công vẫn còn. Đây là cải thiện khôi phục ORGX, chưa có chứng cứ định dạng lưu preference giống APK gốc.
+
 ## Lưu STS khi chuyển Activity xuống nền, 24-10-2026
 
 - Thêm persistStsState trong MainActivity.onPause trước super: lấy snapshot mới nhất của batch, lưu modes/partFX/Master hoặc single mode theo selection tương ứng. Kiểm tra active SET index/file và slot/track để không ghi đè bằng batch cũ trong lúc đổi SET. Vẫn dùng SharedPreferences.apply, không chặn UI bằng commit/đọc PCM.

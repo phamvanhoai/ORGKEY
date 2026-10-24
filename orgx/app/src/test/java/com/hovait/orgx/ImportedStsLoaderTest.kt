@@ -5,6 +5,28 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStsLoaderTest {
+    @Test fun singleStsRestoreKeepsChannelFxAndExpressionInsteadOfReloadingSlotDefaults(){
+        val file=File.createTempFile("sts-single-state",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val source=ImportedInstrument("Voice",100,0,0,listOf(ImportedSound("PCM",listOf(0,0,100,10,0,0),listOf(
+                ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))))))
+            val index=ImportedSetIndex(listOf(source),emptyList())
+            val original=ImportedSts("Slot",true,0,0,0,0,0,0,0,0,emptyList(),ImportedChannelSettings(),slot=2)
+            val fx=ImportedFxModule(6,true,false,listOf(50,0,0,0,1,0,0,0))
+            val effective=original.copy(pedal=1,record=false,settings=ImportedChannelSettings(volume=37,pan=-12,
+                fxEnabled=true,modules=listOf(fx)),effects=listOf(ImportedExpressionEffect.default(2).copy(depth=29)))
+            val encoded=ImportedStsModeState.encodeSingle(file,3,effective)
+            val restored=ImportedStsModeState.restoreSingle(encoded,file,3,index,original)
+            assertEquals(effective,restored)
+            val player=ImportedStsLoader.prepare(file,index,restored)
+            assertEquals(37,player.sound.keyboardSettings.volume)
+            assertEquals(-12,player.sound.keyboardSettings.pan)
+            assertEquals(original,ImportedStsModeState.restoreSingle(encoded+"invalid",file,3,index,original))
+            val legacy="3:0|"+ImportedStsModeState.encode(file,2,mapOf(1 to 0))
+            assertEquals(original,ImportedStsModeState.restoreSingle(legacy,file,3,index,original))
+        }finally{file.delete()}
+    }
     @Test fun singleStsRestoresExitedModeOnlyForSameTrackInstrumentAndSlot(){
         val file=File.createTempFile("sts-single-restore",".pcm")
         try{

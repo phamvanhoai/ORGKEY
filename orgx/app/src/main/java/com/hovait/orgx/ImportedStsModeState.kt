@@ -19,7 +19,8 @@ object ImportedStsModeState {
                         if(effect.stopByRelease)1 else 0,effect.mode,effect.speed,effect.depth,effect.gain)+effect.raw).joinToString(",")
                 }
         }
-    fun decodeParts(value:String,file:File,slot:Int,index:ImportedSetIndex):Map<Int,ImportedSts> {
+    fun decodeParts(value:String,file:File,slot:Int,index:ImportedSetIndex,
+        originalParts:Map<Int,ImportedSts>?=null):Map<Int,ImportedSts> {
         if(value.length>262144)return emptyMap()
         val prefix=encode(file,slot,emptyMap())
         if(!value.startsWith(prefix))return emptyMap()
@@ -30,8 +31,10 @@ object ImportedStsModeState {
                 require(fields.size==1 || fields.size==4)
                 val v=fields[0].split(',').map{it.toInt()}
                 require(v.size==12 && v[0] in 1..4 && v[5] in 0..1 && v[6] in 0..200 && v[7] in -100..100)
-                val track=index.tracks.filter{it.group==0}.getOrNull(v[0]) ?: error("Missing part")
-                val incoming=track.sts.single{it.slot==slot}
+                val incoming=if(originalParts!=null)originalParts.getValue(v[0]) else {
+                    val track=index.tracks.filter{it.group==0}.getOrNull(v[0]) ?: error("Missing part")
+                    track.sts.single{it.slot==slot}
+                }
                 val instrument=index.instruments.getOrNull(v[1]) ?: error("Missing instrument")
                 require(v[2]==-1 || v[2] in instrument.modes.indices || (v[2]==0 && instrument.modes.isEmpty()))
                 require(index.systems.isEmpty() || v[3] in index.systems.indices)
@@ -65,11 +68,13 @@ object ImportedStsModeState {
         }catch(_:Exception){emptyMap()}
     }
     fun encodeSingle(file:File,track:Int,snapshot:ImportedSts):String =
-        "$track:${snapshot.instrument}|"+encode(file,snapshot.slot,mapOf(1 to snapshot.mode))
+        "$track:${snapshot.instrument}|v2|"+encodeParts(file,snapshot.slot,mapOf(1 to snapshot))
     fun restoreSingle(value:String,file:File,track:Int,index:ImportedSetIndex,snapshot:ImportedSts):ImportedSts {
         val prefix="$track:${snapshot.instrument}|"
         if(!value.startsWith(prefix))return snapshot
-        return restore(index,snapshot,decode(value.removePrefix(prefix),file,snapshot.slot)[1])
+        val payload=value.removePrefix(prefix)
+        if(payload.startsWith("v2|"))return decodeParts(payload.removePrefix("v2|"),file,snapshot.slot,index,mapOf(1 to snapshot))[1] ?: snapshot
+        return restore(index,snapshot,decode(payload,file,snapshot.slot)[1])
     }
     fun encode(file:File,slot:Int,modes:Map<Int,Int>):String =
         "${file.name}:${file.length()}:${file.lastModified()}:$slot|"+
