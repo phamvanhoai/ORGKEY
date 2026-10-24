@@ -275,6 +275,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 return@advance
             }
             if(event.type==13){eventMuted=true;releaseAll();return@advance}
+            if(event.type==3){releaseAll();return@advance}
             if(event.type==14){eventMuted=false;return@advance}
             if(event.type==12){
                 pedalDown=true;sampled?.updateScriptPedal(true);voices.values.forEach{it.playback?.scriptPedal(true)}

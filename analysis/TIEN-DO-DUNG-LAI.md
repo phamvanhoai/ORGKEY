@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Track SET nhận TrackCloseAll3, 24-10-2026
+
+- Track.Play của APK xử lý event3 bằng Channels.CloseAll(false), không bật mute. ImportedStyleSupport trước từ chối event3 nên section không nạp được. Nay cho phép và ReferenceRhythmPlayer releaseAll tại tick lệnh.
+- Kiểm tra hai noteID mở đồng thời, CloseAll10 làm hết âm sau release, noteOn30 vẫn phát mà không cần UnMute. ReferenceRhythmPlayerTest/ReferenceStyleTransitionTest/ImportedSectionFallbackTest và assembleDebug đạt. Không sửa SET hoặc thêm file test/log mới; chưa thử SET thực có event3 trên điện thoại. CloseAll dùng envelope release hiện có, không cắt cứng và không thay bằng lệnh MIDI All Sound Off.
+
 ## Track Style/PAD áp PedalMode đã lưu trong SET, 24-10-2026
 
 - ImportedStylePlayer trước chỉ truyền initialPedal, bỏ track.pedalMode. ReferenceRhythmPlayer nay nhận pedalMode, mặc định-1 để giữ tương thích caller không metadata. Loader truyền giá trị thực từ track.

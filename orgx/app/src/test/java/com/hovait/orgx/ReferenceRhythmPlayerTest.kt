@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun trackCloseAllReleasesEveryNoteWithoutMutingLaterNotes(){
+        val sound=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,0,false))
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(2,2,64,100,0,1000),
+            ReferenceDrumEvent(3,0,0,0,10,0),ReferenceDrumEvent(2,3,67,100,30,1000)))),
+            {10000},{_,_,_->0.0},1000,sampled=sound)
+        try{
+            player.next(0,120);assertTrue(player.left>0)
+            repeat(20){player.next(0,120)};assertEquals(0.0,player.left,0.0)
+            repeat(10){player.next(0,120)};assertTrue(player.left>0)
+        }finally{player.close()}
+    }
     @Test fun sampledTrackReleaseUsesStoredPedalModeIndependentlyOfPedalState(){
         fun render(mode:Int,pedal:Boolean):Double {
             val sound=SampledInstrument(listOf(InstrumentRegion(60,
