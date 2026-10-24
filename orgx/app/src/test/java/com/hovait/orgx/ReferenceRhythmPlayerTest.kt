@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedModulationEventsReachHeldScriptVoices(){
+        for(type in listOf(46,56)){
+            val sound=SampledInstrument(listOf(InstrumentRegion(60,
+                SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000)
+                .withModeScript("on(touch){play();return(true);} on(modulate){stopall(cut);}")
+            val player=ReferenceRhythmPlayer(listOf(track(listOf(
+                ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(type,0,40,0,10,0)))),
+                {10000},{_,_,_->0.0},1000,sampled=sound)
+            try{
+                player.next(0,120);assertTrue(player.left>0)
+                repeat(10){player.next(0,120)}
+                assertEquals(0.0,player.left,0.0)
+            }finally{player.close()}
+        }
+    }
     @Test fun resetAndCloseRemoveScriptLayersFromPlayingRegistry(){
         for(close in listOf(false,true)){
             val sound=SampledInstrument(listOf(InstrumentRegion(60,

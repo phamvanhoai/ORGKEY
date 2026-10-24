@@ -284,6 +284,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             }
             if(event.type==44){channelVolume=event.note;return@advance}
             if(event.type==45){channelPan=event.note;return@advance}
+            if(event.type==46 || event.type==56){
+                sampled?.updateScriptModulation(event.note)
+                voices.values.forEach{it.playback?.modulate(event.note)}
+                return@advance
+            }
             val note=if(event.type==2)mapNote(event.note) else event.note
             if(event.type==2 && !eventMuted && !performanceMuted && drumLength(note)>0){
                 while(voices.size>=ImportedPolyphony.rhythm)voices.remove(voices.keys.first())?.playback?.cut()

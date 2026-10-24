@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Track SET nhận sự kiện Modulation46/56, 24-10-2026
+
+- Đối chiếu Track.Play: event46 hoặc56 gọi ScriptEvent(modulate,level=Key). ImportedStyleSupport trước chặn hai event, khiến section có chúng không được nạp. Nay chấp nhận giá trị level trong-127..127.
+- ReferenceRhythmPlayer chuyển event sang updateScriptModulation của sound và modulate của Playback đang phát, tương tự đường live hiện có; không hiểu event56 thành noteOn/noteOff và không giới hạn theo ID vì nhánh gốc gọi script cấp Track.
+- ReferenceRhythmPlayerTest kiểm tra cả46/56 trên note đang giữ với script stopall(cut), PCM từ có âm thành0 đúng tick10; lớp này và phương thức modulationStopAllCutsBothNoteIdsAndKeepsFollowingPlay đạt, assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới. Chưa kiểm chứng SET thực có46/56 trên điện thoại hoặc mọi biến thể script modulation; sound dùng chung giữa track có thể còn chia sẻ script state theo loader hiện có.
+
 ## Reset/đóng Rhythm dọn Playback DNC, 24-10-2026
 
 - ReferenceRhythmPlayer.reset trước voices.clear không cut; close chỉ đóng FX/children, còn voice script/layers sống trong registry. Thêm discardVoices cắt từng Playback rồi clear; reset/close dùng chung. close xóa output còn giữ trong player.
