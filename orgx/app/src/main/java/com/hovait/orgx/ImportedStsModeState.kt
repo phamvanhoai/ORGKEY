@@ -96,6 +96,6 @@ object ImportedStsModeState {
     fun restore(index:ImportedSetIndex,snapshot:ImportedSts,mode:Int?):ImportedSts {
         if(mode==null || mode==snapshot.mode)return snapshot
         val target=index.instruments.getOrNull(snapshot.instrument)?.modes?.getOrNull(mode) ?: return snapshot
-        return snapshot.copy(mode=mode,settings=target.settings,effects=target.effects)
+        return snapshot.copy(mode=mode,settings=target.settings,effects=target.effects,sourceVersion=index.instruments[snapshot.instrument].sourceVersion ?: snapshot.sourceVersion)
     }
 }

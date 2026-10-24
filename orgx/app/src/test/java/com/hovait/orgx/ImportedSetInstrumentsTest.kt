@@ -41,6 +41,7 @@ class ImportedSetInstrumentsTest {
             val newer=ImportedSetInstruments.index(file)
             assertEquals("1.4.6",newer.sourceVersion)
             assertEquals("1.2.8",newer.tracks.single().sourceVersion)
+            assertEquals("1.2.8",newer.tracks.single().sts.single().sourceVersion)
             assertEquals(track.sts,newer.tracks.single().sts)
             assertEquals(track.keyAreaTo,newer.tracks.single().keyAreaTo)
         }finally{file.delete()}

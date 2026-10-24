@@ -43,7 +43,7 @@ object ImportedStsBatch {
                 instrument=track.instrument,system=track.system,pedal=track.pedal,
                 mode=index.instruments.getOrNull(track.instrument)?.selectedMode ?: 0,
                 data1=0,data2=0,chordType=0,chordSingle=emptyList(),
-                settings=track.settings.copy(volume=track.volume,pan=track.pan),effects=track.effects)
+                settings=track.settings.copy(volume=track.volume,pan=track.pan),effects=track.effects,sourceVersion=track.sourceVersion)
         }.toMap()
         return prepareMasked(file,index,slot,current,changes,scriptOverrides,keyConnectionMethod)
     }

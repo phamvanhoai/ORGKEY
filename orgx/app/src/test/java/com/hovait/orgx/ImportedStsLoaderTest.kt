@@ -17,6 +17,10 @@ class ImportedStsLoaderTest {
             assertEquals(0,ImportedStsLoader.prepare(file,legacy,snapshot,keyConnectionMethod=0).sound.keyConnectionEffect!!.mode)
             assertEquals(16,ImportedStsLoader.prepare(file,legacy,snapshot,keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
             assertEquals(0,ImportedStsLoader.prepare(file,legacy.copy(sourceVersion="1.4.6"),snapshot,keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
+            assertEquals(16,ImportedStsLoader.prepare(file,legacy.copy(sourceVersion="1.4.6"),
+                snapshot.copy(sourceVersion="1.2.8"),keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
+            assertEquals(0,ImportedStsLoader.prepare(file,legacy,
+                snapshot.copy(sourceVersion="1.4.6"),keyConnectionMethod=1).sound.keyConnectionEffect!!.mode)
         }finally{file.delete()}
     }
     @Test fun singleStsRestoreKeepsChannelFxAndExpressionInsteadOfReloadingSlotDefaults(){

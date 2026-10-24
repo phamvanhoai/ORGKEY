@@ -9,7 +9,7 @@ object ImportedStsLoader {
             val selected=sound.modeSelection?.instrument ?: return snapshot
             if(selected.selectedMode==snapshot.mode)return snapshot
             val mode=selected.modes.firstOrNull() ?: return snapshot
-            return snapshot.copy(mode=selected.selectedMode,settings=mode.settings,effects=mode.effects)
+            return snapshot.copy(mode=selected.selectedMode,settings=mode.settings,effects=mode.effects,sourceVersion=selected.sourceVersion ?: snapshot.sourceVersion)
         }
     }
     fun prepare(file:File,index:ImportedSetIndex,snapshot:ImportedSts,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},keyConnectionMethod:Int=0)=Prepared(file,index,snapshot,load(file,index,snapshot,scriptOverrides,keyConnectionMethod))
@@ -31,6 +31,6 @@ object ImportedStsLoader {
         val settings=ImportedMusicParameters.pitch(snapshot.settings,index.musicSettings,index.musicSettings.octave)
         return ImportedInstrumentLoader.load(file,source,index.systems.getOrNull(snapshot.system),settings,index.musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=index.sourceVersion,scriptOverrides=scriptOverrides(file,source),scriptOverridesForMode=scriptOverrides)
             .withKeyboardSettings(settings,source.type==0)
-            .withExpressionEffects(ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(snapshot.effects,index.sourceVersion,keyConnectionMethod))
+            .withExpressionEffects(ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(snapshot.effects,snapshot.sourceVersion ?: index.sourceVersion,keyConnectionMethod))
     }
 }

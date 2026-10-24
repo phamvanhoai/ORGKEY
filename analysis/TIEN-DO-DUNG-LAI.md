@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## STS giữ phiên bản track trong container SET khác phiên bản, 24-10-2026
+
+- Thêm sourceVersion tùy chọn cho snapshot STS; parser gán trackVersion khi đọc từng slot. Loader dùng snapshot.sourceVersion trước container để áp quy tắc Key Connection legacy. Snapshot dựng thủ công không có metadata vẫn dùng container như trước.
+- Snapshot ban đầu của batch giữ track sourceVersion. Khi bộ lọc STS thay hiệu ứng thì nhận phiên bản của incoming, khi giữ hiệu ứng thì giữ phiên bản hiện tại. ModeSet, DNC exit/currentSnapshot và khôi phục mode lấy phiên bản nhạc cụ cho hiệu ứng mode.
+- Kiểm tra mixed binary container1.4.6/track1.2.8 giữ STS1.2.8; loader tracklegacy trong container mới nhận method1, trackmodern trong container cũ không bị ép legacy. ImportedStsLoaderTest/ImportedStsBatchTest/ImportedStsChangesTest, phương thức parser binary liên quan và assembleDebug đạt. Không sửa SET hoặc tạo file test/log mới; chưa nghe so trên điện thoại. Codec lưu effective STS chưa ghi riêng origin version của hiệu ứng đã đổi nguồn trong phiên, nên chưa coi restore mọi trường hợp trộn phiên bản hoàn tất.
+
 ## STS dùng Key Connection Method đã chọn, 24-10-2026
 
 - Đường ImportedStsLoader gọi InstrumentLoader không truyền keyConnectionMethod; Batch/Request và restore cũng không nhận tham số. STS vì thế dùng mặc định0 dù Voice/Style dùng phương pháp đã chọn.

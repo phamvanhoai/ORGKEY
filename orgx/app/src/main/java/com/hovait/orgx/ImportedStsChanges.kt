@@ -9,7 +9,7 @@ object ImportedStsChanges {
             val instrument=index.instruments.getOrNull(base.instrument) ?: error("STS instrument unavailable")
             val mode=instrument.modes.getOrNull(value)
             base=base.copy(mode=if(mode==null)-1 else value,
-                settings=mode?.settings ?: ImportedChannelSettings(),effects=mode?.effects ?: emptyList())
+                settings=mode?.settings ?: ImportedChannelSettings(),effects=mode?.effects ?: emptyList(),sourceVersion=instrument.sourceVersion ?: base.sourceVersion)
         }
         actions.filterIsInstance<ImportedStsPlan.Action.Event>().filter{it.track==position}.forEach{event->
             when(event.type){
@@ -46,6 +46,7 @@ object ImportedStsChanges {
             mode=if(mask[11])incoming.mode else current.mode,
             system=if(mask[12])incoming.system else current.system,
             settings=channel(current.settings,incoming.settings,mask),
-            effects=if(mask[19])incoming.effects.toList() else current.effects.toList())
+            effects=if(mask[19])incoming.effects.toList() else current.effects.toList(),
+            sourceVersion=if(mask[19])incoming.sourceVersion else current.sourceVersion)
     }
 }
