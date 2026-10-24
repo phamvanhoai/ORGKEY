@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## MIDI Reset All Controllers trả pitch bend về giữa, 24-10-2026
+
+- MidiFile đưa CC121 qua MidiSustain.resolve, nơi trước chỉ reset modulation và pedal rồi bỏ lệnh. Pitch bend còn giữ ở AudioEngine nên note sau reset có thể lệch tông.
+- Resolver theo dõi bend14bit riêng16channel và phát event pitch center8192 tại tick CC121 nếu channel đó đang lệch. Reset lần hai khi đã giữa không tạo thêm event; channel khác không bị tác động. Playback nhận event qua đường pitch bend hiện có.
+- MidiSustainTest thêm hai channel bend đối nghịch và ba CC121, kiểm tra chỉ phát center tại10/channel0 và12/channel1. MidiSustainTest/MidiFileTest và assembleDebug đạt; pattern MidiPitchBendTest được truyền nhưng không dùng làm bằng chứng nếu không có lớp tương ứng. Không sửa SET hoặc thêm file test/log mới; chưa nghe MIDI thực trên điện thoại hoặc đối chiếu trình MIDI APK gốc. Chưa mở rộng reset toàn bộ controller/RPN ở lượt này.
+
 ## Voice SET nhận key-up ngay khi pedal còn bật, 24-10-2026
 
 - Sửa lại mô hình sustain của single sampled Voice: Channels.Close đánh dấu Close ngay lúc nhả phím; envelope dùng Pedal để chọn release chậm/nhanh. AudioEngine trước giữ pendingSustain nên không chuyển noteOff cho Playback, hoãn script release và có thể giữ loop đến lúc pedal tắt.

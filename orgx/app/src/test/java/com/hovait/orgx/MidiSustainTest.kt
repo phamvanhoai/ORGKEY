@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MidiSustainTest {
+    @Test fun resetControllersCentersOnlyItsChannelsPitchBend(){
+        val events=MidiSustain.resolve(listOf(
+            MidiNoteEvent(0,0,96,false,channel=0,controller=-2),
+            MidiNoteEvent(0,0,32,false,channel=1,controller=-2),
+            MidiNoteEvent(10,0,0,false,channel=0,controller=121),
+            MidiNoteEvent(11,0,0,false,channel=0,controller=121),
+            MidiNoteEvent(12,0,0,false,channel=1,controller=121)))
+        val resets=events.filter{it.controller==-2 && it.velocity==64}
+        assertEquals(listOf(10L,12L),resets.map{it.tick})
+        assertEquals(listOf(0,1),resets.map{it.channel})
+        assertTrue(resets.all{it.note==0})
+    }
     @Test fun allNotesOffRespectsPedalUntilControllerResetAndKeepsOtherChannel() {
         val notes=MidiSustain.resolve(listOf(pedal(0,127),MidiNoteEvent(1,60,100,true),
             MidiNoteEvent(1,65,100,true,channel=1),
