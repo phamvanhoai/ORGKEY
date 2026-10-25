@@ -61,10 +61,10 @@ object ImportedStyleSupport {
         // Tracks.PlayNext sets _solo=false for ordinary rhythm playback.
         // Stored editor Solo flags must not remove the other style/PAD tracks.
         val solo=group.type!=1 && tracks.any{it.solo}
-        return tracks.filter{(!it.muted || it.events.any{event->event.type==14}) && (!solo || it.solo) && it.events.any{event->event.type==2 || event.type==4 || event.type==202 || event.type==203 || event.type==204 || event.type==231 || event.type==232 || event.type in 241..246}}
+        return tracks.filter{(!it.muted || it.events.any{event->event.type==14}) && (!solo || it.solo) && it.events.any{event->event.type==2 || event.type==4 || event.type==202 || event.type==203 || event.type==204 || event.type==205 || event.type==206 || event.type==231 || event.type==232 || event.type in 241..246}}
     }
     fun drumTracks(index:ImportedSetIndex,group:ImportedStyleGroup)=activeTracks(index,group).filter{
-            instrument(index,it)?.type in 1..2 || it.events.any{event->event.type==202 || event.type==203 || event.type==204 || event.type==231 || event.type==232 || event.type in 241..246}
+            instrument(index,it)?.type in 1..2 || it.events.any{event->event.type==202 || event.type==203 || event.type==204 || event.type==205 || event.type==206 || event.type==231 || event.type==232 || event.type in 241..246}
     }
     fun playbackTracks(index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean)=
         if(!includeAccompaniment)drumTracks(index,group) else activeTracks(index,group)
@@ -77,7 +77,7 @@ object ImportedStyleSupport {
             return "Track '${it.name}' references missing instrument ${it.instrument}"
         }
         tracks.forEach{track->track.events.forEach{event->
-            if(event.type !in listOf(1,2,3,4,11,12,13,14,44,45,64,202,203,204,211,212,231,232,241,242,243,244,245,246) && !(event.type==5 && event.note in -1..127 && event.touch in 0..127) && !(event.type==41 && event.note in -127..127) && !(event.type==42 && event.note in -10..10) && !(event.type==43 && event.note in -48000..48000) && !(event.type in listOf(46,56) && event.note in -127..127) && !(event.type==51 && event.note>=0) && !(event.type==53 && event.note>0) && !(event.type==52 && event.note in -100..100) && !ImportedExpressionAutomation.supported(event)){
+            if(event.type !in listOf(1,2,3,4,11,12,13,14,44,45,64,202,203,204,205,206,211,212,231,232,241,242,243,244,245,246) && !(event.type==5 && event.note in -1..127 && event.touch in 0..127) && !(event.type==41 && event.note in -127..127) && !(event.type==42 && event.note in -10..10) && !(event.type==43 && event.note in -48000..48000) && !(event.type in listOf(46,56) && event.note in -127..127) && !(event.type==51 && event.note>=0) && !(event.type==53 && event.note>0) && !(event.type==52 && event.note in -100..100) && !ImportedExpressionAutomation.supported(event)){
                 val detail=if(event.type==65)" (Effect slot ${event.id}, parameter ${event.note})" else ""
                 return "Track '${track.name}': unsupported event ${event.type}$detail at time ${event.time}"
             }

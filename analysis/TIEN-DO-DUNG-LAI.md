@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Timeline SET thực thi mute hợp âm/trống 205/206, 26-10-2026
+
+- Track.Play205/206 gọi GroupPlayAddChordMute/DrumMute, thêm marker vào queue GroupPlay0. ORGX nay dispatch hai lệnh vào hàng đợi style, toggle ở cửa sổ rhythm thay vì mute ngay lúc nhận event. Command từ dữ liệu không dùng giới hạn queue của nút Rhythm.
+- Bộ tương thích nhận hai lệnh và giữ track chỉ chứa điều khiển. PAD đang chạy cùng style gửi mute tới owner style; khi không có style đang chạy thì tháo handler để không giữ session cũ.
+- Build debug và ImportedStyleSessionTest, ImportedTempLoopTest, ImportedSectionFallbackTest đạt. Test nhận205 ở100 rồi206 ở1100 xác nhận trạng thái chưa đổi trước window, chord/drum đổi độc lập và không đổi section/dừng transport.
+- Giới hạn: khi chỉ PAD chạy chưa có GroupPlay0 độc lập để giữ mute; callback standalone không có owner vẫn không áp dụng. Rhythm201 và nhiều slot GroupPlay chưa hoàn tất. Không sửa SET hoặc tạo file test/log mới.
 ## RhythmJump 203 thực thi target sau section và nạp trước group liên quan, 26-10-2026
 
 - Đối chiếu Track.Play203 và Tracks.GroupPlayJump/Next: cắt channel của track gửi lệnh, đặt Jump chờ section không Loop/tempLoop kết thúc. Không chuyển ngay tại thời điểm event.

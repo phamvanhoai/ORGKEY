@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun storedMuteCommandsWaitForRhythmWindowAndKeepChordAndDrumsIndependent(){
+        val group=ImportedStyleGroup(1,100,"Main",32,true,0,4000,120)
+        val controls=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("Controls",1,100,32,120,true,0,4000,false,listOf(
+            ReferenceDrumEvent(205,0,0,0,100,0),ReferenceDrumEvent(206,0,0,0,1100,0)))),
+            {1000},{_,_,_->0.0},1000)
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",listOf(group)),mapOf(1 to controls),1000)
+        try{
+            repeat(500){session.next(120)}
+            assertFalse(session.chordMuted);assertFalse(session.drumMuted)
+            repeat(501){session.next(120)}
+            assertTrue(session.chordMuted);assertFalse(session.drumMuted)
+            repeat(1000){session.next(120)}
+            assertTrue(session.chordMuted);assertTrue(session.drumMuted)
+            assertEquals(1,session.currentId);assertFalse(session.finished)
+        }finally{session.close()}
+    }
     @Test fun sectionChangeKeepsMusicFadeAndCancelInAnotherSectionRestoresIt(){
         val sections=listOf(part(1,32),part(2,33))
         val players=sections.associate{section->section.id to ReferenceRhythmPlayer(listOf(

@@ -29,6 +29,11 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         jumpId=id.takeIf{it in players}
         jumpId?.let{temporaryLoops.remove(it)}
     }}}
+    private val storedMuteCommand:(Boolean)->Unit={chord->
+        // GroupPlayAddChordMute/DrumMute append without the Rhythm queue size guard.
+        queue.addLast(Request(0,false,if(chord)1 else 2))
+    }
+    init{players.values.forEach{it.withMuteCommand(storedMuteCommand)}}
     val temporaryLoop get()=synchronized(this){currentId in temporaryLoops}
     private var lastLoop:Int?=main.id.takeIf{main.loop}
     private var startedAt=0L
@@ -59,6 +64,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     val padTiming:Pair<Long,Int> get()=synchronized(this){clock.time to rhythmScale}
     /** Read timing and return PAD scale changes under the same session lock, without a per-frame snapshot object. */
     @Synchronized fun renderPads(bank:ImportedPadBank,tempo:Int,drumGain:Float,chordGain:Float,method:Int){
+        bank.withMuteCommand(storedMuteCommand)
         bank.nextAt(tempo,drumGain,chordGain,clock.time,rhythmScale,method)
         if(bank.scaleChanged)rhythmScale=bank.rhythmScale
     }

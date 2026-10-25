@@ -23,6 +23,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     fun withMusicFade(controller:ReferenceFadeController){players.values.forEach{it.withMusicFade(controller)}}
     fun withMusicRelease(provider:()->Int){players.values.forEach{it.withMusicRelease(provider)}}
     fun withMusicState(state:ImportedMusicState){players.values.forEach{it.withMusicState(state)}}
+    fun withMuteCommand(command:(Boolean)->Unit){players.values.forEach{it.withMuteCommand(command)}}
     val group get()=groups.getValue(currentId)
     fun start(time:Long,scale:Int,method:Int){
         temporaryLoops.clear()
@@ -67,6 +68,14 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
 /** Prepared players cross into the audio thread; PCM decoding stays with the caller. */
 class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeController?=null,private val musicRelease:(()->Int)?=null,
     private val musicState:ImportedMusicState?=null) {
+    private var muteCommand:((Boolean)->Unit)?=null
+    private val ignoreMute:(Boolean)->Unit={}
+    fun withMuteCommand(command:((Boolean)->Unit)?){
+        if(muteCommand===command)return
+        muteCommand=command
+        val handler=command ?: ignoreMute
+        repeat(4){slot->sequences[slot]?.withMuteCommand(handler);players[slot]?.withMuteCommand(handler)}
+    }
     private data class Change(val player:ReferenceRhythmPlayer?,val group:ImportedStyleGroup?=null,val sequence:ImportedPadSequence?=null){
         fun close(){if(sequence!=null)sequence.close() else player?.close()}
     }
@@ -122,6 +131,7 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
         left=0.0;right=0.0
         repeat(4){slot->
             pending.getAndSet(slot,null)?.let{change->
+                muteCommand?.let{command->change.sequence?.withMuteCommand(command);change.player?.withMuteCommand(command)}
                 musicState?.let{state->change.sequence?.withMusicState(state);change.player?.withMusicState(state)}
                 musicRelease?.let{provider->change.sequence?.withMusicRelease(provider);change.player?.withMusicRelease(provider)}
                 musicFade?.let{controller->change.sequence?.withMusicFade(controller);change.player?.withMusicFade(controller)}
