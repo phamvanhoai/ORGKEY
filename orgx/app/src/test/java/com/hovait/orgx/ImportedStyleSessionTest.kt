@@ -4,6 +4,29 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun storedRhythmQueuesAtNextWindowWithoutWaitingForIntroEnd(){
+        val intro=ImportedStyleGroup(2,100,"Intro",16,false,0,4000,120)
+        val main=intro.copy(id=1,name="Main",section=32,loop=true)
+        val groups=listOf(main,intro)
+        val players=groups.associate{group->group.id to ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(
+            group.name,group.id,100,group.section,120,group.loop,0,4000,false,
+            if(group.id==2)listOf(ReferenceDrumEvent(201,0,1,0,100,0)) else emptyList())),
+            {1000},{_,_,_->0.0},1000)}
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",groups),players,1000)
+        try{
+            session.request(2,true);repeat(500){session.next(120)}
+            assertEquals(2,session.currentId);assertEquals(1,session.pendingId)
+            repeat(501){session.next(120)}
+            assertEquals(1,session.currentId);assertFalse(session.finished)
+        }finally{session.close()}
+    }
+    @Test fun storedRhythmWithMissingTargetStopsAndClearsQueuedSections(){
+        val group=ImportedStyleGroup(1,100,"Main",32,true,0,4000,120)
+        val player=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("Main",1,100,32,120,true,0,4000,false,
+            listOf(ReferenceDrumEvent(201,0,999,0,100,0)))),{1000},{_,_,_->0.0},1000)
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",listOf(group)),mapOf(1 to player),1000)
+        try{repeat(101){session.next(120)};assertTrue(session.finished);assertNull(session.pendingId)}finally{session.close()}
+    }
     @Test fun storedMuteCommandsWaitForRhythmWindowAndKeepChordAndDrumsIndependent(){
         val group=ImportedStyleGroup(1,100,"Main",32,true,0,4000,120)
         val controls=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("Controls",1,100,32,120,true,0,4000,false,listOf(

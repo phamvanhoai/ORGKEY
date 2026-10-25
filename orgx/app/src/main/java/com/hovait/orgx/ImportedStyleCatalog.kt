@@ -14,7 +14,7 @@ object ImportedStyleCatalog {
         val queue=ArrayDeque(roots)
         val linked=ArrayList<ImportedStyleGroup>()
         val commands=index.tracks.groupBy{it.group}.mapValues{(_,tracks)->tracks.flatMap{track->
-            track.events.filter{it.type==203 || it.type==204}.map{it.note}
+            track.events.filter{it.type==201 || it.type==203 || it.type==204}.map{it.note}
         }}
         while(queue.isNotEmpty()){
             val group=queue.removeFirst()

@@ -34,6 +34,10 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         queue.addLast(Request(0,false,if(chord)1 else 2))
     }
     init{players.values.forEach{it.withMuteCommand(storedMuteCommand)}}
+    init{players.values.forEach{it.withRhythmCommand{id->
+        if(id in players)request(id)
+        else {queue.clear();jumpId=null;finished=true;player.releaseAll()}
+    }}}
     val temporaryLoop get()=synchronized(this){currentId in temporaryLoops}
     private var lastLoop:Int?=main.id.takeIf{main.loop}
     private var startedAt=0L

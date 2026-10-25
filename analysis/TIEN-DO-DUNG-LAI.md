@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Rhythm201 điều khiển hàng đợi style chính, 26-10-2026
+
+- Đối chiếu Track.Play201: CloseAll(true) trên track gửi lệnh; group hợp lệ đi GroupPlayAdd, group null xóa queue và đóng group hiện tại. Player nay dispatch Rhythm command, bộ tương thích giữ event và control-only track.
+- StyleSession dùng queue request theo cửa sổ nhịp, không đợi section hoàn tất như Jump203. Target ngoài player dừng session, xóa queue/Jump và release group. Catalog nạp trước target201 cùng target203/204, không thêm nút console ngoài style.
+- assembleDebug và ImportedStyleSessionTest, ImportedSectionFallbackTest, ImportedTempLoopTest đạt. Kiểm tra Intro dài4000 có201 ở100 vẫn chờ window1000 rồi chuyển Main, cùng target999 dừng session.
+- Giới hạn: mới hỗ trợ owner style chính; Touch chọn slot GroupPlay khác, group Section0 chạy song song và lệnh201 từ PAD chưa dựng đầy đủ. Target tồn tại nhưng bị loại vì không hỗ trợ hiện cũng dừng thay vì phân biệt null; cần cải thiện chẩn đoán. Không sửa SET hay tạo file test/log mới.
 ## Timeline SET thực thi mute hợp âm/trống 205/206, 26-10-2026
 
 - Track.Play205/206 gọi GroupPlayAddChordMute/DrumMute, thêm marker vào queue GroupPlay0. ORGX nay dispatch hai lệnh vào hàng đợi style, toggle ở cửa sổ rhythm thay vì mute ngay lúc nhận event. Command từ dữ liệu không dùng giới hạn queue của nút Rhythm.
