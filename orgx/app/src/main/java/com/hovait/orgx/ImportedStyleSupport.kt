@@ -77,6 +77,19 @@ object ImportedStyleSupport {
             return "Track '${it.name}' references missing instrument ${it.instrument}"
         }
         tracks.forEach{track->track.events.forEach{event->
+            if(event.type==66){
+                if(track.type==0)return@forEach // Original Track.Play ignores FX automation for Type 0.
+                if(event.note!=0)return "Track '${track.name}': FX parameter ${event.note} is not supported yet"
+                if(instrument(index,track)?.modes?.isNotEmpty()==true)return "Track '${track.name}': mode FX automation is not supported yet"
+                val module=track.settings.modules.getOrNull(event.id)
+                if(module!=null && event.touch!=0){
+                    val enabled=track.settings.copy(fxEnabled=true,modules=listOf(module.copy(enabled=true)))
+                    runCatching{ImportedFxChain(enabled).close()}.exceptionOrNull()?.let{
+                        return "Track '${track.name}': cannot enable FX ${module.type}: ${it.message}"
+                    }
+                }
+                return@forEach
+            }
             if(event.type !in listOf(1,2,3,4,11,12,13,14,44,45,64,201,202,203,204,205,206,211,212,221,222,231,232,241,242,243,244,245,246) && !(event.type==5 && event.note in -1..127 && event.touch in 0..127) && !(event.type==41 && event.note in -127..127) && !(event.type==42 && event.note in -10..10) && !(event.type==43 && event.note in -48000..48000) && !(event.type in listOf(46,56) && event.note in -127..127) && !(event.type==51 && event.note>=0) && !(event.type==53 && event.note>0) && !(event.type==52 && event.note in -100..100) && !ImportedExpressionAutomation.supported(event)){
                 val detail=if(event.type==65)" (Effect slot ${event.id}, parameter ${event.note})" else ""
                 return "Track '${track.name}': unsupported event ${event.type}$detail at time ${event.time}"

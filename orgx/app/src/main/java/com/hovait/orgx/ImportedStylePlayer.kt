@@ -78,7 +78,7 @@ object ImportedStylePlayer {
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0
             val settings=ImportedStyleSupport.channelSettings(index,track)
             val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
-                group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,track.events,bounded=group.limit)
+                group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,track.events.filterNot{it.type==66 && track.type==0},bounded=group.limit)
             lateinit var player:ReferenceRhythmPlayer
             val resolveTarget:()->Int?={if(follow && melodic)player.storedChord(checkNotNull(transposer)) ?: targetChord?.invoke() else null}
             val resolveOctave:()->Int={player.storedChordOctave(chordOctaveMove())}

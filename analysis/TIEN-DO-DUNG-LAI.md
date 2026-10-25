@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66: bật/tắt module FX channel, 26-10-2026
+
+- Đối chiếu Track.Play66: Type0 bỏ qua, ID là index module, Key0 đổi Enable theo Touch!=0 rồi z01.c; Key>0 gọi setter riêng theo loại module. Dựng nhánh Key0 cho track không dùng mode; không tự suy đoán payload tham số.
+- Player cập nhật module trong currentChannel, dựng lại chain và giữ trạng thái mới cho các lần merge STS sau. Loader lọc66 của track Type0 theo APK, từ chối mode FX automation và parameter chưa hỗ trợ với lý do rõ; module được yêu cầu bật được kiểm tra trước trên cấu hình ban đầu.
+- assembleDebug, ReferenceRhythmPlayerTest và ImportedSectionFallbackTest đạt. Kiểm tra module20 ban đầu tắt, event66 bật tăng output từ1 lên1.5, rồi tắt về1 trong khi note tiếp tục chạy.
+- Giới hạn: chưa setter tham số Key>0, chưa ModeSet sau FX edit; tái tạo whole-chain có thể reset module khác khác native. Module đổi bởi STS trước event66 chưa được kiểm tra toàn bộ đường trạng thái. Không sửa SET hoặc tạo file test/log mới.
 ## Hiển thị lỗi điều khiển style/PAD thay vì giữ nội bộ, 26-10-2026
 
 - Loader giữ reason của section/linked group không chuẩn bị được, đưa vào transitionError của Rhythm/Jump thay cho thông báo chung. Không thay cơ chế hỗ trợ của group.

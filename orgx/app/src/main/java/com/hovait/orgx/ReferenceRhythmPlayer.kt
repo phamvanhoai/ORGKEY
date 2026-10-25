@@ -394,6 +394,15 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 applySts(event.note)
                 return@advance
             }
+            if(event.type==66 && event.note==0){
+                if(event.id in currentChannel.modules.indices){
+                    val modules=currentChannel.modules.toMutableList()
+                    modules[event.id]=modules[event.id].copy(enabled=event.touch!=0)
+                    val settings=currentChannel.copy(modules=modules)
+                    fx?.close();fx=ImportedFxChain(settings,sampleRateForEnvelope);currentChannel=settings
+                }
+                return@advance
+            }
             if(event.type==211 || event.type==212){
                 if(event.type==212) fadeController.cancel()
                 else fadeController.start(event.note,event.touch,sampleRateForEnvelope,playing=true)
