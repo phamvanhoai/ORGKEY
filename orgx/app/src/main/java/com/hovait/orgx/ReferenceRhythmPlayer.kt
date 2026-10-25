@@ -377,8 +377,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==232){musicState.octaveMove(event.note);return@advance}
             if(event.type in 241..246){musicState.fxEvent(event.type);return@advance}
             if(event.type==202){
-                // FX enable/disable is a Music-bus command. Keep transport
-                // semantics; the owning group FX chain remains active.
+                musicState.chord(event.note,event.tune)
                 return@advance
             }
             if(event.type==5){

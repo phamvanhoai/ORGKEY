@@ -8,6 +8,11 @@ class ImportedMusicState(initial:ImportedChannelSettings=ImportedChannelSettings
     @Volatile var rhythmFxEnabled:Boolean?=null;private set
     private var waveSource:ImportedChannelSettings?=null
     private var rhythmSource:ImportedChannelSettings?=null
+    @Volatile var chordMask:Int?=null;private set
+    @Volatile var chordOctave:Int=0;private set
+    fun chord(mask:Int,octave:Int){chordOctave=octave;chordMask=mask and 4095}
+    fun clearChord(){chordMask=null;chordOctave=0}
+    fun chordIndex(library:List<PlayableChord>):Int?=chordMask?.let{ReferenceChordMatcher.find(it,library) ?: -1}
     fun configureBuses(wave:ImportedChannelSettings,rhythm:ImportedChannelSettings){
         if(waveSource!==wave){waveSource=wave;waveFxEnabled=null}
         if(rhythmSource!==rhythm){rhythmSource=rhythm;rhythmFxEnabled=null}

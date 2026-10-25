@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chord event 202 cập nhật hòa âm dùng chung, 26-10-2026
+
+- Đối chiếu Track.Play case Chord và Tracks.GroupPlayChord: Key là mask 12 nốt, Tune là octave move; GroupPlayChord dùng ChordFind để tìm số hợp âm. Bỏ nhánh no-op trước đây; cho event qua kiểm tra tương thích và giữ cả track chỉ chứa lệnh hợp âm.
+- ImportedMusicState lưu mask/octave; AudioEngine.selectedSetChord nhận dạng qua ReferenceChordMatcher và bảng referenceChords. Các style/PAD đã bật Follow Chord dùng target chung này, bao gồm mở lại nốt đang giữ qua cơ chế refreshChord hiện hành. Mask không nhận dạng trả -1. Đổi SET, chọn hợp âm trên UI hoặc nhấn phím vùng hợp âm xóa override từ event.
+- Build debug và 93 kiểm thử thuộc ImportedSectionFallbackTest, ImportedStyleSessionTest, ReferenceChordMatcherTest, ReferenceRhythmPlayerTest đạt. Kiểm tra C sang Dm bằng mask, octave +/-1, mask rỗng và trả quyền điều khiển về input. Không sửa SET hoặc tạo file test/log mới.
+- Giới hạn: chưa dựng nhánh mở hợp âm trực tiếp khi không có group đang chạy trong Track.Play(202); vẫn cần bật Follow Chord để style/PAD chuyển theo target này. Chưa đo đối chiếu audio trên thiết bị, chưa bảo đảm thứ tự cập nhật cùng mẫu giữa mọi track/group như APK gốc.
 ## Bật/tắt FX bus theo event 241–246, 26-10-2026
 
 - Đối chiếu Track.Play và z01.c: 241/242 tắt/bật Music, 243/244 Wave (APK gốc gồm cả WaveMic), 245/246 Rhythm. Trước đây player bỏ qua tất cả sáu lệnh và bộ tương thích vẫn từ chối chúng.

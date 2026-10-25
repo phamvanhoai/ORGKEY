@@ -65,7 +65,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var activeSetFile:File?=null
     @Volatile var activeSetIndex:ImportedSetIndex?=null
         set(value){
-            if(field!==value){clearStsParts();setChordInputMode(0);keyboardChordInput.reset();importedPads.stopAll()}
+            if(field!==value){clearStsParts();setChordInputMode(0);keyboardChordInput.reset();musicState.clearChord();importedPads.stopAll()}
             field=value
         }
     @Volatile var activeSetSounds:List<ImportedInstrument> = emptyList()
@@ -74,12 +74,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var styleAutoFill=false
     @Volatile var importedRhythmName:String?=null
     @Volatile var chordIndex = 0
+        set(value){musicState.clearChord();field=value}
     @Volatile var chordMemory=true
     @Volatile var chordControl=0
         set(value){require(value in 0..4);field=value}
     @Volatile var chordQuality=2
         set(value){require(value in 0..2);field=value}
-    fun selectedSetChordOctave():Int=if(leftChordEnabled && !autoChord)keyboardChordInput.octaveMove else 0
+    fun selectedSetChordOctave():Int=if(musicState.chordMask!=null)musicState.chordOctave else if(leftChordEnabled && !autoChord)keyboardChordInput.octaveMove else 0
     @Volatile private var autoChordMap=AutoChordProgression(emptyList())
     @Volatile var referenceChords: List<PlayableChord> = emptyList()
         set(value){autoChordMap=AutoChordProgression(value);field=value}
@@ -204,6 +205,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     fun keyboardNoteOn(note:Int,velocity:Float,splitNote:Int){
         if(leftChordEnabled && note<splitNote){
             if(voices.containsKey(MidiVoiceKey.key(note,0,false)))noteOff(note)
+            musicState.clearChord()
             keyboardChordInput.press(note,referenceChords)
             updateChordSynchro()
         } else noteOn(note,velocity)
@@ -257,7 +259,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(StsMidiRouting.usesParts(stsPartsEnabled,channel,playback))stsParts.pitchBend(semitones,channel,value.coerceIn(0,16383)-8192)
         voices.filterKeys{MidiVoiceKey.isChannel(it,channel,playback)}.values.forEach{if(it.imported!=null)it.sampledPlayback?.pitchBend(semitones,value.coerceIn(0,16383)-8192)}
     }
-    fun selectedSetChord():Int? = if(referenceChords.isEmpty())null else if(autoChord)
+    fun selectedSetChord():Int? = musicState.chordIndex(referenceChords) ?: if(referenceChords.isEmpty())null else if(autoChord)
         autoChordMap.chord(progression,harmonyClock.time) else if(leftChordEnabled && !chordMemory)
         keyboardChordInput.pressedChord ?: -1 else (detectedKeyboardChord ?: chordIndex).coerceIn(referenceChords.indices)
     @Volatile var autoChord = false

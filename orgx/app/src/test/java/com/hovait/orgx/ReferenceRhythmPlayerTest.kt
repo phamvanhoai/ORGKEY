@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedChordUsesPitchMaskAndReplacesTheLiveHarmony(){
+        val library=listOf(PlayableChord("C",listOf(48,52,55)),PlayableChord("Dm",listOf(50,53,57)))
+        val state=ImportedMusicState()
+        val c=(1 shl 0) or (1 shl 4) or (1 shl 7)
+        val dm=(1 shl 2) or (1 shl 5) or (1 shl 9)
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(202,0,c,0,0,0,tune=1),ReferenceDrumEvent(202,0,dm,0,10,0,tune=-1)))),
+            {1000},{_,_,_->0.0},1000).withMusicState(state)
+        try{
+            player.next(0,120);assertEquals(0,state.chordIndex(library));assertEquals(1,state.chordOctave)
+            repeat(10){player.next(0,120)}
+            assertEquals(1,state.chordIndex(library));assertEquals(-1,state.chordOctave)
+            state.chord(0,0);assertEquals(-1,state.chordIndex(library))
+            state.clearChord();assertNull(state.chordIndex(library))
+        }finally{player.close()}
+    }
     @Test fun stsReleaseIsCapturedByNewNotesWithoutChangingHeldNotes(){
         val source=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
