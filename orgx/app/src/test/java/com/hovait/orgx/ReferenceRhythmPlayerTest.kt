@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun fixedModeFxEditReappliesModeVolumeInsteadOfKeepingTrackAutomation(){
+        val module=ImportedFxModule(20,false,false,listOf(16,0,0,0,1,0,0,0))
+        val mode=snapshot(ImportedChannelSettings(volume=40,fxEnabled=true,modules=listOf(module)))
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000),
+            ReferenceDrumEvent(44,0,80,0,5,0),ReferenceDrumEvent(66,0,0,1,10,0)))),
+            {10000},{_,_,_->1.0},1000,initialChannel=ImportedChannelSettings(),fixedMode=mode)
+        try{
+            player.next(0,120);assertEquals(1.0,player.left,0.0)
+            repeat(5){player.next(0,120)};assertEquals(.8,player.left,0.0)
+            repeat(5){player.next(0,120)};assertEquals(.6,player.left,1e-8)
+        }finally{player.close()}
+    }
     @Test fun storedBassParameterChangesOutputWithoutASeparateEnableEvent(){
         val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(
             ImportedFxModule(20,true,false,listOf(0,0,0,0,1,0,0,0))))

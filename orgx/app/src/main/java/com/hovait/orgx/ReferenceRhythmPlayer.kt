@@ -10,7 +10,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val expressionAllowed:Boolean=true,private val keyConnectionMethod:Int=0,private val pedalMode:Int=-1,
     private val storedTranspose:Int=initialChannel?.transpose ?: 0,private val storedOctave:Int=initialChannel?.octave ?: 0,
     private var fadeController:ReferenceFadeController=ReferenceFadeController(),
-    private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges) {
+    private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges,
+    private val fixedMode:ImportedSts?=null) {
+    private var liveMode=fixedMode
     init{require(keyConnectionMethod in 0..1);require(stsChanges.size==21)}
     private var externalFade = false
     internal val storedEndTime:Long get()=maxOf(children.maxOfOrNull{it.storedEndTime} ?: 0L,
@@ -145,12 +147,12 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         }
         currentChannel=settings
     }
-    private fun applySts(slot:Int){
-        val snapshot=stsSnapshotResolver(slot) ?: return
+    private fun applySts(slot:Int,supplied:ImportedSts?=null,mask:List<Boolean> = stsChanges){
+        val snapshot=supplied ?: stsSnapshotResolver(slot) ?: return
         val live=currentChannel.copy(volume=channelVolume,pan=channelPan,
             transpose=(initialChannel?.transpose ?: storedTranspose)+transposeDelta,
             octave=(initialChannel?.octave ?: storedOctave)+octaveDelta)
-        val settings=ImportedStsChanges.channel(live,snapshot.settings,stsChanges)
+        val settings=ImportedStsChanges.channel(live,snapshot.settings,mask)
         if(settings.fxEnabled!=currentChannel.fxEnabled || settings.modules!=currentChannel.modules){
             fx?.close();fx=ImportedFxChain(settings,sampleRateForEnvelope)
         }
@@ -158,7 +160,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         channelVolume=settings.volume;channelPan=settings.pan
         transposeDelta=settings.transpose-(initialChannel?.transpose ?: storedTranspose)
         octaveDelta=settings.octave-(initialChannel?.octave ?: storedOctave)
-        if(stsChanges[19]){
+        if(mask[19]){
             val effects=ImportedExpressionAutomation.applyLegacyKeyConnectionMethod(snapshot.effects,snapshot.sourceVersion ?: "1.4.6",keyConnectionMethod)
             fun effect(slot:Int)=effects.firstOrNull{it.slot==slot} ?: ImportedExpressionEffect(slot,false,0,false,false,0,0,0,0,emptyList())
             keyRepeatEffect=effect(0);keyConnectionEffect=effect(1);pitchShakeEffect=effect(2);volumeShake=effect(3)
@@ -272,7 +274,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     private fun discardVoices(){voices.values.forEach{it.playback?.cut()};voices.clear()}
     fun close(){discardVoices();left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0;fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
-    fun reset(){resetStsChannel();resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;discardVoices();eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    fun reset(){liveMode=fixedMode;resetStsChannel();resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;discardVoices();eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     /** Track.Start rewinds events, closes old notes in release, and retains channel controls. */
     fun restartAt(referenceTime:Long){
         require(referenceTime>=0)
@@ -395,6 +397,18 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 return@advance
             }
             if(event.type==66){
+                liveMode?.let{mode->
+                    val module=mode.settings.modules.getOrNull(event.id)
+                    if(module!=null && ImportedTrackFxAutomation.supported(module,event)){
+                        val updated=mode.copy(settings=mode.settings.copy(modules=mode.settings.modules.toMutableList().also{
+                            it[event.id]=ImportedTrackFxAutomation.apply(module,event)
+                        }))
+                        liveMode=updated
+                        applySts(0,updated,List(21){it in 13..19})
+                        fx?.reset()
+                    }
+                    return@advance
+                }
                 if(event.id in currentChannel.modules.indices){
                     val modules=currentChannel.modules.toMutableList()
                     val module=modules[event.id]

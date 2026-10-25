@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 qua một mode cố định không script, 26-10-2026
+
+- Đối chiếu Track.Play66 sửa FX mode rồi Channels.ModeSet sao chép cấu hình và expression về channel. Loader nhận trường hợp instrument có một mode script trống; nhiều mode/script vẫn báo dynamic mode FX chưa hỗ trợ.
+- Player giữ snapshot mode riêng, sửa module trong snapshot rồi áp dụng volume/pan/transpose/octave/release/modules/expression về channel với mask riêng, không phụ thuộc tùy chọn STS. Reset trả snapshot mode ban đầu. Bộ kiểm tra event lấy module từ mode thay vì track settings.
+- assembleDebug và 102 kiểm thử ReferenceRhythmPlayerTest, ImportedSectionFallbackTest, ImportedFxChainTest đạt. Kiểm tra track volume automation80 bị trả về mode40 khi bật Bass module, output0.6 theo gain module1.5.
+- Giới hạn: chưa mode động/ModeSet event61, tune mode vẫn latched trong sample loader, chưa đồng bộ thay đổi mode giữa nhiều track dùng chung instrument như APK. FX vẫn reset chain. Không sửa SET hoặc tạo file test/log mới; chưa đối chiếu audio thực.
 ## TrackFXParam66 cho Band Move, 26-10-2026
 
 - Đối chiếu sofeh.audio.c: logical params from,to,boolean,delay,speed có min-100/-100/0/1/1 và max100/100/0/5000/2000. Serialize khác thứ tự: from+100,to+100,delay,speed,boolean.

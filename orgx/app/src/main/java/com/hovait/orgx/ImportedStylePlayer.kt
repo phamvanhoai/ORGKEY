@@ -77,6 +77,10 @@ object ImportedStylePlayer {
             val sound=sounds.getValue(key(track))
             val melodic=checkNotNull(ImportedStyleSupport.instrument(index,track)).type==0
             val settings=ImportedStyleSupport.channelSettings(index,track)
+            val mode=ImportedStyleSupport.instrument(index,track)?.modes?.singleOrNull()?.takeIf{it.script.isBlank()}
+            val fixedMode=mode?.let{ImportedSts(it.name,false,0,track.instrument,track.system,track.pedal,0,0,0,0,emptyList(),
+                ImportedMusicParameters.pitch(it.settings,index.musicSettings,index.rhythmSettings.octave),effects=it.effects,
+                sourceVersion=ImportedStyleSupport.instrument(index,track)?.sourceVersion ?: index.sourceVersion)}
             val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
                 group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,track.events.filterNot{it.type==66 && track.type==0},bounded=group.limit)
             lateinit var player:ReferenceRhythmPlayer
@@ -100,7 +104,7 @@ object ImportedStylePlayer {
                 storedTranspose=track.settings.transpose,storedOctave=track.settings.octave,
                 stsSnapshotResolver={slot->track.sts.firstOrNull{it.slot==slot}?.let{sts->
                     sts.copy(settings=ImportedMusicParameters.pitch(sts.settings,index.musicSettings,index.rhythmSettings.octave))
-                }},stsChanges=stsChanges)
+                }},stsChanges=stsChanges,fixedMode=fixedMode)
                 .withChordFollowing(control=chordControl,octaveMove=resolveOctave,target=if(follow && melodic)resolveTarget else null)
                 .withTrackGate{muted->quality.allows(track.instrument,melodic,muted)}
             player
