@@ -16,6 +16,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     internal val storedEndTime:Long get()=maxOf(children.maxOfOrNull{it.storedEndTime} ?: 0L,
         tracks.maxOfOrNull{it.events.lastOrNull()?.let{event->event.time+event.length-1} ?: 0L} ?: 0L).coerceAtLeast(0)
     private var tempLoopCommand:(Int)->Unit={}
+    private var jumpCommand:(Int)->Unit={}
+    fun withJumpCommand(command:(Int)->Unit):ReferenceRhythmPlayer=also{
+        jumpCommand=command;children.forEach{it.withJumpCommand(command)}
+    }
     fun withTempLoopCommand(command:(Int)->Unit):ReferenceRhythmPlayer=also{
         tempLoopCommand=command;children.forEach{it.withTempLoopCommand(command)}
     }
@@ -391,6 +395,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 return@advance
             }
             if(event.type==204){tempLoopCommand(event.note);return@advance}
+            if(event.type==203){discardVoices();jumpCommand(event.note);return@advance}
             if(event.type==5){
                 openedKeyIds.getOrNull(event.note+1)?.let{selected->voices.values.filter{it.eventId==selected && it.release<0}
                     .forEach{it.playback?.aftertouch(event.touch/127f)}}

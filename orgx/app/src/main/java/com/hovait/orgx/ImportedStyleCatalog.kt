@@ -13,11 +13,17 @@ object ImportedStyleCatalog {
         val seen=roots.mapTo(HashSet()){it.id}
         val queue=ArrayDeque(roots)
         val linked=ArrayList<ImportedStyleGroup>()
+        val commands=index.tracks.groupBy{it.group}.mapValues{(_,tracks)->tracks.flatMap{track->
+            track.events.filter{it.type==203 || it.type==204}.map{it.note}
+        }}
         while(queue.isNotEmpty()){
             val group=queue.removeFirst()
-            if(group.loop || group.jumpGroup<=0 || !seen.add(group.jumpGroup))continue
-            val next=byId[group.jumpGroup] ?: continue
-            linked.add(next);queue.addLast(next)
+            val targets=commands[group.id].orEmpty()+listOfNotNull(group.jumpGroup.takeIf{!group.loop && it>0})
+            for(target in targets){
+                val next=byId[target] ?: continue
+                if(!seen.add(target))continue
+                linked.add(next);queue.addLast(next)
+            }
         }
         return linked
     }

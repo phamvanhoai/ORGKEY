@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## RhythmJump 203 thực thi target sau section và nạp trước group liên quan, 26-10-2026
+
+- Đối chiếu Track.Play203 và Tracks.GroupPlayJump/Next: cắt channel của track gửi lệnh, đặt Jump chờ section không Loop/tempLoop kết thúc. Không chuyển ngay tại thời điểm event.
+- ReferenceRhythmPlayer gửi command đến session/sequence. StyleSession ghi jumpId, target không có trong player sẽ xóa Jump như Group(null); PAD giữ override Jump và awaitingContinuation để không bị dọn trước lúc chuyển. Target được bỏ cờ temporary loop.
+- Catalog theo cả target event203/204 trong track của group, không chỉ metadata JumpGroup; seen-set ngăn chu trình. Loader chuẩn bị PCM trước khi chạy, target ngoài style không xuất hiện thêm như nút trên console.
+- assembleDebug và ImportedSectionFallbackTest, ImportedTempLoopTest, ImportedStyleSessionTest đạt. Integration loadStyle có Intro chứa203 tới Ending ngoài style: target được nạp, sau nửa section vẫn Intro, kết thúc mới chuyển target.
+- Giới hạn: mới nối Jump cho luồng style/PAD hiện hành, chưa hỗ trợ nhiều GroupPlay slot của event Touch; Rhythm201, mute205/206 trong timeline chưa dựng. Player standalone không có owner chưa đổi group. Không sửa SET hoặc tạo file test/log mới.
 ## EndTime gốc cho lệnh lặp tạm của group không giới hạn, 26-10-2026
 
 - Đối chiếu Track.EndTime và Tracks.EndTime: lấy Time + Length - 1 của event cuối từng track, rồi lấy max trong group, giá trị tối thiểu 0; không lấy nốt dài nhất và không loại track mute.

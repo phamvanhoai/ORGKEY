@@ -5,6 +5,26 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun storedJumpLoadsAnExternalGroupAndWaitsForTheOneShotToFinish(){
+        val file=File.createTempFile("orgx-event-jump",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val main=part(1,100,32)
+            val intro=part(2,100,16).copy(jumpGroup=1)
+            val target=part(3,200,80).copy(jumpGroup=0)
+            val region=ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))
+            val instrument=ImportedInstrument("Kit",100,0,1,listOf(ImportedSound("Sample",listOf(0,0,100,10,0,0),listOf(region))))
+            val track=ImportedTrack("Intro",2,0,false,listOf(ReferenceDrumEvent(203,0,3,0,100,0)))
+            val index=ImportedSetIndex(listOf(instrument),listOf(main,intro,target),listOf(track))
+            val session=ImportedStylePlayer.loadStyle(file,index,ImportedStyleDefinition(100,"Style",listOf(main,intro)))
+            try{
+                assertTrue(session.available(3));assertFalse(session.style.sections.any{it.id==3})
+                session.request(2,true)
+                repeat(24000){session.next(120)};assertEquals(2,session.currentId)
+                repeat(24001){session.next(120)};assertEquals(3,session.currentId)
+            }finally{session.close()}
+        }finally{file.delete()}
+    }
     @Test fun legacyChordMetadataComesFromOwningGroupUsingMusicContainerVersion(){
         val group=part(1,100,32).copy(chordBase=5,chordType=1)
         val track=ImportedTrack("Notes",1,0,false,emptyList(),chordRoot=0,chordType=0,sourceVersion="1.4.8")

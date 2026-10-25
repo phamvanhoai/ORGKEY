@@ -7,6 +7,10 @@ import java.util.concurrent.atomic.AtomicLongArray
 class ImportedPadSequence(private val first:Int,private val groups:Map<Int,ImportedStyleGroup>,
     private val players:Map<Int,ReferenceRhythmPlayer>,private val storedEndTimes:Map<Int,Long> = emptyMap()) {
     private val temporaryLoops=HashSet<Int>()
+    private var jumpId:Int?=null
+    init{players.values.forEach{it.withJumpCommand{id->
+        jumpId=id.takeIf{it in players};jumpId?.let{temporaryLoops.remove(it)}
+    }}}
     init{players.values.forEach{it.withTempLoopCommand{id->
         val group=groups[id]
         if(group!=null && !group.loop && (group.limit || (storedEndTimes[id] ?: players[id]?.storedEndTime ?: 0)>10))temporaryLoops.add(id)
@@ -22,6 +26,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     val group get()=groups.getValue(currentId)
     fun start(time:Long,scale:Int,method:Int){
         temporaryLoops.clear()
+        jumpId=null
         currentId=first
         val newScale=ReferenceSectionTiming.scale(group,method)
         scaleChange=newScale.takeIf{it>0}
@@ -38,8 +43,9 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
             startedAt=time-offset
             player.restartAt(offset)
         }
-        else if(complete && !group.loop && currentId !in temporaryLoops && group.jumpGroup>0 && ReferenceSectionTiming.inWindow(time,scale,tempo)){
-            val next=group.jumpGroup
+        else if(complete && !group.loop && currentId !in temporaryLoops && (jumpId ?: group.jumpGroup)>0 && ReferenceSectionTiming.inWindow(time,scale,tempo)){
+            val next=jumpId ?: group.jumpGroup
+            jumpId=null
             if(next in players){
                 val previous=player
                 currentId=next
@@ -54,7 +60,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
         player.next(0,tempo)
         return player
     }
-    val awaitingContinuation get()=player.finished && (group.loop || currentId in temporaryLoops || (group.jumpGroup>0 && group.jumpGroup in players))
+    val awaitingContinuation get()=player.finished && (group.loop || currentId in temporaryLoops || jumpId!=null || (group.jumpGroup>0 && group.jumpGroup in players))
     fun close(){players.values.forEach{it.close()}}
 }
 

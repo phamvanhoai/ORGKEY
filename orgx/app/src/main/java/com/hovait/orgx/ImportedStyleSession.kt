@@ -25,6 +25,10 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         val group=groups[id]
         if(group!=null && !group.loop && (group.limit || (storedEndTimes[id] ?: players[id]?.storedEndTime ?: 0)>10))temporaryLoops.add(id)
     }}}
+    init{players.values.forEach{it.withJumpCommand{id->
+        jumpId=id.takeIf{it in players}
+        jumpId?.let{temporaryLoops.remove(it)}
+    }}}
     val temporaryLoop get()=synchronized(this){currentId in temporaryLoops}
     private var lastLoop:Int?=main.id.takeIf{main.loop}
     private var startedAt=0L
