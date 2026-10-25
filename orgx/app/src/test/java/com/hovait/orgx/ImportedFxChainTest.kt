@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun bandMoveAutomationUsesLogicalParameterOrderAndPackedStorage(){
+        fun bytes(values:List<Int>)=values.flatMap{value->List(4){(value ushr (8*it)) and 255}}
+        val original=ImportedFxModule(2,true,false,bytes(listOf(0,200,100,250))+1)
+        val expected=listOf(25,175,0,2501,1001)
+        for(parameter in 1..5){
+            val level=when(parameter){1->-75;2->75;else->0}
+            val updated=ImportedTrackFxAutomation.apply(original,ReferenceDrumEvent(66,0,parameter,level,0,0))
+            val offset=when(parameter){1->0;2->4;3->16;4->8;else->12}
+            val value=if(parameter==3)updated.payload[offset] else (0..3).fold(0){sum,byte->sum or (updated.payload[offset+byte] shl (byte*8))}
+            assertEquals(expected[parameter-1],value)
+            assertEquals(17,updated.payload.size)
+            val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(updated)))
+            try{repeat(100){fx.process(.1,0.0);assertTrue(fx.left.isFinite());assertTrue(fx.right.isFinite())}}finally{fx.close()}
+        }
+    }
     @Test fun equalizerAutomationStoresBiasedBandsAndReverbPreservesReservedByte(){
         val eq=ImportedFxModule(7,true,false,List(8){listOf(100,0,0,0)}.flatten())
         for(band in 1..8){

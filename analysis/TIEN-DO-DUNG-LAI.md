@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 cho Band Move, 26-10-2026
+
+- Đối chiếu sofeh.audio.c: logical params from,to,boolean,delay,speed có min-100/-100/0/1/1 và max100/100/0/5000/2000. Serialize khác thứ tự: from+100,to+100,delay,speed,boolean.
+- Helper nhận payload17 byte type2, ánh xạ đúng min/max và offset; Key3 ghi byte16, Key4/5 ghi int8/12, Key1/2 cộng bias100. Theo setter gốc boolean min/max0 nên lệnh normalized đặt vềfalse.
+- assembleDebug, ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Kiểm tra tất cả5 điều khiển, kích thước17 byte và output finite khi chạy cấu hình cập nhật.
+- Giới hạn: mode FX, cập nhật riêng stage và tính liên tục native chưa hoàn thiện; whole-chain vẫn reset khi đổi Band Move. Không sửa SET hoặc tạo file test/log mới.
 ## TrackFXParam66 cho EQ từng dải và Reverb, 26-10-2026
 
 - Đối chiếu sofeh.audio.d và w01: EQ8 dải ánh xạ-100..100 nhưng serialize int+100; Reverb7 tham số có min1/max100, lưu mỗi tham số một byte trong payload8 byte.
