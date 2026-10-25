@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Style dùng hợp âm đã lưu mà không cần callback Follow Chord, 26-10-2026
+
+- Bổ sung ReferenceChordTransposer.find để nhận mask bằng cùng scale/table dùng chuyển nốt. Loader tự bật mapping hợp âm lưu khi có event 202, accompaniment được nạp và có bảng transposer, kể cả khi targetChord callback không được truyền.
+- Các track đọc mask/octave từ Music state hiện tại, ưu tiên hợp âm lưu rồi mới tới callback input. Dùng chung trạng thái giữa mọi section và nhóm JumpGroup đã nạp; AudioEngine vẫn có thể gắn trạng thái Music chung của ứng dụng.
+- Build debug và kiểm thử ReferenceChordTransposerTest, ImportedSectionFallbackTest, ReferenceRhythmPlayerTest, ImportedStyleSessionTest đạt. Integration loadStyle chứa track điều khiển mask D và track nốt C, xác nhận chuyển sang mẫu D mà không có callback Follow Chord.
+- Nhánh phát hợp âm trực tiếp khi không có group chạy vẫn chưa dựng: Track.Play đoạn này có biến boolean/int decompile không rõ, cần đối chiếu bytecode trước khi chọn cách mở tiếng. Không coi phần đó đã hoàn thành. Cần bảng transposer và nạp accompaniment; chế độ chỉ trống không tự thêm tiếng đệm. Không sửa SET hoặc tạo file test/log mới.
 ## Chord event 202 cập nhật hòa âm dùng chung, 26-10-2026
 
 - Đối chiếu Track.Play case Chord và Tracks.GroupPlayChord: Key là mask 12 nốt, Tune là octave move; GroupPlayChord dùng ChordFind để tìm số hợp âm. Bỏ nhánh no-op trước đây; cho event qua kiểm tra tương thích và giữ cả track chỉ chứa lệnh hợp âm.

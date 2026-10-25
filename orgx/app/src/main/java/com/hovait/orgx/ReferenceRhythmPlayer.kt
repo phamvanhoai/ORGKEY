@@ -15,6 +15,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var externalFade = false
     private var musicState=ImportedMusicState()
     private var externalMusicState=false
+    internal fun storedChord(mapper:ReferenceChordTransposer):Int?=musicState.chordMask?.let(mapper::find)
+    internal fun storedChordOctave(fallback:Int)=if(musicState.chordMask!=null)musicState.chordOctave else fallback
     fun withMusicState(state:ImportedMusicState):ReferenceRhythmPlayer=also{
         if(musicState===state && externalMusicState)return@also
         musicState=state;externalMusicState=true;sampled?.withMusicState(state)

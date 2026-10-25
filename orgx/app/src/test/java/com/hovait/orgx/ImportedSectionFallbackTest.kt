@@ -5,6 +5,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun storedChordTransposesStyleWithoutAnExternalFollowChordCallback(){
+        val file=File.createTempFile("orgx-stored-chord",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32,0,64,0,64))
+            val main=part(1,100,32)
+            fun region(root:Int,offset:Long)=ImportedSection(root,48000,1,2,100,0,0,0,2,0,2,ImportedWave(offset,4))
+            val instrument=ImportedInstrument("Piano",100,0,0,listOf(ImportedSound("Sound",listOf(0,0,100,20,0,0),listOf(region(60,0),region(62,4)))))
+            val d=(1 shl 2) or (1 shl 6) or (1 shl 9)
+            val control=ImportedTrack("Chord",1,0,false,listOf(ReferenceDrumEvent(202,0,d,0,0,0)))
+            val notes=ImportedTrack("Notes",1,0,false,listOf(ReferenceDrumEvent(2,1,60,100,1,1000)))
+            val index=ImportedSetIndex(listOf(instrument),listOf(main),listOf(control,notes))
+            val mapper=ReferenceChordTransposer.fromTable("M 0 4 7")
+            val session=ImportedStylePlayer.loadStyle(file,index,ImportedStyleDefinition(100,"Style",listOf(main)),true,mapper)
+            try{repeat(50){session.next(120)};assertEquals(.5,session.player.left,1e-12)}finally{session.close()}
+        }finally{file.delete()}
+    }
     @Test fun musicKeyMoveOnAControlOnlyTrackChangesAnotherTracksSampleSelection(){
         val file=File.createTempFile("orgx-music-pitch",".pcm")
         try{

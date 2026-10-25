@@ -39,11 +39,12 @@ object ImportedStylePlayer {
         transposer:ReferenceChordTransposer?,targetChord:(()->Int?)?,keyConnectionMethod:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String>,
         chordControl:()->Int,chordOctaveMove:()->Int,chordQuality:()->Int,stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges):Map<Int,ReferenceRhythmPlayer> {
         require(keyConnectionMethod in 0..1)
-        val follow=targetChord!=null
+        val follow=targetChord!=null || (includeAccompaniment && transposer!=null && index.tracks.any{it.events.any{event->event.type==202}})
         require(!follow || (includeAccompaniment && transposer!=null)){"Chord mapping requires accompaniment and chord table"}
         groups.forEach{group->require(ImportedStyleSupport.reason(index,group,includeAccompaniment,follow)==null){
             ImportedStyleSupport.reason(index,group,includeAccompaniment,follow).orEmpty()
         }}
+        val storedMusic=ImportedMusicState(index.musicSettings)
         val byGroup=groups.associate{it.id to ImportedStyleSupport.playbackTracks(index,it,includeAccompaniment)}
         val tracks=byGroup.values.flatten()
         // Expression belongs to Track/Playback, not immutable decoded PCM.
@@ -71,14 +72,17 @@ object ImportedStylePlayer {
             val settings=ImportedStyleSupport.channelSettings(index,track)
             val timeline=ReferenceDrumTrack(track.name,group.id,group.parent,group.section,group.tempo,
                 group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,track.events,bounded=group.limit)
-            ReferenceRhythmPlayer(listOf(timeline),sound::durationFrames,
+            lateinit var player:ReferenceRhythmPlayer
+            val resolveTarget:()->Int?={if(follow && melodic)player.storedChord(checkNotNull(transposer)) ?: targetChord?.invoke() else null}
+            val resolveOctave:()->Int={player.storedChordOctave(chordOctaveMove())}
+            player=ReferenceRhythmPlayer(listOf(timeline),sound::durationFrames,
                 {note,age,channel->sound.sample(note,age.toLong(),channel)},48000,
                 accompaniment=melodic,
                 mapNote={note->
-                    val target=if(follow && melodic)targetChord?.invoke() else null
+                    val target=resolveTarget()
                     if(target!=null && target<0)-1 else{
                     val mapped=if(target==null)note else checkNotNull(transposer).note(note,track.chordRoot,track.chordType,target,
-                        control=chordControl(),octaveMove=chordOctaveMove())
+                        control=chordControl(),octaveMove=resolveOctave())
                     ImportedStyleSupport.shiftedNote(mapped,track.copy(settings=settings),melodic)
                     }
                 },sampled=sound,fx=ImportedFxChain(settings),initiallyMuted=track.muted,initialChannel=settings,
@@ -90,15 +94,16 @@ object ImportedStylePlayer {
                 stsSnapshotResolver={slot->track.sts.firstOrNull{it.slot==slot}?.let{sts->
                     sts.copy(settings=ImportedMusicParameters.pitch(sts.settings,index.musicSettings,index.rhythmSettings.octave))
                 }},stsChanges=stsChanges)
-                .withChordFollowing(control=chordControl,octaveMove=chordOctaveMove,target=if(follow && melodic)targetChord else null)
+                .withChordFollowing(control=chordControl,octaveMove=resolveOctave,target=if(follow && melodic)resolveTarget else null)
                 .withTrackGate{muted->quality.allows(track.instrument,melodic,muted)}
+            player
           }
           // An empty/muted section still owns its timing and JumpGroup (notably
           // silent Endings). Keep transport semantics without inventing notes.
           val player=if(parts.isEmpty())ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(group.name,group.id,group.parent,
               group.section,group.tempo,group.loop,if(group.limit)group.start.toLong() else 0L,group.end.toLong(),false,
               emptyList(),bounded=group.limit)),{0},{_,_,_->0.0},48000) else ReferenceRhythmPlayer.combine(parts)
-          group.id to player.withFrameStart(quality::beginFrame).withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings,index.musicSettings)
+          group.id to player.withFrameStart(quality::beginFrame).withGroupFx(ImportedGroupFx.resolve(index,group)).withRhythmSettings(index.rhythmSettings,index.musicSettings).withMusicState(storedMusic)
         }
     }
 }

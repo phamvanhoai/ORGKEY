@@ -2,6 +2,10 @@ package com.hovait.orgx
 
 /** Port of Track.CalcChordKey, including its source pitch-class comparison. */
 class ReferenceChordTransposer(private val scales:List<IntArray>) {
+    private val chords=scales.flatMap{scale->(0..11).map{root->
+        PlayableChord("",scale.filter{it>=0}.map{48+(it+root)%12})
+    }}
+    fun find(mask:Int):Int=ReferenceChordMatcher.find(mask,chords) ?: -1
     fun note(key:Int,sourceRoot:Int,sourceType:Int,target:Int,control:Int=0,octaveMove:Int=0):Int {
         require(key in 0..127 && sourceRoot in 0..127 && sourceType in scales.indices && target in 0 until scales.size*12)
         var result=target%12+key-sourceRoot%12
