@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Hợp âm trực tiếp qua nhiều part STS, 26-10-2026
+
+- ImportedKeyboardParts quản lý direct chord riêng theo part, dùng sound/mode, inputGain, enabled/mute, pedal và pedalMode của part. Nguồn Music release/pitch được gắn như đường bàn phím. OpenKey trực tiếp không phát Touch script.
+- AudioEngine bỏ điều kiện chặn STS parts cho nhánh direct khi Left Chord bật, Sync Start tắt và style/PAD không chạy; chọn đường sound đơn hoặc part STS để không phát trùng. Dữ liệu part vẫn thuộc audio thread qua queue.
+- Mask0, part bị bỏ, retire/reset/Cut dọn voice; khi điều kiện direct không còn, không giữ tiếng chord cũ. Không tạo danh sách lọc part tạm ở mỗi mẫu; khi mask0 và không có chord thì thoát ngay.
+- Build debug và 50 kiểm thử ImportedKeyboardMixerTest, ImportedKeyboardPartQueueTest, ImportedKeyboardPartsTest, KeyboardChordInputTest đạt. Kiểm tra mute/gain riêng hai part, xóa part cũ, mask0 và retire. Không sửa SET hoặc tạo file test/log mới.
+- Giới hạn: đây là nối fallback OpenKey đã xác minh vào kiến trúc STS hiện có; chưa đối chiếu việc chọn chord-track riêng trong APK gốc, octave/tuning đặc thù hoặc audio nhiều part trên thiết bị. Nhánh event202 ngoài transport vẫn chưa đầy đủ.
 ## Hợp âm trực tiếp khi không chạy group: đối chiếu bytecode và nối tiếng SET đơn, 26-10-2026
 
 - Disassemble Track từ classes3/classes dex của APK bằng baksmali SDK vào thư mục TEMP, chỉ đọc class Track. Bytecode GroupPlayState=0 và SyncStart/type3 xác nhận nhánh CloseAll(true), duyệt pitch 0..11, mở key=36+pitch, velocity100, gọi Channels.OpenKey trực tiếp; không phải Track._scriptTouch. Không thêm bản dump vào project.

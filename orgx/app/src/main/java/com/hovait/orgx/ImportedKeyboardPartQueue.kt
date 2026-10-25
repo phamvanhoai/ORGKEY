@@ -61,6 +61,7 @@ class ImportedKeyboardPartQueue(musicRelease:(()->Int)?=null,musicState:Imported
     }
     /** Audio thread only: cut sounding notes while retaining the selected STS parts. */
     fun cutVoices(){drain();parts.reset()}
+    fun renderDirectChord(mixer:ImportedKeyboardMixer,mask:Int){parts.renderDirectChord(mixer,mask)}
     fun renderInto(mixer:ImportedKeyboardMixer,drainCommands:Boolean=true){
         if(drainCommands)drain()
         parts.renderInto(mixer)

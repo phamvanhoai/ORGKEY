@@ -934,8 +934,9 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val styleLeft=(setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0))+importedPads.left
                 val styleRight=(setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0))+importedPads.right
                 importedKeyboardMixer.configureMusic(musicState.settings)
-                val directEnabled=!rhythmPlaying && importedPads.runningMask==0 && !synchroStart && !stsPartsEnabled && leftChordEnabled
-                val chordSource=if(directEnabled)importedInstrument?.withMusicRelease(musicReleaseSource)?.withMusicState(musicState) else null
+                val directEnabled=!rhythmPlaying && importedPads.runningMask==0 && !synchroStart && leftChordEnabled
+                val chordSource=if(directEnabled && !stsPartsEnabled)importedInstrument?.withMusicRelease(musicReleaseSource)?.withMusicState(musicState) else null
+                stsParts.renderDirectChord(importedKeyboardMixer,if(directEnabled && stsPartsEnabled)keyboardChordInput.pitchMask else 0)
                 directChord.select(chordSource,if(directEnabled)keyboardChordInput.pitchMask else 0)
                 directChord.renderInto(importedKeyboardMixer)
                 importedKeyboardMixer.finishFrame()

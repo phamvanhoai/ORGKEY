@@ -4,8 +4,12 @@ package com.hovait.orgx
 class ImportedDirectChord {
     private var sound:SampledInstrument?=null
     private var mask=0
+    private var pedal=false
+    private var pedalMode=0
+    private var gain=1.0
     private val voices=ArrayList<SampledInstrument.Playback>()
-    fun select(source:SampledInstrument?,pitches:Int){
+    fun select(source:SampledInstrument?,pitches:Int,pedal:Boolean=false,pedalMode:Int=0,gain:Double=1.0){
+        this.pedal=pedal;this.pedalMode=pedalMode;this.gain=gain
         val next=pitches and 4095
         if(source===sound && next==mask)return
         cut();sound=source;mask=next
@@ -13,12 +17,12 @@ class ImportedDirectChord {
         for(pitch in 0..11)if(next and (1 shl pitch)!=0){
             val key=source.keyboardNote(36+pitch)
             if(key in 0..127 && source.durationFrames(key)>0)
-                voices.add(source.voice(key,scriptVelocity=100,scriptAllowed=false,scriptId=pitch))
+                voices.add(source.voice(key,scriptVelocity=100,scriptAllowed=false,scriptId=pitch,initialScriptPedal=pedal))
         }
     }
     fun renderInto(mixer:ImportedKeyboardMixer){
         val source=sound ?: return
-        voices.forEach{it.next(false);mixer.add(source,it.left,it.right)}
+        voices.forEach{it.next(false,if(pedalMode==-1)pedal else pedalMode!=0,effectPedal=pedal);mixer.add(source,it.left*gain,it.right*gain)}
     }
     fun cut(){voices.forEach{it.cut()};voices.clear();sound=null;mask=0}
 }
@@ -32,6 +36,24 @@ class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val
         val playback:SampledInstrument.Playback,val velocity:Double,var pedal:Boolean,
         val pedalMode:Int,var released:Boolean=false,val repeat:ImportedKeyRepeat?=null,var retired:Boolean=false)
     private var parts:Map<Int,Part> = emptyMap()
+    private val directChords=HashMap<Int,ImportedDirectChord>()
+    /** Audio thread only; direct OpenKey keeps each part's own sound, mixer and pedal state. */
+    fun renderDirectChord(mixer:ImportedKeyboardMixer,mask:Int){
+        if(mask and 4095==0){if(directChords.isNotEmpty())cutDirectChords();return}
+        val iterator=directChords.iterator()
+        while(iterator.hasNext()){
+            val entry=iterator.next()
+            if(entry.key !in parts){entry.value.cut();iterator.remove()}
+        }
+        parts.values.forEach{part->
+            musicRelease?.let{part.sound.withMusicRelease(it)}
+            musicState?.let{part.sound.withMusicState(it)}
+            val chord=directChords.getOrPut(part.id){ImportedDirectChord()}
+            chord.select(part.sound,if(part.enabled)mask else 0,part.pedal,part.pedalMode,part.inputGain)
+            chord.renderInto(mixer)
+        }
+    }
+    private fun cutDirectChords(){directChords.values.forEach{it.cut()};directChords.clear()}
     private val notes=ArrayList<Note>()
     private fun addNote(note:Note){
         while(notes.count{it.part==note.part}>=ImportedPolyphony.music){
@@ -58,6 +80,7 @@ class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val
     }
     /** Retire a keyboard set without erasing PCM/envelope or its mixer FX tails. */
     fun retire(){
+        cutDirectChords()
         parts=emptyMap()
         notes.forEach{it.released=true;it.retired=true;it.playback.forceRelease()}
     }
@@ -143,5 +166,5 @@ class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val
         }
         repeated.forEach(::addNote)
     }
-    fun reset(){notes.forEach{it.playback.cut()};notes.clear();bends.fill(0.0);scriptBends.fill(null);modulation.fill(0)}
+    fun reset(){cutDirectChords();notes.forEach{it.playback.cut()};notes.clear();bends.fill(0.0);scriptBends.fill(null);modulation.fill(0)}
 }

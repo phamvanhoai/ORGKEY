@@ -4,6 +4,28 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun directChordUsesEnabledStsPartsAndTheirGainsAndCutsRemovedParts(){
+        fun source(value:Short)=SampledInstrument(listOf(InstrumentRegion(36,
+            SamplePcm(1000,1,shortArrayOf(value,value)),0,2)),1000)
+            .withModeScript("on(touch){return(true);}")
+        val first=source(8192);val second=source(16384)
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        fun frame(mask:Int):Double{
+            mixer.beginFrame();parts.renderDirectChord(mixer,mask);mixer.finishFrame();return mixer.left
+        }
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,first,inputGain=.5),
+                ImportedKeyboardParts.Part(2,second,enabled=false)))
+            assertEquals(.375,frame(145),1e-12)
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,first,inputGain=.5),ImportedKeyboardParts.Part(2,second,inputGain=.25)))
+            assertEquals(.75,frame(145),1e-12)
+            parts.replace(listOf(ImportedKeyboardParts.Part(2,second,inputGain=.25)))
+            assertEquals(.375,frame(145),1e-12)
+            assertEquals(0.0,frame(0),0.0)
+            assertEquals(.125,frame(1),1e-12)
+            parts.retire();assertEquals(0.0,frame(1),0.0)
+        }finally{parts.reset();mixer.close()}
+    }
     @Test fun directChordOpensMaskNotesWithoutTouchAndReplacesRatherThanStacksChords(){
         val source=SampledInstrument(listOf(InstrumentRegion(36,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000)
             .withModeScript("on(touch){return(true);}")
