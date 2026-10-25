@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Bật/tắt FX bus theo event 241–246, 26-10-2026
+
+- Đối chiếu Track.Play và z01.c: 241/242 tắt/bật Music, 243/244 Wave (APK gốc gồm cả WaveMic), 245/246 Rhythm. Trước đây player bỏ qua tất cả sáu lệnh và bộ tương thích vẫn từ chối chúng.
+- ImportedMusicState giữ riêng trạng thái bus. Music mixer lấy trạng thái sau khi track/PAD đã xử lý điều khiển trong khung âm thanh; Rhythm group thay enable của bus chung và giữ cấu hình gốc để trở lại hoặc chuyển section đúng. FX của từng tiếng/channel không bị tắt theo Rhythm.
+- Wave DSP nhận âm thanh hiện có từ SampleBank/factory PAD, dùng block Wave trong SET; thay module hoặc enable sẽ khởi tạo chain mới, bỏ tail cũ khi tắt. Wave chain được reset khi Cut và đóng khi AudioEngine đóng. Không dựng lại chain hoặc copy settings ở mỗi mẫu khi trạng thái không đổi.
+- Build debug và 104 kiểm thử thuộc ImportedGroupFxTest, ImportedKeyboardMixerTest, ImportedSectionFallbackTest, ImportedStyleSessionTest, ReferenceRhythmPlayerTest đạt. Kiểm tra Rhythm đang phát qua cả hai trạng thái và Music echo không quay lại sau khi bật lại. Cài debug lên thiết bị thành công.
+- Giới hạn: Wave nhúng event 101 và microphone/WaveMic chưa được dựng; bus Rhythm vẫn xử lý theo player/section/PAD của ORGX, chưa chứng minh tương đương một bus tổng của APK gốc. Chưa đo âm thanh Wave trên thiết bị; lặp lại cùng lệnh enable khi bus đã cùng trạng thái chưa mô phỏng toàn bộ vòng đời native. Không sửa SET hoặc tạo file test/log mới.
 ## Music KeyMove/OctaveMove có tác dụng khi phát, 26-10-2026
 
 - Đối chiếu Track.Play 231/232 và Channels.OpenKey: Music transpose cộng vào nhạc cụ melodic; Music octave dùng cho channel bàn phím, còn rhythm dùng Rhythm octave. Trước đây hai event bị bỏ qua ở player và còn bị bộ tương thích từ chối.

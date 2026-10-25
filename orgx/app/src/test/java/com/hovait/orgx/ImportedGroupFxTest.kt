@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedGroupFxTest {
+    @Test fun rhythmBusCanBeDisabledAndEnabledByTrackEventsWithoutStoppingNotes(){
+        val state=ImportedMusicState()
+        val track=ReferenceDrumTrack("Test",1,0,32,120,true,0,1000,false,listOf(
+            ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(245,0,0,0,10,0),
+            ReferenceDrumEvent(246,0,0,0,20,0)))
+        val player=ReferenceRhythmPlayer(listOf(track),{10000},{_,_,_->1.0},1000).withGroupFx(effect).withMusicState(state)
+        try{
+            player.next(0,120);player.mixOutput(1f,1f);assertEquals(1.5,player.outputLeft,0.0)
+            repeat(10){player.next(0,120);player.mixOutput(1f,1f)}
+            assertEquals(1.0,player.outputLeft,0.0)
+            repeat(10){player.next(0,120);player.mixOutput(1f,1f)}
+            assertEquals(1.5,player.outputLeft,0.0)
+            assertFalse(player.finished)
+        }finally{player.close()}
+    }
     @Test fun revisitedSectionRetainsFreshBusAfterLiveBusWasTransferred(){
         val track=ReferenceDrumTrack("Test",1,0,32,120,true,0,1000,false,listOf(ReferenceDrumEvent(2,1,60,100,0,100)))
         fun player()=ReferenceRhythmPlayer(listOf(track),{1000},{_,_,_->1.0},1000).withGroupFx(effect)

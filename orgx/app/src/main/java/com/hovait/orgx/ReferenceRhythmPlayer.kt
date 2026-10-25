@@ -187,14 +187,15 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var musicSettings=ImportedChannelSettings()
     var outputLeft=0.0;private set
     var outputRight=0.0;private set
-    fun withGroupFx(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{groupFxSettings=settings;groupFx=ImportedFxChain(settings)}
+    private var groupFxBaseSettings:ImportedChannelSettings?=null
+    fun withGroupFx(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{groupFxBaseSettings=settings;groupFxSettings=settings;groupFx=ImportedFxChain(settings)}
     /** Move the live rhythm bus only when its DSP configuration is unchanged. */
     fun continueGroupFxFrom(previous:ReferenceRhythmPlayer){
-        if(previous===this || groupFxSettings!=previous.groupFxSettings)return
+        if(previous===this || groupFxBaseSettings!=previous.groupFxBaseSettings)return
         val live=previous.groupFx ?: return
         // A section can be selected again later; leave it an unallocated fresh bus.
         previous.groupFx=live.fresh()
-        groupFx?.close();groupFx=live
+        groupFx?.close();groupFx=live;groupFxSettings=previous.groupFxSettings
     }
     fun withRhythmSettings(settings:ImportedChannelSettings,music:ImportedChannelSettings=ImportedChannelSettings()):ReferenceRhythmPlayer=also{
         rhythmSettings=settings;musicSettings=music
@@ -205,6 +206,12 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     fun mixOutput(drumGain:Float,chordGain:Float){
         // SET balance/volume is latched in Voice.gain before channel FX, at OpenKey.
         val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain);val fadeGain=if(externalFade)1.0 else fadeController.advance()
+        val settings=groupFxBaseSettings
+        val enabled=musicState.rhythmFxEnabled ?: settings?.fxEnabled
+        if(settings!=null && enabled!=groupFxSettings?.fxEnabled){
+            val updated=settings.copy(fxEnabled=enabled==true)
+            groupFx?.close();groupFx=ImportedFxChain(updated,sampleRateForEnvelope);groupFxSettings=updated
+        }
         val processor=groupFx
         if(processor==null){outputLeft=l*fadeGain;outputRight=r*fadeGain}else{processor.process(l*fadeGain,r*fadeGain);outputLeft=processor.left;outputRight=processor.right}
     }
@@ -368,7 +375,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             }
             if(event.type==231){musicState.keyMove(event.note);return@advance}
             if(event.type==232){musicState.octaveMove(event.note);return@advance}
-            if(event.type==202 || event.type in 241..246){
+            if(event.type in 241..246){musicState.fxEvent(event.type);return@advance}
+            if(event.type==202){
                 // FX enable/disable is a Music-bus command. Keep transport
                 // semantics; the owning group FX chain remains active.
                 return@advance

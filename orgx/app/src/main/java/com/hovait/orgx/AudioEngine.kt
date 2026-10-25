@@ -299,6 +299,21 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private var noiseState = 0x13579BDF
     private val stereoEffect = StereoEffect(sampleRate)
     private val outputLimiter=StereoPeakLimiter(sampleRate)
+    private var waveFxSettings=defaultMusicSettings
+    private var waveFxSource:ImportedChannelSettings?=null
+    private var waveFxEnabled:Boolean?=null
+    private var waveFx=ImportedFxChain(waveFxSettings,sampleRate)
+    private fun configureWaveFx(){
+        val base=activeSetIndex?.waveSettings ?: defaultMusicSettings
+        val enabled=musicState.waveFxEnabled ?: base.fxEnabled
+        if(waveFxSource===base && waveFxEnabled==enabled)return
+        waveFxSource=base;waveFxEnabled=enabled
+        val settings=if(enabled==base.fxEnabled)base else base.copy(fxEnabled=enabled)
+        if(settings.fxEnabled!=waveFxSettings.fxEnabled || settings.modules!=waveFxSettings.modules){
+            waveFx.close();waveFx=ImportedFxChain(settings,sampleRate)
+        }
+        waveFxSettings=settings
+    }
     private val padAges = AtomicIntegerArray(8).apply { for (i in 0 until length()) set(i, -1) }
     private val rhythmAges=IntArray(3){-1}
     private val rhythmGains=DoubleArray(3)
@@ -390,7 +405,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         else AudioTrackBackend(track,sampleRate)
         outputLoop = AudioOutputLoop(start={backend.start();if(!preferNativeOutput)outputStatus="AudioTrack"},
             render=::renderBlock,write={samples,offset,count->backend.write(samples,offset,count)},release={
-                try{backend.close()}finally{stsWaiters.close();importedKeyboardMixer.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close();importedPads.close()}
+                try{backend.close()}finally{stsWaiters.close();importedKeyboardMixer.close();waveFx.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close();importedPads.close()}
             },
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
@@ -820,7 +835,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         stopMidi()
         voices.values.forEach{it.sampledPlayback?.cut()};voices.clear()
         repeatedVoices.forEach{it.playback.cut()};repeatedVoices.clear()
-        stsParts.cutVoices();importedKeyboardMixer.reset();stereoEffect.reset()
+        stsParts.cutVoices();importedKeyboardMixer.reset();stereoEffect.reset();waveFx.reset()
         importedPads.stopAll();importedPads.close();stopSoundEffects()
         padAges.let{ages->repeat(8){ages.set(it,-1)}};rhythmAges.fill(-1)
         importedStyleSession?.let{it.reset();it.stopPlayback()}
@@ -834,6 +849,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 if(musicFade.takeStopRequest())finishMusicFade()
                 stsParts.drain()
                 musicState.configure(stsMusic ?: activeSetIndex?.musicSettings ?: defaultMusicSettings)
+                musicState.configureBuses(activeSetIndex?.waveSettings ?: defaultMusicSettings,activeSetIndex?.rhythmSettings ?: defaultMusicSettings)
                 importedKeyboardMixer.configureMusic(musicState.settings)
                 if(resetHarmony || !rhythmPlaying){harmonyClock.reset();resetHarmony=false}
                 var mixedLeft = 0.0
@@ -890,10 +906,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                     if(voice.playback.finished)repeatedVoices.remove(voice)
                 }
                 stsParts.renderInto(importedKeyboardMixer,drainCommands=false)
-                importedKeyboardMixer.finishFrame()
                 val rhythm = rhythmSample() + padSample()
-                val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + importedKeyboardMixer.left*keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
-                val mixedOutputRight = VoiceMixer.mix(mixedRight,melodicCount,midiDrumRight,keysVolume,drumsVolume) + importedKeyboardMixer.right*keysVolume + accompanimentSample(1) * chordVolume + rhythm * drumsVolume
                 val sound = sampleBank?.nextStereo() ?: 0L
                 var padLeft=0.0;var padRight=0.0
                 sampleBank?.let { bank->for(pad in 0..7){
@@ -917,8 +930,14 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 setPlayer?.mixOutput(drumsVolume,chordVolume)
                 val styleLeft=(setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0))+importedPads.left
                 val styleRight=(setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0))+importedPads.right
-                stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume+styleLeft,
-                    mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume+styleRight,effectType,effectMix)
+                importedKeyboardMixer.configureMusic(musicState.settings)
+                importedKeyboardMixer.finishFrame()
+                val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + importedKeyboardMixer.left*keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
+                val mixedOutputRight = VoiceMixer.mix(mixedRight,melodicCount,midiDrumRight,keysVolume,drumsVolume) + importedKeyboardMixer.right*keysVolume + accompanimentSample(1) * chordVolume + rhythm * drumsVolume
+                configureWaveFx()
+                waveFx.process((StereoSample.left(sound)+padLeft)*drumsVolume,(StereoSample.right(sound)+padRight)*drumsVolume)
+                stereoEffect.process(mixedOutputLeft + waveFx.left+styleLeft,
+                    mixedOutputRight + waveFx.right+styleRight,effectType,effectMix)
                 val setMasterGain=importedKeyboardMixer.musicVolume
                 val fadeGain=musicFade.advance()
                 outputLimiter.process(stereoEffect.left*masterVolume*setMasterGain*fadeGain,stereoEffect.right*masterVolume*setMasterGain*fadeGain)

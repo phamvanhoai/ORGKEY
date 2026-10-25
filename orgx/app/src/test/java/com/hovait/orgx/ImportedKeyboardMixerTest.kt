@@ -4,6 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardMixerTest {
+    @Test fun musicBusToggleDiscardsEchoAndLeavesWaveAndRhythmFlagsIndependent(){
+        val state=ImportedMusicState(echo)
+        val mixer=ImportedKeyboardMixer();val source=sound(ImportedChannelSettings())
+        try{
+            mixer.configureMusic(state.settings)
+            mixer.beginFrame();mixer.add(source,1.0,0.0);mixer.finishFrame()
+            state.fxEvent(241);mixer.configureMusic(state.settings)
+            repeat(500){mixer.beginFrame();mixer.finishFrame();assertEquals(0.0,mixer.left,0.0)}
+            state.fxEvent(243);state.fxEvent(246)
+            assertEquals(false,state.waveFxEnabled);assertEquals(true,state.rhythmFxEnabled)
+            assertFalse(state.settings.fxEnabled)
+            state.fxEvent(242);mixer.configureMusic(state.settings)
+            repeat(500){mixer.beginFrame();mixer.finishFrame();assertEquals(0.0,mixer.left,0.0)}
+            mixer.beginFrame();mixer.add(source,1.0,0.0);mixer.finishFrame()
+            repeat(479){mixer.beginFrame();mixer.finishFrame()}
+            mixer.beginFrame();mixer.finishFrame();assertEquals(.5,mixer.left,0.0)
+        }finally{mixer.close()}
+    }
     private val echo=ImportedChannelSettings(fxEnabled=true,modules=listOf(
         ImportedFxModule(6,true,false,listOf(50,0,0,0,1,0,0,0))))
     @Test fun musicEchoProcessesSumOfChannelsAndRetainsItsOwnTail(){
