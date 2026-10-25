@@ -4,6 +4,30 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedTempLoopTest {
+    @Test fun standalonePadEmitsTempoAndLockChangesWithoutAStyleOwner(){
+        val player=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("PAD",1,100,96,120,false,0,4000,false,listOf(
+            ReferenceDrumEvent(221,0,1,0,0,0),ReferenceDrumEvent(222,0,160,0,0,0)))),
+            {1000},{_,_,_->0.0},1000)
+        val bank=ImportedPadBank(1000)
+        try{
+            bank.play(0,player);bank.nextAt(120,1f,1f)
+            assertEquals(160,bank.takeTempoChange());assertEquals(true,bank.takeTempoLockChange())
+            assertNull(bank.takeTempoChange());assertNull(bank.takeTempoLockChange())
+            assertNull(bank.tempoError)
+        }finally{bank.close()}
+    }
+    @Test fun padTempoRoutesToOwnerAndReturnsToLocalHandlingAfterDetach(){
+        fun player()=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("PAD",1,100,96,120,false,0,4000,false,
+            listOf(ReferenceDrumEvent(222,0,180,0,0,0)))),{1000},{_,_,_->0.0},1000)
+        val bank=ImportedPadBank(1000);val received=mutableListOf<Int>()
+        try{
+            bank.withTempoCommand{_,value->received.add(value)}
+            bank.play(0,player());bank.nextAt(120,1f,1f)
+            assertEquals(listOf(180),received);assertNull(bank.takeTempoChange())
+            bank.withTempoCommand(null);bank.play(0,player());bank.nextAt(120,1f,1f)
+            assertEquals(180,bank.takeTempoChange());assertEquals(listOf(180),received)
+        }finally{bank.close()}
+    }
     @Test fun unboundedTempLoopUsesStoredTrackEndAndTheOriginalTenUnitThreshold(){
         for(end in listOf(10L,11L)){
             val main=ImportedStyleGroup(1,100,"Main",32,true,0,1000,120)

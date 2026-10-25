@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## PAD chạy riêng áp dụng Tempo221/222, 26-10-2026
+
+- PadBank có handler tempo cục bộ khi không gắn style owner, nhận tempo/lock từ player và cả sequence; AudioEngine tiêu thụ thay đổi sau bước render PAD. Đồng hồ riêng PAD dùng tempo mới ngay khi lệnh đã dispatch.
+- Khi có style owner, lệnh vẫn chuyển tới session; AudioEngine nhận thông báo ngay sau render PAD thay vì đợi lần rhythmSample tiếp theo. Đổi owner/đóng bank xóa thông báo chưa dùng để không áp dụng lại tempo cũ.
+- assembleDebug và ImportedTempLoopTest, ImportedStyleSessionTest, ImportedSectionFallbackTest đạt. Kiểm tra PAD riêng đổi160 và khóa, tiêu thụ một lần; có owner gửi180 tới owner, tháo owner chuyển lại đường cục bộ.
+- Giới hạn: phạm vi40..240 BPM, chưa khôi phục lastTempo theo toàn bộ Music.Stop; chưa chứng minh đồng bộ từng mẫu giữa nhiều PAD trong cùng frame. Không sửa SET hoặc tạo file test/log mới.
 ## Timeline Tempo221/222 điều khiển tốc độ và khóa tempo, 26-10-2026
 
 - Đối chiếu Track.Play221 đặt TempoLock theo Key>0; 222 đặt Tempo trực tiếp, không kiểm tra lock. Player dispatch hai event tới owner; bộ tương thích giữ cả control-only track.

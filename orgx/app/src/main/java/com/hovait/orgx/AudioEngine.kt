@@ -932,6 +932,13 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val padSession=importedStyleSession.takeIf{rhythmPlaying}
                 if(padSession!=null)padSession.renderPads(importedPads,bpm.coerceIn(40,240),drumsVolume,chordVolume,styleChangeMethod)
                 else {importedPads.withMuteCommand(null);importedPads.withRhythmCommand(null);importedPads.withTempoCommand(null);importedPads.nextAt(bpm.coerceIn(40,240),drumsVolume,chordVolume,method=styleChangeMethod)}
+                if(padSession!=null){
+                    padSession.takeTempoChange()?.let{bpm=it}
+                    padSession.takeTempoLockChange()?.let{styleTempoLock=it}
+                }else{
+                    importedPads.takeTempoChange()?.let{bpm=it}
+                    importedPads.takeTempoLockChange()?.let{styleTempoLock=it}
+                }
                 setPlayer?.mixOutput(drumsVolume,chordVolume)
                 val styleLeft=(setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0))+importedPads.left
                 val styleRight=(setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0))+importedPads.right

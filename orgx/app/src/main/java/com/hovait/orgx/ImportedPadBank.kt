@@ -73,11 +73,21 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
     private var muteCommand:((Boolean)->Unit)?=null
     private var rhythmCommand:((Int)->Unit)?=null
     private var tempoCommand:((Int,Int)->Unit)?=null
-    private val ignoreTempo:(Int,Int)->Unit={_,_->}
+    private var pendingTempo:Int?=null
+    private var pendingTempoLock:Boolean?=null
+    var tempoError:String?=null;private set
+    private val localTempo:(Int,Int)->Unit={type,value->
+        if(type==221)pendingTempoLock=value>0
+        else if(value in 40..240){pendingTempo=value;tempoError=null}
+        else tempoError="SET tempo $value is outside supported range 40..240"
+    }
+    fun takeTempoChange():Int?=pendingTempo.also{pendingTempo=null}
+    fun takeTempoLockChange():Boolean?=pendingTempoLock.also{pendingTempoLock=null}
     fun withTempoCommand(command:((Int,Int)->Unit)?){
         if(tempoCommand===command)return
         tempoCommand=command
-        val handler=command ?: ignoreTempo
+        pendingTempo=null;pendingTempoLock=null;tempoError=null
+        val handler=command ?: localTempo
         repeat(4){slot->sequences[slot]?.withTempoCommand(handler);players[slot]?.withTempoCommand(handler)}
     }
     private val ignoreRhythm:(Int)->Unit={}
@@ -149,7 +159,8 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
         left=0.0;right=0.0
         repeat(4){slot->
             pending.getAndSet(slot,null)?.let{change->
-                tempoCommand?.let{command->change.sequence?.withTempoCommand(command);change.player?.withTempoCommand(command)}
+                val tempoHandler=tempoCommand ?: localTempo
+                change.sequence?.withTempoCommand(tempoHandler);change.player?.withTempoCommand(tempoHandler)
                 rhythmCommand?.let{command->change.sequence?.withRhythmCommand(command);change.player?.withRhythmCommand(command)}
                 muteCommand?.let{command->change.sequence?.withMuteCommand(command);change.player?.withMuteCommand(command)}
                 musicState?.let{state->change.sequence?.withMusicState(state);change.player?.withMusicState(state)}
@@ -193,8 +204,8 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
         }
         runningMask=(0..3).fold(0){mask,slot->if(players[slot]!=null && !tails[slot])mask or (1 shl slot) else mask}
         pendingMask=(0..3).fold(0){mask,slot->if(waiting[slot]!=null || pending.get(slot)?.player!=null)mask or (1 shl slot) else mask}
-        if(styleTime>=0)clock.seek(time) else clock.advance(1,tempo)
+        if(styleTime>=0)clock.seek(time) else clock.advance(1,pendingTempo ?: tempo)
         if(runningMask==0 && pendingMask==0)clock.reset()
     }
-    fun close(){repeat(4){pending.getAndSet(it,null)?.close();waiting[it]?.close();waiting[it]=null;closeSlot(it)};runningMask=0;pendingMask=0}
+    fun close(){repeat(4){pending.getAndSet(it,null)?.close();waiting[it]?.close();waiting[it]=null;closeSlot(it)};runningMask=0;pendingMask=0;pendingTempo=null;pendingTempoLock=null;tempoError=null}
 }
