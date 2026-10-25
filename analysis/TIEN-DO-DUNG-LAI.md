@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 cho Distortion, 26-10-2026
+
+- Đối chiếu r01.i và mảng h/i: tham số gain/cutoff có min1 max100, tham số soft có min/max0. Touch dùng b44.f và Math.round như các setter khác.
+- Helper hỗ trợ payload9 byte của type23: gain int tại0, soft byte tại4, cutoff int tại5. Nhánh tham số2 chỉ ghi byte4, không ghi đè cutoff; Key1/3 dùng min1 thay vì0.
+- assembleDebug và ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Kiểm tra gain normalized-100 thành1, cutoff normalized0 thành51, soft normalized100 thành0 theo setter gốc; output DSP hữu hạn, không rò kênh phải.
+- PitchShift chưa triển khai automation ở lượt này: class f decompile trùng alias với class crypto, cần xác minh đúng bytecode trước khi lấy giới hạn. Mode FX và cập nhật riêng stage chưa đầy đủ. Không sửa SET hoặc tạo file test/log mới.
 ## TrackFXParam66 cho High/Low Pass, Robot và Stereo Width, 26-10-2026
 
 - Đối chiếu u01 kế thừa v01.i, x01.i và y01.i: High/Low Pass type9/10 tham số0 ánh xạ0..150000, Robot16 ánh xạ0..1000, Stereo Width17 ánh xạ0..50000. Touch chuẩn hóa-100..100, Key1 chọn tham số0.

@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun distortionAutomationPreservesPackedBooleanAndUsesNonzeroParameterMinimum(){
+        val original=ImportedFxModule(23,true,false,listOf(20,0,0,0,1,10,0,0,0))
+        val gain=ImportedTrackFxAutomation.apply(original,ReferenceDrumEvent(66,0,1,-100,0,0))
+        assertEquals(listOf(1,0,0,0,1,10,0,0,0),gain.payload)
+        val cutoff=ImportedTrackFxAutomation.apply(gain,ReferenceDrumEvent(66,0,3,0,0,0))
+        assertEquals(listOf(1,0,0,0,1,51,0,0,0),cutoff.payload)
+        val hard=ImportedTrackFxAutomation.apply(cutoff,ReferenceDrumEvent(66,0,2,100,0,0))
+        assertEquals(listOf(1,0,0,0,0,51,0,0,0),hard.payload)
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(hard)))
+        try{repeat(100){fx.process(.25,0.0);assertTrue(fx.left.isFinite());assertEquals(0.0,fx.right,0.0)}}finally{fx.close()}
+        assertFalse(ImportedTrackFxAutomation.supported(original,ReferenceDrumEvent(66,0,4,0,0,0)))
+    }
     @Test fun singleParameterAutomationUsesFourBytePayloadAndOriginalRanges(){
         for((type,maximum) in listOf(9 to 150000,10 to 150000,16 to 1000,17 to 50000)){
             val module=ImportedFxModule(type,true,false,listOf(0,0,0,0))

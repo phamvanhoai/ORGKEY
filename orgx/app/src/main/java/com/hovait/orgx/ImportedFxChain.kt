@@ -9,18 +9,21 @@ object ImportedTrackFxAutomation {
         9,10->150000.takeIf{parameter==1}
         16->1000.takeIf{parameter==1}
         17->50000.takeIf{parameter==1}
+        23->when(parameter){1,3->100;2->0;else->null}
         else->null
     }
     fun supported(module:ImportedFxModule,event:ReferenceDrumEvent)=event.note==0 ||
         (maximum(module.type,event.note)!=null && module.payload.size==
-            (if(module.type in listOf(9,10,16,17))4 else 8) && event.touch in -100..100)
+            (when(module.type){9,10,16,17->4;23->9;else->8}) && event.touch in -100..100)
     fun apply(module:ImportedFxModule,event:ReferenceDrumEvent):ImportedFxModule {
         require(supported(module,event))
         if(event.note==0)return module.copy(enabled=event.touch!=0)
         val max=checkNotNull(maximum(module.type,event.note))
-        val value=Math.round((event.touch+100)/200.0f*max)
+        val min=if(module.type==23 && event.note!=2)1 else 0
+        val value=Math.round((event.touch+100)/200.0f*(max-min)+min)
         val bytes=module.payload.toMutableList()
-        val offset=(event.note-1)*4
+        if(module.type==23 && event.note==2){bytes[4]=value;return module.copy(payload=bytes)}
+        val offset=if(module.type==23 && event.note==3)5 else (event.note-1)*4
         repeat(4){bytes[offset+it]=(value ushr (it*8)) and 255}
         return module.copy(payload=bytes)
     }
