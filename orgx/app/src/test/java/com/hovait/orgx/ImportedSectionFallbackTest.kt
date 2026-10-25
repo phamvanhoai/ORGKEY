@@ -5,6 +5,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun styleLoaderAcceptsKeyAftertouchAndTrimsSamplesUsingItsTransposedKey(){
+        val file=File.createTempFile("orgx-key-aftertouch",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val main=part(1,100,32)
+            val region=ImportedSection(72,48000,1,2,100,0,0,0,0,0,0,ImportedWave(0,4))
+            val instrument=ImportedInstrument("Exact",100,0,0,listOf(ImportedSound("Sound",listOf(0,0,100,10,2,0),listOf(region))))
+            val track=ImportedTrack("Main",1,0,false,listOf(ReferenceDrumEvent(4,1,60,100,0,100)),
+                settings=ImportedChannelSettings(transpose=12))
+            val index=ImportedSetIndex(listOf(instrument),listOf(main),listOf(track))
+            val settings=ImportedStyleSupport.channelSettings(index,track)
+            assertEquals(72,ImportedStyleSupport.sampleEvents(track.copy(settings=settings),true).single().note)
+            assertNull(ImportedStyleSupport.reason(index,main,includeAccompaniment=true))
+            val session=ImportedStylePlayer.loadStyle(file,index,ImportedStyleDefinition(100,"Style",listOf(main)),true)
+            try{session.next(120);assertTrue(session.player.left>0)}finally{session.close()}
+        }finally{file.delete()}
+    }
     @Test fun catalogEnumeratesDeclaredParentsInSetOrderIncludingFullySharedStyle(){
         fun parent(id:Int,name:String)=ImportedStyleGroup(id,0,name,0,false,0,0,120,type=0)
         val shared=part(1,0,32)

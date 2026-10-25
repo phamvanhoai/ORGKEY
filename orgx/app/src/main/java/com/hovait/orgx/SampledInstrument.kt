@@ -147,7 +147,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{combined->combined.layers=sounds;sounds.forEach{combined.sharePlaybackRegistry(it)}}
         }
     }
-    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true,scriptId:Int=note):Playback=if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed,scriptId) else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)
+    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true,scriptId:Int=note,initialAftertouch:Boolean=false):Playback=
+        if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed,scriptId,initialAftertouch)
+        else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId).also{if(initialAftertouch)it.startAftertouch()}
     inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false,private val scriptId:Int=note,private val channelPanOverride:Int?=null,scriptPedalValue:Int?=null){
         private var scriptPedal=false
         private var playbackPedal=scriptPedalValue?.let{it!=0}
@@ -343,6 +345,18 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
                         children.add(child.first);scriptChildren.add(child)
                     }
                 }}
+        }
+        /** Track event 4 runs Touch once, then OpenKey selects the alternate sound. */
+        internal fun startAftertouch(){
+            if(scriptPlan!=null){
+                // A handled Touch owns its audio. Only the default OpenKey fallback changes sound.
+                if(!scriptPlan.handled)children.lastOrNull()?.startAftertouch()
+                return
+            }
+            if(aftertouch || aftertouchInstrument==null)return
+            aftertouch=true
+            alternate=aftertouchInstrument!!.voice(currentKey,tune,pan,autoRelease,effectsAllowed,
+                scriptVelocity,scriptPedal,scriptAllowed=false,scriptId=scriptId)
         }
         fun aftertouch(pressure:Float){
             if(ownsScriptEvents){
@@ -561,6 +575,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     }
     private val steps=DoubleArray(128){pitchStep(it)}
     private fun missing(note:Int)=mapped[note]==null
+    internal fun keyDurationFrames(note:Int,aftertouch:Boolean):Int =
+        if(activeModeSound!==this)activeModeSound.keyDurationFrames(note,aftertouch)
+        else if(aftertouch && aftertouchInstrument!=null)aftertouchInstrument!!.durationFrames(note)
+        else durationFrames(note)
     fun durationFrames(note:Int):Int {
         if(activeModeSound!==this)return activeModeSound.durationFrames(note)
         if(layers.isNotEmpty())return layers.maxOf{it.durationFrames(note)}

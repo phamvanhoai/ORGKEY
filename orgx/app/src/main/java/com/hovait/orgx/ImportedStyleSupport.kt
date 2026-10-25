@@ -30,7 +30,7 @@ object ImportedStyleSupport {
     fun shiftedNote(note:Int,track:ImportedTrack,melodic:Boolean):Int =
         if(melodic)(note.toLong()+track.settings.transpose+track.settings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt() else note
     fun sampleEvents(track:ImportedTrack,melodic:Boolean)=track.events.map{event->
-        if(event.type==2)event.copy(note=shiftedNote(event.note,track,melodic)) else event
+        if(event.type in listOf(2,4))event.copy(note=shiftedNote(event.note,track,melodic)) else event
     }
     /** Tracks.GroupPlayNext applies kind before rhythm playback. */
     fun instrument(index:ImportedSetIndex,track:ImportedTrack):ImportedInstrument? =
@@ -65,7 +65,7 @@ object ImportedStyleSupport {
             return "Track '${it.name}' references missing instrument ${it.instrument}"
         }
         tracks.forEach{track->track.events.forEach{event->
-            if(event.type !in listOf(1,2,3,11,12,13,14,44,45,64,211,212) && !(event.type==5 && event.note in -1..127 && event.touch in 0..127) && !(event.type==41 && event.note in -127..127) && !(event.type==42 && event.note in -10..10) && !(event.type==43 && event.note in -48000..48000) && !(event.type in listOf(46,56) && event.note in -127..127) && !(event.type==51 && event.note>=0) && !(event.type==53 && event.note>0) && !(event.type==52 && event.note in -100..100) && !ImportedExpressionAutomation.supported(event)){
+            if(event.type !in listOf(1,2,3,4,11,12,13,14,44,45,64,211,212) && !(event.type==5 && event.note in -1..127 && event.touch in 0..127) && !(event.type==41 && event.note in -127..127) && !(event.type==42 && event.note in -10..10) && !(event.type==43 && event.note in -48000..48000) && !(event.type in listOf(46,56) && event.note in -127..127) && !(event.type==51 && event.note>=0) && !(event.type==53 && event.note>0) && !(event.type==52 && event.note in -100..100) && !ImportedExpressionAutomation.supported(event)){
                 val detail=if(event.type==65)" (Effect slot ${event.id}, parameter ${event.note})" else ""
                 return "Track '${track.name}': unsupported event ${event.type}$detail at time ${event.time}"
             }

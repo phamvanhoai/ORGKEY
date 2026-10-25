@@ -123,6 +123,39 @@ class ReferenceRhythmPlayerTest {
             {10000},{_,_,_->0.0},1000,sampled=sound)
         try{player.next(0,120);assertTrue(player.left>0.4)}finally{player.close()}
     }
+    @Test fun keyAftertouchCanPlayAKeyMissingFromThePrimarySound(){
+        fun sound(root:Int,value:Short)=SampledInstrument(listOf(InstrumentRegion(root,
+            SamplePcm(1000,1,ShortArray(128){value}),0,128)),1000,pitchMode=2)
+        val source=sound(60,8192).withAftertouch(sound(72,16384))
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(4,1,72,100,0,1000)))),
+            source::durationFrames,{_,_,_->0.0},1000,sampled=source)
+        try{
+            assertEquals(0,source.durationFrames(72))
+            player.next(0,120);assertEquals(0.5,player.left,1e-12)
+        }finally{player.close()}
+    }
+    @Test fun keyAftertouchRunsTouchScriptWithoutDispatchingPressureOrAlternateTouch(){
+        fun sound(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){value}),0,128)),1000)
+        val alternate=sound(16384).withModeScript("on(touch){return(true);}")
+        val base=sound(8192).withAftertouch(alternate)
+            .withModeScript("on(touch){return(false);} on(aftertouch){stop(id:id,cut);return(true);}")
+        // Event 4 selects the alternate even at velocity zero, before the outer velocity gain.
+        val zeroVelocity=base.voice(60,scriptVelocity=0,initialAftertouch=true)
+        try{zeroVelocity.next(false);assertEquals(0.5,zeroVelocity.left,1e-12)}finally{zeroVelocity.cut()}
+        val audible=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(4,1,60,100,0,1000)))),
+            {10000},{_,_,_->0.0},1000,sampled=base)
+        try{audible.next(0,120);assertEquals(0.5,audible.left,1e-12)}finally{audible.close()}
+    }
+    @Test fun handledTouchForKeyAftertouchKeepsScriptAudio(){
+        fun sound(value:Short)=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){value}),0,128)),1000)
+        val source=sound(8192).withAftertouch(sound(16384))
+            .withModeScript("on(touch){play(volume:50);return(true);} on(aftertouch){stop(id:id,cut);return(true);}")
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(4,1,60,100,0,1000)))),
+            {10000},{_,_,_->0.0},1000,sampled=source)
+        try{player.next(0,120);assertEquals(0.125,player.left,1e-12)}finally{player.close()}
+    }
     @Test fun unboundedTrackCloseAllFinishesTimelineWhileReleaseTailRemains(){
         val sound=SampledInstrument(listOf(InstrumentRegion(60,
             SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,

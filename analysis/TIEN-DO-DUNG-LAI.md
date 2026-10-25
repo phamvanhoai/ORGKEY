@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Dựng lại đường KeyAftertouch của style SET, 26-10-2026
+
+- Đối chiếu Track.Play(4), Track._scriptTouch, Channels.OpenKey và Track.PlayNext: event 4 là Touch mở sound Aftertouch của mode, không phải gửi tiếp event pressure/aftertouch. Touch đã handled thì giữ audio script; Touch chưa handled chỉ thay sound ở nhánh OpenKey mặc định. Không gọi Touch của sound alternate lần thứ hai.
+- Cho event 4 qua kiểm tra tương thích SET; chọn region theo nốt sau transpose/octave khi cắt tập mẫu nạp. Khi chuyển vào giữa section, bỏ note event 4 đã quá khoảng Length + 10 giống event 2.
+- Giữ loại sound Aftertouch khi mở lại voice theo hợp âm hoặc KeyRepeat. Kiểm tra thời lượng bằng sound alternate, nên nốt chỉ có ở alternate vẫn phát dù primary không có region tương ứng.
+- Kiểm tra: assembleDebug và 178 kiểm thử thuộc ImportedScriptPlaybackTest, ImportedSectionFallbackTest, ReferenceDrumTimelineTest, ReferenceRhythmPlayerTest, SampledInstrumentTest đạt. Cài APK debug lên thiết bị thành công; MainActivity mở được.
+- Giới hạn: chưa đối chiếu âm thanh tất cả mode DNC trên thiết bị. Nhánh KeyConnection tái sử dụng voice đang phát và thay đổi sound giữa các nốt còn cần đối chiếu riêng. Không sửa file SET, không tạo file test/log mới.
 ## Fade dùng chung cho đầu ra Music và dừng phát, 26-10-2026
 
 - Đối chiếu Music.ProcessOut, Cut và Stop: fade-out giảm trước, giữ im lặng theo Touch rồi Cut/Stop; FadeCancel bỏ cả yêu cầu dừng. Controller phát tín hiệu dừng một lần, đầu ra AudioEngine chỉ tăng tiến Fade một lần mỗi mẫu stereo.

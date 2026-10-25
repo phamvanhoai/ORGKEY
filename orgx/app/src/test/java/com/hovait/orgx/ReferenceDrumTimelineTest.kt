@@ -19,6 +19,12 @@ class ReferenceDrumTimelineTest {
         timeline.advance(31,output::add)
         assertEquals(listOf(1),output.map{it.type})
     }
+    @Test fun seekingPastKeyAftertouchAlsoSkipsTheExpiredNote(){
+        val timeline=ReferenceDrumTimeline(listOf(event(4,0,20),event(1,20,-1)))
+        val output=mutableListOf<ReferenceDrumEvent>()
+        timeline.advance(31,output::add)
+        assertEquals(listOf(1),output.map{it.type})
+    }
     @Test(expected=IllegalArgumentException::class)
     fun backwardSeekRequiresReset() {
         val timeline=ReferenceDrumTimeline(emptyList())
