@@ -16,7 +16,7 @@ object ImportedStylePlayer {
         }
         val players=loadSections(file,index,groups,true,transposer,targetChord,keyConnectionMethod,
             scriptOverrides,chordControl,chordOctaveMove,chordQuality)
-        return ImportedPadSequence(group.id,byId,players)
+        return ImportedPadSequence(group.id,byId,players,ImportedStyleCatalog.endTimes(index))
     }
     fun loadStyle(file:File,index:ImportedSetIndex,style:ImportedStyleDefinition,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},
@@ -28,7 +28,7 @@ object ImportedStylePlayer {
         val linked=ImportedStyleCatalog.jumpTargets(index,sections)
         val playableLinked=linked.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         val players=loadSections(file,index,sections+playableLinked,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality,stsChanges)
-        return ImportedStyleSession(complete,players,linkedGroups=linked)
+        return ImportedStyleSession(complete,players,linkedGroups=linked,storedEndTimes=ImportedStyleCatalog.endTimes(index))
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},

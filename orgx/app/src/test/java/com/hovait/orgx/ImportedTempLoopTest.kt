@@ -4,6 +4,29 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedTempLoopTest {
+    @Test fun unboundedTempLoopUsesStoredTrackEndAndTheOriginalTenUnitThreshold(){
+        for(end in listOf(10L,11L)){
+            val main=ImportedStyleGroup(1,100,"Main",32,true,0,1000,120)
+            val intro=main.copy(id=2,section=16,loop=false,limit=false,end=9999)
+            val groups=listOf(main,intro)
+            val players=groups.associate{part->part.id to ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(
+                part.name,part.id,100,part.section,120,part.loop,0,1000,false,
+                listOf(ReferenceDrumEvent(204,0,2,0,0,0)))),{10000},{_,_,_->0.0},1000)}
+            val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",groups),players,1000,storedEndTimes=mapOf(2 to end))
+            try{
+                session.request(2,true);session.next(120)
+                assertEquals(end>10,session.temporaryLoop)
+            }finally{session.close()}
+        }
+    }
+    @Test fun endTimeIncludesMutedTracksButUsesTheirFinalEventRatherThanLongestNote(){
+        val first=ImportedTrack("Notes",2,0,false,listOf(
+            ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(1,1,60,0,10,0)))
+        val muted=first.copy(name="Muted",muted=true,events=listOf(ReferenceDrumEvent(1,1,60,0,12,0)))
+        val index=ImportedSetIndex(emptyList(),emptyList(),listOf(first,muted))
+        assertEquals(11L,ImportedStyleCatalog.endTimes(index).getValue(2))
+        assertEquals(9L,ImportedStyleCatalog.endTimes(index.copy(tracks=listOf(first))).getValue(2))
+    }
     @Test fun storedTempLoopKeepsOneShotSectionUntilAnotherSectionIsRequested(){
         val main=ImportedStyleGroup(1,100,"Main",32,true,0,1000,120)
         val intro=main.copy(id=2,name="Intro",section=16,loop=false,jumpGroup=1)

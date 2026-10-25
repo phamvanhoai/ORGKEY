@@ -11,7 +11,8 @@ class ImportedStyleTempoMemory {
 
 /** GroupPlayAdd/Next/Start rules for supported, bounded style groups. */
 class ImportedStyleSession(val style:ImportedStyleDefinition,private val players:Map<Int,ReferenceRhythmPlayer>,sampleRate:Int=48000,
-    private var changeMethod:Int=0,private var tempoLock:Boolean=false,linkedGroups:List<ImportedStyleGroup> = emptyList()) {
+    private var changeMethod:Int=0,private var tempoLock:Boolean=false,linkedGroups:List<ImportedStyleGroup> = emptyList(),
+    private val storedEndTimes:Map<Int,Long> = emptyMap()) {
     private val groups=(style.sections+linkedGroups).associateBy{it.id}
     private val main=style.sections.first{it.section in 32..35 && it.id in players}
     private val clock=ReferenceStyleClock(sampleRate)
@@ -22,7 +23,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     private val temporaryLoops=HashSet<Int>()
     init{players.values.forEach{it.withTempLoopCommand{id->
         val group=groups[id]
-        if(group!=null && !group.loop && (group.limit || group.end>10))temporaryLoops.add(id)
+        if(group!=null && !group.loop && (group.limit || (storedEndTimes[id] ?: players[id]?.storedEndTime ?: 0)>10))temporaryLoops.add(id)
     }}}
     val temporaryLoop get()=synchronized(this){currentId in temporaryLoops}
     private var lastLoop:Int?=main.id.takeIf{main.loop}

@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## EndTime gốc cho lệnh lặp tạm của group không giới hạn, 26-10-2026
+
+- Đối chiếu Track.EndTime và Tracks.EndTime: lấy Time + Length - 1 của event cuối từng track, rồi lấy max trong group, giá trị tối thiểu 0; không lấy nốt dài nhất và không loại track mute.
+- Loader tính map thời điểm kết thúc từ tất cả track của SET, truyền cho StyleSession và PadSequence. Điều kiện event204 dùng group.limit hoặc EndTime>10; không còn dựa group.end metadata khi group không giới hạn. Constructor tạo thủ công vẫn có fallback tính từ các player đã nạp.
+- assembleDebug và ImportedTempLoopTest, ImportedStyleSessionTest, ImportedSectionFallbackTest đạt. Kiểm tra biên EndTime10/11 với metadata end9999 và track mute có event cuối muộn hơn, cùng trường hợp nốt dài trước event cuối không quyết định EndTime.
+- Chưa dùng EndTime này để thay đổi toàn bộ transport, chưa nạp mọi target event204 ngoài nhóm đã chuẩn bị; không coi vòng đời group hoàn tất. Không sửa SET hoặc tạo file test/log mới.
 ## Thực thi RhythmTempLoop 204 từ timeline SET, 26-10-2026
 
 - Đối chiếu Track.Play(204): đánh dấu tempLoop của group một lần phát, không đổi Loop gốc. ReferenceRhythmPlayer phát command tới chủ sở hữu session/sequence thay vì bỏ qua; bộ tương thích và chọn track giữ cả track chỉ chứa lệnh 204.

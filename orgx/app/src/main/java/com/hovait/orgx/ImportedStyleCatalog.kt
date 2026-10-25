@@ -3,6 +3,10 @@ package com.hovait.orgx
 data class ImportedStyleDefinition(val id:Int,val name:String,val sections:List<ImportedStyleGroup>)
 
 object ImportedStyleCatalog {
+    /** Tracks.EndTime: max of each track's final stored event, including muted tracks. */
+    internal fun endTimes(index:ImportedSetIndex):Map<Int,Long> = index.tracks.groupBy{it.group}.mapValues{(_,tracks)->
+        tracks.maxOfOrNull{it.events.lastOrNull()?.let{event->event.time+event.length-1} ?: 0L}?.coerceAtLeast(0) ?: 0L
+    }
     /** Tracks.Group(id) resolves positive jumps across the entire SET, not just this style. */
     fun jumpTargets(index:ImportedSetIndex,roots:List<ImportedStyleGroup>):List<ImportedStyleGroup>{
         val byId=index.styles.associateBy{it.id}

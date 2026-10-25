@@ -13,6 +13,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges) {
     init{require(keyConnectionMethod in 0..1);require(stsChanges.size==21)}
     private var externalFade = false
+    internal val storedEndTime:Long get()=maxOf(children.maxOfOrNull{it.storedEndTime} ?: 0L,
+        tracks.maxOfOrNull{it.events.lastOrNull()?.let{event->event.time+event.length-1} ?: 0L} ?: 0L).coerceAtLeast(0)
     private var tempLoopCommand:(Int)->Unit={}
     fun withTempLoopCommand(command:(Int)->Unit):ReferenceRhythmPlayer=also{
         tempLoopCommand=command;children.forEach{it.withTempLoopCommand(command)}

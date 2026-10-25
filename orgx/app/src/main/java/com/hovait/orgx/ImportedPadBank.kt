@@ -5,11 +5,11 @@ import java.util.concurrent.atomic.AtomicLongArray
 
 /** Owns a preloaded JumpGroup chain. No file access occurs when advancing it. */
 class ImportedPadSequence(private val first:Int,private val groups:Map<Int,ImportedStyleGroup>,
-    private val players:Map<Int,ReferenceRhythmPlayer>) {
+    private val players:Map<Int,ReferenceRhythmPlayer>,private val storedEndTimes:Map<Int,Long> = emptyMap()) {
     private val temporaryLoops=HashSet<Int>()
     init{players.values.forEach{it.withTempLoopCommand{id->
         val group=groups[id]
-        if(group!=null && !group.loop && (group.limit || group.end>10))temporaryLoops.add(id)
+        if(group!=null && !group.loop && (group.limit || (storedEndTimes[id] ?: players[id]?.storedEndTime ?: 0)>10))temporaryLoops.add(id)
     }}}
     var currentId=first;private set
     private var startedAt=0L
