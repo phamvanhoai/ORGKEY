@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun storedTempoStillChangesWhileLockedAndLockSuppressesSectionTempo(){
+        val main=ImportedStyleGroup(1,100,"Main",32,true,0,4000,120)
+        val other=main.copy(id=2,section=33,tempo=90)
+        val groups=listOf(main,other)
+        val players=groups.associate{group->group.id to ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(
+            group.name,group.id,100,group.section,120,true,0,4000,false,
+            if(group.id==1)listOf(ReferenceDrumEvent(221,0,1,0,0,0),ReferenceDrumEvent(222,0,160,0,10,0)) else emptyList())),
+            {1000},{_,_,_->0.0},1000)}
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",groups),players,1000)
+        try{
+            session.next(120);assertEquals(true,session.takeTempoLockChange())
+            repeat(10){session.next(120)};assertEquals(160,session.takeTempoChange())
+            session.request(2,true);session.next(160)
+            assertEquals(2,session.currentId);assertNull(session.takeTempoChange())
+        }finally{session.close()}
+    }
     @Test fun unplayableRhythmTargetReportsAnErrorWithoutStoppingCurrentStyle(){
         val group=ImportedStyleGroup(1,100,"Main",32,true,0,4000,120)
         val player=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("Main",1,100,32,120,true,0,4000,false,

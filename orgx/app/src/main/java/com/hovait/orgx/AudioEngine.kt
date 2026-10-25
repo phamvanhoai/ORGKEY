@@ -759,7 +759,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         }
         importedStyleSession?.let{
             it.next(bpm.coerceIn(40,240))
-            synchronized(styleSelectionLock){it.takeTempoChange()?.let{tempo->bpm=tempo}}
+            synchronized(styleSelectionLock){it.takeTempoChange()?.let{tempo->bpm=tempo};it.takeTempoLockChange()?.let{locked->styleTempoLock=locked}}
             importedRhythm=it.player;importedRhythmName=it.displayName
             if(it.finished){naturalStyleTail=true;rhythmPlaying=false;transportFrame=0}else transportFrame++
             return 0.0
@@ -931,7 +931,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val setPlayer=importedRhythm.takeIf{rhythmPlaying || naturalStyleTail}
                 val padSession=importedStyleSession.takeIf{rhythmPlaying}
                 if(padSession!=null)padSession.renderPads(importedPads,bpm.coerceIn(40,240),drumsVolume,chordVolume,styleChangeMethod)
-                else {importedPads.withMuteCommand(null);importedPads.withRhythmCommand(null);importedPads.nextAt(bpm.coerceIn(40,240),drumsVolume,chordVolume,method=styleChangeMethod)}
+                else {importedPads.withMuteCommand(null);importedPads.withRhythmCommand(null);importedPads.withTempoCommand(null);importedPads.nextAt(bpm.coerceIn(40,240),drumsVolume,chordVolume,method=styleChangeMethod)}
                 setPlayer?.mixOutput(drumsVolume,chordVolume)
                 val styleLeft=(setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0))+importedPads.left
                 val styleRight=(setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0))+importedPads.right

@@ -25,6 +25,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     fun withMusicState(state:ImportedMusicState){players.values.forEach{it.withMusicState(state)}}
     fun withMuteCommand(command:(Boolean)->Unit){players.values.forEach{it.withMuteCommand(command)}}
     fun withRhythmCommand(command:(Int)->Unit){players.values.forEach{it.withRhythmCommand(command)}}
+    fun withTempoCommand(command:(Int,Int)->Unit){players.values.forEach{it.withTempoCommand(command)}}
     val group get()=groups.getValue(currentId)
     fun start(time:Long,scale:Int,method:Int){
         temporaryLoops.clear()
@@ -71,6 +72,14 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
     private val musicState:ImportedMusicState?=null) {
     private var muteCommand:((Boolean)->Unit)?=null
     private var rhythmCommand:((Int)->Unit)?=null
+    private var tempoCommand:((Int,Int)->Unit)?=null
+    private val ignoreTempo:(Int,Int)->Unit={_,_->}
+    fun withTempoCommand(command:((Int,Int)->Unit)?){
+        if(tempoCommand===command)return
+        tempoCommand=command
+        val handler=command ?: ignoreTempo
+        repeat(4){slot->sequences[slot]?.withTempoCommand(handler);players[slot]?.withTempoCommand(handler)}
+    }
     private val ignoreRhythm:(Int)->Unit={}
     fun withRhythmCommand(command:((Int)->Unit)?){
         if(rhythmCommand===command)return
@@ -140,6 +149,7 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
         left=0.0;right=0.0
         repeat(4){slot->
             pending.getAndSet(slot,null)?.let{change->
+                tempoCommand?.let{command->change.sequence?.withTempoCommand(command);change.player?.withTempoCommand(command)}
                 rhythmCommand?.let{command->change.sequence?.withRhythmCommand(command);change.player?.withRhythmCommand(command)}
                 muteCommand?.let{command->change.sequence?.withMuteCommand(command);change.player?.withMuteCommand(command)}
                 musicState?.let{state->change.sequence?.withMusicState(state);change.player?.withMusicState(state)}

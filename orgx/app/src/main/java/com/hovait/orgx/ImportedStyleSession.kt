@@ -45,6 +45,14 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     private var startedAt=0L
     private var rhythmScale=ReferenceSectionTiming.scale(main,changeMethod).takeIf{it>0} ?: 1000
     private var tempoChange:Int?=null
+    private var tempoLockChange:Boolean?=null
+    private val storedTempoCommand:(Int,Int)->Unit={type,value->
+        if(type==221){tempoLock=value>0;tempoLockChange=tempoLock}
+        else if(value in 40..240)tempoChange=value
+        else transitionError="SET tempo $value is outside supported range 40..240"
+    }
+    init{players.values.forEach{it.withTempoCommand(storedTempoCommand)}}
+    @Synchronized fun takeTempoLockChange():Boolean?=tempoLockChange.also{tempoLockChange=null}
     private var manualTempo:Int?=null
     @Synchronized internal fun restoreManualTempo(tempo:Int?){
         require(tempo==null || tempo in 40..240)
@@ -72,6 +80,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     @Synchronized fun renderPads(bank:ImportedPadBank,tempo:Int,drumGain:Float,chordGain:Float,method:Int){
         bank.withMuteCommand(storedMuteCommand)
         bank.withRhythmCommand(storedRhythmCommand)
+        bank.withTempoCommand(storedTempoCommand)
         bank.nextAt(tempo,drumGain,chordGain,clock.time,rhythmScale,method)
         if(bank.scaleChanged)rhythmScale=bank.rhythmScale
     }
@@ -95,7 +104,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     @Synchronized fun stopPlayback(preserveImmediate:Boolean=false){
         val immediate=queue.firstOrNull()?.takeIf{preserveImmediate && it.immediate}
         queue.clear();if(immediate!=null)queue.addLast(immediate) else jumpId=null
-        temporaryLoops.clear();tempoChange=null
+        temporaryLoops.clear();tempoChange=null;tempoLockChange=null
         finished=true;player.releaseAll()
     }
     @Synchronized fun renderTail(){if(finished)player.renderTail()}
@@ -197,7 +206,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     }
     @Synchronized fun reset(){
         val immediate=queue.firstOrNull()?.takeIf{it.immediate}
-        queue.clear();if(immediate==null)jumpId=null;clock.reset();startedAt=0;tempoChange=null
+        queue.clear();if(immediate==null)jumpId=null;clock.reset();startedAt=0;tempoChange=null;tempoLockChange=null
         if(immediate!=null)select(immediate.id)
         players.values.forEach{it.reset()};finished=false
     }

@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Timeline Tempo221/222 điều khiển tốc độ và khóa tempo, 26-10-2026
+
+- Đối chiếu Track.Play221 đặt TempoLock theo Key>0; 222 đặt Tempo trực tiếp, không kiểm tra lock. Player dispatch hai event tới owner; bộ tương thích giữ cả control-only track.
+- StyleSession thay lock/tempo và trả thay đổi cho AudioEngine; engine cập nhật BPM và trạng thái styleTempoLock. Đổi section khi lock giữ nguyên tốc độ đang chạy. PAD/chuỗi PAD gửi cùng lệnh về style khi đồng bộ; handler được tháo khi style không chạy.
+- Reset/stop xóa thông báo lock chưa tiêu thụ để không phát lại trạng thái cũ. Build debug và ImportedStyleSessionTest, ImportedSectionFallbackTest, ImportedTempLoopTest đạt, gồm khóa rồi đổi tempo160 và chuyển sang section tempo90 không ghi đè.
+- Giới hạn: ORGX chỉ nhận tempo40..240 và báo lỗi ngoài khoảng này, trong khi APK gốc gán trực tiếp; tempo từ PAD được engine tiêu thụ lượt xử lý kế tiếp. PAD chạy riêng/GroupPlay nhiều slot và khôi phục lastTempo sau Music.Stop chưa đầy đủ. Không sửa SET hoặc tạo file test/log mới.
 ## Nạp trước target Rhythm từ PAD của style, 26-10-2026
 
 - Catalog chọn PAD theo parent style rồi fallback parent0, lần theo các group liên quan và thu target201 của track trong chuỗi. Target cùng các nhánh Jump/TempLoop tiếp theo được đưa vào control graph của session chính, không thêm vào danh sách nút section.
