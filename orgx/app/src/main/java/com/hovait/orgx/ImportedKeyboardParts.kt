@@ -31,7 +31,7 @@ class ImportedDirectChord {
 class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val musicState:ImportedMusicState?=null) {
     data class Part(val id:Int,val sound:SampledInstrument,val pedal:Boolean=false,
         val enabled:Boolean=true,val fromKey:Int=0,val toKey:Int=127,val inputGain:Double=1.0,
-        val pedalMode:Int=0)
+        val pedalMode:Int=0,val chordPart:Boolean=false)
     private data class Note(val part:Int,val channel:Int,var key:Int,val sound:SampledInstrument,
         val playback:SampledInstrument.Playback,val velocity:Double,var pedal:Boolean,
         val pedalMode:Int,var released:Boolean=false,val repeat:ImportedKeyRepeat?=null,var retired:Boolean=false)
@@ -43,9 +43,10 @@ class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val
         val iterator=directChords.iterator()
         while(iterator.hasNext()){
             val entry=iterator.next()
-            if(entry.key !in parts){entry.value.cut();iterator.remove()}
+            if(parts[entry.key]?.chordPart!=true){entry.value.cut();iterator.remove()}
         }
         parts.values.forEach{part->
+            if(!part.chordPart)return@forEach
             musicRelease?.let{part.sound.withMusicRelease(it)}
             musicState?.let{part.sound.withMusicState(it)}
             val chord=directChords.getOrPut(part.id){ImportedDirectChord()}

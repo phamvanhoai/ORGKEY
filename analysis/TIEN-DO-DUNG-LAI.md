@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chọn đúng chord part theo Track Type 3, 26-10-2026
+
+- Đối chiếu Tracks.RecordChord: chỉ track Record và fType=3 nhận event Chord. Bản direct nhiều part trước đã áp dụng cho cả tiếng keyboard thường; sửa bằng cờ chordPart từ ImportedTrack.kind, không phát direct ở part 0/1.
+- Tìm thấy loader STS chỉ giữ kind0/1, khiến chord part chưa bao giờ được nạp dù bộ phát đã có. Mở rộng chuẩn bị STS đầy đủ, basis snapshot và chuyển STS để giữ cả kind3 trong bốn part được hỗ trợ. Không tự đổi STSPlan event61/64 vốn có điều kiện type riêng của APK.
+- enabled của part kiểm tra cả snapshot Record và track mute. Đổi loại part từ chord sang keyboard cắt direct voice cũ; mask0/part bị bỏ vẫn cắt như trước. Bỏ tạo danh sách filter part trên mỗi mẫu audio.
+- Build debug và ImportedKeyboardPartsTest, ImportedStsBatchTest, ImportedKeyboardPartQueueTest, ImportedStsPlanTest đạt. Integration STS xác nhận Type3 được chuẩn bị thành chordPart; kiểm tra part thường không phát hợp âm, part chord tắt Record im lặng và đổi loại part cắt tiếng.
+- Giới hạn: còn phạm vi tối đa bốn part, chưa phục hồi đầy đủ trường fKind của Track cho nhánh keyboard type3 đặc biệt; chưa đo audio thực với APK gốc. Không sửa SET hoặc tạo file test/log mới.
 ## Hợp âm trực tiếp qua nhiều part STS, 26-10-2026
 
 - ImportedKeyboardParts quản lý direct chord riêng theo part, dùng sound/mode, inputGain, enabled/mute, pedal và pedalMode của part. Nguồn Music release/pitch được gắn như đường bàn phím. OpenKey trực tiếp không phát Touch script.

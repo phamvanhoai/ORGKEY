@@ -15,8 +15,8 @@ object ImportedStsBatch {
             val member=selection.members.single{it.position==position}
             val track=index.tracks[member.trackIndex]
             ImportedKeyboardParts.Part(position,voice.sound,voice.snapshot.pedal!=0,
-                voice.snapshot.record,track.keyAreaFrom,track.keyAreaTo,
-                ImportedMusicParameters.keyboardGain(master?.music ?: index.musicSettings),track.pedalMode)
+                voice.snapshot.record && !track.muted,track.keyAreaFrom,track.keyAreaTo,
+                ImportedMusicParameters.keyboardGain(master?.music ?: index.musicSettings),track.pedalMode,chordPart=track.kind==3)
         }
     }
     fun resolve(index:ImportedSetIndex,slot:Int,changes:List<Boolean> = ImportedStsPlan.defaultChanges):Selection {
@@ -38,7 +38,7 @@ object ImportedStsBatch {
         scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},keyConnectionMethod:Int=0):Prepared {
         val current=index.tracks.filter{it.group==0}.drop(1).mapIndexedNotNull{offset,track->
             val position=offset+1
-            if(position>4 || track.kind !in 0..1)null else position to ImportedSts(
+            if(position>4 || track.kind !in listOf(0,1,3))null else position to ImportedSts(
                 name=track.name,record=track.record,midiChannel=track.midiChannelOut,
                 instrument=track.instrument,system=track.system,pedal=track.pedal,
                 mode=index.instruments.getOrNull(track.instrument)?.selectedMode ?: 0,
@@ -59,7 +59,7 @@ object ImportedStsBatch {
         val selection=resolved.copy(actions=actions)
         val master=ImportedStsMaster.prepare(index,selection.master,changes)
         val loadIndex=index.copy(musicSettings=master.music,systems=master.systems)
-        val effective=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
+        val effective=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in listOf(0,1,3)}
             .associate{member->
                 val prior=current[member.position] ?: error("Current STS part ${member.position} unavailable")
                 member.position to ImportedStsChanges.transition(index,member.position,prior,member.snapshot,selection.actions,changes)
@@ -71,7 +71,7 @@ object ImportedStsBatch {
     fun prepareFull(file:File,index:ImportedSetIndex,slot:Int,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},restoredModes:Map<Int,Int> = emptyMap(),restoredParts:Map<Int,ImportedSts> = emptyMap(),restoredMaster:ImportedStsMaster.Prepared?=null,keyConnectionMethod:Int=0):Prepared {
         val selection=resolve(index,slot)
         // Resolve all slots first, so a missing later Track cannot cause partial apply.
-        val members=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in 0..1}
+        val members=selection.members.filter{it.position<=4 && index.tracks[it.trackIndex].kind in listOf(0,1,3)}
         val snapshots=members.associate{it.position to (restoredParts[it.position] ?: ImportedStsModeState.restore(index,it.snapshot,restoredModes[it.position]))}
         val loadIndex=if(restoredMaster==null)index else index.copy(musicSettings=restoredMaster.music,systems=restoredMaster.systems)
         ImportedStsMemory.check(loadIndex,snapshots.values)

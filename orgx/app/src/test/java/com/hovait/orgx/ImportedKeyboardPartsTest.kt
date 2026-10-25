@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun directChordSkipsRegularKeyboardPartsAndCutsAReclassifiedChordPart(){
+        val source=SampledInstrument(listOf(InstrumentRegion(36,
+            SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000)
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        fun frame():Double{mixer.beginFrame();parts.renderDirectChord(mixer,145);mixer.finishFrame();return mixer.left}
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source),ImportedKeyboardParts.Part(2,source,chordPart=true)))
+            assertEquals(.75,frame(),1e-12)
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source),ImportedKeyboardParts.Part(2,source)))
+            assertEquals(0.0,frame(),0.0)
+            parts.replace(listOf(ImportedKeyboardParts.Part(2,source,enabled=false,chordPart=true)))
+            assertEquals(0.0,frame(),0.0)
+        }finally{parts.reset();mixer.close()}
+    }
     @Test fun directChordUsesEnabledStsPartsAndTheirGainsAndCutsRemovedParts(){
         fun source(value:Short)=SampledInstrument(listOf(InstrumentRegion(36,
             SamplePcm(1000,1,shortArrayOf(value,value)),0,2)),1000)
@@ -14,12 +28,12 @@ class ImportedKeyboardPartsTest {
             mixer.beginFrame();parts.renderDirectChord(mixer,mask);mixer.finishFrame();return mixer.left
         }
         try{
-            parts.replace(listOf(ImportedKeyboardParts.Part(1,first,inputGain=.5),
-                ImportedKeyboardParts.Part(2,second,enabled=false)))
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,first,inputGain=.5,chordPart=true),
+                ImportedKeyboardParts.Part(2,second,enabled=false,chordPart=true)))
             assertEquals(.375,frame(145),1e-12)
-            parts.replace(listOf(ImportedKeyboardParts.Part(1,first,inputGain=.5),ImportedKeyboardParts.Part(2,second,inputGain=.25)))
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,first,inputGain=.5,chordPart=true),ImportedKeyboardParts.Part(2,second,inputGain=.25,chordPart=true)))
             assertEquals(.75,frame(145),1e-12)
-            parts.replace(listOf(ImportedKeyboardParts.Part(2,second,inputGain=.25)))
+            parts.replace(listOf(ImportedKeyboardParts.Part(2,second,inputGain=.25,chordPart=true)))
             assertEquals(.375,frame(145),1e-12)
             assertEquals(0.0,frame(0),0.0)
             assertEquals(.125,frame(1),1e-12)
