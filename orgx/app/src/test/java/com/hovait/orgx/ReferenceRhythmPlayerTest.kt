@@ -21,20 +21,36 @@ class ReferenceRhythmPlayerTest {
             ReferenceDrumEvent(246,0,0,0,10,0)))),{10000},{_,_,_->1.0},1000)
         try{repeat(3){player.next(0,120)};assertTrue(player.left>0)}finally{player.close()}
     }
-    @Test fun fadeStartHonorsStoredDelayBeforeRamping(){
-        val fade=ReferenceFadeController();fade.command(false,4,2)
-        assertEquals(1.0,fade.advance(),0.0);assertEquals(1.0,fade.advance(),0.0)
-        assertTrue(fade.advance()<1.0)
+    @Test fun fadeUsesMillisecondsAndCancelRestoresVolumeImmediately(){
+        val fade=ReferenceFadeController()
+        fade.start(100,200,1000,playing=true)
+        assertEquals(0.99,fade.advance(),0.000001)
+        repeat(49){fade.advance()}
+        assertEquals(0.49,fade.advance(),0.000001)
+        fade.cancel()
+        repeat(200){assertEquals(1.0,fade.advance(),0.0)}
     }
-    @Test fun fadeStartAndCancelRampTheRhythmBus(){
+    @Test fun fadeInWaitsButFadeOutDoesNotWait(){
+        val fade=ReferenceFadeController()
+        fade.start(100,2,1000,playing=false)
+        repeat(2){assertEquals(0.0,fade.advance(),0.0)}
+        assertEquals(0.01,fade.advance(),0.000001)
+        fade.start(100,200,1000,playing=true)
+        assertEquals(0.99,fade.advance(),0.000001)
+        fade.start(0,0,1000,playing=true)
+        assertEquals(0.98,fade.advance(),0.000001)
+    }
+    @Test fun storedFadeCancelRestoresRhythmBusInOneFrame(){
+        val fade=ReferenceFadeController()
+        fade.start(100,0,1000,playing=true)
+        repeat(75){fade.advance()}
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
-            ReferenceDrumEvent(211,0,0,0,0,4),ReferenceDrumEvent(2,1,60,100,1,1000),
-            ReferenceDrumEvent(212,0,0,0,8,0)))),{10000},{_,_,_->1.0},1000)
+            ReferenceDrumEvent(212,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),
+            {10000},{_,_,_->1.0},1000,fadeController=fade)
         try{
-            repeat(2){player.next(0,120);player.mixOutput(1f,1f)}
-            assertTrue(player.outputLeft<player.left)
-            repeat(8){player.next(0,120);player.mixOutput(1f,1f)}
-            assertTrue(player.outputLeft>0)
+            repeat(3){player.next(0,120);player.mixOutput(1f,1f)}
+            assertTrue(player.left>0)
+            assertEquals(player.left,player.outputLeft,0.000001)
         }finally{player.close()}
     }
     @Test fun fadeCommandsDoNotInvalidateAStyleTrack(){

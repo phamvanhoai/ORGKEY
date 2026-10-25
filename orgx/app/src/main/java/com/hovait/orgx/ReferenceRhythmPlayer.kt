@@ -307,8 +307,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 return@advance
             }
             if(event.type==211 || event.type==212){
-                val duration=(event.note.takeIf{it>0}?.toLong() ?: event.length).coerceAtLeast(1)
-                fadeController.command(event.type==212,duration,event.touch.toLong())
+                if(event.type==212) fadeController.cancel()
+                else fadeController.start(event.note,event.touch,sampleRateForEnvelope,playing=true)
                 return@advance
             }
             if(event.type==202 || event.type==231 || event.type==232 || event.type in 241..246){

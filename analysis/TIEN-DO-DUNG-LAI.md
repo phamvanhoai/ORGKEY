@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Sửa ngữ nghĩa Fade trong style, 26-10-2026
+
+- Đối chiếu Track.Play(211/212) và Music.FadeStart/FadeCancel: 211 dùng Key làm thời lượng mili giây, Touch làm độ trễ; 212 khôi phục âm lượng ngay. Bỏ suy đoán lấy Length thay thời lượng và ramp tăng khi hủy.
+- Fade-out bắt đầu ngay, không chờ Touch trước khi giảm âm lượng. Controller hỗ trợ fade-in có độ trễ; sự kiện trong track đang chạy sử dụng fade-out. Bộ kiểm tra tương thích nay chấp nhận 211/212 thay vì loại cả section.
+- Build debug và ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Sửa kiểm thử cũ vốn khẳng định hành vi sai; không tạo file test/log mới, không sửa SET.
+- Chưa tương đương toàn bộ Music: fade hiện nằm trên bus rhythm; chưa điều khiển Cut/Stop toàn cục sau fade-out và chưa bao phủ voice/PAD. Không coi đây là hoàn thành toàn bộ chức năng Fade của APK gốc.
 ## Chord marker202 không loại style khi chưa có hòa âm runtime, 25-10-2026
 
 - TrackEvent.Chord202 là marker dữ liệu hòa âm. ORGX trước báo unsupported và loại section. Nay giữ event trong timeline; chord following hiện vẫn lấy targetChord/ChordSynchro của session, chưa map marker202 vào chord state riêng.
