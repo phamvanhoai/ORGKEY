@@ -6,6 +6,11 @@ import java.util.concurrent.atomic.AtomicLongArray
 /** Owns a preloaded JumpGroup chain. No file access occurs when advancing it. */
 class ImportedPadSequence(private val first:Int,private val groups:Map<Int,ImportedStyleGroup>,
     private val players:Map<Int,ReferenceRhythmPlayer>) {
+    private val temporaryLoops=HashSet<Int>()
+    init{players.values.forEach{it.withTempLoopCommand{id->
+        val group=groups[id]
+        if(group!=null && !group.loop && (group.limit || group.end>10))temporaryLoops.add(id)
+    }}}
     var currentId=first;private set
     private var startedAt=0L
     private var scaleChange:Int?=null
@@ -16,6 +21,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     fun withMusicState(state:ImportedMusicState){players.values.forEach{it.withMusicState(state)}}
     val group get()=groups.getValue(currentId)
     fun start(time:Long,scale:Int,method:Int){
+        temporaryLoops.clear()
         currentId=first
         val newScale=ReferenceSectionTiming.scale(group,method)
         scaleChange=newScale.takeIf{it>0}
@@ -25,14 +31,14 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     }
     fun advance(time:Long,scale:Int,method:Int,tempo:Int):ReferenceRhythmPlayer {
         val complete=player.finished || (!group.loop && group.limit && group.end>group.start && time-startedAt>=group.end.toLong()-group.start)
-        if(player.finished && group.loop){
+        if((player.finished || complete) && (group.loop || currentId in temporaryLoops)){
             // _PlayGroup calls GroupPlayStart on exhaustion. GroupPlayNext keeps
             // a Loop group current, irrespective of its stored JumpGroup.
             val offset=ReferenceSectionTiming.startOffset(time,group,scale,method)
             startedAt=time-offset
             player.restartAt(offset)
         }
-        else if(complete && !group.loop && group.jumpGroup>0 && ReferenceSectionTiming.inWindow(time,scale,tempo)){
+        else if(complete && !group.loop && currentId !in temporaryLoops && group.jumpGroup>0 && ReferenceSectionTiming.inWindow(time,scale,tempo)){
             val next=group.jumpGroup
             if(next in players){
                 val previous=player
@@ -48,7 +54,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
         player.next(0,tempo)
         return player
     }
-    val awaitingContinuation get()=player.finished && (group.loop || (group.jumpGroup>0 && group.jumpGroup in players))
+    val awaitingContinuation get()=player.finished && (group.loop || currentId in temporaryLoops || (group.jumpGroup>0 && group.jumpGroup in players))
     fun close(){players.values.forEach{it.close()}}
 }
 

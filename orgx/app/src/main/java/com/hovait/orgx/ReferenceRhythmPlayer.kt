@@ -13,6 +13,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges) {
     init{require(keyConnectionMethod in 0..1);require(stsChanges.size==21)}
     private var externalFade = false
+    private var tempLoopCommand:(Int)->Unit={}
+    fun withTempLoopCommand(command:(Int)->Unit):ReferenceRhythmPlayer=also{
+        tempLoopCommand=command;children.forEach{it.withTempLoopCommand(command)}
+    }
     private var musicState=ImportedMusicState()
     private var externalMusicState=false
     internal fun storedChord(mapper:ReferenceChordTransposer):Int?=musicState.chordMask?.let(mapper::find)
@@ -384,6 +388,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 musicState.chord(event.note,event.tune)
                 return@advance
             }
+            if(event.type==204){tempLoopCommand(event.note);return@advance}
             if(event.type==5){
                 openedKeyIds.getOrNull(event.note+1)?.let{selected->voices.values.filter{it.eventId==selected && it.release<0}
                     .forEach{it.playback?.aftertouch(event.touch/127f)}}

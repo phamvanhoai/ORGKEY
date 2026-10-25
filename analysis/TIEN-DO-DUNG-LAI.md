@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Thực thi RhythmTempLoop 204 từ timeline SET, 26-10-2026
+
+- Đối chiếu Track.Play(204): đánh dấu tempLoop của group một lần phát, không đổi Loop gốc. ReferenceRhythmPlayer phát command tới chủ sở hữu session/sequence thay vì bỏ qua; bộ tương thích và chọn track giữ cả track chỉ chứa lệnh 204.
+- StyleSession cập nhật temporaryLoops, dùng cơ chế quay section hiện có; chuỗi PAD giữ tập temporaryLoops và quay group hiện tại thay vì đi JumpGroup. awaitingContinuation giữ PAD sống qua frame kết thúc để vòng tiếp theo được khởi động. Start chuỗi mới xóa trạng thái tạm.
+- Build debug và ImportedTempLoopTest, ImportedStyleSessionTest, ImportedSectionFallbackTest đạt. Kiểm tra event204 giữ Intro qua nhiều vòng, người chơi chuyển Main vẫn thoát được, và PAD không đi JumpGroup khi đang temp loop.
+- Giới hạn: target phải thuộc nhóm đã nạp; điều kiện group không giới hạn mới xét end metadata, chưa tính đầy đủ Tracks.EndTime từ toàn event cho group không giới hạn. Player standalone không có session/sequence chưa thực hiện chuyển vòng theo command. Không sửa SET hoặc tạo file test/log mới.
 ## Lệnh bật FX lặp khởi tạo lại bus, 26-10-2026
 
 - Track.Play 241–246 luôn gọi z01.c, không kiểm tra enable cũ; z01.c gọi khởi tạo/đóng module tương ứng. ORGX trước chỉ thay chain khi boolean đổi, nên lệnh bật lặp không có tác dụng với echo đang chờ.

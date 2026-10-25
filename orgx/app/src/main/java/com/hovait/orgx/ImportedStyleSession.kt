@@ -20,6 +20,10 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     private val queue=ArrayDeque<Request>()
     private var jumpId:Int?=null
     private val temporaryLoops=HashSet<Int>()
+    init{players.values.forEach{it.withTempLoopCommand{id->
+        val group=groups[id]
+        if(group!=null && !group.loop && (group.limit || group.end>10))temporaryLoops.add(id)
+    }}}
     val temporaryLoop get()=synchronized(this){currentId in temporaryLoops}
     private var lastLoop:Int?=main.id.takeIf{main.loop}
     private var startedAt=0L
