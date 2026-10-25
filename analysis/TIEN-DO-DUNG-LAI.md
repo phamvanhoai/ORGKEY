@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Kiểm tra FX theo trình tự STS và automation, 26-10-2026
+
+- Bộ tương thích trước xét66 theo module ban đầu, không theo64 trước đó. Nay đi event theo thời gian, merge STS với mask thực, duy trì channel và mode FX riêng;61 ID khác0 áp lại mode,66 cập nhật basis đúng.
+- Kiểm tra cấu hình chain hiệu lực, không ép bật mọi module khi event chỉ chỉnh tham số; thông báo lỗi kèm thời điểm. Loader truyền stsChanges vào kiểm tra section, linked target và bước chuẩn bị để tránh hai cách xét khác nhau.
+- assembleDebug và ImportedSectionFallbackTest, ReferenceRhythmPlayerTest, ImportedFxChainTest đạt. Test STS đổi Bass sangPitchShift rồi66 parameter2 bị từ chối đúng module15; mask không đổi FX giữBass và chấp nhận cùng event.
+- Giới hạn: chỉ một lượt timeline, chưa phân tích trạng thái qua loop/chuyển group và sharing mode giữa track; mode/script động vẫn chưa hỗ trợ. Đây là sửa kiểm tra chuẩn bị, không tuyên bố dựng thêm sound engine. Không sửa SET hoặc tạo file test/log mới.
 ## TrackMode61 áp dụng lại mode cố định, 26-10-2026
 
 - Đối chiếu Track.Play61: ID0 chỉ gán fMode, ID khác0 gọi ModeSet kể cả khi cùng mode; đổi mode khác còn gọi ScriptEvent rỗng. Dựng trường hợp một mode0 không script, không tự hỗ trợ đổi sound động.

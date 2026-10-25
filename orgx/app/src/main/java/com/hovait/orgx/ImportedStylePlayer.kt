@@ -23,16 +23,16 @@ object ImportedStylePlayer {
         chordControl:()->Int={0},chordOctaveMove:()->Int={0},chordQuality:()->Int={2},
         stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges,targetChord:(()->Int?)?=null):ImportedStyleSession {
         val complete=ImportedSectionFallback.complete(index,style)
-        val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
+        val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null,stsChanges)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
         val sectionIds=sections.mapTo(HashSet()){it.id}
         val linked=(ImportedStyleCatalog.jumpTargets(index,sections)+ImportedStyleCatalog.padRhythmTargets(index,style.id))
             .distinctBy{it.id}.filter{it.id !in sectionIds}
         require(sections.size+linked.size<=64){"Style control graph exceeds 64 groups"}
-        val playableLinked=linked.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
+        val playableLinked=linked.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null,stsChanges)==null}
         val players=loadSections(file,index,sections+playableLinked,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality,stsChanges)
         val unavailable=(complete.sections+linked).filter{it.id !in players}.associate{group->
-            group.id to (ImportedStyleSupport.reason(index,group,includeAccompaniment,targetChord!=null) ?: "Group was not prepared")
+            group.id to (ImportedStyleSupport.reason(index,group,includeAccompaniment,targetChord!=null,stsChanges) ?: "Group was not prepared")
         }
         return ImportedStyleSession(complete,players,linkedGroups=linked,storedEndTimes=ImportedStyleCatalog.endTimes(index),
             knownGroupIds=index.styles.mapTo(HashSet()){it.id},unavailableReasons=unavailable)
@@ -48,8 +48,8 @@ object ImportedStylePlayer {
         require(keyConnectionMethod in 0..1)
         val follow=targetChord!=null || (includeAccompaniment && transposer!=null && index.tracks.any{it.events.any{event->event.type==202}})
         require(!follow || (includeAccompaniment && transposer!=null)){"Chord mapping requires accompaniment and chord table"}
-        groups.forEach{group->require(ImportedStyleSupport.reason(index,group,includeAccompaniment,follow)==null){
-            ImportedStyleSupport.reason(index,group,includeAccompaniment,follow).orEmpty()
+        groups.forEach{group->require(ImportedStyleSupport.reason(index,group,includeAccompaniment,follow,stsChanges)==null){
+            ImportedStyleSupport.reason(index,group,includeAccompaniment,follow,stsChanges).orEmpty()
         }}
         val storedMusic=ImportedMusicState(index.musicSettings)
         val byGroup=groups.associate{it.id to ImportedStyleSupport.playbackTracks(index,it,includeAccompaniment)}

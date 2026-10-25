@@ -68,7 +68,8 @@ object ImportedStyleSupport {
     }
     fun playbackTracks(index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean)=
         if(!includeAccompaniment)drumTracks(index,group) else activeTracks(index,group)
-    fun reason(index:ImportedSetIndex?,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,followChord:Boolean=false):String? {
+    fun reason(index:ImportedSetIndex?,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,followChord:Boolean=false,
+        stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges):String? {
         if(index==null)return "SET index unavailable"
         if(group.type!=1)return "Unsupported style group type"
         val tracks=playbackTracks(index,group,includeAccompaniment)
@@ -76,25 +77,39 @@ object ImportedStyleSupport {
         tracks.firstOrNull{it.instrument !in index.instruments.indices}?.let{
             return "Track '${it.name}' references missing instrument ${it.instrument}"
         }
-        tracks.forEach{track->track.events.forEach{event->
+        tracks.forEach{track->
+          var channel=track.settings
+          val mode=instrument(index,track)?.modes?.singleOrNull()
+          var modeChannel=mode?.settings
+          track.events.sortedBy{it.time}.forEach{event->
+            if(event.type==64){
+                track.sts.firstOrNull{it.slot==event.note}?.let{channel=ImportedStsChanges.channel(channel,it.settings,stsChanges)}
+                runCatching{ImportedFxChain(channel).close()}.exceptionOrNull()?.let{
+                    return "Track '${track.name}': STS ${event.note} FX at ${event.time}: ${it.message}"
+                }
+            }
             if(event.type==61){
                 val modes=instrument(index,track)?.modes.orEmpty()
                 if(event.note!=0 || modes.size!=1 || modes.single().script.isNotBlank())
                     return "Track '${track.name}': dynamic mode selection ${event.note} is not supported yet"
+                if(event.id!=0)channel=checkNotNull(modeChannel)
                 return@forEach
             }
             if(event.type==66){
                 if(track.type==0)return@forEach // Original Track.Play ignores FX automation for Type 0.
                 val modes=instrument(index,track)?.modes.orEmpty()
                 if(modes.isNotEmpty() && (modes.size!=1 || modes.single().script.isNotBlank()))return "Track '${track.name}': dynamic mode FX automation is not supported yet"
-                val module=(modes.singleOrNull()?.settings ?: track.settings).modules.getOrNull(event.id)
+                val basis=modeChannel ?: channel
+                val module=basis.modules.getOrNull(event.id)
                 if(module!=null){
                     if(!ImportedTrackFxAutomation.supported(module,event))return "Track '${track.name}': FX ${module.type} parameter ${event.note} is not supported yet"
                     val updated=ImportedTrackFxAutomation.apply(module,event)
-                    val enabled=track.settings.copy(fxEnabled=true,modules=listOf(updated.copy(enabled=true)))
-                    runCatching{ImportedFxChain(enabled).close()}.exceptionOrNull()?.let{
-                        return "Track '${track.name}': cannot enable FX ${module.type}: ${it.message}"
+                    val updatedChannel=basis.copy(modules=basis.modules.toMutableList().also{it[event.id]=updated})
+                    runCatching{ImportedFxChain(updatedChannel).close()}.exceptionOrNull()?.let{
+                        return "Track '${track.name}': FX ${module.type} at ${event.time}: ${it.message}"
                     }
+                    if(modeChannel!=null)modeChannel=updatedChannel
+                    channel=updatedChannel
                 }
                 return@forEach
             }

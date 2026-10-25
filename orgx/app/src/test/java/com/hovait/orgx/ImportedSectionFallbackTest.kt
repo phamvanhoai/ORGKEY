@@ -5,6 +5,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun fxValidationFollowsStsModuleReplacementAndItsChangeMask(){
+        val group=part(1,100,32)
+        val sound=ImportedSound("Sound",listOf(0,0,100,10,0,0),emptyList())
+        val instrument=ImportedInstrument("Kit",100,0,1,listOf(sound))
+        val initial=ImportedFxModule(20,true,false,listOf(20,0,0,0,80,0,0,0))
+        val shift=ImportedFxModule(15,true,false,listOf(100,0,0,0))
+        val sts=ImportedSts("Shift",false,0,0,0,0,0,0,0,0,emptyList(),
+            ImportedChannelSettings(fxEnabled=true,modules=listOf(shift)),slot=0)
+        val track=ImportedTrack("Test",1,0,false,listOf(ReferenceDrumEvent(2,1,60,100,0,1000),
+            ReferenceDrumEvent(64,0,0,0,10,0),ReferenceDrumEvent(66,0,2,0,20,0)),type=1,
+            settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(initial)),sts=listOf(sts))
+        val index=ImportedSetIndex(listOf(instrument),listOf(group),listOf(track))
+        val reason=ImportedStyleSupport.reason(index,group)
+        assertTrue(reason?.contains("FX 15 parameter 2")==true)
+        assertNull(ImportedStyleSupport.reason(index,group,stsChanges=List(21){false}))
+    }
     @Test fun stylePreloadsRhythmDestinationsFromItsPadsIncludingSharedPadFallback(){
         val file=File.createTempFile("orgx-pad-rhythm-target",".pcm")
         try{
