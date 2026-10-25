@@ -394,10 +394,12 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 applySts(event.note)
                 return@advance
             }
-            if(event.type==66 && event.note==0){
+            if(event.type==66){
                 if(event.id in currentChannel.modules.indices){
                     val modules=currentChannel.modules.toMutableList()
-                    modules[event.id]=modules[event.id].copy(enabled=event.touch!=0)
+                    val module=modules[event.id]
+                    if(!ImportedTrackFxAutomation.supported(module,event))return@advance
+                    modules[event.id]=ImportedTrackFxAutomation.apply(module,event)
                     val settings=currentChannel.copy(modules=modules)
                     fx?.close();fx=ImportedFxChain(settings,sampleRateForEnvelope);currentChannel=settings
                 }

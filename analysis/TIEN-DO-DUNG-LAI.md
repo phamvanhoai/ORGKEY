@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 đổi tham số Echo và Stereo Delay, 26-10-2026
+
+- Đối chiếu s01.i và b44.f: Touch chuẩn hóa -100..100 được Math.round ánh xạ vào min/max tham số; mức Echo0..99, delay0..100. t01 Stereo Delay kế thừa setter này. Key1/2 tương ứng tham số0/1.
+- ImportedTrackFxAutomation sửa đúng integer little-endian trong payload của module4/6, giữ các tham số khác và Enable. RhythmPlayer dùng helper cho enable hoặc tham số; loader kiểm tra payload mới trước khi chấp nhận. Type0 vẫn bỏ qua, mode FX vẫn báo chưa hỗ trợ.
+- assembleDebug và ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Kiểm tra normalized0 thành mức50,100 thành delay100,-100 thành mức0 và FX không sinh echo khi feedback0.
+- Giới hạn: tái tạo toàn chain thay vì cập nhật native module tại chỗ; chưa mode FX, module khác hoặc giá trị chuẩn hóa ngoài -100..100; delay0 của Stereo vẫn bị từ chối theo giới hạn DSP hiện có. Không sửa SET hoặc tạo file test/log mới.
 ## TrackFXParam66: bật/tắt module FX channel, 26-10-2026
 
 - Đối chiếu Track.Play66: Type0 bỏ qua, ID là index module, Key0 đổi Enable theo Touch!=0 rồi z01.c; Key>0 gọi setter riêng theo loại module. Dựng nhánh Key0 cho track không dùng mode; không tự suy đoán payload tham số.

@@ -1,5 +1,21 @@
 package com.hovait.orgx
 
+/** n01.i receives normalized -100..100; s01 maps it using b44.f. */
+object ImportedTrackFxAutomation {
+    fun supported(module:ImportedFxModule,event:ReferenceDrumEvent)=event.note==0 ||
+        (module.type in listOf(4,6) && module.payload.size==8 && event.note in 1..2 && event.touch in -100..100)
+    fun apply(module:ImportedFxModule,event:ReferenceDrumEvent):ImportedFxModule {
+        require(supported(module,event))
+        if(event.note==0)return module.copy(enabled=event.touch!=0)
+        val max=if(event.note==1)99 else 100
+        val value=Math.round((event.touch+100)/200.0f*max)
+        val bytes=module.payload.toMutableList()
+        val offset=(event.note-1)*4
+        repeat(4){bytes[offset+it]=(value ushr (it*8)) and 255}
+        return module.copy(payload=bytes)
+    }
+}
+
 /** Ordered SET track DSP stages; state belongs to a track, never the sample bank. */
 class ImportedFxChain(private val settings:ImportedChannelSettings,private val sampleRate:Int=48000):AutoCloseable {
     init {

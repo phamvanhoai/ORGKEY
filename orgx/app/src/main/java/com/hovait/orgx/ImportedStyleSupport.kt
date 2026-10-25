@@ -79,11 +79,12 @@ object ImportedStyleSupport {
         tracks.forEach{track->track.events.forEach{event->
             if(event.type==66){
                 if(track.type==0)return@forEach // Original Track.Play ignores FX automation for Type 0.
-                if(event.note!=0)return "Track '${track.name}': FX parameter ${event.note} is not supported yet"
                 if(instrument(index,track)?.modes?.isNotEmpty()==true)return "Track '${track.name}': mode FX automation is not supported yet"
                 val module=track.settings.modules.getOrNull(event.id)
-                if(module!=null && event.touch!=0){
-                    val enabled=track.settings.copy(fxEnabled=true,modules=listOf(module.copy(enabled=true)))
+                if(module!=null){
+                    if(!ImportedTrackFxAutomation.supported(module,event))return "Track '${track.name}': FX ${module.type} parameter ${event.note} is not supported yet"
+                    val updated=ImportedTrackFxAutomation.apply(module,event)
+                    val enabled=track.settings.copy(fxEnabled=true,modules=listOf(updated.copy(enabled=true)))
                     runCatching{ImportedFxChain(enabled).close()}.exceptionOrNull()?.let{
                         return "Track '${track.name}': cannot enable FX ${module.type}: ${it.message}"
                     }

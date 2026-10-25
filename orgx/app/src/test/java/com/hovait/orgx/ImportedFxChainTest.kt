@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun echoAutomationMapsNormalizedValuesBeforeWritingLittleEndianParameters(){
+        for(type in listOf(4,6)){
+            val original=module(type,50,30)
+            val volume=ImportedTrackFxAutomation.apply(original,ReferenceDrumEvent(66,0,1,0,0,0))
+            assertEquals(50,volume.payload[0]);assertEquals(30,volume.payload[4])
+            val delay=ImportedTrackFxAutomation.apply(volume,ReferenceDrumEvent(66,0,2,100,0,0))
+            assertEquals(100,delay.payload[4]);assertEquals(50,delay.payload[0])
+            val silent=ImportedTrackFxAutomation.apply(delay,ReferenceDrumEvent(66,0,1,-100,0,0))
+            assertEquals(0,silent.payload[0]);assertTrue(silent.enabled)
+            val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(silent)),1000)
+            try{fx.process(1.0,0.0);repeat(1000){fx.process(0.0,0.0);assertEquals(0.0,fx.left,0.0)}}finally{fx.close()}
+        }
+    }
     @Test fun trackRestartResetsOnlyRealtimeModules(){
         for(realtime in listOf(false,true)){
             val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(
