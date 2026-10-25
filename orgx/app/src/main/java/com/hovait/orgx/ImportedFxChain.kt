@@ -33,7 +33,7 @@ object ImportedTrackFxAutomation {
 }
 
 /** Ordered SET track DSP stages; state belongs to a track, never the sample bank. */
-class ImportedFxChain(private val settings:ImportedChannelSettings,private val sampleRate:Int=48000):AutoCloseable {
+class ImportedFxChain(private var settings:ImportedChannelSettings,private val sampleRate:Int=48000):AutoCloseable {
     init {
         if(settings.fxEnabled)settings.modules.firstOrNull{it.enabled && it.type !in setOf(1,2,4,6,7,8,9,10,15,16,17,20,21,23,29,31)}?.let{
             throw IllegalArgumentException("Unsupported enabled SET FX module ${it.type}")
@@ -52,6 +52,7 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
         private val processor=ImportedNativePitchShift(shift,rate)
         private val tailFrames=ImportedNativePitchShift.FLUSH_FRAMES.toLong()
         private var remaining=0L
+        fun setShift(value:Int){processor.setShift(value)}
         override var left=0.0;override var right=0.0
         override val active get()=remaining>0
         override fun process(l:Double,r:Double){
@@ -345,7 +346,7 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
-    private val modules=if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2,29,31,15)}
+    private var modules=if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2,29,31,15)}
     private val stages:List<Stage> = modules.map{
         if(it.type==15){
             require(it.payload.size==4){"Invalid Pitch Shift payload"}
@@ -424,6 +425,23 @@ class ImportedFxChain(private val settings:ImportedChannelSettings,private val s
     var left=0.0;private set
     var right=0.0;private set
     private var closed=false
+    /** Pitch Shift passes its parameter to JNI per sample; no native reopen or other-stage reset. */
+    fun updatePitchShift(moduleIndex:Int,updated:ImportedFxModule):Boolean {
+        check(!closed)
+        val original=settings.modules.getOrNull(moduleIndex) ?: return false
+        if(original.type!=15 || updated.type!=15 || updated.payload.size!=4 ||
+            original.enabled!=updated.enabled || original.realtime!=updated.realtime)return false
+        val shift=int(updated.payload,0)
+        require(shift in 50..200)
+        if(settings.fxEnabled && original.enabled){
+            val index=settings.modules.take(moduleIndex).count{it.enabled}
+            val stage=stages.getOrNull(index) as? PitchShift ?: return false
+            stage.setShift(shift)
+            modules=modules.toMutableList().also{it[index]=updated}
+        }
+        settings=settings.copy(modules=settings.modules.toMutableList().also{it[moduleIndex]=updated})
+        return true
+    }
     val active get()=!closed && stages.any{it.active}
     fun reset(){check(!closed){"SET FX chain is closed"};stages.forEach{it.reset()};left=0.0;right=0.0}
     /** Track.Start -> z01.f(true) resets only modules marked realtime. */

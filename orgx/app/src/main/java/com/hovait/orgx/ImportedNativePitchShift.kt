@@ -3,7 +3,7 @@ package com.hovait.orgx
 import sofeh.audio.NPitchShift
 
 /** Explicit lifetime for the original phase-vocoder library; allocated on first signal. */
-class ImportedNativePitchShift(private val shift:Int,private val rate:Int):AutoCloseable {
+class ImportedNativePitchShift(private var shift:Int,private val rate:Int):AutoCloseable {
     companion object {
         // JNI uses a 1024-point FFT with 4x overlap. Keep four windows for
         // flushing, independent of sample rate; verified on the native bridge.
@@ -14,6 +14,7 @@ class ImportedNativePitchShift(private val shift:Int,private val rate:Int):AutoC
     var left=0.0;private set
     var right=0.0;private set
     init{require(shift in 50..200 && rate>0)}
+    fun setShift(value:Int){check(!closed);require(value in 50..200);shift=value}
     fun process(l:Double,r:Double){
         check(!closed)
         if(handle==0L){handle=NPitchShift.open(0);check(handle!=0L){"Cannot open Pitch Shift"}}

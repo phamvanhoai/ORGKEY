@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Pitch Shift đổi tham số tại chỗ, giữ chain và native handle, 26-10-2026
+
+- Đối chiếu sofeh.audio.f: i thay g0, a chỉ open nếu handle0; mỗi process truyền g0 hiện tại tới JNI. Native wrapper nay có setShift kiểm tra50..200, không đóng/open khi đổi giá trị.
+- ImportedFxChain.updatePitchShift cập nhật stage đã có và cấu hình dùng cho fresh, giữ các stage khác và tail. Module bị disable cũng cập nhật cấu hình nhưng không tạo native handle. Không áp dụng fast path khi Enable/realtime/type đổi.
+- Track event66 Key1 dùng fast path khi module là PitchShift; các nhánh khác giữ cơ chế trước. Build debug, ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Test có PitchShift disabled và Echo active xác nhận đổi Shift không làm mất echo đang chờ.
+- Giới hạn: test host chưa chứng minh giữ phase native khi PitchShift active; cần thu âm/kiểm tra JNI trên thiết bị. Module khác và mode FX chưa cập nhật tại chỗ. Không sửa SET hoặc tạo file test/log mới.
 ## TrackFXParam66 cho Pitch Shift và Band Booster, 26-10-2026
 
 - Xác minh đúng class sofeh.audio.f được import từ z01, không phải defpackage.f crypto. Shift có min50/max200; normalized0 thành125, không phải100. Band Booster sofeh.audio.b có min-100/max100 cho ba tham số, serialize theo g2,g1,g0,reserved.

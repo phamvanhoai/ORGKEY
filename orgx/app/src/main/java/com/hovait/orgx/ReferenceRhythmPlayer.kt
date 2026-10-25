@@ -401,7 +401,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                     if(!ImportedTrackFxAutomation.supported(module,event))return@advance
                     modules[event.id]=ImportedTrackFxAutomation.apply(module,event)
                     val settings=currentChannel.copy(modules=modules)
-                    fx?.close();fx=ImportedFxChain(settings,sampleRateForEnvelope);currentChannel=settings
+                    if(event.note!=1 || ! (fx?.updatePitchShift(event.id,modules[event.id]) ?: false)){
+                        fx?.close();fx=ImportedFxChain(settings,sampleRateForEnvelope)
+                    }
+                    currentChannel=settings
                 }
                 return@advance
             }

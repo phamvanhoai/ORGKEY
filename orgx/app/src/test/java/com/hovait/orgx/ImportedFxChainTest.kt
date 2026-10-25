@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun pitchShiftParameterUpdatePreservesOtherStagesAndFreshConfiguration(){
+        val shift=ImportedFxModule(15,false,false,listOf(100,0,0,0))
+        val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(shift,module(6,50,1)))
+        val fx=ImportedFxChain(settings,1000)
+        try{
+            fx.process(1.0,0.0)
+            repeat(4){fx.process(0.0,0.0)}
+            assertTrue(fx.updatePitchShift(0,shift.copy(payload=listOf(150,0,0,0))))
+            repeat(5){fx.process(0.0,0.0)}
+            fx.process(0.0,0.0);assertEquals(.5,fx.left,0.0)
+            val fresh=fx.fresh()
+            try{
+                assertTrue(fresh.updatePitchShift(0,shift.copy(payload=listOf(125,0,0,0))))
+                assertFalse(fresh.updatePitchShift(1,shift))
+            }finally{fresh.close()}
+        }finally{fx.close()}
+    }
     @Test fun pitchShiftAndBandBoosterUseOriginalRangesAndPackedBandOrder(){
         val shift=ImportedFxModule(15,true,false,listOf(100,0,0,0))
         for((normalized,expected) in listOf(-100 to 50,0 to 125,100 to 200)){
