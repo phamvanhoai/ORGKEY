@@ -13,6 +13,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges,
     private val fixedMode:ImportedSts?=null) {
     private var liveMode=fixedMode
+    private val modeChangeMask=List(21){it in 13..19}
+    private fun applyLiveMode(){
+        val mode=liveMode ?: return
+        applySts(0,mode,modeChangeMask)
+        currentChannel=currentChannel.copy(tune=mode.settings.tune)
+        fx?.reset()
+    }
     init{require(keyConnectionMethod in 0..1);require(stsChanges.size==21)}
     private var externalFade = false
     internal val storedEndTime:Long get()=maxOf(children.maxOfOrNull{it.storedEndTime} ?: 0L,
@@ -396,6 +403,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 applySts(event.note)
                 return@advance
             }
+            if(event.type==61 && event.note==0 && liveMode!=null){
+                if(event.id!=0)applyLiveMode()
+                return@advance
+            }
             if(event.type==66){
                 liveMode?.let{mode->
                     val module=mode.settings.modules.getOrNull(event.id)
@@ -404,10 +415,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                             it[event.id]=ImportedTrackFxAutomation.apply(module,event)
                         }))
                         liveMode=updated
-                        applySts(0,updated,List(21){it in 13..19})
-                        // ModeSet copies Tune too; event64's z01.e deliberately does not.
-                        currentChannel=currentChannel.copy(tune=updated.settings.tune)
-                        fx?.reset()
+                        applyLiveMode()
                     }
                     return@advance
                 }

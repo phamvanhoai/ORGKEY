@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackMode61 áp dụng lại mode cố định, 26-10-2026
+
+- Đối chiếu Track.Play61: ID0 chỉ gán fMode, ID khác0 gọi ModeSet kể cả khi cùng mode; đổi mode khác còn gọi ScriptEvent rỗng. Dựng trường hợp một mode0 không script, không tự hỗ trợ đổi sound động.
+- Player với fixedMode nhận61 Key0: ID0 giữ channel đang automation, ID khác0 áp dụng liveMode hiện tại (bao gồm FX từng sửa qua66), Tune và expression. Dùng chung applyLiveMode với66; mask ModeSet tạo một lần thay vì mỗi event.
+- Bộ tương thích nhận61 chỉ khi đúng một mode trống script và Key0; các trường hợp còn lại báo dynamic mode selection chưa hỗ trợ trước khi phát.
+- assembleDebug và ReferenceRhythmPlayerTest, ImportedSectionFallbackTest, ImportedFxChainTest đạt. Test volume80/pan0 giữ nguyên sau61 ID0, rồi về mode volume40/pan100 sau61 ID1.
+- Giới hạn: chưa nhiều mode, script đổi mode, mode-1 và sound routing tương ứng; chưa thu âm đối chiếu thiết bị. Không sửa SET hoặc tạo file test/log mới.
 ## Tune của mode sau TrackFXParam66 áp dụng cho nốt mới, 26-10-2026
 
 - Channels.ModeSet dùng z01.d copy Tune, khác event64 z01.e không copy Tune. Nhánh fixed mode FX nay cập nhật currentChannel.tune sau khi áp dụng snapshot mode.

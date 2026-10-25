@@ -77,6 +77,12 @@ object ImportedStyleSupport {
             return "Track '${it.name}' references missing instrument ${it.instrument}"
         }
         tracks.forEach{track->track.events.forEach{event->
+            if(event.type==61){
+                val modes=instrument(index,track)?.modes.orEmpty()
+                if(event.note!=0 || modes.size!=1 || modes.single().script.isNotBlank())
+                    return "Track '${track.name}': dynamic mode selection ${event.note} is not supported yet"
+                return@forEach
+            }
             if(event.type==66){
                 if(track.type==0)return@forEach // Original Track.Play ignores FX automation for Type 0.
                 val modes=instrument(index,track)?.modes.orEmpty()
