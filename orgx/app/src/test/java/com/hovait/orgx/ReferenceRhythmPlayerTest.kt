@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun stsReleaseIsCapturedByNewNotesWithoutChangingHeldNotes(){
+        val source=SampledInstrument(listOf(InstrumentRegion(60,
+            SamplePcm(1000,1,ShortArray(128){8192}),0,128)),1000,
+            envelope=ImportedEnvelope(0,0,100,20,false),rawRelease=20)
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(64,0,0,0,10,0),
+            ReferenceDrumEvent(2,2,60,100,20,1000),ReferenceDrumEvent(3,0,0,0,30,0)))),
+            source::durationFrames,{_,_,_->0.0},1000,sampled=source,initialChannel=ImportedChannelSettings(),
+            stsSnapshotResolver={snapshot(ImportedChannelSettings(releasePercent=0))},stsChanges=List(21){it==17})
+        try{
+            repeat(51){player.next(0,120)}
+            assertEquals(1,player.activeVoices)
+            assertEquals(.25*(1-21.0/200),player.left,1e-12)
+        }finally{player.close()}
+    }
     private fun snapshot(settings:ImportedChannelSettings)=ImportedSts("Snapshot",false,0,0,0,0,0,0,0,0,emptyList(),settings)
     @Test fun stsPanOnlyKeepsVolumeAutomatedBeforeTheSnapshot(){
         val mask=List(21){it==14}

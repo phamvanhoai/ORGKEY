@@ -5,7 +5,8 @@ import kotlin.math.pow
 data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,val loopEnd:Int,val gain:Double=1.0,val pan:Int=0,val looping:Boolean=true,val tune:Int=0,val tempoSync:Boolean=false,val loopUntilRelease:Boolean=false)
 
 class SampledInstrument(private val regions:List<InstrumentRegion>,private val outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null,
-    private val pitchMode:Int=if(exactNotes)2 else 0,private val tuning:List<Double> = emptyList(),private val tuningTranspose:Int=0) {
+    private val pitchMode:Int=if(exactNotes)2 else 0,private val tuning:List<Double> = emptyList(),private val tuningTranspose:Int=0,
+    private val rawRelease:Int?=null,private val musicReleasePercent:Int=100,private val loadedReleasePercent:Int=100) {
     init {
         regions.forEach {
             require(it.sample.frames.isNotEmpty() && it.gain.isFinite() && it.gain>=0)
@@ -130,7 +131,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     /** Reuse immutable PCM while keeping mode/keyboard configuration isolated. */
     fun copySampleSource():SampledInstrument {
         require(layers.isEmpty()){"Copy each decoded source before composing mode layers"}
-        return SampledInstrument(regions,outputRate,exactNotes,envelope,pitchMode,tuning,tuningTranspose)
+        return SampledInstrument(regions,outputRate,exactNotes,envelope,pitchMode,tuning,tuningTranspose,rawRelease,musicReleasePercent,loadedReleasePercent)
     }
     fun keyboardNote(note:Int):Int=if(activeModeSound!==this)activeModeSound.keyboardNote(note) else if(!keyboardMelodic)note else
         (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
@@ -147,10 +148,10 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             return SampledInstrument(sounds.first().regions,sounds.first().outputRate).also{combined->combined.layers=sounds;sounds.forEach{combined.sharePlaybackRegistry(it)}}
         }
     }
-    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true,scriptId:Int=note,initialAftertouch:Boolean=false):Playback=
-        if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed,scriptId,initialAftertouch)
-        else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId).also{if(initialAftertouch)it.startAftertouch()}
-    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false,private val scriptId:Int=note,private val channelPanOverride:Int?=null,scriptPedalValue:Int?=null){
+    fun voice(note:Int,tune:Int=0,pan:Int=0,autoRelease:Boolean=false,effectsAllowed:Boolean=true,scriptVelocity:Int=100,initialScriptPedal:Boolean=false,scriptAllowed:Boolean=true,scriptId:Int=note,initialAftertouch:Boolean=false,releasePercent:Int?=null):Playback=
+        if(activeModeSound!==this)activeModeSound.voice(note,tune,pan,autoRelease,effectsAllowed,scriptVelocity,initialScriptPedal,scriptAllowed,scriptId,initialAftertouch,releasePercent)
+        else Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed=scriptAllowed,scriptVelocity=scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId,releasePercent=releasePercent).also{if(initialAftertouch)it.startAftertouch()}
+    inner class Playback(private val note:Int,private val tune:Int,private val pan:Int,private val autoRelease:Boolean=false,private val effectsAllowed:Boolean=true,scriptAllowed:Boolean=true,private val scriptVelocity:Int=100,private val envelopeAutoRelease:Boolean?=null,private val envelopeOverrides:Map<String,Int> = emptyMap(),private val initialScriptPedal:Boolean=false,private val scriptId:Int=note,private val channelPanOverride:Int?=null,scriptPedalValue:Int?=null,private val releasePercent:Int?=null){
         private var scriptPedal=false
         private var playbackPedal=scriptPedalValue?.let{it!=0}
         private val ownsScriptEvents=scriptAllowed && scriptSession!=null
@@ -203,7 +204,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             val playback=source.Playback(key,Math.addExact(tune,command.parameters["tune"] ?: 0),
                 (command.parameters["balance"] ?: 0).coerceIn(-100,100),
                 command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0} ?: autoRelease,effectsAllowed,false,scriptVelocity,
-                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,command.parameters["id"] ?: scriptId,command.parameters["pan"]?.coerceIn(-100,100),command.parameters["pedal"] ?: 1)
+                command.parameters["autorelease"]?.takeIf{it>=0}?.let{it!=0},command.parameters,initialScriptPedal,command.parameters["id"] ?: scriptId,command.parameters["pan"]?.coerceIn(-100,100),command.parameters["pedal"] ?: 1,releasePercent)
             command.parameters["connectkey"]?.let{sourceKey->
                 playback.connectFrom(sourceKey.coerceIn(0,127),ImportedExpressionEffect(1,true,0,false,false,0,
                     command.parameters["connectspeed"] ?: 100,0,0,emptyList()))
@@ -214,8 +215,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         }
         private val scriptChildren=scriptPlan?.plays.orEmpty().map(::createScriptChild).toMutableList()
         private val initialChildren=if(scriptPlan!=null)scriptChildren.map{it.first}+
-            (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId)))
-            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal,scriptId,channelPanOverride,scriptPedalValue)}
+            (if(scriptPlan.handled)emptyList() else listOf(Playback(note,tune,pan,autoRelease,effectsAllowed,false,scriptVelocity,initialScriptPedal=initialScriptPedal,scriptId=scriptId,releasePercent=releasePercent)))
+            else layers.map{it.Playback(note,tune,pan,autoRelease,effectsAllowed,scriptAllowed,scriptVelocity,envelopeAutoRelease,envelopeOverrides,initialScriptPedal,scriptId,channelPanOverride,scriptPedalValue,releasePercent)}
         private val children=initialChildren.toMutableList()
         private var step=if(note in 0..127 && !missing(note))pitchStep(note,tune) else 1.0
         private var connectionTarget=step
@@ -356,7 +357,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             if(aftertouch || aftertouchInstrument==null)return
             aftertouch=true
             alternate=aftertouchInstrument!!.voice(currentKey,tune,pan,autoRelease,effectsAllowed,
-                scriptVelocity,scriptPedal,scriptAllowed=false,scriptId=scriptId)
+                scriptVelocity,scriptPedal,scriptAllowed=false,scriptId=scriptId,releasePercent=releasePercent)
         }
         fun aftertouch(pressure:Float){
             if(ownsScriptEvents){
@@ -389,7 +390,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
             // positive pressure event. It closes the old key and opens the
             // alternate sound once; pressure is not a 50% cross-fade gate.
             if(!aftertouch && pressure>0f && aftertouchInstrument!=null){
-                aftertouch=true;alternate=aftertouchInstrument!!.voice(currentKey,tune,pan,autoRelease,effectsAllowed,scriptVelocity,scriptPedal,scriptId=scriptId);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
+                aftertouch=true;alternate=aftertouchInstrument!!.voice(currentKey,tune,pan,autoRelease,effectsAllowed,scriptVelocity,scriptPedal,scriptId=scriptId,releasePercent=releasePercent);alternate?.pitchBend(bendSemitones,bendScriptLevel);alternate?.channelBalance(balance)
                 alternate?.scriptPitchMove(((scriptPitchFactor-1.0)*1000).toInt())
                 heldModulation?.let{alternate?.modulate(it)}
                 if(scriptPedal)alternate?.scriptPedal(true)
@@ -437,7 +438,9 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val effectiveEnvelope=envelope?.let{original->
             fun value(name:String,fallback:Int)=envelopeOverrides[name]?.takeIf{it>=0}?.coerceAtMost(if(name=="sustain")100 else 127) ?: fallback
             original.copy(attack=value("attack",original.attack),decay=value("decay",original.decay),
-                sustain=value("sustain",original.sustain),release=value("release",original.release),
+                sustain=value("sustain",original.sustain),release=if(rawRelease!=null || releasePercent!=null)
+                    (value("release",rawRelease ?: original.release).toLong()*(releasePercent ?: loadedReleasePercent)*musicReleasePercent/10000).coerceIn(0,100).toInt()
+                    else value("release",original.release),
                 autoRelease=envelopeAutoRelease ?: original.autoRelease)
         }
         private var state=effectiveEnvelope?.voice(outputRate)

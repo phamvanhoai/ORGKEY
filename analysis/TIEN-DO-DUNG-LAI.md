@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Release theo STS được tính lúc mở nốt, 26-10-2026
+
+- Đối chiếu Channels.OpenKey: release lấy từ sound hoặc tham số script, nhân channel.h và Music.h / 10000 rồi giới hạn 100. Trước đây loader đã gộp mất release gốc nên STS event 64 thay releasePercent không có tác dụng.
+- Loader giữ release gốc, tỷ lệ Music và tỷ lệ channel khi nạp; copySampleSource giữ các dữ liệu này. Playback tính envelope theo releasePercent lúc mở nốt; truyền qua mode, layer mix, sound Aftertouch và các nhánh audio script/fallback. Script release override được nhân tỷ lệ trước khi tạo envelope.
+- RhythmPlayer truyền channel release hiện tại cho nốt mới, Repeat và mở lại nốt theo hợp âm. Voice đang giữ vẫn dùng envelope đã tính lúc mở, không bị STS đổi ngược thời gian nhả.
+- Build debug và 185 kiểm thử thuộc ImportedEnvelopeTest, ImportedScriptPlaybackTest, ImportedSectionFallbackTest, ReferenceRhythmPlayerTest, SampledInstrumentTest đạt. Kiểm tra cả STS đổi release từ 0 lên 100 với Music 50%, và voice cũ giữ tail trong khi voice mới dùng release 0. Cài bản debug lên thiết bị thành công.
+- Giới hạn: tỷ lệ release Music vẫn lấy ở thời điểm nạp sound; thay riêng Music release trong khi đang chơi chưa được truyền động cho lần mở nốt tiếp theo. Chưa đo đối chiếu âm thanh tất cả SET trên thiết bị. Không sửa SET, không tạo file test/log mới.
 ## STS event 64 áp dụng trạng thái channel đang phát, 26-10-2026
 
 - Đối chiếu Track.Play case 64 và z01.e: merge snapshot vào trạng thái channel hiện tại theo STSChanges 13–18, thay vì luôn merge với cấu hình ban đầu và chỉ thay FX. Âm lượng/pan tác động voice đang phát; transpose/octave dùng cho nốt mở tiếp theo. Giữ phần cộng pitch toàn cục đúng một lần.

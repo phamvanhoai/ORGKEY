@@ -5,6 +5,26 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun loadedStyleRecomputesReleaseFromRawSoundAndMusicAfterZeroReleaseSts(){
+        val file=File.createTempFile("orgx-release-sts",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val main=part(1,100,32)
+            val region=ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))
+            val instrument=ImportedInstrument("Sound",100,0,1,listOf(ImportedSound("Loop",listOf(0,0,100,20,0,0),listOf(region))))
+            val sts=ImportedSts("Restore release",false,0,0,0,0,0,0,0,0,emptyList(),ImportedChannelSettings(releasePercent=100),slot=0)
+            val track=ImportedTrack("Main",1,0,false,listOf(ReferenceDrumEvent(64,0,0,0,0,0),
+                ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(1,1,60,0,10,0)),
+                settings=ImportedChannelSettings(releasePercent=0),sts=listOf(sts))
+            val index=ImportedSetIndex(listOf(instrument),listOf(main),listOf(track),musicSettings=ImportedChannelSettings(releasePercent=50))
+            val session=ImportedStylePlayer.loadStyle(file,index,ImportedStyleDefinition(100,"Style",listOf(main)))
+            try{
+                repeat(2400){session.next(120)}
+                // Raw 20 * channel 100% * Music 50% = 10: a 100 ms manual tail.
+                assertTrue(session.player.left in .14..0.16)
+            }finally{session.close()}
+        }finally{file.delete()}
+    }
     @Test fun loadedStyleUsesStsPitchVolumeAndPanBeforeOpeningTheNote(){
         val file=File.createTempFile("orgx-sts-track",".pcm")
         try{
