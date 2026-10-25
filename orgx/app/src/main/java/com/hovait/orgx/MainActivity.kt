@@ -347,7 +347,9 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var noHeldChord by remember{mutableStateOf(false)}
     LaunchedEffect(engine){while(true){
         if(!engine.autoChord)engine.detectedKeyboardChord?.let{if(it in chordNames.indices){chord=it;engine.chordIndex=it}}
-        noHeldChord=engine.selectedSetChord()==-1
+        val playingChord=engine.selectedSetChord()
+        if(playingChord!=null && playingChord in chordNames.indices)chord=playingChord
+        noHeldChord=playingChord==-1
         kotlinx.coroutines.delay(40)
     }}
     var style by remember { mutableIntStateOf(StyleSelection.resolve(engine.styleIds,if(preferences.contains("styleId"))preferences.getInt("styleId",0) else null,preferences.getInt("style",0))) }
@@ -622,14 +624,14 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                 }, onRhythmSelected={tempo->bpm=tempo;playing=engine.rhythmPlaying}, onDismiss = { showSets = false })
             if(showChords) ChordDialog(chordNames,chord,autoChord,progression,leftChord,engine,preferences,
                 onLeftChord={enabled->leftChord=enabled;engine.setLeftChordEnabled(enabled);preferences.edit().putBoolean("leftChord",enabled).apply();if(enabled){autoChord=false;engine.autoChord=false}},
-                onSelect={leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();chord=it;autoChord=false;engine.autoChord=false;engine.chordIndex=it;showChords=false},
+                onSelect={leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();chord=it;autoChord=false;engine.autoChord=false;engine.selectChord(it);showChords=false},
                 onAuto={enabled,preset->leftChord=false;engine.setLeftChordEnabled(false);preferences.edit().putBoolean("leftChord",false).apply();autoChord=enabled;progression=preset;engine.autoChord=enabled;engine.progression=preset;showChords=false},
                 onDismiss={showChords=false})
             if(showPads) PadDialog(engine,setSession?.style?.id,onDismiss={showPads=false})
             if(showFiles) RecordingDialog(engine,onDismiss={showFiles=false})
             if(showProjects) ProjectDialog(ProjectStore(context),ProjectState(octave,bpm,instrument,chord,style,effect,autoChord,progression,engine.masterVolume,engine.keysVolume,engine.chordVolume,engine.drumsVolume,engine.effectMix),onLoad={project->
                 octave=project.octave;bpm=project.bpm;instrument=project.instrument;chord=project.chord.coerceIn(0, chordNames.lastIndex);style=project.style.coerceIn(engine.styleNames.indices);effect=project.effect;autoChord=project.autoChord;progression=project.progression
-                engine.bpm=bpm;engine.instrument=instrument;engine.chordIndex=chord;engine.rhythmStyle=style;engine.effectType=effect;engine.autoChord=autoChord;engine.progression=progression
+                engine.bpm=bpm;engine.instrument=instrument;engine.selectChord(chord);engine.rhythmStyle=style;engine.effectType=effect;engine.autoChord=autoChord;engine.progression=progression
                 engine.masterVolume=project.master;engine.keysVolume=project.keys;engine.chordVolume=project.chords;engine.drumsVolume=project.drums;engine.effectMix=project.effectMix
             },onDismiss={showProjects=false})
             if (showAbout) AboutDialog(engine, onDismiss = { showAbout = false })

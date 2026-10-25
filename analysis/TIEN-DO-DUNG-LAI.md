@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Không để đồng bộ UI xóa hợp âm của timeline, 26-10-2026
+
+- Phát hiện setter AudioEngine.chordIndex luôn clearChord, trong khi MainActivity polling detectedKeyboardChord mỗi40ms và các SideEffect gán lại chordIndex. Vì thế event202 vừa áp dụng có thể mất do UI, không phải thao tác chọn mới.
+- chordIndex nay là giá trị fallback đồng bộ bình thường; selectChord là thao tác explicit xóa override. Panel chọn hợp âm và nạp project gọi selectChord; bàn phím vùng chord và đổi SET vẫn chủ động clear như trước.
+- Poll UI hiển thị selectedSetChord đang hiệu lực, không chỉ hợp âm bàn phím đã nhớ; trạng thái noHeldChord dùng cùng kết quả.
+- assembleDebug và các suite hiện có ReferenceRhythmPlayerTest, KeyboardChordInputTest, ImportedSectionFallbackTest đạt. Chưa có kiểm tra UI/thiết bị chứng minh event202 giữ xuyên polling; không thêm test phản chiếu setter. Không sửa SET hay tạo file test/log mới.
+- Nhánh Music.Stop/lastTempo đã được khảo sát nhưng chưa thay đổi vì phải phân biệt dừng arranger với playback Music đầy đủ.
 ## PAD chạy riêng áp dụng Tempo221/222, 26-10-2026
 
 - PadBank có handler tempo cục bộ khi không gắn style owner, nhận tempo/lock từ player và cả sequence; AudioEngine tiêu thụ thay đổi sau bước render PAD. Đồng hồ riêng PAD dùng tempo mới ngay khi lệnh đã dispatch.

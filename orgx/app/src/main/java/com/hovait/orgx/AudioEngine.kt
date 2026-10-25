@@ -74,7 +74,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var styleAutoFill=false
     @Volatile var importedRhythmName:String?=null
     @Volatile var chordIndex = 0
-        set(value){musicState.clearChord();field=value}
+    /** Only explicit selection supersedes a stored Chord event; UI polling must not. */
+    fun selectChord(value:Int){musicState.clearChord();chordIndex=value}
     @Volatile var chordMemory=true
     @Volatile var chordControl=0
         set(value){require(value in 0..4);field=value}
