@@ -6,10 +6,14 @@ object ImportedTrackFxAutomation {
         4,6->when(parameter){1->99;2->100;else->null}
         20->100.takeIf{parameter in 1..2}
         1->when(parameter){1->150000;2->25000;else->null}
+        9,10->150000.takeIf{parameter==1}
+        16->1000.takeIf{parameter==1}
+        17->50000.takeIf{parameter==1}
         else->null
     }
     fun supported(module:ImportedFxModule,event:ReferenceDrumEvent)=event.note==0 ||
-        (maximum(module.type,event.note)!=null && module.payload.size==8 && event.touch in -100..100)
+        (maximum(module.type,event.note)!=null && module.payload.size==
+            (if(module.type in listOf(9,10,16,17))4 else 8) && event.touch in -100..100)
     fun apply(module:ImportedFxModule,event:ReferenceDrumEvent):ImportedFxModule {
         require(supported(module,event))
         if(event.note==0)return module.copy(enabled=event.touch!=0)

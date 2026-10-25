@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun singleParameterAutomationUsesFourBytePayloadAndOriginalRanges(){
+        for((type,maximum) in listOf(9 to 150000,10 to 150000,16 to 1000,17 to 50000)){
+            val module=ImportedFxModule(type,true,false,listOf(0,0,0,0))
+            for(level in listOf(-100,0,100)){
+                val event=ReferenceDrumEvent(66,0,1,level,0,0)
+                val updated=ImportedTrackFxAutomation.apply(module,event)
+                val bytes=updated.payload
+                val value=bytes[0] or (bytes[1] shl 8) or (bytes[2] shl 16) or (bytes[3] shl 24)
+                assertEquals((level+100)*maximum/200,value)
+                assertEquals(4,bytes.size)
+                val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(updated)))
+                try{repeat(100){fx.process(if(it==0).25 else 0.0,0.0);assertTrue(fx.left.isFinite());assertTrue(fx.right.isFinite())}}finally{fx.close()}
+            }
+            assertFalse(ImportedTrackFxAutomation.supported(module,ReferenceDrumEvent(66,0,2,0,0,0)))
+        }
+    }
     @Test fun bassAndBandPassAutomationUseTheirOriginalParameterRanges(){
         fun value(bytes:List<Int>,offset:Int)=bytes[offset] or (bytes[offset+1] shl 8) or
             (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)

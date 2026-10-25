@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 cho High/Low Pass, Robot và Stereo Width, 26-10-2026
+
+- Đối chiếu u01 kế thừa v01.i, x01.i và y01.i: High/Low Pass type9/10 tham số0 ánh xạ0..150000, Robot16 ánh xạ0..1000, Stereo Width17 ánh xạ0..50000. Touch chuẩn hóa-100..100, Key1 chọn tham số0.
+- Helper automation nhận payload4 byte cho bốn module thay vì bắt buộc8 byte; ghi integer little-endian và giữ nguyên Enable. Setter không tồn tại (Key2 trở lên) vẫn chưa được nhận. Loader và player dùng cùng helper hiện có.
+- assembleDebug, ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Kiểm tra biên và trung điểm normalized, kích thước payload, từ chối tham số thứ hai; chạy DSP từng cấu hình để xác nhận output hữu hạn.
+- Giới hạn: chưa mode FX và cập nhật riêng stage; whole-chain vẫn reset khi sửa tham số. Chưa thu âm so sánh native APK trên thiết bị. Không sửa SET hoặc tạo file test/log mới.
 ## TrackFXParam66 cho Bass Booster và Band Pass, 26-10-2026
 
 - Đối chiếu p01.i và v01.i cùng mảng min/max: Bass Booster type20 tham số0/1 đều0..100; Band Pass type1 tần số0..150000, width0..25000. Event Key1/2 chọn tham số0/1, Touch-100..100 ánh xạ Math.round như b44.f.
