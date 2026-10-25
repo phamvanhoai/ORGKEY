@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Tune của mode sau TrackFXParam66 áp dụng cho nốt mới, 26-10-2026
+
+- Channels.ModeSet dùng z01.d copy Tune, khác event64 z01.e không copy Tune. Nhánh fixed mode FX nay cập nhật currentChannel.tune sau khi áp dụng snapshot mode.
+- Nốt melodic mới nhận delta Tune so với initialChannel đã gộp trong sample loader, cộng vào event tune một lần. Voice giữ tune hiệu lực để các lần mở lại theo chord/repeat giữ đường phát hiện có. Reset currentChannel khôi phục tune ban đầu.
+- assembleDebug và ReferenceRhythmPlayerTest, ImportedSectionFallbackTest, ImportedFxChainTest đạt. So sánh mẫu ramp khi mode Tune12000 áp dụng sau66 với event note Tune12000, hai chuỗi output trùng nhau.
+- Giới hạn: mới fixed mode không script; chưa live tune toàn cục Music hoặc re-tune nốt đang phát, chưa kiểm thử âm thanh thiết bị. Không sửa SET hoặc tạo file test/log mới.
 ## TrackFXParam66 qua một mode cố định không script, 26-10-2026
 
 - Đối chiếu Track.Play66 sửa FX mode rồi Channels.ModeSet sao chép cấu hình và expression về channel. Loader nhận trường hợp instrument có một mode script trống; nhiều mode/script vẫn báo dynamic mode FX chưa hỗ trợ.

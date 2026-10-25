@@ -405,6 +405,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                         }))
                         liveMode=updated
                         applySts(0,updated,List(21){it in 13..19})
+                        // ModeSet copies Tune too; event64's z01.e deliberately does not.
+                        currentChannel=currentChannel.copy(tune=updated.settings.tune)
                         fx?.reset()
                     }
                     return@advance
@@ -481,7 +483,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 }
                 while(voices.size>=ImportedPolyphony.rhythm)voices.remove(voices.keys.first())?.playback?.cut()
                 val samplePan=ImportedNoteTouch.pan(event.touch)
-                val playback=sampled?.voice(note,event.tune,samplePan,scriptVelocity=event.touch and 65535,
+                val tune=event.tune+if(accompaniment)currentChannel.tune-(initialChannel?.tune ?: 0) else 0
+                val playback=sampled?.voice(note,tune,samplePan,scriptVelocity=event.touch and 65535,
                     initialScriptPedal=pedalDown,scriptId=event.id,initialAftertouch=event.type==4,releasePercent=currentChannel.releasePercent)?.also{playback->
                     if(pedalDown)playback.scriptPedal(true)
                     modulationLevel?.let(playback::modulate)
@@ -491,7 +494,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 }
                 voices[voiceSequence++]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=playback,
                     panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1),eventId=event.id,touchGain=keyTouch/100.0,
-                    tune=event.tune,samplePan=samplePan,repeat=if(playback!=null && expressionAllowed)ImportedKeyRepeat(sampleRateForEnvelope).also{it.configure(keyRepeatEffect)} else null,
+                    tune=tune,samplePan=samplePan,repeat=if(playback!=null && expressionAllowed)ImportedKeyRepeat(sampleRateForEnvelope).also{it.configure(keyRepeatEffect)} else null,
                     sourceNote=event.note,sourceLength=event.length,sourceTouch=event.touch,sourceAftertouch=event.type==4)
             } else if(event.type==1)voices.values.forEach{if(it.eventId==event.id && it.release<0){
                 if(pedalDown && it.playback==null)it.pendingRelease=true else it.release=0

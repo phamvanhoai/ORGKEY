@@ -4,6 +4,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun fixedModeFxEditAppliesModeTuneOnlyToNotesOpenedAfterTheEdit(){
+        fun render(edit:Boolean):List<Double>{
+            val sound=SampledInstrument(listOf(InstrumentRegion(60,
+                SamplePcm(1000,1,ShortArray(128){(it*100).toShort()}),0,128)),1000)
+            val module=ImportedFxModule(20,false,false,listOf(0,0,0,0,1,0,0,0))
+            val mode=snapshot(ImportedChannelSettings(tune=12000,modules=listOf(module)))
+            val events=if(edit)listOf(ReferenceDrumEvent(66,0,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000))
+                else listOf(ReferenceDrumEvent(2,1,60,100,1,1000,tune=12000))
+            val player=ReferenceRhythmPlayer(listOf(track(events)),sound::durationFrames,{_,_,_->0.0},1000,
+                sampled=sound,accompaniment=true,initialChannel=ImportedChannelSettings(),fixedMode=mode)
+            return try{List(20){player.next(0,120);player.left}}finally{player.close()}
+        }
+        assertEquals(render(false),render(true))
+    }
     @Test fun fixedModeFxEditReappliesModeVolumeInsteadOfKeepingTrackAutomation(){
         val module=ImportedFxModule(20,false,false,listOf(16,0,0,0,1,0,0,0))
         val mode=snapshot(ImportedChannelSettings(volume=40,fxEnabled=true,modules=listOf(module)))
