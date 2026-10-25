@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun chorusAutomationMapsEachOfSixParametersWithoutOverwritingNeighbors(){
+        fun bytes(values:List<Int>)=values.flatMap{value->List(4){(value ushr (8*it)) and 255}}
+        fun values(payload:List<Int>)=List(6){index->val p=index*4
+            payload[p] or (payload[p+1] shl 8) or (payload[p+2] shl 16) or (payload[p+3] shl 24)}
+        val original=listOf(80,600,20,0,40,45)
+        val minimum=listOf(5,10,5,-95,0,0);val maximum=listOf(500,2000,100,95,100,180)
+        for(parameter in 1..6)for(level in listOf(-100,0,100)){
+            val module=ImportedFxModule(21,true,false,bytes(original))
+            val result=ImportedTrackFxAutomation.apply(module,ReferenceDrumEvent(66,0,parameter,level,0,0))
+            val expected=original.toMutableList()
+            expected[parameter-1]=Math.round((level+100)/200f*(maximum[parameter-1]-minimum[parameter-1])+minimum[parameter-1])
+            assertEquals(expected,values(result.payload))
+            val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(result)))
+            try{repeat(100){fx.process(if(it==0).25 else 0.0,0.0);assertTrue(fx.left.isFinite());assertTrue(fx.right.isFinite())}}finally{fx.close()}
+        }
+    }
     @Test fun pitchShiftParameterUpdatePreservesOtherStagesAndFreshConfiguration(){
         val shift=ImportedFxModule(15,false,false,listOf(100,0,0,0))
         val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(shift,module(6,50,1)))

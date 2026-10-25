@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 cho sáu tham số Chorus, 26-10-2026
+
+- Đối chiếu q01.h/i và setter i: sáu khoảng5..500,10..2000,5..100,-95..95,0..100,0..180. Xác minh hằng SDK dùng cho max tham số đầu thực sự là500. Payload24 byte gồm sáu int little-endian.
+- Helper nhận type21 Key1..6 và ánh xạ Touch-100..100 theo min/max riêng, không dùng chung min0. Theo đường player/loader hiện có cho track không dùng mode.
+- assembleDebug, ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Kiểm tra từng tham số ở ba mức chuẩn hóa, giữ năm tham số bên cạnh và output DSP hữu hạn ở cấu hình nhận được.
+- Giới hạn: thay đổi Chorus vẫn tái tạo chain nên có thể khác native về phase/tail; mode FX chưa dựng. Không sửa SET hoặc tạo file test/log mới; chưa đối chiếu audio thực trên thiết bị.
 ## Pitch Shift đổi tham số tại chỗ, giữ chain và native handle, 26-10-2026
 
 - Đối chiếu sofeh.audio.f: i thay g0, a chỉ open nếu handle0; mỗi process truyền g0 hiện tại tới JNI. Native wrapper nay có setShift kiểm tra50..200, không đóng/open khi đổi giá trị.
