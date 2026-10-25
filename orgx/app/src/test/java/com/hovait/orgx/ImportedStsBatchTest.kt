@@ -13,7 +13,7 @@ class ImportedStsBatchTest {
                 ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))))))
             val original=snapshot("Slot").copy(instrument=1)
             val track=ImportedTrack("Master",0,0,false,emptyList(),sts=listOf(original))
-            val index=ImportedSetIndex(listOf(sound,sound),emptyList(),listOf(track,track.copy(name="Chord",kind=3)))
+            val index=ImportedSetIndex(listOf(sound,sound),emptyList(),listOf(track,track.copy(name="Chord",type=3)))
             val fx=ImportedFxModule(6,true,true,listOf(50,0,0,0,1,0,0,0))
             val effect=ImportedExpressionEffect.default(2).copy(enabled=true,speed=36,depth=12)
             val effective=original.copy(instrument=0,record=true,pedal=1,

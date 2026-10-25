@@ -31,7 +31,7 @@ class ImportedDirectChord {
 class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val musicState:ImportedMusicState?=null) {
     data class Part(val id:Int,val sound:SampledInstrument,val pedal:Boolean=false,
         val enabled:Boolean=true,val fromKey:Int=0,val toKey:Int=127,val inputGain:Double=1.0,
-        val pedalMode:Int=0,val chordPart:Boolean=false)
+        val pedalMode:Int=0,val chordPart:Boolean=false,val acceptsKeys:Boolean=true)
     private data class Note(val part:Int,val channel:Int,var key:Int,val sound:SampledInstrument,
         val playback:SampledInstrument.Playback,val velocity:Double,var pedal:Boolean,
         val pedalMode:Int,var released:Boolean=false,val repeat:ImportedKeyRepeat?=null,var retired:Boolean=false)
@@ -88,7 +88,7 @@ class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val
     fun noteOn(key:Int,velocity:Double,channel:Int=0){
         require(channel in 0..15 && key in 0..127 && velocity.isFinite() && velocity in 0.0..1.0)
         if(velocity==0.0){noteOff(key,channel);return}
-        parts.values.filter{it.enabled && key>=it.fromKey && key<=it.toKey}.forEach{part->
+        parts.values.filter{it.enabled && it.acceptsKeys && key>=it.fromKey && key<=it.toKey}.forEach{part->
             musicRelease?.let{part.sound.withMusicRelease(it)}
             musicState?.let{part.sound.withMusicState(it)}
             val connection=part.sound.keyConnectionEffect

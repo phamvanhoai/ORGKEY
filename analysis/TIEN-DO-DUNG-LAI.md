@@ -2,6 +2,14 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Sửa bộ đọc SET nhầm Type và Kind của Track, 26-10-2026
+
+- Track.ReadFromStream ghi hai byte liên tiếp fType rồi fKind. ORGX trước bỏ byte đầu và đọc byte sau vào kind; các nhánh STS/channel lại dùng kind như Type. Nay ImportedTrack giữ riêng type (byte đầu có dấu), kind vẫn là byte thứ hai có dấu.
+- STS batch chọn tiếng keyboard/chord, tạo STSPlan và điều kiện expression routing dùng type; chuyển kiểu nhạc cụ ở Tracks.GroupPlayNext vẫn dùng kind. Chord part được xác định bằng type3, không phải kind3.
+- Đối chiếu Tracks.RecordMusic: type3 chỉ phát nốt keyboard trực tiếp khi kind=-1. Part có acceptsKeys tương ứng để chord-only không phát thêm tiếng nốt thường. Record/mute vẫn áp dụng; direct chord giữ đường riêng.
+- Kiểm thử binary parser legacy chứa Type3/Kind-1 xác nhận hai byte không bị gộp hoặc mất dấu; kiểm tra keyboard chord-only không nhận noteOn nhưng vẫn phát mask. Các fixture expression/STSs được sửa để mô tả đúng trường Type.
+- Kiểm tra: assembleDebug và các kiểm thử parser legacy, ImportedKeyboardPartsTest, ImportedStsBatchTest, ImportedExpressionRoutingTest, stylePickerDistinguishesMissingIndexFromSupportedStyle đạt. Lượt chạy toàn ImportedStylePlayerTest phát hiện assertion cũ coi group rỗng là lỗi; cập nhật theo cơ chế silent ending đã có và chạy lại ca đó đạt.
+- Đây là sửa lỗi nền của parser và routing; các ghi chú trước dùng chữ Kind để chỉ Type ở STS không còn chính xác. Không sửa SET hay tạo file test/log mới; chưa đối chiếu toàn bộ kiểu track của SET thực với APK trên thiết bị.
 ## Chọn đúng chord part theo Track Type 3, 26-10-2026
 
 - Đối chiếu Tracks.RecordChord: chỉ track Record và fType=3 nhận event Chord. Bản direct nhiều part trước đã áp dụng cho cả tiếng keyboard thường; sửa bằng cờ chordPart từ ImportedTrack.kind, không phát direct ở part 0/1.

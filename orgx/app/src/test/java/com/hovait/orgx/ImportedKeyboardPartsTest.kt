@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun chordOnlyPartDoesNotDoubleItsChordWithOrdinaryKeyboardNotes(){
+        val source=SampledInstrument(listOf(InstrumentRegion(36,
+            SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000)
+        val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source,chordPart=true,acceptsKeys=false)))
+            parts.noteOn(60,1.0);assertEquals(0,parts.activeNotes)
+            mixer.beginFrame();parts.renderDirectChord(mixer,145);parts.renderInto(mixer);mixer.finishFrame()
+            assertEquals(.75,mixer.left,1e-12)
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source,chordPart=true,acceptsKeys=true)))
+            parts.noteOn(60,1.0);assertEquals(1,parts.activeNotes)
+        }finally{parts.reset();mixer.close()}
+    }
     @Test fun directChordSkipsRegularKeyboardPartsAndCutsAReclassifiedChordPart(){
         val source=SampledInstrument(listOf(InstrumentRegion(36,
             SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000)

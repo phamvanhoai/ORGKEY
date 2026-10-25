@@ -15,7 +15,7 @@ class ImportedSetInstrumentsTest {
         repeat(3){text("")};int(0);out.write(ByteArray(130));int(0);int(0)
         repeat(3){out.write(ByteArray(52))};common();int(0);common();int(0);common();int(1)
         common("Master\r1.2.8\r")
-        out.writeByte(0);out.writeByte(0);short(0);int(0);int(0);out.writeByte(0)
+        out.writeByte(3);out.writeByte(-1);short(0);int(0);int(0);out.writeByte(0)
         repeat(3){out.writeBoolean(false)};short(0);repeat(4){out.writeByte(0)};out.write(ByteArray(106))
         int(13);repeat(13){out.writeBoolean(it==1)}
         out.writeBoolean(true);out.writeByte(7) // nonzero reserved byte; no legacy name follows
@@ -28,6 +28,7 @@ class ImportedSetInstrumentsTest {
             file.writeBytes(bytes.toByteArray())
             val index=ImportedSetInstruments.index(file)
             val track=index.tracks.single();val sts=track.sts.single()
+            assertEquals(3,track.type);assertEquals(-1,track.kind)
             assertEquals(1,sts.slot);assertEquals("",sts.name);assertEquals(513,sts.midiChannel)
             assertEquals(27,sts.instrument);assertEquals(3,sts.system);assertEquals(2,sts.mode)
             assertEquals(142,sts.data1);assertEquals(9,sts.data2)

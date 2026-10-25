@@ -218,7 +218,8 @@ class ImportedStylePlayerTest {
     @Test fun stylePickerDistinguishesMissingIndexFromSupportedStyle() {
         assertEquals("SET index unavailable",ImportedStyleSupport.reason(null,group))
         assertNull(ImportedStyleSupport.reason(index(),group))
-        assertNotNull(ImportedStyleSupport.reason(index().copy(tracks=emptyList()),group))
+        // Empty groups still own timing/JumpGroup, including silent endings.
+        assertNull(ImportedStyleSupport.reason(index().copy(tracks=emptyList()),group))
     }
     @Test fun exactNoteMelodicBankCannotSilentlyLoseTransposedNotes() {
         val source=index()

@@ -9,7 +9,7 @@ class ImportedExpressionRoutingTest {
         val track=ImportedTrack("Voice",1,0,false,emptyList())
         val group=ImportedStyleGroup(1,0,"Group",32,true,0,1000,120,type=0)
         fun allowed(kind:Int,groupType:Int):Boolean {
-            val candidate=track.copy(kind=kind)
+            val candidate=track.copy(type=kind)
             return ImportedStyleSupport.expressionAllowed(
                 ImportedSetIndex(emptyList(),listOf(group.copy(type=groupType)),listOf(master,candidate)),candidate)
         }

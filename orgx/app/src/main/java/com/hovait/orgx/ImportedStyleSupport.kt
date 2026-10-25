@@ -22,7 +22,7 @@ object ImportedStyleSupport {
     fun expressionAllowed(index:ImportedSetIndex,track:ImportedTrack):Boolean {
         val position=index.tracks.indexOf(track)
         val group=index.styles.firstOrNull{it.id==track.group}
-        return position>0 && group!=null && group.type!=1 && track.kind!=3
+        return position>0 && group!=null && group.type!=1 && track.type!=3
     }
     /** Track.ReadFromStream selects mode first, then restores Channels FX over it. */
     fun channelSettings(index:ImportedSetIndex,track:ImportedTrack)=
