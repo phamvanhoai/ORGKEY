@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Lệnh bật FX lặp khởi tạo lại bus, 26-10-2026
+
+- Track.Play 241–246 luôn gọi z01.c, không kiểm tra enable cũ; z01.c gọi khởi tạo/đóng module tương ứng. ORGX trước chỉ thay chain khi boolean đổi, nên lệnh bật lặp không có tác dụng với echo đang chờ.
+- Music state giữ revision riêng Music/Wave/Rhythm; mỗi event tăng đúng revision của bus. Mixer Music, Wave chain và Rhythm group tái tạo chain khi revision đổi, kể cả enable giữ nguyên. Không thay chain khi chỉ quan sát lại cùng revision qua các frame.
+- Chuyển section nhận cả revision của live Rhythm chain để không làm mới đuôi âm thanh ngoài ý muốn sau khi chuyển ownership.
+- assembleDebug và ImportedKeyboardMixerTest, ImportedGroupFxTest, ImportedStyleSessionTest, ReferenceRhythmPlayerTest đạt. Kiểm tra echo đã nhận xung bị xóa khi enable lặp, sau đó nhận xung mới vẫn trả echo đúng delay; revision Wave không đổi revision Rhythm/Music.
+- Giới hạn: ORGX tái tạo toàn chain, chưa đối chiếu từng native module có a/c là no-op hoặc giữ bộ nhớ khác nhau; chưa sửa toàn bộ vòng đời Music.Play/Stop. Không sửa SET hoặc tạo file test/log mới.
 ## Khôi phục metadata hợp âm của SET cũ theo group, 26-10-2026
 
 - Đối chiếu cuối Tracks.ReadFromStream: Music version <1.4.8 ghi đè fChordRoot/fChordType của mỗi track bằng ChordBase/ChordType của group chứa track. ORGX đã đọc cả hai nguồn nhưng chưa thực hiện bước nâng cấp này.

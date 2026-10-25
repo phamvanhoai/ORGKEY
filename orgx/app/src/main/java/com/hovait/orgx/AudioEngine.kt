@@ -305,17 +305,19 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     private var waveFxSettings=defaultMusicSettings
     private var waveFxSource:ImportedChannelSettings?=null
     private var waveFxEnabled:Boolean?=null
+    private var waveFxRevision=0L
     private var waveFx=ImportedFxChain(waveFxSettings,sampleRate)
     private fun configureWaveFx(){
         val base=activeSetIndex?.waveSettings ?: defaultMusicSettings
         val enabled=musicState.waveFxEnabled ?: base.fxEnabled
-        if(waveFxSource===base && waveFxEnabled==enabled)return
+        if(waveFxSource===base && waveFxEnabled==enabled && waveFxRevision==musicState.waveFxRevision)return
         waveFxSource=base;waveFxEnabled=enabled
         val settings=if(enabled==base.fxEnabled)base else base.copy(fxEnabled=enabled)
-        if(settings.fxEnabled!=waveFxSettings.fxEnabled || settings.modules!=waveFxSettings.modules){
+        if(settings.fxEnabled!=waveFxSettings.fxEnabled || settings.modules!=waveFxSettings.modules || waveFxRevision!=musicState.waveFxRevision){
             waveFx.close();waveFx=ImportedFxChain(settings,sampleRate)
         }
         waveFxSettings=settings
+        waveFxRevision=musicState.waveFxRevision
     }
     private val padAges = AtomicIntegerArray(8).apply { for (i in 0 until length()) set(i, -1) }
     private val rhythmAges=IntArray(3){-1}
@@ -853,7 +855,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 stsParts.drain()
                 musicState.configure(stsMusic ?: activeSetIndex?.musicSettings ?: defaultMusicSettings)
                 musicState.configureBuses(activeSetIndex?.waveSettings ?: defaultMusicSettings,activeSetIndex?.rhythmSettings ?: defaultMusicSettings)
-                importedKeyboardMixer.configureMusic(musicState.settings)
+                importedKeyboardMixer.configureMusic(musicState.settings,musicState.musicFxRevision)
                 if(resetHarmony || !rhythmPlaying){harmonyClock.reset();resetHarmony=false}
                 var mixedLeft = 0.0
                 var mixedRight = 0.0
@@ -933,7 +935,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 setPlayer?.mixOutput(drumsVolume,chordVolume)
                 val styleLeft=(setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0))+importedPads.left
                 val styleRight=(setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0))+importedPads.right
-                importedKeyboardMixer.configureMusic(musicState.settings)
+                importedKeyboardMixer.configureMusic(musicState.settings,musicState.musicFxRevision)
                 val directEnabled=!rhythmPlaying && importedPads.runningMask==0 && !synchroStart && leftChordEnabled
                 val chordSource=if(directEnabled && !stsPartsEnabled)importedInstrument?.withMusicRelease(musicReleaseSource)?.withMusicState(musicState) else null
                 stsParts.renderDirectChord(importedKeyboardMixer,if(directEnabled && stsPartsEnabled)keyboardChordInput.pitchMask else 0)

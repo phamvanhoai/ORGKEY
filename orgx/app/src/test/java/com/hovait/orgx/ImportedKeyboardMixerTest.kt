@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardMixerTest {
+    @Test fun repeatedMusicEnableRestartsEchoEvenWhenEnableValueHasNotChanged(){
+        val state=ImportedMusicState(echo)
+        val mixer=ImportedKeyboardMixer();val source=sound(ImportedChannelSettings())
+        fun configure()=mixer.configureMusic(state.settings,state.musicFxRevision)
+        try{
+            configure();mixer.beginFrame();mixer.add(source,1.0,0.0);mixer.finishFrame()
+            repeat(200){configure();mixer.beginFrame();mixer.finishFrame()}
+            state.fxEvent(242);configure()
+            repeat(500){configure();mixer.beginFrame();mixer.finishFrame();assertEquals(0.0,mixer.left,0.0)}
+            mixer.beginFrame();mixer.add(source,1.0,0.0);mixer.finishFrame()
+            repeat(479){configure();mixer.beginFrame();mixer.finishFrame()}
+            configure();mixer.beginFrame();mixer.finishFrame();assertEquals(.5,mixer.left,0.0)
+            assertEquals(1L,state.musicFxRevision)
+            state.fxEvent(244);state.fxEvent(244)
+            assertEquals(2L,state.waveFxRevision);assertEquals(0L,state.rhythmFxRevision)
+        }finally{mixer.close()}
+    }
     @Test fun musicBusToggleDiscardsEchoAndLeavesWaveAndRhythmFlagsIndependent(){
         val state=ImportedMusicState(echo)
         val mixer=ImportedKeyboardMixer();val source=sound(ImportedChannelSettings())

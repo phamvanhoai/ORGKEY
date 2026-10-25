@@ -190,6 +190,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     var outputLeft=0.0;private set
     var outputRight=0.0;private set
     private var groupFxBaseSettings:ImportedChannelSettings?=null
+    private var rhythmFxRevision=0L
     fun withGroupFx(settings:ImportedChannelSettings):ReferenceRhythmPlayer=also{groupFxBaseSettings=settings;groupFxSettings=settings;groupFx=ImportedFxChain(settings)}
     /** Move the live rhythm bus only when its DSP configuration is unchanged. */
     fun continueGroupFxFrom(previous:ReferenceRhythmPlayer){
@@ -197,7 +198,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         val live=previous.groupFx ?: return
         // A section can be selected again later; leave it an unallocated fresh bus.
         previous.groupFx=live.fresh()
-        groupFx?.close();groupFx=live;groupFxSettings=previous.groupFxSettings
+        groupFx?.close();groupFx=live;groupFxSettings=previous.groupFxSettings;rhythmFxRevision=previous.rhythmFxRevision
     }
     fun withRhythmSettings(settings:ImportedChannelSettings,music:ImportedChannelSettings=ImportedChannelSettings()):ReferenceRhythmPlayer=also{
         rhythmSettings=settings;musicSettings=music
@@ -210,9 +211,10 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain);val fadeGain=if(externalFade)1.0 else fadeController.advance()
         val settings=groupFxBaseSettings
         val enabled=musicState.rhythmFxEnabled ?: settings?.fxEnabled
-        if(settings!=null && enabled!=groupFxSettings?.fxEnabled){
+        if(settings!=null && (enabled!=groupFxSettings?.fxEnabled || rhythmFxRevision!=musicState.rhythmFxRevision)){
             val updated=settings.copy(fxEnabled=enabled==true)
             groupFx?.close();groupFx=ImportedFxChain(updated,sampleRateForEnvelope);groupFxSettings=updated
+            rhythmFxRevision=musicState.rhythmFxRevision
         }
         val processor=groupFx
         if(processor==null){outputLeft=l*fadeGain;outputRight=r*fadeGain}else{processor.process(l*fadeGain,r*fadeGain);outputLeft=processor.left;outputRight=processor.right}

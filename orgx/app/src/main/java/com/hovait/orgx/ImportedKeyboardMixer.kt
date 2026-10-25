@@ -12,16 +12,18 @@ class ImportedKeyboardMixer {
     private val buses=IdentityHashMap<SampledInstrument,Bus>()
     private var musicSettings=ImportedChannelSettings()
     private var musicFx=ImportedFxChain(musicSettings)
+    private var musicFxRevision=0L
     /** Music volume is a master gain, applied after mixing rhythm/wave as well. */
     val musicVolume get()=musicSettings.volume/100.0
-    fun configureMusic(settings:ImportedChannelSettings){
-        if(settings==musicSettings)return
+    fun configureMusic(settings:ImportedChannelSettings,revision:Long=musicFxRevision){
+        if(settings==musicSettings && revision==musicFxRevision)return
         // Gain changes must not discard an echo already in flight.
-        if(settings.fxEnabled!=musicSettings.fxEnabled || settings.modules!=musicSettings.modules){
+        if(settings.fxEnabled!=musicSettings.fxEnabled || settings.modules!=musicSettings.modules || revision!=musicFxRevision){
             musicFx.close()
             musicFx=ImportedFxChain(settings)
         }
         musicSettings=settings
+        musicFxRevision=revision
     }
     var left=0.0;private set
     var right=0.0;private set
