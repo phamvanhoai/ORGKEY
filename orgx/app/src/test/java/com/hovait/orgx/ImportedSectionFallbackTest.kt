@@ -5,6 +5,26 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun loadedStyleUsesStsPitchVolumeAndPanBeforeOpeningTheNote(){
+        val file=File.createTempFile("orgx-sts-track",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val main=part(1,100,32)
+            val region=ImportedSection(72,48000,1,2,100,0,0,0,0,0,0,ImportedWave(0,4))
+            val instrument=ImportedInstrument("Exact",100,0,0,listOf(ImportedSound("Sound",listOf(0,0,100,10,2,0),listOf(region))))
+            val sts=ImportedSts("Snapshot",false,0,0,0,0,0,0,0,0,emptyList(),
+                ImportedChannelSettings(volume=40,pan=100,transpose=12),slot=2)
+            val track=ImportedTrack("Main",1,0,false,listOf(ReferenceDrumEvent(64,0,2,0,0,0),
+                ReferenceDrumEvent(2,1,60,100,0,100)),sts=listOf(sts))
+            val index=ImportedSetIndex(listOf(instrument),listOf(main),listOf(track))
+            val session=ImportedStylePlayer.loadStyle(file,index,ImportedStyleDefinition(100,"Style",listOf(main)),true)
+            try{
+                session.next(120)
+                assertEquals(0.0,session.player.left,0.0)
+                assertEquals(.1,session.player.right,1e-12)
+            }finally{session.close()}
+        }finally{file.delete()}
+    }
     @Test fun styleLoaderAcceptsKeyAftertouchAndTrimsSamplesUsingItsTransposedKey(){
         val file=File.createTempFile("orgx-key-aftertouch",".pcm")
         try{

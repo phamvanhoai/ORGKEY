@@ -4,6 +4,36 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    private fun snapshot(settings:ImportedChannelSettings)=ImportedSts("Snapshot",false,0,0,0,0,0,0,0,0,emptyList(),settings)
+    @Test fun stsPanOnlyKeepsVolumeAutomatedBeforeTheSnapshot(){
+        val mask=List(21){it==14}
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(
+            ReferenceDrumEvent(44,0,40,0,0,0),ReferenceDrumEvent(2,1,60,100,0,1000),
+            ReferenceDrumEvent(64,0,2,0,10,0),ReferenceDrumEvent(64,0,3,0,20,0)))),
+            {10000},{_,_,_->1.0},1000,initialChannel=ImportedChannelSettings(),
+            stsSnapshotResolver={slot->snapshot(ImportedChannelSettings(volume=90,pan=if(slot==2)100 else -100))},stsChanges=mask)
+        try{
+            player.next(0,120);assertEquals(.4,player.left,1e-12)
+            repeat(10){player.next(0,120)}
+            assertEquals(0.0,player.left,0.0);assertEquals(.4,player.right,1e-12)
+            repeat(10){player.next(0,120)}
+            assertEquals(.4,player.left,1e-12);assertEquals(0.0,player.right,0.0)
+        }finally{player.close()}
+    }
+    @Test fun stsOctaveOnlyKeepsLiveTransposeAndResetRestoresInitialPitch(){
+        val opened=mutableListOf<Int>()
+        val events=listOf(ReferenceDrumEvent(41,0,2,0,10,0),ReferenceDrumEvent(64,0,0,0,20,0),
+            ReferenceDrumEvent(2,1,60,100,0,1000),ReferenceDrumEvent(2,2,60,100,30,1000))
+        val player=ReferenceRhythmPlayer(listOf(track(events)),{note->opened.add(note);10000},{_,_,_->1.0},1000,
+            accompaniment=true,initialChannel=ImportedChannelSettings(),stsSnapshotResolver={snapshot(ImportedChannelSettings(transpose=7,octave=1))},
+            stsChanges=List(21){it==16})
+        try{
+            repeat(31){player.next(0,120)}
+            assertEquals(listOf(60,74),opened.distinct())
+            opened.clear();player.reset();player.next(0,120)
+            assertEquals(listOf(60),opened.distinct())
+        }finally{player.close()}
+    }
     @Test fun storedChordMarkerDoesNotInvalidateStyleTransport(){
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
             ReferenceDrumEvent(202,0,3,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),{10000},{_,_,_->1.0},1000)
@@ -93,9 +123,9 @@ class ReferenceRhythmPlayerTest {
     @Test fun storedStsFxEventReplacesTrackFxWhenSnapshotIsAvailable(){
         val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(ImportedFxModule(6,true,false,listOf(50,0,0,0,1,0,0,0))))
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
-            ReferenceDrumEvent(64,2,0,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),
-            {10000},{_,_,_->0.0},1000,initialChannel=ImportedChannelSettings(),stsFxResolver={if(it==2)settings else null})
-        try{repeat(3){player.next(0,120)}}finally{player.close()}
+            ReferenceDrumEvent(64,0,2,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),
+            {10000},{_,_,_->1.0},1000,initialChannel=ImportedChannelSettings(),stsSnapshotResolver={if(it==2)snapshot(settings) else null})
+        try{repeat(3){player.next(0,120)};assertTrue(player.left>0)}finally{player.close()}
     }
     @Test fun stsFxResolverKeepsTrackVolumeWhenMaskDoesNotReplaceIt(){
         val current=ImportedChannelSettings(volume=37,pan=-12,transpose=2,octave=1)

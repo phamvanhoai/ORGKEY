@@ -17,7 +17,7 @@ object ImportedInstrumentLoader {
     /** Preserve original nearest-root decisions, while loading only regions used by this track. */
     fun forTrack(instrument:ImportedInstrument,events:List<ReferenceDrumEvent>):ImportedInstrument {
         // Runtime transpose/octave can select roots absent from the initial notes.
-        if(events.any{it.type==41 || it.type==42})return instrument
+        if(events.any{it.type==41 || it.type==42 || it.type==64})return instrument
         if(instrument.sounds.size>1 || instrument.modes.isNotEmpty())return instrument.copy(sounds=instrument.sounds.map{sound->
             forTrack(instrument.copy(sounds=listOf(sound),modes=emptyList()),events).sounds.single()
         })

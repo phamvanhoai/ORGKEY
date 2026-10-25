@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## STS event 64 áp dụng trạng thái channel đang phát, 26-10-2026
+
+- Đối chiếu Track.Play case 64 và z01.e: merge snapshot vào trạng thái channel hiện tại theo STSChanges 13–18, thay vì luôn merge với cấu hình ban đầu và chỉ thay FX. Âm lượng/pan tác động voice đang phát; transpose/octave dùng cho nốt mở tiếp theo. Giữ phần cộng pitch toàn cục đúng một lần.
+- STSChanges 19 thay bốn expression effect, cập nhật bộ điều khiển Repeat/Connection/PitchShake/VolumeShake của các voice đang phát khi channel cho phép. FX chain chỉ thay khi module/enable đổi; reset khôi phục FX và pitch ban đầu.
+- Chọn style qua panel chính và trang SET đều truyền tùy chọn STS đã lưu, tương tự đường khôi phục lúc mở app. Khi track có event 64, giữ tập vùng mẫu đầy đủ trong ngân sách loader để STS transpose/octave không trỏ vào mẫu đã bị loại.
+- Build debug, ReferenceRhythmPlayerTest, ImportedStsChangesTest, ImportedSectionFallbackTest đạt, gồm đường loadStyle dùng snapshot đổi pitch/volume/pan và mask chỉ pan giữ volume đã automation. Sửa test FX cũ truyền sai slot và không có assertion.
+- Giới hạn: releasePercent được merge nhưng envelope hiện vẫn được nạp sẵn; chưa áp dụng thay release cho các nốt sau snapshot. Chưa đối chiếu tất cả STS thực trong SET trên thiết bị. Không sửa SET hoặc tạo file test/log mới.
 ## Dựng lại đường KeyAftertouch của style SET, 26-10-2026
 
 - Đối chiếu Track.Play(4), Track._scriptTouch, Channels.OpenKey và Track.PlayNext: event 4 là Touch mở sound Aftertouch của mode, không phải gửi tiếp event pressure/aftertouch. Touch đã handled thì giữ audio script; Touch chưa handled chỉ thay sound ở nhánh OpenKey mặc định. Không gọi Touch của sound alternate lần thứ hai.

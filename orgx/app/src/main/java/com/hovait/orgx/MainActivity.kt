@@ -451,6 +451,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
             try{
                 val loaded=withContext(Dispatchers.IO){ImportedStylePlayer.loadStyle(file,index,definition,mode>0,
                     engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                    stsChanges=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask)),
                     chordQuality={engine.chordQuality},chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,
                     targetChord=if(mode==2)engine::selectedSetChord else null)}
                 if(engine.activeSetFile!=file || engine.activeSetIndex!==index){loaded.close();return@launch}
@@ -985,6 +986,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
                         val session=withContext(Dispatchers.IO){
                             ImportedStylePlayer.loadStyle(checkNotNull(setFile),checkNotNull(index),definition,previewAccompaniment,
                                 engine.referenceChordTransposer,engine.keyConnectionMethod,scriptOverrides=ImportedDncPreferences(context)::read,
+                                stsChanges=ImportedStsChangeSettings.decode(preferences.getInt(ImportedStsChangeSettings.preferenceKey,ImportedStsChangeSettings.defaultMask)),
                                 chordQuality={engine.chordQuality},chordControl={engine.chordControl},chordOctaveMove=engine::selectedSetChordOctave,targetChord=if(previewAccompaniment && followSetChord)engine::selectedSetChord else null)
                         }
                         engine.selectImportedStyle(session)
