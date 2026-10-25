@@ -32,6 +32,15 @@ object ImportedStyleCatalog {
         index?.styles?.firstOrNull{parent!=null && it.parent==parent && it.section==96+slot}
             ?: index?.styles?.firstOrNull{it.parent==0 && it.section==96+slot}
     }
+    /** PAD Rhythm commands address the main style, even when the destination is outside its buttons. */
+    internal fun padRhythmTargets(index:ImportedSetIndex,parent:Int):List<ImportedStyleGroup>{
+        val pads=pads(index,parent).filterNotNull()
+        val padGroups=(pads+jumpTargets(index,pads)).mapTo(HashSet()){it.id}
+        val targetIds=index.tracks.asSequence().filter{it.group in padGroups}
+            .flatMap{it.events.asSequence()}.filter{it.type==201}.map{it.note}.toSet()
+        val targets=index.styles.filter{it.id in targetIds && it.type==1}
+        return (targets+jumpTargets(index,targets)).distinctBy{it.id}
+    }
     fun isSection(section:Int)=section in 16..18 || section in 32..35 || section in 48..51 || section==64 || section in 80..82
     fun styles(index:ImportedSetIndex):List<ImportedStyleDefinition> {
         val names=index.styles.associateBy{it.id}

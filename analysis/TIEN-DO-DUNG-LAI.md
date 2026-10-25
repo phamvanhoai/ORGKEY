@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nạp trước target Rhythm từ PAD của style, 26-10-2026
+
+- Catalog chọn PAD theo parent style rồi fallback parent0, lần theo các group liên quan và thu target201 của track trong chuỗi. Target cùng các nhánh Jump/TempLoop tiếp theo được đưa vào control graph của session chính, không thêm vào danh sách nút section.
+- loadStyle nạp player/PCM của target trước lúc phát; lệnh từ PAD có thể vào hàng đợi style ngay mà không cần chuyển ownership hoặc đọc file trên audio thread. Hợp nhất theo ID tránh nạp trùng. Giữ giới hạn graph64 group và ngân sách PCM64MB hiện có.
+- assembleDebug và ImportedSectionFallbackTest, ImportedStyleSessionTest, ImportedTempLoopTest đạt. Integration dùng PAD fallback group0 có JumpGroup sang continuation chứa201 tới group ngoài style, xác nhận target nạp sẵn và PadBank chuyển style đến đó không có transitionError.
+- Giới hạn: graph lớn hoặc vượt PCM budget sẽ bị từ chối, chưa nạp động; group Section0 chạy song song và Touch chọn slot khác chưa dựng. Chưa đo âm thanh PAD thực với APK gốc. Không sửa SET hoặc tạo file test/log mới.
 ## PAD gửi Rhythm201 về style chính, phân biệt target thiếu và chưa nạp, 26-10-2026
 
 - StyleSession gắn handler Rhythm cho PadBank khi render đồng bộ; handler truyền tới cả player hiện tại, sequence JumpGroup và PAD nhận từ mailbox. Khi style không chạy, AudioEngine tháo handler như đường mute để không gọi session cũ.

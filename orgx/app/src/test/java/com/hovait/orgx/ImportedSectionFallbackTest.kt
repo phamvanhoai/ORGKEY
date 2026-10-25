@@ -5,6 +5,30 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun stylePreloadsRhythmDestinationsFromItsPadsIncludingSharedPadFallback(){
+        val file=File.createTempFile("orgx-pad-rhythm-target",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val main=part(1,100,32)
+            val pad=part(2,0,96).copy(loop=false,jumpGroup=3)
+            val continuation=part(3,0,97).copy(loop=false,jumpGroup=0)
+            val target=part(4,200,33)
+            val region=ImportedSection(60,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))
+            val instrument=ImportedInstrument("Kit",100,0,1,listOf(ImportedSound("Sound",listOf(0,0,100,10,0,0),listOf(region))))
+            val controls=ImportedTrack("PAD continuation",3,0,false,listOf(ReferenceDrumEvent(201,0,4,0,0,0)))
+            val index=ImportedSetIndex(listOf(instrument),listOf(main,pad,continuation,target),listOf(controls))
+            val session=ImportedStylePlayer.loadStyle(file,index,ImportedStyleDefinition(100,"Style",listOf(main)))
+            val bank=ImportedPadBank()
+            val padPlayer=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("PAD",2,100,96,120,false,0,4000,false,
+                listOf(ReferenceDrumEvent(201,0,4,0,100,0)))),{1000},{_,_,_->0.0},48000)
+            try{
+                assertTrue(session.available(4));assertFalse(session.style.sections.any{it.id==4})
+                bank.play(0,padPlayer)
+                repeat(48001){session.next(120);session.renderPads(bank,120,1f,1f,0)}
+                assertEquals(4,session.currentId);assertNull(session.transitionError)
+            }finally{bank.close();session.close()}
+        }finally{file.delete()}
+    }
     @Test fun storedJumpLoadsAnExternalGroupAndWaitsForTheOneShotToFinish(){
         val file=File.createTempFile("orgx-event-jump",".pcm")
         try{

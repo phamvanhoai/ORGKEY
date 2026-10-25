@@ -25,7 +25,10 @@ object ImportedStylePlayer {
         val complete=ImportedSectionFallback.complete(index,style)
         val sections=complete.sections.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         require(sections.any{it.section in 32..35}){"This style has no supported Main section"}
-        val linked=ImportedStyleCatalog.jumpTargets(index,sections)
+        val sectionIds=sections.mapTo(HashSet()){it.id}
+        val linked=(ImportedStyleCatalog.jumpTargets(index,sections)+ImportedStyleCatalog.padRhythmTargets(index,style.id))
+            .distinctBy{it.id}.filter{it.id !in sectionIds}
+        require(sections.size+linked.size<=64){"Style control graph exceeds 64 groups"}
         val playableLinked=linked.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         val players=loadSections(file,index,sections+playableLinked,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality,stsChanges)
         return ImportedStyleSession(complete,players,linkedGroups=linked,storedEndTimes=ImportedStyleCatalog.endTimes(index),knownGroupIds=index.styles.mapTo(HashSet()){it.id})
