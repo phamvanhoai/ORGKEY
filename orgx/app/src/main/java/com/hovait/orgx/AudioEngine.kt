@@ -111,6 +111,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         else if(activeSetIndex==null)setRhythmEnabled(true)
     }
     private val stsParts=ImportedKeyboardPartQueue(musicReleaseSource,musicState)
+    private val directChord=ImportedDirectChord()
     fun setScriptSlider(sound:SampledInstrument,name:String,value:Int,expectedMode:SampledInstrument=sound.activeModeSound,completed:(Boolean)->Unit={}){
         stsParts.updateScriptSlider(sound,name,value,{importedInstrument===sound && sound.activeModeSound===expectedMode},completed)
     }
@@ -407,7 +408,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         else AudioTrackBackend(track,sampleRate)
         outputLoop = AudioOutputLoop(start={backend.start();if(!preferNativeOutput)outputStatus="AudioTrack"},
             render=::renderBlock,write={samples,offset,count->backend.write(samples,offset,count)},release={
-                try{backend.close()}finally{stsWaiters.close();importedKeyboardMixer.close();waveFx.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close();importedPads.close()}
+                try{backend.close()}finally{stsWaiters.close();directChord.cut();importedKeyboardMixer.close();waveFx.close();importedStyleSession?.close();pendingStyle.getAndSet(null)?.session?.close();importedPads.close()}
             },
             onError = { outputStatus="Audio output error";android.util.Log.e("ORGX-Audio", "Audio output stopped", it) })
     }
@@ -837,7 +838,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         stopMidi()
         voices.values.forEach{it.sampledPlayback?.cut()};voices.clear()
         repeatedVoices.forEach{it.playback.cut()};repeatedVoices.clear()
-        stsParts.cutVoices();importedKeyboardMixer.reset();stereoEffect.reset();waveFx.reset()
+        stsParts.cutVoices();directChord.cut();importedKeyboardMixer.reset();stereoEffect.reset();waveFx.reset()
         importedPads.stopAll();importedPads.close();stopSoundEffects()
         padAges.let{ages->repeat(8){ages.set(it,-1)}};rhythmAges.fill(-1)
         importedStyleSession?.let{it.reset();it.stopPlayback()}
@@ -933,6 +934,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 val styleLeft=(setPlayer?.outputLeft ?: (if(rhythmPlaying)(referenceRhythm?.left ?: 0.0)*drumsVolume else 0.0))+importedPads.left
                 val styleRight=(setPlayer?.outputRight ?: (if(rhythmPlaying)(referenceRhythm?.right ?: 0.0)*drumsVolume else 0.0))+importedPads.right
                 importedKeyboardMixer.configureMusic(musicState.settings)
+                val directEnabled=!rhythmPlaying && importedPads.runningMask==0 && !synchroStart && !stsPartsEnabled && leftChordEnabled
+                val chordSource=if(directEnabled)importedInstrument?.withMusicRelease(musicReleaseSource)?.withMusicState(musicState) else null
+                directChord.select(chordSource,if(directEnabled)keyboardChordInput.pitchMask else 0)
+                directChord.renderInto(importedKeyboardMixer)
                 importedKeyboardMixer.finishFrame()
                 val mixedOutputLeft = VoiceMixer.mix(mixedLeft,melodicCount,midiDrumLeft,keysVolume,drumsVolume) + importedKeyboardMixer.left*keysVolume + accompanimentSample(0) * chordVolume + rhythm * drumsVolume
                 val mixedOutputRight = VoiceMixer.mix(mixedRight,melodicCount,midiDrumRight,keysVolume,drumsVolume) + importedKeyboardMixer.right*keysVolume + accompanimentSample(1) * chordVolume + rhythm * drumsVolume

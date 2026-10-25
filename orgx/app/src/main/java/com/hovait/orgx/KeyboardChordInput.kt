@@ -26,6 +26,7 @@ class KeyboardChordInput {
     @Volatile var chord:Int?=null;private set
     @Volatile var octaveMove=0;private set
     @Volatile var pressedChord:Int?=null;private set
+    @Volatile var pitchMask=0;private set
     val heldKeyCount:Int get()=synchronized(this){held.size}
     @Synchronized fun configureSingleFinger(enabled:Boolean,masks:List<Int>,library:List<PlayableChord>){
         configureChordMode(if(enabled)1 else 0,masks,library)
@@ -46,12 +47,13 @@ class KeyboardChordInput {
         detect(library)
     }
     private fun detect(library:List<PlayableChord>){
-        if(held.isEmpty()){pressedChord=null;return}
+        if(held.isEmpty()){pressedChord=null;pitchMask=0;return}
         var mask=if(mode==1)singles[held.first()%12] else ReferenceChordInput.mask(held)
         if(mode==2 && Integer.bitCount(mask)==2){
             val mapped=duals[mask]
             if(mapped!=null && ReferenceChordMatcher.find(mapped,library)!=null)mask=mapped
         }
+        pitchMask=mask
         pressedChord=ReferenceChordMatcher.find(mask,library)
         pressedChord?.let{chord=it;octaveMove=held.last()/12}
     }
@@ -60,5 +62,5 @@ class KeyboardChordInput {
         if(removed)detect(lastLibrary)
         return removed
     }
-    @Synchronized fun reset(){held.clear();chord=null;pressedChord=null;octaveMove=0}
+    @Synchronized fun reset(){held.clear();chord=null;pressedChord=null;octaveMove=0;pitchMask=0}
 }

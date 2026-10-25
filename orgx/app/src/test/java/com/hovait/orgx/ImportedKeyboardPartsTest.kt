@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun directChordOpensMaskNotesWithoutTouchAndReplacesRatherThanStacksChords(){
+        val source=SampledInstrument(listOf(InstrumentRegion(36,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000)
+            .withModeScript("on(touch){return(true);}")
+        val chord=ImportedDirectChord();val mixer=ImportedKeyboardMixer()
+        fun frame():Double{mixer.beginFrame();chord.renderInto(mixer);mixer.finishFrame();return mixer.left}
+        try{
+            chord.select(source,(1 shl 0) or (1 shl 4) or (1 shl 7))
+            assertEquals(.75,frame(),1e-12)
+            chord.select(source,(1 shl 2) or (1 shl 5))
+            assertEquals(.5,frame(),1e-12)
+            chord.select(source,0);assertEquals(0.0,frame(),0.0)
+            chord.select(source,1);assertEquals(.25,frame(),1e-12)
+            chord.cut();assertEquals(0.0,frame(),0.0)
+        }finally{chord.cut();mixer.close()}
+    }
     @Test fun musicReleaseUpdateAffectsNextStsNoteWithoutRebuildingParts(){
         var release=100
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000,

@@ -1,5 +1,28 @@
 package com.hovait.orgx
 
+/** Track.Play(202) fallback: OpenKey directly, with no Touch script dispatch. Audio thread only. */
+class ImportedDirectChord {
+    private var sound:SampledInstrument?=null
+    private var mask=0
+    private val voices=ArrayList<SampledInstrument.Playback>()
+    fun select(source:SampledInstrument?,pitches:Int){
+        val next=pitches and 4095
+        if(source===sound && next==mask)return
+        cut();sound=source;mask=next
+        if(source==null)return
+        for(pitch in 0..11)if(next and (1 shl pitch)!=0){
+            val key=source.keyboardNote(36+pitch)
+            if(key in 0..127 && source.durationFrames(key)>0)
+                voices.add(source.voice(key,scriptVelocity=100,scriptAllowed=false,scriptId=pitch))
+        }
+    }
+    fun renderInto(mixer:ImportedKeyboardMixer){
+        val source=sound ?: return
+        voices.forEach{it.next(false);mixer.add(source,it.left,it.right)}
+    }
+    fun cut(){voices.forEach{it.cut()};voices.clear();sound=null;mask=0}
+}
+
 /** Audio-thread owned STS parts. Replacements affect future notes, not live tails. */
 class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val musicState:ImportedMusicState?=null) {
     data class Part(val id:Int,val sound:SampledInstrument,val pedal:Boolean=false,

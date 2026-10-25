@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Hợp âm trực tiếp khi không chạy group: đối chiếu bytecode và nối tiếng SET đơn, 26-10-2026
+
+- Disassemble Track từ classes3/classes dex của APK bằng baksmali SDK vào thư mục TEMP, chỉ đọc class Track. Bytecode GroupPlayState=0 và SyncStart/type3 xác nhận nhánh CloseAll(true), duyệt pitch 0..11, mở key=36+pitch, velocity100, gọi Channels.OpenKey trực tiếp; không phải Track._scriptTouch. Không thêm bản dump vào project.
+- ImportedDirectChord trong file keyboard parts quản lý voice riêng trên audio thread, dùng sound SET đang chọn; thay mask cắt voice cũ, mask0/dừng group cắt tiếng. Không kích hoạt Touch DNC; tiếng vẫn qua mode/mix và mixer đã có.
+- AudioEngine nối từ mask đã xử lý single/dual chord input khi Left Chord bật, Sync Start tắt, không có rhythm/PAD chạy và không dùng nhiều part STS. Khi group bắt đầu hoặc điều kiện không còn phù hợp, chord trực tiếp được cắt; Cut/Fade/close cũng dọn voice.
+- Build debug và ImportedKeyboardPartsTest, KeyboardChordInputTest, ImportedKeyboardMixerTest đạt. Kiểm tra ba nốt của mask, đổi sang hai nốt không cộng chồng, mask0 và Cut; sound có Touch handled vẫn phát vì gọi OpenKey trực tiếp.
+- Giới hạn: chỉ nối tiếng SET đơn, chưa chọn chord-track instrument riêng hoặc nhóm nhiều part STS; chưa mở nhánh trực tiếp từ event202 ngoài transport. Chưa đối chiếu audio trên thiết bị, chưa coi toàn bộ fallback Track.Play202 hoàn thành. Không sửa SET hoặc tạo file test/log mới.
 ## Style dùng hợp âm đã lưu mà không cần callback Follow Chord, 26-10-2026
 
 - Bổ sung ReferenceChordTransposer.find để nhận mask bằng cùng scale/table dùng chuyển nốt. Loader tự bật mapping hợp âm lưu khi có event 202, accompaniment được nạp và có bảng transposer, kể cả khi targetChord callback không được truyền.
