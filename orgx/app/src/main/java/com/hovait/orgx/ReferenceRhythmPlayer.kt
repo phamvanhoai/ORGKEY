@@ -13,6 +13,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges) {
     init{require(keyConnectionMethod in 0..1);require(stsChanges.size==21)}
     private var externalFade = false
+    private var musicState=ImportedMusicState()
+    private var externalMusicState=false
+    fun withMusicState(state:ImportedMusicState):ReferenceRhythmPlayer=also{
+        if(musicState===state && externalMusicState)return@also
+        musicState=state;externalMusicState=true;sampled?.withMusicState(state)
+        children.forEach{it.withMusicState(state)}
+    }
     private var musicReleaseProvider:(()->Int)?=null
     fun withMusicRelease(provider:()->Int):ReferenceRhythmPlayer=also{
         if(musicReleaseProvider===provider)return@also
@@ -98,7 +105,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private fun mappedNote(note:Int):Int {
         val mapped=mapNote(note)
         return if(!accompaniment || chordTarget?.invoke()?.let{it<0}==true)mapped else
-            (mapped.toLong()+transposeDelta+octaveDelta.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
+            (mapped.toLong()+transposeDelta+octaveDelta.toLong()*12+musicState.settings.transpose-musicSettings.transpose)
+                .coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     }
     private var pitchMove=1000
     private var keyBalance=0
@@ -190,6 +198,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     }
     fun withRhythmSettings(settings:ImportedChannelSettings,music:ImportedChannelSettings=ImportedChannelSettings()):ReferenceRhythmPlayer=also{
         rhythmSettings=settings;musicSettings=music
+        if(!externalMusicState)musicState.configure(music)
         children.forEach{it.withRhythmSettings(settings,music)}
     }
     /** Called once per audio frame after the drum/chord mixer, not once per output channel. */
@@ -205,6 +214,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             return ReferenceRhythmPlayer(emptyList(),{0},{_,_,_->0.0},48000).also{parent->
                 val fade=ReferenceFadeController();parent.fadeController=fade
                 players.forEach{it.fadeController=fade};parent.children=players.toList()
+                parent.musicState=players.first().musicState
+                players.forEach{it.withMusicState(parent.musicState)}
             }
         }
     }
@@ -355,7 +366,9 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 else fadeController.start(event.note,event.touch,sampleRateForEnvelope,playing=true)
                 return@advance
             }
-            if(event.type==202 || event.type==231 || event.type==232 || event.type in 241..246){
+            if(event.type==231){musicState.keyMove(event.note);return@advance}
+            if(event.type==232){musicState.octaveMove(event.note);return@advance}
+            if(event.type==202 || event.type in 241..246){
                 // FX enable/disable is a Music-bus command. Keep transport
                 // semantics; the owning group FX chain remains active.
                 return@advance

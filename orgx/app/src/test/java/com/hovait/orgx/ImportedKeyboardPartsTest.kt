@@ -8,7 +8,7 @@ class ImportedKeyboardPartsTest {
         var release=100
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000,
             envelope=ImportedEnvelope(0,0,100,0,false),rawRelease=20,musicReleasePercent=0)
-        val parts=ImportedKeyboardParts{release};val mixer=ImportedKeyboardMixer()
+        val parts=ImportedKeyboardParts(musicRelease={release});val mixer=ImportedKeyboardMixer()
         try{
             parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
             parts.noteOn(60,1.0);frame(parts,mixer)

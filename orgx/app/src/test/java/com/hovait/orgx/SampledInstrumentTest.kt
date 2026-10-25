@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun keyboardReadsLiveMusicTransposeAndOctaveWithoutAddingLoadedPitchTwice(){
+        val base=ImportedChannelSettings(transpose=3,octave=1)
+        val state=ImportedMusicState(base)
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000,
+            loadedMusicTranspose=3,loadedMusicOctave=1).withKeyboardSettings(base,true).withMusicState(state)
+        assertEquals(75,source.keyboardNote(60))
+        state.keyMove(5);state.octaveMove(2)
+        assertEquals(89,source.keyboardNote(60))
+        state.configure(base) // Same source object is observed every audio frame.
+        assertEquals(89,source.keyboardNote(60))
+        state.configure(base.copy(transpose=-2,octave=0))
+        assertEquals(58,source.keyboardNote(60))
+    }
     @Test fun liveMusicReleaseIsCapturedPerVoiceAndCanRecoverFromZeroAtLoad(){
         var music=100
         val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000,

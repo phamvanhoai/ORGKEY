@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Music KeyMove/OctaveMove có tác dụng khi phát, 26-10-2026
+
+- Đối chiếu Track.Play 231/232 và Channels.OpenKey: Music transpose cộng vào nhạc cụ melodic; Music octave dùng cho channel bàn phím, còn rhythm dùng Rhythm octave. Trước đây hai event bị bỏ qua ở player và còn bị bộ tương thích từ chối.
+- ImportedMusicState dùng chung giữa các track/section, bàn phím, part STS và PAD. Event 231/232 cập nhật trạng thái này; nốt mới lấy pitch mới. Bàn phím trừ phần Music pitch đã gộp lúc nạp để không cộng lặp; chỉ số bảng tuning cũng bù Music transpose hiện tại.
+- Giữ track chỉ chứa 231/232 để điều khiển track khác. Khi SET có KeyMove, loader giữ vùng mẫu melodic cần cho việc đổi pitch trong ngân sách PCM hiện hành, thay vì cắt theo nốt ban đầu rồi phát thiếu mẫu.
+- Build debug và 133 kiểm thử thuộc ImportedKeyboardPartsTest, ImportedSectionFallbackTest, ImportedStyleSessionTest, ReferenceRhythmPlayerTest, SampledInstrumentTest đạt. Đường loadStyle kiểm tra điều khiển ở track riêng chuyển note 60 sang sample exact 72. Đã cài debug lên thiết bị và gửi mở MainActivity thành công.
+- Giới hạn: chưa đối chiếu toàn bộ script DNC đặt key tuyệt đối, cơ chế lưu/khôi phục lastFX của Music.Stop và các nút bật/tắt bus FX. Chưa chứng minh tương đương âm thanh tất cả SET. Không sửa SET hoặc tạo file test/log mới.
 ## Music release cập nhật động cho lần mở nốt kế tiếp, 26-10-2026
 
 - AudioEngine cung cấp Music release hiện tại từ STS Music đang áp dụng, hoặc cấu hình SET nếu không có STS Music. Các nốt bàn phím, part STS, style session và PAD/chuỗi JumpGroup dùng cùng nguồn trạng thái này.

@@ -5,6 +5,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun musicKeyMoveOnAControlOnlyTrackChangesAnotherTracksSampleSelection(){
+        val file=File.createTempFile("orgx-music-pitch",".pcm")
+        try{
+            file.writeBytes(byteArrayOf(0,32,0,32))
+            val main=part(1,100,32)
+            val region=ImportedSection(72,48000,1,2,100,0,0,0,2,0,2,ImportedWave(0,4))
+            val instrument=ImportedInstrument("Exact",100,0,0,listOf(ImportedSound("Sample",listOf(0,0,100,20,2,0),listOf(region))))
+            val controls=ImportedTrack("Music controls",1,0,false,listOf(ReferenceDrumEvent(231,0,12,0,0,0)))
+            val notes=ImportedTrack("Notes",1,0,false,listOf(ReferenceDrumEvent(2,1,60,100,1,1000)))
+            val index=ImportedSetIndex(listOf(instrument),listOf(main),listOf(controls,notes))
+            val session=ImportedStylePlayer.loadStyle(file,index,ImportedStyleDefinition(100,"Style",listOf(main)),true)
+            try{repeat(50){session.next(120)};assertTrue(session.player.left>0)}finally{session.close()}
+        }finally{file.delete()}
+    }
     @Test fun loadedStyleRecomputesReleaseFromRawSoundAndMusicAfterZeroReleaseSts(){
         val file=File.createTempFile("orgx-release-sts",".pcm")
         try{

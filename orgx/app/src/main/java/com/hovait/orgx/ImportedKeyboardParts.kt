@@ -1,7 +1,7 @@
 package com.hovait.orgx
 
 /** Audio-thread owned STS parts. Replacements affect future notes, not live tails. */
-class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null) {
+class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null,private val musicState:ImportedMusicState?=null) {
     data class Part(val id:Int,val sound:SampledInstrument,val pedal:Boolean=false,
         val enabled:Boolean=true,val fromKey:Int=0,val toKey:Int=127,val inputGain:Double=1.0,
         val pedalMode:Int=0)
@@ -43,6 +43,7 @@ class ImportedKeyboardParts(private val musicRelease:(()->Int)?=null) {
         if(velocity==0.0){noteOff(key,channel);return}
         parts.values.filter{it.enabled && key>=it.fromKey && key<=it.toKey}.forEach{part->
             musicRelease?.let{part.sound.withMusicRelease(it)}
+            musicState?.let{part.sound.withMusicState(it)}
             val connection=part.sound.keyConnectionEffect
             val previous=notes.lastOrNull{it.part==part.id && it.channel==channel && it.sound===part.sound && !it.retired && !it.playback.finished &&
                 (!it.released || connection?.stopByRelease==false)}

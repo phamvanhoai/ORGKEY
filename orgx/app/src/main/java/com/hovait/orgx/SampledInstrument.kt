@@ -6,7 +6,8 @@ data class InstrumentRegion(val root:Int,val sample:SamplePcm,val loopStart:Int,
 
 class SampledInstrument(private val regions:List<InstrumentRegion>,private val outputRate:Int,private val exactNotes:Boolean=false,val envelope:ImportedEnvelope?=null,
     private val pitchMode:Int=if(exactNotes)2 else 0,private val tuning:List<Double> = emptyList(),private val tuningTranspose:Int=0,
-    private val rawRelease:Int?=null,private val musicReleasePercent:Int=100,private val loadedReleasePercent:Int=100) {
+    private val rawRelease:Int?=null,private val musicReleasePercent:Int=100,private val loadedReleasePercent:Int=100,
+    private val loadedMusicTranspose:Int=0,private val loadedMusicOctave:Int=0) {
     init {
         regions.forEach {
             require(it.sample.frames.isNotEmpty() && it.gain.isFinite() && it.gain>=0)
@@ -17,6 +18,15 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private var layers:List<SampledInstrument> = emptyList()
     private var aftertouchInstrument:SampledInstrument?=null
     private var musicReleaseProvider:(()->Int)?=null
+    private var musicState:ImportedMusicState?=null
+    fun withMusicState(state:ImportedMusicState):SampledInstrument=also{
+        if(musicState===state)return@also
+        musicState=state
+        layers.forEach{it.withMusicState(state)}
+        aftertouchInstrument?.withMusicState(state)
+        scriptSounds.values.forEach{it.withMusicState(state)}
+        modeRoute?.sounds?.values?.forEach{it.withMusicState(state)}
+    }
     /** Share Music state, but read its release only when a new playback envelope is built. */
     fun withMusicRelease(provider:()->Int):SampledInstrument=also{
         if(musicReleaseProvider===provider)return@also
@@ -141,11 +151,14 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     /** Reuse immutable PCM while keeping mode/keyboard configuration isolated. */
     fun copySampleSource():SampledInstrument {
         require(layers.isEmpty()){"Copy each decoded source before composing mode layers"}
-        return SampledInstrument(regions,outputRate,exactNotes,envelope,pitchMode,tuning,tuningTranspose,rawRelease,musicReleasePercent,loadedReleasePercent)
+        return SampledInstrument(regions,outputRate,exactNotes,envelope,pitchMode,tuning,tuningTranspose,rawRelease,musicReleasePercent,loadedReleasePercent,loadedMusicTranspose,loadedMusicOctave)
             .also{copy->musicReleaseProvider?.let{copy.withMusicRelease(it)}}
+            .also{copy->musicState?.let{copy.withMusicState(it)}}
     }
     fun keyboardNote(note:Int):Int=if(activeModeSound!==this)activeModeSound.keyboardNote(note) else if(!keyboardMelodic)note else
-        (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
+        (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12+
+            (musicState?.settings?.let{it.transpose-loadedMusicTranspose+12L*(it.octave-loadedMusicOctave)} ?: 0L))
+            .coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
     companion object {
         @Volatile var loopTempo=false
         @Volatile var tempo=120
@@ -585,7 +598,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private fun pitchStep(note:Int,tune:Int=0,region:InstrumentRegion=selected[note]):Double {
         val key=if(pitchMode==1)region.root else note
         return if(tuning.isEmpty())SamplePitch.step(key,region.root,region.sample.sampleRate,outputRate,region.tune+tune)
-        else SamplePitch.referenceStep(key,region.root,region.sample.sampleRate,outputRate,region.tune+tune,tuning,tuningTranspose)
+        else SamplePitch.referenceStep(key,region.root,region.sample.sampleRate,outputRate,region.tune+tune,tuning,
+            tuningTranspose+(musicState?.settings?.transpose ?: loadedMusicTranspose)-loadedMusicTranspose)
     }
     private val steps=DoubleArray(128){pitchStep(it)}
     private fun missing(note:Int)=mapped[note]==null

@@ -55,7 +55,8 @@ object ImportedStylePlayer {
             if(follow && source.type==0){
                 require(parts.all{it.chordRoot in 0..127 && checkNotNull(transposer).supports(it.chordType)}){"Unsupported source chord metadata"}
                 source
-            } else ImportedInstrumentLoader.forTrack(source,parts.flatMap{ImportedStyleSupport.sampleEvents(it.copy(settings=ImportedStyleSupport.channelSettings(index,it)),source.type==0)})
+            } else if(source.type==0 && index.tracks.any{it.events.any{event->event.type==231}})source
+            else ImportedInstrumentLoader.forTrack(source,parts.flatMap{ImportedStyleSupport.sampleEvents(it.copy(settings=ImportedStyleSupport.channelSettings(index,it)),source.type==0)})
         }
         // PCM decoding retains mono plus stereo buffers; cap total source PCM before allocating.
         require(selected.values.sumOf{source->ImportedInstrumentLoader.layers(source).sumOf{it.sounds.first().sections.sumOf{section->section.wave.bytes.toLong()}}}<=64L*1024*1024){

@@ -86,8 +86,10 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
     private val musicFade=ReferenceFadeController()
+    private val defaultMusicSettings=ImportedChannelSettings()
+    private val musicState=ImportedMusicState(defaultMusicSettings)
     private val musicReleaseSource:()->Int={ (stsMusic ?: activeSetIndex?.musicSettings)?.releasePercent ?: 100 }
-    val importedPads=ImportedPadBank(sampleRate,musicFade,musicReleaseSource)
+    val importedPads=ImportedPadBank(sampleRate,musicFade,musicReleaseSource,musicState)
     private val chordSynchro=ChordSynchro()
     @Volatile var synchroStart=true;private set
     @Volatile var synchroStop=false;private set
@@ -107,7 +109,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         if(session!=null)requestStyleSection(session.currentId)
         else if(activeSetIndex==null)setRhythmEnabled(true)
     }
-    private val stsParts=ImportedKeyboardPartQueue(musicReleaseSource)
+    private val stsParts=ImportedKeyboardPartQueue(musicReleaseSource,musicState)
     fun setScriptSlider(sound:SampledInstrument,name:String,value:Int,expectedMode:SampledInstrument=sound.activeModeSound,completed:(Boolean)->Unit={}){
         stsParts.updateScriptSlider(sound,name,value,{importedInstrument===sound && sound.activeModeSound===expectedMode},completed)
     }
@@ -421,7 +423,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         val music=activeSetIndex?.musicSettings ?: ImportedChannelSettings()
         val setBalance=if(!playback && importedInstrument!=null && !MidiVoiceKey.percussion(channel))ImportedMusicParameters.keyboardGain(music).toFloat() else 1f
         val velocityGain=VoiceVelocity.gain(velocity,playback,sampled=sound!=null)*setBalance
-        val voice=Voice(note=note,order=voiceOrder.incrementAndGet(),initialScriptPedal=!playback && sustain,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument?.withMusicRelease(musicReleaseSource),velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
+        val voice=Voice(note=note,order=voiceOrder.incrementAndGet(),initialScriptPedal=!playback && sustain,instrument=if(MidiVoiceKey.percussion(channel))-1 else InstrumentCatalog.validIndex(voiceInstrument),playback=playback,imported=if(playback)null else importedInstrument?.withMusicRelease(musicReleaseSource)?.withMusicState(musicState),velocity = velocityGain,recordingVelocity=(velocity.coerceIn(0f,1f)*127).toInt().coerceAtLeast(1))
         if(connection!=null && connection.mode<=15 && previous!=null && (!connection.byPedal || sustain))
             voice.sampledPlayback?.connectFrom(checkNotNull(sound).keyboardNote(previous.value.note),connection)
         voice.sampledPlayback?.pitchBend(pitchState.semitones(channel,playback),pitchState.scriptLevel(channel,playback))
@@ -695,6 +697,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             val session=selection.session
             session?.withMusicFade(musicFade)
             session?.withMusicRelease(musicReleaseSource)
+            session?.withMusicState(musicState)
             importedStyleSession?.let{rememberedChordMute=it.chordMuted;rememberedDrumMute=it.drumMuted}
             session?.restorePerformanceMute(rememberedChordMute,rememberedDrumMute)
             selection.mutes.forEach{session?.togglePerformanceMute(it,rhythmPlaying)}
@@ -741,8 +744,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             if(it.finished){naturalStyleTail=true;rhythmPlaying=false;transportFrame=0}else transportFrame++
             return 0.0
         }
-        importedRhythm?.let{it.withMusicFade(musicFade);it.withMusicRelease(musicReleaseSource);it.next(0,bpm.coerceIn(40,240));if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++;return 0.0}
-        referenceRhythm?.let { it.withMusicFade(musicFade);it.withMusicRelease(musicReleaseSource);it.next(rhythmStyle,bpm.coerceIn(40,240));transportFrame++;return 0.0 }
+        importedRhythm?.let{it.withMusicFade(musicFade);it.withMusicRelease(musicReleaseSource);it.withMusicState(musicState);it.next(0,bpm.coerceIn(40,240));if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++;return 0.0}
+        referenceRhythm?.let { it.withMusicFade(musicFade);it.withMusicRelease(musicReleaseSource);it.withMusicState(musicState);it.next(rhythmStyle,bpm.coerceIn(40,240));transportFrame++;return 0.0 }
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)
         val step = ((transportFrame / stepFrames) % 8).toInt()
         val stepOffset = transportFrame % stepFrames
@@ -830,7 +833,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             for (frame in 0 until frames) {
                 if(musicFade.takeStopRequest())finishMusicFade()
                 stsParts.drain()
-                importedKeyboardMixer.configureMusic(stsMusic ?: activeSetIndex?.musicSettings ?: ImportedChannelSettings())
+                musicState.configure(stsMusic ?: activeSetIndex?.musicSettings ?: defaultMusicSettings)
+                importedKeyboardMixer.configureMusic(musicState.settings)
                 if(resetHarmony || !rhythmPlaying){harmonyClock.reset();resetHarmony=false}
                 var mixedLeft = 0.0
                 var mixedRight = 0.0

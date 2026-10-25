@@ -17,7 +17,7 @@ object ImportedInstrumentLoader {
     /** Preserve original nearest-root decisions, while loading only regions used by this track. */
     fun forTrack(instrument:ImportedInstrument,events:List<ReferenceDrumEvent>):ImportedInstrument {
         // Runtime transpose/octave can select roots absent from the initial notes.
-        if(events.any{it.type==41 || it.type==42 || it.type==64})return instrument
+        if(events.any{it.type==41 || it.type==42 || it.type==64 || it.type==231 || it.type==232})return instrument
         if(instrument.sounds.size>1 || instrument.modes.isNotEmpty())return instrument.copy(sounds=instrument.sounds.map{sound->
             forTrack(instrument.copy(sounds=listOf(sound),modes=emptyList()),events).sounds.single()
         })
@@ -133,7 +133,8 @@ object ImportedInstrumentLoader {
             SampledInstrument(regions,48000,exactNotes=instrument.sounds.first().envelope[4]==2,
                 envelope=ImportedEnvelope.from(instrument.sounds.first().envelope).let{it.copy(release=ImportedMusicParameters.release(it.release,channel,musicSettings))},pitchMode=instrument.sounds.first().envelope[4],
                 tuning=if(instrument.type==0)system?.table.orEmpty() else emptyList(),tuningTranspose=channel.transpose,
-                rawRelease=instrument.sounds.first().envelope[3],musicReleasePercent=musicSettings.releasePercent,loadedReleasePercent=channel.releasePercent)
+                rawRelease=instrument.sounds.first().envelope[3],musicReleasePercent=musicSettings.releasePercent,loadedReleasePercent=channel.releasePercent,
+                loadedMusicTranspose=musicSettings.transpose,loadedMusicOctave=musicSettings.octave)
         }.let{if(settings==null)it.withKeyboardSettings(channel,instrument.type==0) else it}
             .also{it.sourceSelectionKey=ImportedSoundSelection.key(instrument)}
     }

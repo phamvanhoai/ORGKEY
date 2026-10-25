@@ -54,11 +54,18 @@ class ReferenceRhythmPlayerTest {
             ReferenceDrumEvent(202,0,3,0,0,0),ReferenceDrumEvent(2,1,60,100,1,1000)))),{10000},{_,_,_->1.0},1000)
         try{repeat(3){player.next(0,120)};assertTrue(player.left>0)}finally{player.close()}
     }
-    @Test fun storedMusicFxKeyAndOctaveMoveEventsDoNotInvalidateTransport(){
+    @Test fun musicKeyMoveChangesMelodicNotesButMusicOctaveDoesNotShiftRhythm(){
+        val opened=mutableListOf<Int>()
+        val state=ImportedMusicState()
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
-            ReferenceDrumEvent(231,0,100,0,0,0),ReferenceDrumEvent(232,0,100,0,0,0),
-            ReferenceDrumEvent(2,1,60,100,1,1000)))),{10000},{_,_,_->1.0},1000)
-        try{repeat(3){player.next(0,120)};assertTrue(player.left>0)}finally{player.close()}
+            ReferenceDrumEvent(231,0,2,0,0,0),ReferenceDrumEvent(232,0,1,0,0,0),
+            ReferenceDrumEvent(2,1,60,100,1,1000)))),{note->opened.add(note);10000},{_,_,_->1.0},1000,
+            accompaniment=true).withMusicState(state)
+        try{
+            repeat(3){player.next(0,120)}
+            assertEquals(listOf(62),opened.distinct());assertEquals(1,state.settings.octave)
+            assertTrue(player.left>0)
+        }finally{player.close()}
     }
     @Test fun storedFxToggleEventsDoNotInvalidateStyleTransport(){
         val player=ReferenceRhythmPlayer(listOf(track(listOf(
