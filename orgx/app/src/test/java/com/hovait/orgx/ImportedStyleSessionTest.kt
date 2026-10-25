@@ -4,6 +4,35 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun unplayableRhythmTargetReportsAnErrorWithoutStoppingCurrentStyle(){
+        val group=ImportedStyleGroup(1,100,"Main",32,true,0,4000,120)
+        val player=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("Main",1,100,32,120,true,0,4000,false,
+            listOf(ReferenceDrumEvent(201,0,2,0,100,0)))),{1000},{_,_,_->0.0},1000)
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",listOf(group)),mapOf(1 to player),1000,knownGroupIds=setOf(1,2))
+        try{
+            repeat(1100){session.next(120)}
+            assertFalse(session.finished);assertEquals(1,session.currentId)
+            assertTrue(session.transitionError?.contains("2 exists but is not playable")==true)
+        }finally{session.close()}
+    }
+    @Test fun padRhythmCommandQueuesTheRunningStyleAtItsNextWindow(){
+        val main=ImportedStyleGroup(1,100,"Main",32,true,0,4000,120)
+        val other=main.copy(id=2,section=33)
+        val groups=listOf(main,other)
+        val players=groups.associate{group->group.id to ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(
+            group.name,group.id,100,group.section,120,true,0,4000,false,emptyList())),{1000},{_,_,_->0.0},1000)}
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",groups),players,1000)
+        val pad=ReferenceRhythmPlayer(listOf(ReferenceDrumTrack("Pad",3,100,96,120,false,0,4000,false,
+            listOf(ReferenceDrumEvent(201,0,2,0,100,0)))),{1000},{_,_,_->0.0},1000)
+        val bank=ImportedPadBank(1000)
+        try{
+            bank.play(0,pad)
+            repeat(500){session.next(120);session.renderPads(bank,120,1f,1f,0)}
+            assertEquals(1,session.currentId);assertEquals(2,session.pendingId)
+            repeat(501){session.next(120);session.renderPads(bank,120,1f,1f,0)}
+            assertEquals(2,session.currentId);assertFalse(session.finished)
+        }finally{bank.close();session.close()}
+    }
     @Test fun storedRhythmQueuesAtNextWindowWithoutWaitingForIntroEnd(){
         val intro=ImportedStyleGroup(2,100,"Intro",16,false,0,4000,120)
         val main=intro.copy(id=1,name="Main",section=32,loop=true)

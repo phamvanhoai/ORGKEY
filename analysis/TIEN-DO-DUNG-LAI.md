@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## PAD gửi Rhythm201 về style chính, phân biệt target thiếu và chưa nạp, 26-10-2026
+
+- StyleSession gắn handler Rhythm cho PadBank khi render đồng bộ; handler truyền tới cả player hiện tại, sequence JumpGroup và PAD nhận từ mailbox. Khi style không chạy, AudioEngine tháo handler như đường mute để không gọi session cũ.
+- Session nhận danh sách group ID từ index SET. Target có trong SET nhưng không có player không còn được coi như Group(null): ghi transitionError và giữ style chạy. Target thực sự không tồn tại vẫn xóa queue/dừng theo nhánh đã dựng.
+- Build debug và ImportedStyleSessionTest, ImportedSectionFallbackTest, ImportedTempLoopTest đạt. Integration PadBank gửi201 ở100, style giữ group cũ trước cửa sổ1000 rồi chuyển group2. Kiểm tra target có ID nhưng chưa có player không làm dừng.
+- Giới hạn: target từ PAD phải đã có player trong session chính; chưa chuyển ownership PCM từ PAD vào style hoặc nạp động. Touch chọn nhiều GroupPlay slot và Section0 song song vẫn chưa dựng. Không sửa SET hoặc tạo file test/log mới.
 ## Rhythm201 điều khiển hàng đợi style chính, 26-10-2026
 
 - Đối chiếu Track.Play201: CloseAll(true) trên track gửi lệnh; group hợp lệ đi GroupPlayAdd, group null xóa queue và đóng group hiện tại. Player nay dispatch Rhythm command, bộ tương thích giữ event và control-only track.

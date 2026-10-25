@@ -12,7 +12,7 @@ class ImportedStyleTempoMemory {
 /** GroupPlayAdd/Next/Start rules for supported, bounded style groups. */
 class ImportedStyleSession(val style:ImportedStyleDefinition,private val players:Map<Int,ReferenceRhythmPlayer>,sampleRate:Int=48000,
     private var changeMethod:Int=0,private var tempoLock:Boolean=false,linkedGroups:List<ImportedStyleGroup> = emptyList(),
-    private val storedEndTimes:Map<Int,Long> = emptyMap()) {
+    private val storedEndTimes:Map<Int,Long> = emptyMap(),private val knownGroupIds:Set<Int> = players.keys) {
     private val groups=(style.sections+linkedGroups).associateBy{it.id}
     private val main=style.sections.first{it.section in 32..35 && it.id in players}
     private val clock=ReferenceStyleClock(sampleRate)
@@ -34,10 +34,12 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         queue.addLast(Request(0,false,if(chord)1 else 2))
     }
     init{players.values.forEach{it.withMuteCommand(storedMuteCommand)}}
-    init{players.values.forEach{it.withRhythmCommand{id->
+    private val storedRhythmCommand:(Int)->Unit={id->
         if(id in players)request(id)
+        else if(id in knownGroupIds){transitionError="SET Rhythm target $id exists but is not playable"}
         else {queue.clear();jumpId=null;finished=true;player.releaseAll()}
-    }}}
+    }
+    init{players.values.forEach{it.withRhythmCommand(storedRhythmCommand)}}
     val temporaryLoop get()=synchronized(this){currentId in temporaryLoops}
     private var lastLoop:Int?=main.id.takeIf{main.loop}
     private var startedAt=0L
@@ -69,6 +71,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     /** Read timing and return PAD scale changes under the same session lock, without a per-frame snapshot object. */
     @Synchronized fun renderPads(bank:ImportedPadBank,tempo:Int,drumGain:Float,chordGain:Float,method:Int){
         bank.withMuteCommand(storedMuteCommand)
+        bank.withRhythmCommand(storedRhythmCommand)
         bank.nextAt(tempo,drumGain,chordGain,clock.time,rhythmScale,method)
         if(bank.scaleChanged)rhythmScale=bank.rhythmScale
     }
