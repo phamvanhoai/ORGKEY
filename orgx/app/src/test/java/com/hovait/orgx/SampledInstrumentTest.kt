@@ -4,6 +4,34 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SampledInstrumentTest {
+    @Test fun liveMusicReleaseIsCapturedPerVoiceAndCanRecoverFromZeroAtLoad(){
+        var music=100
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000,
+            envelope=ImportedEnvelope(0,0,100,0,false),rawRelease=20,musicReleasePercent=0)
+            .withMusicRelease{music}.copySampleSource()
+        val held=source.voice(60);held.next(false)
+        music=0
+        val latest=source.voice(60);latest.next(false)
+        try{
+            held.next(true);latest.next(true)
+            assertEquals(.25*(1-1.0/200),held.left,1e-12)
+            assertFalse(held.finished);assertTrue(latest.finished)
+        }finally{held.cut();latest.cut()}
+    }
+    @Test fun scriptReleaseOverrideUsesCurrentMusicRatioOnlyOnce(){
+        var music=50
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000,
+            envelope=ImportedEnvelope(0,0,100,0,false),rawRelease=20,musicReleasePercent=0)
+            .withModeScript("on(touch){play(release:40,pedal:0);return(true);}").withMusicRelease{music}
+        val first=source.voice(60);first.next(false)
+        music=25
+        val second=source.voice(60);second.next(false)
+        try{
+            first.next(true);second.next(true)
+            assertEquals(.25*(1-1.0/200),first.left,1e-12)
+            assertEquals(.25*(1-1.0/100),second.left,1e-12)
+        }finally{first.cut();second.cut()}
+    }
     @org.junit.Test fun legatoPitchUsesTheSampleStillPlayingAcrossRegionBoundaries(){
         val samples=ShortArray(128){(it*100).toShort()}
         val instrument=SampledInstrument(listOf(

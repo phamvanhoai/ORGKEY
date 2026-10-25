@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Music release cập nhật động cho lần mở nốt kế tiếp, 26-10-2026
+
+- AudioEngine cung cấp Music release hiện tại từ STS Music đang áp dụng, hoặc cấu hình SET nếu không có STS Music. Các nốt bàn phím, part STS, style session và PAD/chuỗi JumpGroup dùng cùng nguồn trạng thái này.
+- SampledInstrument truyền nguồn Music release tới các mode, layer, Aftertouch và sound script. Playback chỉ đọc khi xây envelope mới; envelope của nốt đang giữ/nhả không bị sửa. copySampleSource giữ liên kết Music cùng release gốc để phục hồi được từ mức 0 khi nạp.
+- Nốt Repeat hoặc mở lại theo hợp âm đọc mức mới khi mở; script release override nhân với tỷ lệ channel và Music một lần theo Channels.OpenKey. Không sửa SET hay nạp lại PCM để đổi release.
+- assembleDebug và 212 kiểm thử thuộc SampledInstrumentTest, ImportedKeyboardPartsTest, ImportedKeyboardPartQueueTest, ReferenceRhythmPlayerTest, ImportedScriptPlaybackTest, ImportedSectionFallbackTest đạt. Kiểm tra giữ tail nốt cũ, nốt mới dùng tỷ lệ mới, script override không nhân lặp và part STS không cần dựng lại.
+- Giới hạn: chưa thu âm đối chiếu release của toàn bộ SET với APK gốc trên thiết bị; các lệnh Music khác như KeyMove/OctaveMove và bật/tắt bus FX vẫn chưa được dựng đầy đủ. Không tạo file test/log mới.
 ## Release theo STS được tính lúc mở nốt, 26-10-2026
 
 - Đối chiếu Channels.OpenKey: release lấy từ sound hoặc tham số script, nhân channel.h và Music.h / 10000 rồi giới hạn 100. Trước đây loader đã gộp mất release gốc nên STS event 64 thay releasePercent không có tác dụng.

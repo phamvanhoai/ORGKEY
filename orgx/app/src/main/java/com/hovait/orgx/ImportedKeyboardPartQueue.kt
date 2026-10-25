@@ -3,9 +3,9 @@ package com.hovait.orgx
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /** UI submits ordered commands; only the audio thread touches Playback/part state. */
-class ImportedKeyboardPartQueue {
+class ImportedKeyboardPartQueue(musicRelease:(()->Int)?=null) {
     private val commands=ConcurrentLinkedQueue<()->Unit>()
-    private val parts=ImportedKeyboardParts()
+    private val parts=ImportedKeyboardParts(musicRelease)
     fun replace(values:List<ImportedKeyboardParts.Part>){
         commit(values){true}
     }

@@ -16,6 +16,16 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     private val roots=regions.map{it.root}
     private var layers:List<SampledInstrument> = emptyList()
     private var aftertouchInstrument:SampledInstrument?=null
+    private var musicReleaseProvider:(()->Int)?=null
+    /** Share Music state, but read its release only when a new playback envelope is built. */
+    fun withMusicRelease(provider:()->Int):SampledInstrument=also{
+        if(musicReleaseProvider===provider)return@also
+        musicReleaseProvider=provider
+        layers.forEach{it.withMusicRelease(provider)}
+        aftertouchInstrument?.withMusicRelease(provider)
+        scriptSounds.values.forEach{it.withMusicRelease(provider)}
+        modeRoute?.sounds?.values?.forEach{it.withMusicRelease(provider)}
+    }
     private var expressionEffects:List<ImportedExpressionEffect> = emptyList()
     var touchScript:ImportedSimpleScript.Result?=null;private set
     private var modeScript:ImportedModeScript?=null
@@ -132,6 +142,7 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     fun copySampleSource():SampledInstrument {
         require(layers.isEmpty()){"Copy each decoded source before composing mode layers"}
         return SampledInstrument(regions,outputRate,exactNotes,envelope,pitchMode,tuning,tuningTranspose,rawRelease,musicReleasePercent,loadedReleasePercent)
+            .also{copy->musicReleaseProvider?.let{copy.withMusicRelease(it)}}
     }
     fun keyboardNote(note:Int):Int=if(activeModeSound!==this)activeModeSound.keyboardNote(note) else if(!keyboardMelodic)note else
         (note.toLong()+keyboardSettings.transpose+keyboardSettings.octave.toLong()*12).coerceIn(Int.MIN_VALUE.toLong(),Int.MAX_VALUE.toLong()).toInt()
@@ -438,8 +449,8 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
         private val effectiveEnvelope=envelope?.let{original->
             fun value(name:String,fallback:Int)=envelopeOverrides[name]?.takeIf{it>=0}?.coerceAtMost(if(name=="sustain")100 else 127) ?: fallback
             original.copy(attack=value("attack",original.attack),decay=value("decay",original.decay),
-                sustain=value("sustain",original.sustain),release=if(rawRelease!=null || releasePercent!=null)
-                    (value("release",rawRelease ?: original.release).toLong()*(releasePercent ?: loadedReleasePercent)*musicReleasePercent/10000).coerceIn(0,100).toInt()
+                sustain=value("sustain",original.sustain),release=if(rawRelease!=null || releasePercent!=null || musicReleaseProvider!=null)
+                    (value("release",rawRelease ?: original.release).toLong()*(releasePercent ?: loadedReleasePercent)*(musicReleaseProvider?.invoke() ?: musicReleasePercent)/10000).coerceIn(0,100).toInt()
                     else value("release",original.release),
                 autoRelease=envelopeAutoRelease ?: original.autoRelease)
         }

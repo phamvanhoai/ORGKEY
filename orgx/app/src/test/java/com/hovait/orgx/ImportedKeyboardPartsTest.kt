@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedKeyboardPartsTest {
+    @Test fun musicReleaseUpdateAffectsNextStsNoteWithoutRebuildingParts(){
+        var release=100
+        val source=SampledInstrument(listOf(InstrumentRegion(60,SamplePcm(1000,1,shortArrayOf(8192,8192)),0,2)),1000,
+            envelope=ImportedEnvelope(0,0,100,0,false),rawRelease=20,musicReleasePercent=0)
+        val parts=ImportedKeyboardParts{release};val mixer=ImportedKeyboardMixer()
+        try{
+            parts.replace(listOf(ImportedKeyboardParts.Part(1,source)))
+            parts.noteOn(60,1.0);frame(parts,mixer)
+            release=0
+            parts.noteOn(64,1.0);frame(parts,mixer)
+            parts.noteOff(60);parts.noteOff(64)
+            assertEquals(.25*(1-1.0/200),frame(parts,mixer),1e-12)
+            assertEquals(1,parts.activeNotes)
+        }finally{parts.reset();mixer.close()}
+    }
     @Test fun polyphonyIsPerPartAndStealsTheOldestNote(){
         val before=ImportedPolyphony.music
         val parts=ImportedKeyboardParts();val mixer=ImportedKeyboardMixer()

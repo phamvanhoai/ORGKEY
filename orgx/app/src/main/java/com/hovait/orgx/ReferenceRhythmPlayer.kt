@@ -13,6 +13,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges) {
     init{require(keyConnectionMethod in 0..1);require(stsChanges.size==21)}
     private var externalFade = false
+    private var musicReleaseProvider:(()->Int)?=null
+    fun withMusicRelease(provider:()->Int):ReferenceRhythmPlayer=also{
+        if(musicReleaseProvider===provider)return@also
+        musicReleaseProvider=provider
+        sampled?.withMusicRelease(provider)
+        children.forEach{it.withMusicRelease(provider)}
+    }
     fun withMusicFade(controller:ReferenceFadeController):ReferenceRhythmPlayer=also{
         if(externalFade && fadeController===controller)return@also
         fadeController=controller;externalFade=true
