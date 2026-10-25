@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Bass Booster cập nhật tại chỗ, giữ bộ nhớ lọc và các FX khác, 26-10-2026
+
+- Đối chiếu p01.a: thay volume/frequency/smoothing, không xóa m/n trạng thái lọc. Bass stage có configure giữ stateL/stateR; ImportedFxChain.updateBass cập nhật cấu hình dùng cho fresh mà không đóng chain.
+- Event66 thay tham số module20 đi fast path; Enable/realtime/type đổi vẫn dùng nhánh dựng lại. Nhánh PitchShift giữ fast path riêng. Mode FX vẫn áp dụng lại mode theo cơ chế trước.
+- assembleDebug và ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Test xung qua Bass/Echo rồi tăng gain xác nhận state lọc còn, echo cũ tới đúng thời điểm và fresh dùng gain mới.
+- Giới hạn: không mô phỏng toàn bộ z01.c trên các module còn lại khi Bass đổi; chưa cập nhật tại chỗ Echo/filter/Chorus/Reverb và chưa đo audio thiết bị. Không sửa SET hoặc tạo file test/log mới.
 ## Kiểm tra FX theo trình tự STS và automation, 26-10-2026
 
 - Bộ tương thích trước xét66 theo module ban đầu, không theo64 trước đó. Nay đi event theo thời gian, merge STS với mask thực, duy trì channel và mode FX riêng;61 ID khác0 áp lại mode,66 cập nhật basis đúng.

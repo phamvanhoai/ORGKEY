@@ -4,6 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun bassParameterUpdateKeepsFilterMemoryAndEchoAlreadyInFlight(){
+        val bass=module(20,16,1)
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(bass,module(6,50,1))),1000)
+        try{
+            fx.process(1.0,0.0);assertEquals(1.5,fx.left,0.0)
+            assertTrue(fx.updateBass(0,module(20,32,1)))
+            fx.process(0.0,0.0);assertEquals(.5,fx.left,0.0)
+            repeat(8){fx.process(0.0,0.0)}
+            fx.process(0.0,0.0);assertTrue(fx.left>=.75)
+            val fresh=fx.fresh()
+            try{fresh.process(1.0,0.0);assertEquals(2.0,fresh.left,0.0)}finally{fresh.close()}
+        }finally{fx.close()}
+    }
     @Test fun bandMoveAutomationUsesLogicalParameterOrderAndPackedStorage(){
         fun bytes(values:List<Int>)=values.flatMap{value->List(4){(value ushr (8*it)) and 255}}
         val original=ImportedFxModule(2,true,false,bytes(listOf(0,200,100,250))+1)

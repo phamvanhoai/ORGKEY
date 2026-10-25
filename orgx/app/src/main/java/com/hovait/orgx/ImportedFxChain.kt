@@ -319,10 +319,11 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
             right=((r-centre)*width+centre+r)/2.0
         }
     }
-    private class Bass(val volume:Float,val frequency:Float):Stage{
+    private class Bass(var volume:Float,var frequency:Float):Stage{
         private var stateL=0f;private var stateR=0f
         override var left=0.0;override var right=0.0
-        val smoothing=1f/(frequency+1f)
+        private var smoothing=1f/(frequency+1f)
+        fun configure(gain:Int,frequency:Int){volume=gain/16f;this.frequency=frequency.toFloat();smoothing=1f/(this.frequency+1f)}
         override val active get()=kotlin.math.abs(stateL)>1e-9f || kotlin.math.abs(stateR)>1e-9f
         override fun reset(){stateL=0f;stateR=0f;left=0.0;right=0.0}
         override fun process(l:Double,r:Double){
@@ -435,6 +436,22 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     var left=0.0;private set
     var right=0.0;private set
     private var closed=false
+    fun updateBass(moduleIndex:Int,updated:ImportedFxModule):Boolean {
+        check(!closed)
+        val original=settings.modules.getOrNull(moduleIndex) ?: return false
+        if(original.type!=20 || updated.type!=20 || updated.payload.size!=8 ||
+            original.enabled!=updated.enabled || original.realtime!=updated.realtime)return false
+        val gain=int(updated.payload,0);val frequency=int(updated.payload,4)
+        require(gain in 0..100 && frequency in 0..100)
+        if(settings.fxEnabled && original.enabled){
+            val index=settings.modules.take(moduleIndex).count{it.enabled}
+            val stage=stages.getOrNull(index) as? Bass ?: return false
+            stage.configure(gain,frequency)
+            modules=modules.toMutableList().also{it[index]=updated}
+        }
+        settings=settings.copy(modules=settings.modules.toMutableList().also{it[moduleIndex]=updated})
+        return true
+    }
     /** Pitch Shift passes its parameter to JNI per sample; no native reopen or other-stage reset. */
     fun updatePitchShift(moduleIndex:Int,updated:ImportedFxModule):Boolean {
         check(!closed)
