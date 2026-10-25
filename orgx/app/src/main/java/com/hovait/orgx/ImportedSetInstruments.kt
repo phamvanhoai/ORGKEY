@@ -197,6 +197,6 @@ object ImportedSetInstruments {
             } else rawColor
             ImportedStyleGroup(id,parent,name,section,loop,start,end,if(musicVersion<"1.3.0")tempo*120/100 else tempo,type,limit,jump,meterX,meterY,settings,chordType,chordBase,stsIndices,color,shortcutDevice,shortcutMidi)
         }
-        ImportedSetIndex(instruments,styles,tracks,systems,musicSettings,waveSettings,rhythmSettings,musicVersion!!)
+        ImportedSetIndex(instruments,styles,ImportedStyleSupport.restoreLegacyChords(musicVersion!!,tracks,styles),systems,musicSettings,waveSettings,rhythmSettings,musicVersion)
     }
 }

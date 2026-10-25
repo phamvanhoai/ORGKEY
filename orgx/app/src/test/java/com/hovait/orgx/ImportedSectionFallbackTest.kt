@@ -5,6 +5,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedSectionFallbackTest {
+    @Test fun legacyChordMetadataComesFromOwningGroupUsingMusicContainerVersion(){
+        val group=part(1,100,32).copy(chordBase=5,chordType=1)
+        val track=ImportedTrack("Notes",1,0,false,emptyList(),chordRoot=0,chordType=0,sourceVersion="1.4.8")
+        val orphan=track.copy(group=999)
+        val legacy=ImportedStyleSupport.restoreLegacyChords("1.4.6",listOf(track,orphan),listOf(group))
+        assertEquals(5,legacy.first().chordRoot);assertEquals(1,legacy.first().chordType)
+        assertEquals(orphan,legacy.last())
+        for(version in listOf("1.4.8","1.4.10","2.0.0"))
+            assertEquals(listOf(track),ImportedStyleSupport.restoreLegacyChords(version,listOf(track),listOf(group)))
+        val mapper=ReferenceChordTransposer.fromTable("M 0 4 7\nm 0 3 7")
+        // Match the original CalcChordKey pitch-class comparison (including nonzero source root).
+        assertEquals(mapper.note(63,5,1,0),mapper.note(63,legacy.first().chordRoot,legacy.first().chordType,0))
+        assertNotEquals(mapper.note(63,0,0,0),mapper.note(63,legacy.first().chordRoot,legacy.first().chordType,0))
+    }
     @Test fun storedChordTransposesStyleWithoutAnExternalFollowChordCallback(){
         val file=File.createTempFile("orgx-stored-chord",".pcm")
         try{

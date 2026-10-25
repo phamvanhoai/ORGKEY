@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Khôi phục metadata hợp âm của SET cũ theo group, 26-10-2026
+
+- Đối chiếu cuối Tracks.ReadFromStream: Music version <1.4.8 ghi đè fChordRoot/fChordType của mỗi track bằng ChordBase/ChordType của group chứa track. ORGX đã đọc cả hai nguồn nhưng chưa thực hiện bước nâng cấp này.
+- Sau khi đọc group, parser áp dụng chuyển đổi cho track có group tương ứng; track không có group giữ nguyên. Dùng version container Music theo APK, không lấy version riêng của Track. So sánh version theo thành phần số để 1.4.10 không bị coi là cũ hơn 1.4.8.
+- Điều này sửa dữ liệu nguồn của CalcChordKey cho style cũ, không sửa bảng nốt hoặc ghi ngược SET. Metadata kind/type, sample selection và sourceVersion vẫn giữ riêng.
+- assembleDebug, ImportedSectionFallbackTest, parser legacyStsReservedByteDoesNotSkipMidiOrInstrumentFields và ReferenceChordTransposerTest đạt. Kiểm tra group có nguồn khác track, orphan, container cũ chứa track mới và biên 1.4.8/1.4.10/2.0.0.
+- Giới hạn: chưa thu âm đối chiếu các style bị ảnh hưởng trên thiết bị; không coi đây là hoàn tất toàn bộ dữ liệu SET. Không sửa SET hay tạo file test/log mới.
 ## Sửa bộ đọc SET nhầm Type và Kind của Track, 26-10-2026
 
 - Track.ReadFromStream ghi hai byte liên tiếp fType rồi fKind. ORGX trước bỏ byte đầu và đọc byte sau vào kind; các nhánh STS/channel lại dùng kind như Type. Nay ImportedTrack giữ riêng type (byte đầu có dấu), kind vẫn là byte thứ hai có dấu.

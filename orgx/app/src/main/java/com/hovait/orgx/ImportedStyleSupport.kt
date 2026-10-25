@@ -18,6 +18,18 @@ internal class ImportedChordQuality(private val quality:()->Int) {
 }
 
 object ImportedStyleSupport {
+    /** Tracks.ReadFromStream upgrades every track using the container's version. */
+    internal fun restoreLegacyChords(version:String,tracks:List<ImportedTrack>,groups:List<ImportedStyleGroup>):List<ImportedTrack>{
+        val parts=version.split('.').map{it.toIntOrNull() ?: 0}
+        val boundary=listOf(1,4,8)
+        val comparison=(0 until maxOf(parts.size,boundary.size)).asSequence()
+            .map{parts.getOrElse(it){0}.compareTo(boundary.getOrElse(it){0})}.firstOrNull{it!=0} ?: 0
+        if(comparison>=0)return tracks
+        val byId=groups.associateBy{it.id}
+        return tracks.map{track->byId[track.group]?.let{group->
+            track.copy(chordRoot=group.chordBase,chordType=group.chordType)
+        } ?: track}
+    }
     /** Tracks.ReadFromStream channel types; distinct from instrument percussion type. */
     fun expressionAllowed(index:ImportedSetIndex,track:ImportedTrack):Boolean {
         val position=index.tracks.indexOf(track)
