@@ -26,8 +26,9 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
         if(group!=null && !group.loop && (group.limit || (storedEndTimes[id] ?: players[id]?.storedEndTime ?: 0)>10))temporaryLoops.add(id)
     }}}
     init{players.values.forEach{it.withJumpCommand{id->
-        jumpId=id.takeIf{it in players}
-        jumpId?.let{temporaryLoops.remove(it)}
+        if(id in players){jumpId=id;temporaryLoops.remove(id)}
+        else if(id in knownGroupIds){transitionError="SET Jump target $id exists but is not playable"}
+        else jumpId=null
     }}}
     private val storedMuteCommand:(Boolean)->Unit={chord->
         // GroupPlayAddChordMute/DrumMute append without the Rhythm queue size guard.

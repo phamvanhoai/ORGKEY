@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun unplayableJumpDoesNotEraseAnAlreadyQueuedValidJump(){
+        val main=ImportedStyleGroup(1,100,"Main",32,true,0,1000,120)
+        val intro=main.copy(id=2,section=16,loop=false,jumpGroup=0)
+        val groups=listOf(main,intro)
+        val players=groups.associate{group->group.id to ReferenceRhythmPlayer(listOf(ReferenceDrumTrack(
+            group.name,group.id,100,group.section,120,group.loop,0,1000,false,
+            if(group.id==2)listOf(ReferenceDrumEvent(203,0,1,0,100,0),ReferenceDrumEvent(203,0,3,0,200,0)) else emptyList())),
+            {1000},{_,_,_->0.0},1000)}
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",groups),players,1000,knownGroupIds=setOf(1,2,3))
+        try{
+            session.request(2,true);repeat(500){session.next(120)}
+            assertTrue(session.transitionError?.contains("Jump target 3")==true)
+            repeat(501){session.next(120)}
+            assertEquals(1,session.currentId);assertFalse(session.finished)
+        }finally{session.close()}
+    }
     @Test fun storedTempoStillChangesWhileLockedAndLockSuppressesSectionTempo(){
         val main=ImportedStyleGroup(1,100,"Main",32,true,0,4000,120)
         val other=main.copy(id=2,section=33,tempo=90)

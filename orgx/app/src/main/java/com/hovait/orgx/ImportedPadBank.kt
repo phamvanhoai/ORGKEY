@@ -8,8 +8,11 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     private val players:Map<Int,ReferenceRhythmPlayer>,private val storedEndTimes:Map<Int,Long> = emptyMap()) {
     private val temporaryLoops=HashSet<Int>()
     private var jumpId:Int?=null
+    var transitionError:String?=null;private set
     init{players.values.forEach{it.withJumpCommand{id->
-        jumpId=id.takeIf{it in players};jumpId?.let{temporaryLoops.remove(it)}
+        if(id in players){jumpId=id;temporaryLoops.remove(id);transitionError=null}
+        else if(id in groups)transitionError="SET PAD Jump target $id exists but is not playable"
+        else jumpId=null
     }}}
     init{players.values.forEach{it.withTempLoopCommand{id->
         val group=groups[id]
@@ -30,6 +33,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     fun start(time:Long,scale:Int,method:Int){
         temporaryLoops.clear()
         jumpId=null
+        transitionError=null
         currentId=first
         val newScale=ReferenceSectionTiming.scale(group,method)
         scaleChange=newScale.takeIf{it>0}

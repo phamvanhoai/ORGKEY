@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## RhythmJump phân biệt target thiếu và target chưa phát được, 26-10-2026
+
+- Bản trước203 dùng id.takeIf(in players), làm target có trong SET nhưng chưa có player bị biến thành null và xóa Jump đang chờ. Session nay giữ Jump trước đó và ghi transitionError cho target known nhưng chưa playable; chỉ target không tồn tại mới clear Jump theo Group(null).
+- PadSequence có transitionError tương ứng khi metadata group có nhưng player thiếu; start mới xóa chẩn đoán cũ. Target hợp lệ tiếp tục bỏ tempLoop và thay Jump.
+- assembleDebug và ImportedStyleSessionTest, ImportedTempLoopTest, ImportedSectionFallbackTest đạt. Test Intro nhận JumpMain rồi Jump tới group chưa playable: lỗi được ghi, JumpMain vẫn chuyển sau khi Intro kết thúc.
+- Đây là xử lý lỗi của ORGX khi chưa hỗ trợ target, không phải khẳng định APK gốc có cùng fallback. Chưa có UI riêng hiển thị lỗi PadSequence và chưa giải quyết mọi target không hỗ trợ. Không sửa SET hoặc tạo file test/log mới.
 ## Không để đồng bộ UI xóa hợp âm của timeline, 26-10-2026
 
 - Phát hiện setter AudioEngine.chordIndex luôn clearChord, trong khi MainActivity polling detectedKeyboardChord mỗi40ms và các SideEffect gán lại chordIndex. Vì thế event202 vừa áp dụng có thể mất do UI, không phải thao tác chọn mới.
