@@ -4,6 +4,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun pitchShiftAndBandBoosterUseOriginalRangesAndPackedBandOrder(){
+        val shift=ImportedFxModule(15,true,false,listOf(100,0,0,0))
+        for((normalized,expected) in listOf(-100 to 50,0 to 125,100 to 200)){
+            val result=ImportedTrackFxAutomation.apply(shift,ReferenceDrumEvent(66,0,1,normalized,0,0))
+            assertEquals(listOf(expected,0,0,0),result.payload)
+            ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(result))).close()
+        }
+        var band=ImportedFxModule(31,true,false,listOf(0,0,0,77))
+        band=ImportedTrackFxAutomation.apply(band,ReferenceDrumEvent(66,0,1,-100,0,0))
+        band=ImportedTrackFxAutomation.apply(band,ReferenceDrumEvent(66,0,2,25,0,0))
+        band=ImportedTrackFxAutomation.apply(band,ReferenceDrumEvent(66,0,3,100,0,0))
+        assertEquals(listOf(100,25,156,77),band.payload)
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(band)))
+        try{repeat(50){fx.process(.1,0.0);assertTrue(fx.left.isFinite());assertTrue(fx.right.isFinite())}}finally{fx.close()}
+    }
     @Test fun distortionAutomationPreservesPackedBooleanAndUsesNonzeroParameterMinimum(){
         val original=ImportedFxModule(23,true,false,listOf(20,0,0,0,1,10,0,0,0))
         val gain=ImportedTrackFxAutomation.apply(original,ReferenceDrumEvent(66,0,1,-100,0,0))

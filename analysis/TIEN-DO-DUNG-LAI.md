@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 cho Pitch Shift và Band Booster, 26-10-2026
+
+- Xác minh đúng class sofeh.audio.f được import từ z01, không phải defpackage.f crypto. Shift có min50/max200; normalized0 thành125, không phải100. Band Booster sofeh.audio.b có min-100/max100 cho ba tham số, serialize theo g2,g1,g0,reserved.
+- Helper nhận payload4 byte type15/31, dùng min phù hợp và ghi byte band đảo thứ tự, giữ nguyên byte reserved. Loader/player hiện có nhận qua cùng helper, mode vẫn chưa hỗ trợ.
+- assembleDebug và 96 kiểm thử ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Kiểm tra shift50/125/200 và band payload100,25,156,reserved77. Host DSP kiểm tra finite không chứng minh native audio chính xác hay stereo isolation.
+- Giới hạn: PitchShift gốc thay g0 trên native handle hiện tại, ORGX tái tạo chain nên chưa giữ phase/buffer liên tục; cần sửa vòng đời module riêng. Không sửa SET hoặc tạo file test/log mới.
 ## TrackFXParam66 cho Distortion, 26-10-2026
 
 - Đối chiếu r01.i và mảng h/i: tham số gain/cutoff có min1 max100, tham số soft có min/max0. Touch dùng b44.f và Math.round như các setter khác.
