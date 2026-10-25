@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 cho EQ từng dải và Reverb, 26-10-2026
+
+- Đối chiếu sofeh.audio.d và w01: EQ8 dải ánh xạ-100..100 nhưng serialize int+100; Reverb7 tham số có min1/max100, lưu mỗi tham số một byte trong payload8 byte.
+- Helper nhận type7 theo số dải thực có trong payload tối đa8, ghi giá trị bias100; type29 Key1..7 ghi đúng byte và giữ byte8. Bộ tương thích/player dùng đường66 hiện có.
+- assembleDebug và ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Test từng dải EQ không đổi hàng xóm, mức-75 lưu25; Reverb normalized0 lưu51, giữ byte cuối77 và từ chối Key8.
+- Giới hạn: chưa EQ control tổng hợp Key9, Reverb control thứ8 có mảng giới hạn không tương ứng trong source nên chưa nhận. Đổi tham số vẫn reset whole-chain; mode FX và đối chiếu tail native trên thiết bị còn thiếu. Không sửa SET hoặc tạo file test/log mới.
 ## TrackFXParam66 cho sáu tham số Flanger, 26-10-2026
 
 - Đối chiếu sofeh.audio.e.i/g/h: sáu tham số min1, max300/90/100/255/16/256. Payload28 byte chứa một int reserved sau tham số đầu; Key2..6 phải bỏ qua offset4.

@@ -4,6 +4,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun equalizerAutomationStoresBiasedBandsAndReverbPreservesReservedByte(){
+        val eq=ImportedFxModule(7,true,false,List(8){listOf(100,0,0,0)}.flatten())
+        for(band in 1..8){
+            val updated=ImportedTrackFxAutomation.apply(eq,ReferenceDrumEvent(66,0,band,-75,0,0))
+            assertEquals(25,updated.payload[(band-1)*4])
+            for(other in 1..8)if(other!=band)assertEquals(100,updated.payload[(other-1)*4])
+            ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(updated))).close()
+        }
+        val reverb=ImportedFxModule(29,true,false,listOf(40,7,50,50,50,50,50,77))
+        for(parameter in 1..7){
+            val updated=ImportedTrackFxAutomation.apply(reverb,ReferenceDrumEvent(66,0,parameter,0,0,0))
+            assertEquals(51,updated.payload[parameter-1]);assertEquals(77,updated.payload[7])
+            assertEquals(8,updated.payload.size)
+            ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(updated))).close()
+        }
+        assertFalse(ImportedTrackFxAutomation.supported(reverb,ReferenceDrumEvent(66,0,8,0,0,0)))
+    }
     @Test fun flangerAutomationSkipsReservedIntegerAndMapsAllSixControls(){
         fun bytes(values:List<Int>)=values.flatMap{value->List(4){(value ushr (8*it)) and 255}}
         fun values(payload:List<Int>)=List(7){index->val p=index*4
