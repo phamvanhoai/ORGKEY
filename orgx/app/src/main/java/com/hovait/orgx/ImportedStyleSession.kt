@@ -12,7 +12,8 @@ class ImportedStyleTempoMemory {
 /** GroupPlayAdd/Next/Start rules for supported, bounded style groups. */
 class ImportedStyleSession(val style:ImportedStyleDefinition,private val players:Map<Int,ReferenceRhythmPlayer>,sampleRate:Int=48000,
     private var changeMethod:Int=0,private var tempoLock:Boolean=false,linkedGroups:List<ImportedStyleGroup> = emptyList(),
-    private val storedEndTimes:Map<Int,Long> = emptyMap(),private val knownGroupIds:Set<Int> = players.keys) {
+    private val storedEndTimes:Map<Int,Long> = emptyMap(),private val knownGroupIds:Set<Int> = players.keys,
+    private val unavailableReasons:Map<Int,String> = emptyMap()) {
     private val groups=(style.sections+linkedGroups).associateBy{it.id}
     private val main=style.sections.first{it.section in 32..35 && it.id in players}
     private val clock=ReferenceStyleClock(sampleRate)
@@ -27,7 +28,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     }}}
     init{players.values.forEach{it.withJumpCommand{id->
         if(id in players){jumpId=id;temporaryLoops.remove(id)}
-        else if(id in knownGroupIds){transitionError="SET Jump target $id exists but is not playable"}
+        else if(id in knownGroupIds){transitionError="SET Jump target $id exists but is not playable"+unavailableReasons[id]?.let{": $it"}.orEmpty()}
         else jumpId=null
     }}}
     private val storedMuteCommand:(Boolean)->Unit={chord->
@@ -37,7 +38,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     init{players.values.forEach{it.withMuteCommand(storedMuteCommand)}}
     private val storedRhythmCommand:(Int)->Unit={id->
         if(id in players)request(id)
-        else if(id in knownGroupIds){transitionError="SET Rhythm target $id exists but is not playable"}
+        else if(id in knownGroupIds){transitionError="SET Rhythm target $id exists but is not playable"+unavailableReasons[id]?.let{": $it"}.orEmpty()}
         else {queue.clear();jumpId=null;finished=true;player.releaseAll()}
     }
     init{players.values.forEach{it.withRhythmCommand(storedRhythmCommand)}}

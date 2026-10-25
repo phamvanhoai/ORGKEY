@@ -319,6 +319,24 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
         }
     }
     var temporaryLoop by remember{mutableStateOf(false)}
+    LaunchedEffect(engine){
+        var previousStyle:ImportedStyleSession?=null
+        var previousStyleError:String?=null
+        var previousPadError:String?=null
+        while(true){
+            val session=engine.importedStyleSession
+            if(session!==previousStyle){previousStyle=session;previousStyleError=null}
+            val styleError=session?.transitionError
+            if(styleError!=null && styleError!=previousStyleError)
+                Toast.makeText(context,"STYLE: $styleError",Toast.LENGTH_LONG).show()
+            previousStyleError=styleError
+            val padError=engine.importedPads.playbackError ?: engine.importedPads.tempoError
+            if(padError!=null && padError!=previousPadError)
+                Toast.makeText(context,padError,Toast.LENGTH_LONG).show()
+            previousPadError=padError
+            kotlinx.coroutines.delay(200)
+        }
+    }
     LaunchedEffect(engine){while(true){
         playing=engine.rhythmPlaying
         syncStart=engine.synchroStart;syncStop=engine.synchroStop

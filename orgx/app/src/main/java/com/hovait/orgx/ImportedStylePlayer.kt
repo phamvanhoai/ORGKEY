@@ -31,7 +31,11 @@ object ImportedStylePlayer {
         require(sections.size+linked.size<=64){"Style control graph exceeds 64 groups"}
         val playableLinked=linked.filter{ImportedStyleSupport.reason(index,it,includeAccompaniment,targetChord!=null)==null}
         val players=loadSections(file,index,sections+playableLinked,includeAccompaniment,transposer,targetChord,keyConnectionMethod,scriptOverrides,chordControl,chordOctaveMove,chordQuality,stsChanges)
-        return ImportedStyleSession(complete,players,linkedGroups=linked,storedEndTimes=ImportedStyleCatalog.endTimes(index),knownGroupIds=index.styles.mapTo(HashSet()){it.id})
+        val unavailable=(complete.sections+linked).filter{it.id !in players}.associate{group->
+            group.id to (ImportedStyleSupport.reason(index,group,includeAccompaniment,targetChord!=null) ?: "Group was not prepared")
+        }
+        return ImportedStyleSession(complete,players,linkedGroups=linked,storedEndTimes=ImportedStyleCatalog.endTimes(index),
+            knownGroupIds=index.styles.mapTo(HashSet()){it.id},unavailableReasons=unavailable)
     }
     fun load(file:File,index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean=false,
         transposer:ReferenceChordTransposer?=null,keyConnectionMethod:Int=0,scriptOverrides:(File,ImportedInstrument)->Map<String,String> = {_,_->emptyMap()},

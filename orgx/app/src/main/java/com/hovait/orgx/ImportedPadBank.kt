@@ -80,6 +80,7 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
     private var pendingTempo:Int?=null
     private var pendingTempoLock:Boolean?=null
     var tempoError:String?=null;private set
+    @Volatile var playbackError:String?=null;private set
     private val localTempo:(Int,Int)->Unit={type,value->
         if(type==221)pendingTempoLock=value>0
         else if(value in 40..240){pendingTempo=value;tempoError=null}
@@ -163,6 +164,7 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
         left=0.0;right=0.0
         repeat(4){slot->
             pending.getAndSet(slot,null)?.let{change->
+                playbackError=null
                 val tempoHandler=tempoCommand ?: localTempo
                 change.sequence?.withTempoCommand(tempoHandler);change.player?.withTempoCommand(tempoHandler)
                 rhythmCommand?.let{command->change.sequence?.withRhythmCommand(command);change.player?.withRhythmCommand(command)}
@@ -198,6 +200,7 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
                 val sequence=sequences[slot]
                 if(sequence!=null){
                     player=sequence.advance(time,scale,method,tempo);players[slot]=player
+                    sequence.transitionError?.let{playbackError="PAD ${slot+1}: $it"}
                     updateScale(sequence.takeScaleChange());scale=rhythmScale
                 }
                 else player.next(0,tempo)
@@ -211,5 +214,5 @@ class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeCo
         if(styleTime>=0)clock.seek(time) else clock.advance(1,pendingTempo ?: tempo)
         if(runningMask==0 && pendingMask==0)clock.reset()
     }
-    fun close(){repeat(4){pending.getAndSet(it,null)?.close();waiting[it]?.close();waiting[it]=null;closeSlot(it)};runningMask=0;pendingMask=0;pendingTempo=null;pendingTempoLock=null;tempoError=null}
+    fun close(){repeat(4){pending.getAndSet(it,null)?.close();waiting[it]?.close();waiting[it]=null;closeSlot(it)};runningMask=0;pendingMask=0;pendingTempo=null;pendingTempoLock=null;tempoError=null;playbackError=null}
 }

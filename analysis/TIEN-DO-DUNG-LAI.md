@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Hiển thị lỗi điều khiển style/PAD thay vì giữ nội bộ, 26-10-2026
+
+- Loader giữ reason của section/linked group không chuẩn bị được, đưa vào transitionError của Rhythm/Jump thay cho thông báo chung. Không thay cơ chế hỗ trợ của group.
+- PadBank công bố playbackError từ sequence kèm slot PAD; clear khi nhận thay đổi PAD/close. TempoError được UI đọc cùng playbackError.
+- MainActivity theo dõi lỗi của session đang phát và PAD, hiển thị Toast khi lỗi thay đổi, không lặp mỗi lần polling. Đổi session đặt lại dấu vết để lỗi của session mới có thể được báo.
+- assembleDebug và ImportedStyleSessionTest, ImportedSectionFallbackTest, ImportedTempLoopTest đạt. Không tạo thêm file test/log; chưa kiểm tra trực quan Toast với SET gây lỗi trên điện thoại.
+- Đây là cải thiện chẩn đoán, không tuyên bố dựng thêm engine hoặc làm group unsupported phát được. Thông báo kỹ thuật hiện còn tiếng Anh theo reason hiện có. Không sửa SET.
 ## RhythmJump phân biệt target thiếu và target chưa phát được, 26-10-2026
 
 - Bản trước203 dùng id.takeIf(in players), làm target có trong SET nhưng chưa có player bị biến thành null và xóa Jump đang chờ. Session nay giữ Jump trước đó và ghi transitionError cho target known nhưng chưa playable; chỉ target không tồn tại mới clear Jump theo Group(null).
