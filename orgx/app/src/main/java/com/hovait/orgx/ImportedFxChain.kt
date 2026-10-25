@@ -13,21 +13,22 @@ object ImportedTrackFxAutomation {
         15->200.takeIf{parameter==1}
         31->100.takeIf{parameter in 1..3}
         21->listOf(500,2000,100,95,100,180).getOrNull(parameter-1)
+        8->listOf(300,90,100,255,16,256).getOrNull(parameter-1)
         else->null
     }
     fun supported(module:ImportedFxModule,event:ReferenceDrumEvent)=event.note==0 ||
         (maximum(module.type,event.note)!=null && module.payload.size==
-            (when(module.type){9,10,15,16,17,31->4;23->9;21->24;else->8}) && event.touch in -100..100)
+            (when(module.type){9,10,15,16,17,31->4;23->9;21->24;8->28;else->8}) && event.touch in -100..100)
     fun apply(module:ImportedFxModule,event:ReferenceDrumEvent):ImportedFxModule {
         require(supported(module,event))
         if(event.note==0)return module.copy(enabled=event.touch!=0)
         val max=checkNotNull(maximum(module.type,event.note))
-        val min=when{module.type==21->listOf(5,10,5,-95,0,0)[event.note-1];module.type==15->50;module.type==31->-100;module.type==23 && event.note!=2->1;else->0}
+        val min=when{module.type==8->1;module.type==21->listOf(5,10,5,-95,0,0)[event.note-1];module.type==15->50;module.type==31->-100;module.type==23 && event.note!=2->1;else->0}
         val value=Math.round((event.touch+100)/200.0f*(max-min)+min)
         val bytes=module.payload.toMutableList()
         if(module.type==31){bytes[3-event.note]=value and 255;return module.copy(payload=bytes)}
         if(module.type==23 && event.note==2){bytes[4]=value;return module.copy(payload=bytes)}
-        val offset=if(module.type==23 && event.note==3)5 else (event.note-1)*4
+        val offset=when{module.type==8 && event.note>1->event.note*4;module.type==23 && event.note==3->5;else->(event.note-1)*4}
         repeat(4){bytes[offset+it]=(value ushr (it*8)) and 255}
         return module.copy(payload=bytes)
     }

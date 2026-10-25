@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun flangerAutomationSkipsReservedIntegerAndMapsAllSixControls(){
+        fun bytes(values:List<Int>)=values.flatMap{value->List(4){(value ushr (8*it)) and 255}}
+        fun values(payload:List<Int>)=List(7){index->val p=index*4
+            payload[p] or (payload[p+1] shl 8) or (payload[p+2] shl 16) or (payload[p+3] shl 24)}
+        val initial=listOf(5,123456,45,10,128,2,128)
+        val maxima=listOf(300,90,100,255,16,256)
+        for(parameter in 1..6)for(level in listOf(-100,0,100)){
+            val result=ImportedTrackFxAutomation.apply(ImportedFxModule(8,true,false,bytes(initial)),
+                ReferenceDrumEvent(66,0,parameter,level,0,0))
+            val expected=initial.toMutableList()
+            expected[if(parameter==1)0 else parameter]=Math.round((level+100)/200f*(maxima[parameter-1]-1)+1)
+            assertEquals(expected,values(result.payload))
+            val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(result)))
+            try{repeat(100){fx.process(if(it==0).1 else 0.0,0.0);assertTrue(fx.left.isFinite());assertTrue(fx.right.isFinite())}}finally{fx.close()}
+        }
+    }
     @Test fun chorusAutomationMapsEachOfSixParametersWithoutOverwritingNeighbors(){
         fun bytes(values:List<Int>)=values.flatMap{value->List(4){(value ushr (8*it)) and 255}}
         fun values(payload:List<Int>)=List(6){index->val p=index*4

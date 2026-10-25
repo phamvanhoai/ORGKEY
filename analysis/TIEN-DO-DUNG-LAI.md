@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## TrackFXParam66 cho sáu tham số Flanger, 26-10-2026
+
+- Đối chiếu sofeh.audio.e.i/g/h: sáu tham số min1, max300/90/100/255/16/256. Payload28 byte chứa một int reserved sau tham số đầu; Key2..6 phải bỏ qua offset4.
+- Helper automation nhận type8 payload28 byte, ánh xạ Touch-100..100 và ghi đúng offset0/8/12/16/20/24. Giữ reserved và các tham số khác; đường loader/player hiện có áp dụng cho non-mode track.
+- assembleDebug, ImportedFxChainTest, ReferenceRhythmPlayerTest, ImportedSectionFallbackTest đạt. Kiểm tra từng tham số ở min/trung điểm/max, reserved123456 không bị đổi và output DSP hữu hạn.
+- Giới hạn: vẫn tái tạo whole-chain khi sửa Flanger, khác khả năng giữ native state của APK; mode FX chưa dựng. Không sửa SET hoặc tạo file test/log mới; chưa thu âm đối chiếu trên thiết bị.
 ## TrackFXParam66 cho sáu tham số Chorus, 26-10-2026
 
 - Đối chiếu q01.h/i và setter i: sáu khoảng5..500,10..2000,5..100,-95..95,0..100,0..180. Xác minh hằng SDK dùng cho max tham số đầu thực sự là500. Payload24 byte gồm sáu int little-endian.
