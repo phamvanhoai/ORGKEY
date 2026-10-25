@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun bassAndBandPassAutomationUseTheirOriginalParameterRanges(){
+        fun value(bytes:List<Int>,offset:Int)=bytes[offset] or (bytes[offset+1] shl 8) or
+            (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
+        val bass=ImportedTrackFxAutomation.apply(module(20,0,80),ReferenceDrumEvent(66,0,1,0,0,0))
+        assertEquals(50,value(bass.payload,0));assertEquals(80,value(bass.payload,4))
+        val filter=ImportedTrackFxAutomation.apply(module(1,1000,2000),ReferenceDrumEvent(66,0,1,0,0,0))
+        assertEquals(75000,value(filter.payload,0));assertEquals(2000,value(filter.payload,4))
+        val wide=ImportedTrackFxAutomation.apply(filter,ReferenceDrumEvent(66,0,2,100,0,0))
+        assertEquals(75000,value(wide.payload,0));assertEquals(25000,value(wide.payload,4))
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(wide)))
+        try{repeat(100){fx.process(if(it==0)1.0 else 0.0,0.0);assertTrue(fx.left.isFinite());assertEquals(0.0,fx.right,0.0)}}finally{fx.close()}
+    }
     @Test fun echoAutomationMapsNormalizedValuesBeforeWritingLittleEndianParameters(){
         for(type in listOf(4,6)){
             val original=module(type,50,30)

@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReferenceRhythmPlayerTest {
+    @Test fun storedBassParameterChangesOutputWithoutASeparateEnableEvent(){
+        val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(
+            ImportedFxModule(20,true,false,listOf(0,0,0,0,1,0,0,0))))
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000),
+            ReferenceDrumEvent(66,0,1,100,10,0),ReferenceDrumEvent(66,0,1,-100,20,0)))),
+            {10000},{_,_,_->1.0},1000,initialChannel=settings,fx=ImportedFxChain(settings,1000))
+        try{
+            player.next(0,120);assertEquals(1.0,player.left,0.0)
+            repeat(10){player.next(0,120)};assertTrue(player.left>1.0)
+            repeat(10){player.next(0,120)};assertEquals(1.0,player.left,0.0)
+        }finally{player.close()}
+    }
     @Test fun storedTrackFxEnableChangesOnlyTheSelectedModule(){
         val settings=ImportedChannelSettings(fxEnabled=true,modules=listOf(
             ImportedFxModule(20,false,false,listOf(16,0,0,0,1,0,0,0))))

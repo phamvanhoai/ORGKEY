@@ -2,12 +2,18 @@ package com.hovait.orgx
 
 /** n01.i receives normalized -100..100; s01 maps it using b44.f. */
 object ImportedTrackFxAutomation {
+    private fun maximum(module:Int,parameter:Int):Int?=when(module){
+        4,6->when(parameter){1->99;2->100;else->null}
+        20->100.takeIf{parameter in 1..2}
+        1->when(parameter){1->150000;2->25000;else->null}
+        else->null
+    }
     fun supported(module:ImportedFxModule,event:ReferenceDrumEvent)=event.note==0 ||
-        (module.type in listOf(4,6) && module.payload.size==8 && event.note in 1..2 && event.touch in -100..100)
+        (maximum(module.type,event.note)!=null && module.payload.size==8 && event.touch in -100..100)
     fun apply(module:ImportedFxModule,event:ReferenceDrumEvent):ImportedFxModule {
         require(supported(module,event))
         if(event.note==0)return module.copy(enabled=event.touch!=0)
-        val max=if(event.note==1)99 else 100
+        val max=checkNotNull(maximum(module.type,event.note))
         val value=Math.round((event.touch+100)/200.0f*max)
         val bytes=module.payload.toMutableList()
         val offset=(event.note-1)*4
