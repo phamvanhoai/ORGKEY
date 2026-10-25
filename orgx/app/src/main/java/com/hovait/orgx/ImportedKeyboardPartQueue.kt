@@ -59,6 +59,8 @@ class ImportedKeyboardPartQueue {
     fun drain(){
         while(true){val command=commands.poll() ?: break;command()}
     }
+    /** Audio thread only: cut sounding notes while retaining the selected STS parts. */
+    fun cutVoices(){drain();parts.reset()}
     fun renderInto(mixer:ImportedKeyboardMixer,drainCommands:Boolean=true){
         if(drainCommands)drain()
         parts.renderInto(mixer)

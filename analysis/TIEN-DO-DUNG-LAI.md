@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Fade dùng chung cho đầu ra Music và dừng phát, 26-10-2026
+
+- Đối chiếu Music.ProcessOut, Cut và Stop: fade-out giảm trước, giữ im lặng theo Touch rồi Cut/Stop; FadeCancel bỏ cả yêu cầu dừng. Controller phát tín hiệu dừng một lần, đầu ra AudioEngine chỉ tăng tiến Fade một lần mỗi mẫu stereo.
+- Style session gắn cùng controller vào tất cả section; PAD gắn cho cả chuỗi JumpGroup. Bộ phát track không nhân Fade thêm lần nữa. Voice, MIDI, style và PAD cùng đi qua gain ở đầu ra chung, không chỉ bus rhythm như bản trước.
+- Khi hết Fade: dừng MIDI, cắt voice/repeat/STS, xóa đuôi FX và PAD, hủy các lượt nạp PAD cũ, reset/dừng style rồi khôi phục gain. Giữ cấu hình các part STS đã chọn.
+- Kiểm tra: assembleDebug và 102 kiểm thử thuộc ReferenceRhythmPlayerTest, ImportedStyleSessionTest, ImportedTempLoopTest, ImportedKeyboardPartsTest, StereoEffectTest đạt. Chưa đo âm thanh Fade trên thiết bị để đối chiếu APK gốc.
+- Giới hạn: thời điểm kết thúc được tính theo mẫu của ORGX; APK gốc cập nhật delay theo khối 10 ms. Chưa khẳng định tương đương từng mẫu âm thanh hay toàn bộ cơ chế khôi phục lastFX/tempo trong Music.Stop. Không sửa SET và không tạo file test/log mới.
 ## Sửa ngữ nghĩa Fade trong style, 26-10-2026
 
 - Đối chiếu Track.Play(211/212) và Music.FadeStart/FadeCancel: 211 dùng Key làm thời lượng mili giây, Touch làm độ trễ; 212 khôi phục âm lượng ngay. Bỏ suy đoán lấy Length thay thời lượng và ramp tăng khi hủy.

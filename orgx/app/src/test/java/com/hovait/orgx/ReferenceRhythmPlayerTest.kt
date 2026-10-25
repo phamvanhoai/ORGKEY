@@ -40,6 +40,37 @@ class ReferenceRhythmPlayerTest {
         fade.start(0,0,1000,playing=true)
         assertEquals(0.98,fade.advance(),0.000001)
     }
+    @Test fun fadeOutHoldsSilenceThenRequestsStopOnlyOnce(){
+        val fade=ReferenceFadeController()
+        fade.start(4,2,1000,playing=true)
+        repeat(3){fade.advance();assertFalse(fade.takeStopRequest())}
+        assertEquals(0.0,fade.advance(),0.0)
+        repeat(2){assertEquals(0.0,fade.advance(),0.0);assertFalse(fade.takeStopRequest())}
+        assertEquals(0.0,fade.advance(),0.0)
+        assertTrue(fade.takeStopRequest())
+        repeat(10){fade.advance();assertFalse(fade.takeStopRequest())}
+        fade.cancel()
+        assertEquals(1.0,fade.advance(),0.0)
+    }
+    @Test fun cancelDuringSilentDelayPreventsAutomaticStop(){
+        val fade=ReferenceFadeController()
+        fade.start(1,20,1000,playing=true)
+        assertEquals(0.0,fade.advance(),0.0)
+        fade.cancel()
+        repeat(30){assertEquals(1.0,fade.advance(),0.0);assertFalse(fade.takeStopRequest())}
+    }
+    @Test fun musicFadeIsNotAdvancedOrMultipliedByEachTrack(){
+        val fade=ReferenceFadeController()
+        fade.start(100,0,1000,playing=true)
+        val player=ReferenceRhythmPlayer(listOf(track(listOf(ReferenceDrumEvent(2,1,60,100,0,1000)))),
+            {10000},{_,_,_->1.0},1000).withMusicFade(fade)
+        try{
+            repeat(10){player.next(0,120);player.mixOutput(1f,1f)}
+            assertTrue(player.left>0)
+            assertEquals(player.left,player.outputLeft,0.000001)
+            assertEquals(0.99,fade.advance(),0.000001)
+        }finally{player.close()}
+    }
     @Test fun storedFadeCancelRestoresRhythmBusInOneFrame(){
         val fade=ReferenceFadeController()
         fade.start(100,0,1000,playing=true)

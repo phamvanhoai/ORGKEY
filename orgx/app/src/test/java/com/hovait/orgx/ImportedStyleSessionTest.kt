@@ -4,6 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedStyleSessionTest {
+    @Test fun sectionChangeKeepsMusicFadeAndCancelInAnotherSectionRestoresIt(){
+        val sections=listOf(part(1,32),part(2,33))
+        val players=sections.associate{section->section.id to ReferenceRhythmPlayer(listOf(
+            ReferenceDrumTrack("Part",section.id,100,section.section,120,true,0,1000,false,listOf(
+                ReferenceDrumEvent(if(section.id==1)211 else 212,0,100,0,0,0),
+                ReferenceDrumEvent(2,1,60,100,0,1000)))),{10000},{_,_,_->1.0},1000)}
+        val session=ImportedStyleSession(ImportedStyleDefinition(100,"Style",sections),players,1000)
+        val fade=ReferenceFadeController()
+        try{
+            session.withMusicFade(fade)
+            session.next(120);session.player.mixOutput(1f,1f)
+            repeat(50){fade.advance()}
+            assertEquals(0.49,fade.advance(),0.000001)
+            session.request(2,true);session.next(120);session.player.mixOutput(1f,1f)
+            assertEquals(2,session.currentId)
+            assertEquals(1.0,fade.advance(),0.0)
+        }finally{session.close()}
+    }
     @Test fun changingStyleDuringIntroPreservesTheLastMainVariation(){
         val old=session();val replacement=session()
         try{

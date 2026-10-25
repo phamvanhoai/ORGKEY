@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StereoEffectTest {
+    @Test fun cutDiscardsDelaySoItCannotReturnAfterFadeRestoresVolume(){
+        val fx=StereoEffect(1000)
+        fx.process(1.0,0.7,1,1f)
+        fx.reset()
+        repeat(1000){
+            fx.process(0.0,0.0,1,1f)
+            assertEquals(0.0,fx.left,0.0);assertEquals(0.0,fx.right,0.0)
+        }
+    }
     @Test fun drySignalKeepsChannelsSeparate() {
         val fx=StereoEffect(48000)
         fx.process(0.4,-0.6,0,0.5f)

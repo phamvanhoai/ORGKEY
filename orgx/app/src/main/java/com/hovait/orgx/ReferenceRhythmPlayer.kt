@@ -11,6 +11,13 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val storedTranspose:Int=initialChannel?.transpose ?: 0,private val storedOctave:Int=initialChannel?.octave ?: 0,
     private val stsFxResolver:(Int)->ImportedChannelSettings?={null},private var fadeController:ReferenceFadeController=ReferenceFadeController()) {
     init{require(keyConnectionMethod in 0..1)}
+    private var externalFade = false
+    fun withMusicFade(controller:ReferenceFadeController):ReferenceRhythmPlayer=also{
+        if(externalFade && fadeController===controller)return@also
+        fadeController=controller;externalFade=true
+        children.forEach{it.withMusicFade(controller)}
+        releaseTails.forEach{it.withMusicFade(controller)}
+    }
     private var volumeShake=expressionEffects.firstOrNull{it.slot==3}
     private var pitchShakeEffect=expressionEffects.firstOrNull{it.slot==2}
     private var keyRepeatEffect=expressionEffects.firstOrNull{it.slot==0}
@@ -149,7 +156,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     /** Called once per audio frame after the drum/chord mixer, not once per output channel. */
     fun mixOutput(drumGain:Float,chordGain:Float){
         // SET balance/volume is latched in Voice.gain before channel FX, at OpenKey.
-        val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain);val fadeGain=fadeController.advance()
+        val l=mixedLeft(drumGain,chordGain);val r=mixedRight(drumGain,chordGain);val fadeGain=if(externalFade)1.0 else fadeController.advance()
         val processor=groupFx
         if(processor==null){outputLeft=l*fadeGain;outputRight=r*fadeGain}else{processor.process(l*fadeGain,r*fadeGain);outputLeft=processor.left;outputRight=processor.right}
     }

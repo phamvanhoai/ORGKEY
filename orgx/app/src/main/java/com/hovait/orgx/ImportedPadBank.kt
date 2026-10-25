@@ -11,6 +11,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
     private var scaleChange:Int?=null
     fun takeScaleChange():Int?=scaleChange.also{scaleChange=null}
     val player get()=players.getValue(currentId)
+    fun withMusicFade(controller:ReferenceFadeController){players.values.forEach{it.withMusicFade(controller)}}
     val group get()=groups.getValue(currentId)
     fun start(time:Long,scale:Int,method:Int){
         currentId=first
@@ -50,7 +51,7 @@ class ImportedPadSequence(private val first:Int,private val groups:Map<Int,Impor
 }
 
 /** Prepared players cross into the audio thread; PCM decoding stays with the caller. */
-class ImportedPadBank(sampleRate:Int=48000) {
+class ImportedPadBank(sampleRate:Int=48000,private val musicFade:ReferenceFadeController?=null) {
     private data class Change(val player:ReferenceRhythmPlayer?,val group:ImportedStyleGroup?=null,val sequence:ImportedPadSequence?=null){
         fun close(){if(sequence!=null)sequence.close() else player?.close()}
     }
@@ -106,6 +107,7 @@ class ImportedPadBank(sampleRate:Int=48000) {
         left=0.0;right=0.0
         repeat(4){slot->
             pending.getAndSet(slot,null)?.let{change->
+                musicFade?.let{controller->change.sequence?.withMusicFade(controller);change.player?.withMusicFade(controller)}
                 waiting[slot]?.close();waiting[slot]=null
                 if(change.player==null){players[slot]?.releaseAll();tails[slot]=true}
                 else waiting[slot]=change

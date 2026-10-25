@@ -85,7 +85,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
         set(value){autoChordMap=AutoChordProgression(value);field=value}
     @Volatile var referenceChordTransposer:ReferenceChordTransposer?=null
     private val keyboardChordInput=KeyboardChordInput()
-    val importedPads=ImportedPadBank()
+    private val musicFade=ReferenceFadeController()
+    val importedPads=ImportedPadBank(sampleRate,musicFade)
     private val chordSynchro=ChordSynchro()
     @Volatile var synchroStart=true;private set
     @Volatile var synchroStop=false;private set
@@ -691,6 +692,7 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
           pendingStyle.getAndSet(null)?.also{selection->
             naturalStyleTail=false
             val session=selection.session
+            session?.withMusicFade(musicFade)
             importedStyleSession?.let{rememberedChordMute=it.chordMuted;rememberedDrumMute=it.drumMuted}
             session?.restorePerformanceMute(rememberedChordMute,rememberedDrumMute)
             selection.mutes.forEach{session?.togglePerformanceMute(it,rhythmPlaying)}
@@ -737,8 +739,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
             if(it.finished){naturalStyleTail=true;rhythmPlaying=false;transportFrame=0}else transportFrame++
             return 0.0
         }
-        importedRhythm?.let{it.next(0,bpm.coerceIn(40,240));if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++;return 0.0}
-        referenceRhythm?.let { it.next(rhythmStyle,bpm.coerceIn(40,240));transportFrame++;return 0.0 }
+        importedRhythm?.let{it.withMusicFade(musicFade);it.next(0,bpm.coerceIn(40,240));if(it.finished){rhythmPlaying=false;transportFrame=0}else transportFrame++;return 0.0}
+        referenceRhythm?.let { it.withMusicFade(musicFade);it.next(rhythmStyle,bpm.coerceIn(40,240));transportFrame++;return 0.0 }
         val stepFrames = (sampleRate * 60.0 / bpm.coerceIn(40, 240) / 2.0).toLong().coerceAtLeast(1)
         val step = ((transportFrame / stepFrames) % 8).toInt()
         val stepOffset = transportFrame % stepFrames
@@ -808,9 +810,23 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
     }
 
     private val importedKeyboardMixer=ImportedKeyboardMixer()
+    /** Music.Cut/Stop after fade-out: discard voices and effect tails before restoring gain. */
+    private fun finishMusicFade(){
+        stopMidi()
+        voices.values.forEach{it.sampledPlayback?.cut()};voices.clear()
+        repeatedVoices.forEach{it.playback.cut()};repeatedVoices.clear()
+        stsParts.cutVoices();importedKeyboardMixer.reset();stereoEffect.reset()
+        importedPads.stopAll();importedPads.close();stopSoundEffects()
+        padAges.let{ages->repeat(8){ages.set(it,-1)}};rhythmAges.fill(-1)
+        importedStyleSession?.let{it.reset();it.stopPlayback()}
+        importedRhythm?.reset();referenceRhythm?.reset()
+        setRhythmEnabled(false);naturalStyleTail=false
+        musicFade.cancel()
+    }
     private fun renderBlock(output: ShortArray) {
         val frames = output.size / 2
             for (frame in 0 until frames) {
+                if(musicFade.takeStopRequest())finishMusicFade()
                 stsParts.drain()
                 importedKeyboardMixer.configureMusic(stsMusic ?: activeSetIndex?.musicSettings ?: ImportedChannelSettings())
                 if(resetHarmony || !rhythmPlaying){harmonyClock.reset();resetHarmony=false}
@@ -898,7 +914,8 @@ class AudioEngine(private val recordingDirectory: File,private val sampleBank:Sa
                 stereoEffect.process(mixedOutputLeft + (StereoSample.left(sound)+padLeft)*drumsVolume+styleLeft,
                     mixedOutputRight + (StereoSample.right(sound)+padRight)*drumsVolume+styleRight,effectType,effectMix)
                 val setMasterGain=importedKeyboardMixer.musicVolume
-                outputLimiter.process(stereoEffect.left*masterVolume*setMasterGain,stereoEffect.right*masterVolume*setMasterGain)
+                val fadeGain=musicFade.advance()
+                outputLimiter.process(stereoEffect.left*masterVolume*setMasterGain*fadeGain,stereoEffect.right*masterVolume*setMasterGain*fadeGain)
                 fun pcm(value:Double)=(value * Short.MAX_VALUE)
                     .coerceIn(Short.MIN_VALUE.toDouble(),Short.MAX_VALUE.toDouble()).toInt().toShort()
                 output[frame * 2] = pcm(outputLimiter.left)

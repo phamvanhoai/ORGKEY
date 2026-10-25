@@ -44,6 +44,7 @@ class ImportedStyleSession(val style:ImportedStyleDefinition,private val players
     @Volatile var transitionError:String?=null;private set
     var finished=false;private set
     val player get()=players.getValue(currentId)
+    @Synchronized fun withMusicFade(controller:ReferenceFadeController){players.values.forEach{it.withMusicFade(controller)}}
     val padTiming:Pair<Long,Int> get()=synchronized(this){clock.time to rhythmScale}
     /** Read timing and return PAD scale changes under the same session lock, without a per-frame snapshot object. */
     @Synchronized fun renderPads(bank:ImportedPadBank,tempo:Int,drumGain:Float,chordGain:Float,method:Int){

@@ -8,6 +8,7 @@ class StereoEffect(private val sampleRate: Int) {
     private var position=0
     var left=0.0;private set
     var right=0.0;private set
+    fun reset(){leftBuffer.fill(0.0);rightBuffer.fill(0.0);position=0;left=0.0;right=0.0}
 
     fun process(inputLeft:Double,inputRight:Double,type:Int,mix:Float) {
         if(type==0){left=inputLeft;right=inputRight;return}
