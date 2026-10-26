@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.input.pointer.pointerInput
@@ -95,7 +96,9 @@ import androidx.compose.ui.input.pointer.pointerInput
             paint.textSize=font*minOf(sx,sy);paint.color=color;paint.textAlign=if(center)Paint.Align.CENTER else Paint.Align.LEFT
             drawContext.canvas.nativeCanvas.drawText(value,x*sx,y*sy,paint)
         }
-        drawImage(originalSkin,dstSize=IntSize(size.width.toInt(),size.height.toInt()))
+        val skinScale=minOf(size.width/1500f,size.height/500f)
+        val skinW=(1500f*skinScale).toInt();val skinH=(500f*skinScale).toInt()
+        drawImage(originalSkin,dstOffset=IntOffset(((size.width-skinW)/2f).toInt(),((size.height-skinH)/2f).toInt()),dstSize=IntSize(skinW,skinH))
         /* The reference skin already contains the metal panel, labels and hardware keys. */
         if(false){
         rect(222f,8f,550f,178f,Color(0xFF070A0D));rect(228f,14f,538f,166f,Color(0xFF182B38))
@@ -110,21 +113,21 @@ import androidx.compose.ui.input.pointer.pointerInput
         text(nextLabel ?: if(playing && temporaryLoop)"RUNNING / TEMP LOOP" else if(playing)"RUNNING" else "READY",239f,if(stsPages>1)176f else 164f,12f,0xFFDDDDDD.toInt())
         if(stsSlots.isEmpty())text(pending?.let{p->session?.style?.sections?.firstOrNull{it.id==p}?.let{"NEXT  ${ImportedStyleCatalog.label(it.section)}"}} ?: "SELECT STYLE / VOICE ON DISPLAY",490f,157f,11f,0xFFFFD36A.toInt())
         }
-        if(stylePage){
+        if(false && stylePage){
             rect(230f,16f,534f,162f,Color(0xFF152D3D))
             rect(230f,16f,534f,18f,Color(0xFF98521B))
             text(selectionTitle,237f,29f,12f,0xFFFFFFFF.toInt())
             text(if(status.isNotEmpty())status.take(48) else "PAGE ${page+1} / ${((styleChoices.size+11)/12).coerceAtLeast(1)}",310f,169f,10f,0xFFFFD36A.toInt())
             if(styleChoices.isEmpty())text("NO STYLES  /  MENU > IMPORT SET",245f,85f,13f,0xFFDDDDDD.toInt())
         }
-        for(x in listOf(62f,835f)){
+        if(false) for(x in listOf(62f,835f)){
             drawCircle(Color.Black,40f*minOf(sx,sy),Offset(x*sx,77f*sy))
             drawCircle(Brush.radialGradient(listOf(Color(0xFFB9BCC0),Color(0xFF5E6267),Color(0xFF292C30)),Offset(x*sx,77f*sy),38f*minOf(sx,sy)),38f*minOf(sx,sy),Offset(x*sx,77f*sy))
             drawLine(Color(0xFF25282C),Offset(x*sx,47f*sy),Offset(x*sx,63f*sy),3f*sx)
         }
-        text("VOLUME / MIXER",62f,132f,10f,0xFFE2C35B.toInt(),true)
-        text("TEMPO",835f,100f,10f,0xFFE2C35B.toInt(),true)
-        text("STYLE CONTROL",500f,196f,10f,0xFFE2C35B.toInt(),true)
+        if(false) text("VOLUME / MIXER",62f,132f,10f,0xFFE2C35B.toInt(),true)
+        if(false) text("TEMPO",835f,100f,10f,0xFFE2C35B.toInt(),true)
+        if(false) text("STYLE CONTROL",500f,196f,10f,0xFFE2C35B.toInt(),true)
         if(false) latest.value.forEach{k->
             val p=Offset(k.x*sx,k.y*sy);val d=Size(k.w*sx,k.h*sy)
             drawRoundRect(Color(0xFF070809),Offset(p.x-1,p.y-1),Size(d.width+2,d.height+2),androidx.compose.ui.geometry.CornerRadius(5f*sx))
@@ -132,6 +135,6 @@ import androidx.compose.ui.input.pointer.pointerInput
             if(k.y>190){rect(k.x+k.w*.4f,k.y+4,k.w*.2f,3f,if(k.active)Color(0xFFFF4D34)else Color(0xFF16191B))}
             text(k.label,k.x+k.w/2,k.y+k.h*.67f,if(k.y>190)10f else 11f,if(!k.enabled)0xFF7D8082.toInt()else if(k.active)0xFFFFD65B.toInt()else 0xFF101214.toInt(),true)
         }
-        rect(0f,247f,1000f,3f,Color(0xFF9F2432))
+        if(false) rect(0f,247f,1000f,3f,Color(0xFF9F2432))
     }
 }
