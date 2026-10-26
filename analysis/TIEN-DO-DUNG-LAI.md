@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nối event 61 với route mode của SampledInstrument, 26-10-2026
+
+- Thêm SampledInstrument.selectMode; event 61 nay cập nhật cả route sound/script mode nếu instrument đã chuẩn bị route, đồng thời áp dụng channel/FX mode tương ứng.
+- Build đạt và đã cài APK mới.
+
 ## Validation cho mode động nhiều lựa chọn, 26-10-2026
 
 - Style có nhiều mode không script nay được chuẩn bị; event 61 hợp lệ khi 

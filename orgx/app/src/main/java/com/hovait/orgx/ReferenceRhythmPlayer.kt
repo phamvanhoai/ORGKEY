@@ -412,6 +412,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             }
             if(event.type==61 && dynamicModes.isNotEmpty()){
                 if(event.note in dynamicModes.indices){liveMode=dynamicModes[event.note];applyLiveMode()}
+                sampled?.selectMode(event.note)
                 return@advance
             }
             if(event.type==66){

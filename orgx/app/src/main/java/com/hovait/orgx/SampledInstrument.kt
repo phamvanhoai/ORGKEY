@@ -74,6 +74,12 @@ class SampledInstrument(private val regions:List<InstrumentRegion>,private val o
     }
     private fun modeAvailable(mode:Int)=modeRoute?.sounds?.containsKey(mode) ?: (mode==0)
     private fun exitMode(mode:Int){modeRoute?.let{if(mode in it.sounds)it.selected=mode}}
+    fun selectMode(mode:Int):Boolean {
+        val route=modeRoute ?: return mode==0
+        if(mode !in route.sounds)return false
+        route.selected=mode
+        return true
+    }
     @Volatile private var ownScriptStatus="No mode script"
     var scriptStatus:String
         get()=if(activeModeSound!==this)"Mode $activeMode: ${activeModeSound.scriptStatus}" else ownScriptStatus
