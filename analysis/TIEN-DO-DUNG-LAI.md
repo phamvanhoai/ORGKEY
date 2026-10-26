@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Màn hình chọn style dạng phím 3×4, 26-10-2026
+
+- Style picker trên custom console nay hiển thị 12 phím mỗi trang theo lưới 3 cột × 4 hàng, trạng thái selected/disabled giữ kiểu phím phần cứng; không dùng modal danh sách riêng.
+- Build đạt và đã cài APK mới.
+
 ## Nạp route sound cho toàn bộ mode, 26-10-2026
 
 - ImportedInstrumentLoader nay chuẩn bị mọi mode của instrument thành route SampledInstrument; event 61 có thể đổi sound/script mode thật, không chỉ đổi settings.

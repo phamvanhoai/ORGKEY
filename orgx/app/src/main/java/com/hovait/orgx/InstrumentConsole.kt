@@ -61,13 +61,13 @@ import androidx.compose.ui.input.pointer.pointerInput
     }
     if(stylePage){
         keys+=Key(680f,16f,80f,18f,"EXIT",action=onExit)
-        repeat(6){slot->
-            val index=page*6+slot
-            if(index<styleChoices.size)keys+=Key(235f+(slot%2)*264,40f+(slot/2)*36,257f,31f,
+        repeat(12){slot->
+            val index=page*12+slot
+            if(index<styleChoices.size)keys+=Key(235f+(slot%3)*176,39f+(slot/3)*27,168f,23f,
                 styleChoices[index].take(32),active=index==selectedChoice,enabled=styleEnabled.getOrElse(index){true},action={onChoose(index)})
         }
         keys+=Key(235f,153f,65f,23f,"PREV",enabled=page>0,action={onPage(-1)})
-        keys+=Key(695f,153f,65f,23f,"NEXT",enabled=(page+1)*6<styleChoices.size,action={onPage(1)})
+        keys+=Key(695f,153f,65f,23f,"NEXT",enabled=(page+1)*12<styleChoices.size,action={onPage(1)})
         if(modeLabel.isNotEmpty())keys+=Key(465f,153f,220f,23f,modeLabel,action=onMode)
     }
     val slots=listOf(16,17,18,32,33,34,35,48,49,50,51,64,80,81,82)
@@ -108,7 +108,7 @@ import androidx.compose.ui.input.pointer.pointerInput
             rect(230f,16f,534f,162f,Color(0xFF152D3D))
             rect(230f,16f,534f,18f,Color(0xFF98521B))
             text(selectionTitle,237f,29f,12f,0xFFFFFFFF.toInt())
-            text(if(status.isNotEmpty())status.take(48) else "PAGE ${page+1} / ${((styleChoices.size+5)/6).coerceAtLeast(1)}",310f,169f,10f,0xFFFFD36A.toInt())
+            text(if(status.isNotEmpty())status.take(48) else "PAGE ${page+1} / ${((styleChoices.size+11)/12).coerceAtLeast(1)}",310f,169f,10f,0xFFFFD36A.toInt())
             if(styleChoices.isEmpty())text("NO STYLES  /  MENU > IMPORT SET",245f,85f,13f,0xFFDDDDDD.toInt())
         }
         for(x in listOf(62f,835f)){
