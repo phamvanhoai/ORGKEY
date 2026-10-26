@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Style filter giữ track chỉ có event 101, 26-10-2026
+
+- ImportedStyleSupport.activeTracks và validation nay coi event 101 là note hợp lệ. Track không có note 2/4 nhưng có InstSec nhúng không còn bị loại trước khi player xử lý.
+- Build đạt và đã cài APK mới.
+
 ## Follow Chord giữ sound InstSec nhúng, 26-10-2026
 
 - Khi chord-following đổi nốt, voice tạo lại từ embeddedSampled nếu voice hiện tại đến từ event 101; không rơi về sound bank mặc định.
