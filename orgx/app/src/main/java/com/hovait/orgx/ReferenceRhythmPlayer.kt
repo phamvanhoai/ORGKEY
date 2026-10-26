@@ -111,7 +111,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             val note=mappedNote(voice.sourceNote)
             if(note==voice.note)return@forEach
             if(note !in 0..127){voice.playback?.cut();voice.release=0;return@forEach}
-            val playback=sampled?.voice(note,voice.tune,voice.samplePan,scriptVelocity=voice.sourceTouch and 65535,
+            val playback=(embeddedSampled ?: sampled)?.voice(note,voice.tune,voice.samplePan,scriptVelocity=voice.sourceTouch and 65535,
                 initialScriptPedal=pedalDown,scriptAllowed=false,scriptId=voice.eventId,initialAftertouch=voice.sourceAftertouch,releasePercent=currentChannel.releasePercent)?.also{
                 it.channelBalance(keyBalance);it.pitchBend(12*kotlin.math.log2(pitchMove/1000.0),pitchScriptLevel,notifyScript=pitchScriptLevel!=null)
                 if(expressionAllowed){volumeShake?.let(it::configureVolumeShake);pitchShakeEffect?.let(it::configurePitchShake)}

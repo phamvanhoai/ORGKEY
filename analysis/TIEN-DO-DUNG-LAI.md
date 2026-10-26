@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Follow Chord giữ sound InstSec nhúng, 26-10-2026
+
+- Khi chord-following đổi nốt, voice tạo lại từ embeddedSampled nếu voice hiện tại đến từ event 101; không rơi về sound bank mặc định.
+- Build đạt và đã cài APK mới.
+
 ## Cache InstSec theo toàn bộ cấu hình section, 26-10-2026
 
 - Cache nay dùng toàn bộ ImportedSection, không chỉ offset/byte length. Hai section dùng chung PCM nhưng khác loop, gain, pan hoặc tune sẽ giữ sound riêng đúng cấu hình.
