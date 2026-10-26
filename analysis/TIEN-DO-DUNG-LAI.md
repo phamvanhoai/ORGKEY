@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nạp route sound cho toàn bộ mode, 26-10-2026
+
+- ImportedInstrumentLoader nay chuẩn bị mọi mode của instrument thành route SampledInstrument; event 61 có thể đổi sound/script mode thật, không chỉ đổi settings.
+- Mode phụ dùng cùng file SET và được giới hạn theo budget PCM hiện có. Build đạt và đã cài APK mới.
+
 ## Nối event 61 với route mode của SampledInstrument, 26-10-2026
 
 - Thêm SampledInstrument.selectMode; event 61 nay cập nhật cả route sound/script mode nếu instrument đã chuẩn bị route, đồng thời áp dụng channel/FX mode tương ứng.

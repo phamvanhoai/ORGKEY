@@ -109,6 +109,16 @@ object ImportedInstrumentLoader {
                 require(currentBytes+targetBytes<=64L*1024*1024){"DNC exit modes exceed 64 MB PCM budget"}
                 val fallback=load(file,target,system,musicSettings=musicSettings,keyConnectionMethod=keyConnectionMethod,sourceVersion=sourceVersion,scriptOverrides=scriptOverridesForMode(file,target),prepareExit=false)
                 loaded.withExitModes(mapOf(instrument.selectedMode to loaded,0 to fallback),instrument.selectedMode)
+            }else if(instrument.modes.size>1 && prepareExit){
+                // Prepare every non-script mode once so Track event 61 can switch
+                // the actual sound route, not only its channel settings.
+                val routes=instrument.modes.mapIndexed{index,modeDef->
+                    index to if(index==instrument.selectedMode)loaded else load(
+                        file,instrument.copy(modes=listOf(modeDef),selectedMode=index),system,settings,
+                        musicSettings,aftertouch,keyConnectionMethod,sourceVersion,scriptOverrides,
+                        prepareExit=false,scriptOverridesForMode=scriptOverridesForMode)
+                }.toMap()
+                loaded.withExitModes(routes,instrument.selectedMode)
             }else loaded.withExitModes(mapOf(instrument.selectedMode to loaded),instrument.selectedMode)
             return loaded
         }
