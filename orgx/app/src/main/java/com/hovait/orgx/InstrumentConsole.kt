@@ -11,6 +11,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 
 /** Hardware panel proportions taken from the installed reference main screen. */
 @Composable fun InstrumentConsole(modifier:Modifier,style:String,voice:String,chord:String,bpm:Int,octave:Int,
@@ -39,9 +42,9 @@ import androidx.compose.ui.input.pointer.pointerInput
     keys+=Key(888f,155f,102f,26f,"SYNC STOP",syncStop,action=onSyncStop)
     keys+=Key(790f,48f,88f,26f,"CHORD MUTE",chordMuted,enabled=session!=null,action=onChordMute)
     keys+=Key(888f,48f,102f,26f,"DRUM MUTE",drumMuted,enabled=session!=null,action=onDrumMute)
-    keys+=Key(790f,110f,43f,26f,"−",action={onTempo(-1)})
+    keys+=Key(790f,110f,43f,26f,"ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¹ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢",action={onTempo(-1)})
     keys+=Key(837f,110f,43f,26f,"+",action={onTempo(1)})
-    keys+=Key(888f,110f,49f,26f,"OCT −",action={onOctave(-1)})
+    keys+=Key(888f,110f,49f,26f,"OCT ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¹ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢",action={onOctave(-1)})
     keys+=Key(941f,110f,49f,26f,"OCT +",action={onOctave(1)})
     if(!stylePage)repeat(4){slot->
         val bit=1 shl slot
@@ -70,7 +73,7 @@ import androidx.compose.ui.input.pointer.pointerInput
         keys+=Key(695f,153f,65f,23f,"NEXT",enabled=(page+1)*12<styleChoices.size,action={onPage(1)})
         if(modeLabel.isNotEmpty())keys+=Key(465f,153f,220f,23f,modeLabel,action=onMode)
     }
-    // APK gốc exposes four keys for each Intro/Variation/Fill/Ending bank.
+    // APK gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â»ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œc exposes four keys for each Intro/Variation/Fill/Ending bank.
     val slots=listOf(16,17,18,19,32,33,34,35,48,49,50,51,64,80,81,82,83)
     slots.forEachIndexed{i,section->
         val part=session?.style?.sections?.firstOrNull{it.section==section}
@@ -80,10 +83,20 @@ import androidx.compose.ui.input.pointer.pointerInput
     }
     val latest=rememberUpdatedState(keys)
     val browsing=rememberUpdatedState(stylePage)
+    val originalSkin=ImageBitmap.imageResource(com.hovait.orgx.R.drawable.skin_4)
     Canvas(modifier.pointerInput(Unit){detectTapGestures{point->
         val x=point.x/size.width*1000;val y=point.y/size.height*250
-        latest.value.lastOrNull{x>=it.x && x<it.x+it.w && y>=it.y && y<it.y+it.h && it.enabled}?.action?.invoke()
-            ?: when {browsing.value && x in 230f..765f && y in 14f..180f->Unit;x in 230f..480f && y in 40f..150f->onStyle();x in 485f..760f && y in 40f..150f->onVoice();x in 20f..110f && y in 40f..140f->onVoice();else->Unit}
+        val skinX=point.x/size.width*1500f;val skinY=point.y/size.height*500f
+        when {
+            skinX in 1020f..1135f && skinY in 55f..135f -> onStyle()
+            skinX in 1030f..1135f && skinY in 0f..55f -> onMenu()
+            skinX in 60f..355f && skinY in 365f..420f -> session?.style?.sections?.firstOrNull{it.section in 16..19}?.let{onPart(it.id)}
+            skinX in 365f..760f && skinY in 365f..420f -> session?.style?.sections?.firstOrNull{it.section in 32..35}?.let{onPart(it.id)}
+            skinX in 770f..1060f && skinY in 365f..420f -> session?.style?.sections?.firstOrNull{it.section in 48..51}?.let{onPart(it.id)}
+            skinX in 1070f..1130f && skinY in 365f..420f -> session?.style?.sections?.firstOrNull{it.section==64}?.let{onPart(it.id)}
+            skinX in 1140f..1440f && skinY in 365f..420f -> session?.style?.sections?.firstOrNull{it.section in 80..83}?.let{onPart(it.id)}
+            else -> latest.value.lastOrNull{x>=it.x && x<it.x+it.w && y>=it.y && y<it.y+it.h && it.enabled}?.action?.invoke()
+        }
     }}){
         val sx=size.width/1000;val sy=size.height/250
         fun rect(x:Float,y:Float,w:Float,h:Float,color:Color)=drawRect(color,Offset(x*sx,y*sy),Size(w*sx,h*sy))
@@ -92,10 +105,14 @@ import androidx.compose.ui.input.pointer.pointerInput
             paint.textSize=font*minOf(sx,sy);paint.color=color;paint.textAlign=if(center)Paint.Align.CENTER else Paint.Align.LEFT
             drawContext.canvas.nativeCanvas.drawText(value,x*sx,y*sy,paint)
         }
+        val skinScale=minOf(size.width/1500f,size.height/500f)
+        val skinW=(1500f*skinScale).toInt();val skinH=(500f*skinScale).toInt()
+        drawImage(originalSkin,dstOffset=IntOffset(((size.width-skinW)/2f).toInt(),((size.height-skinH)/2f).toInt()),dstSize=IntSize(skinW,skinH))
+        if(false){
         drawRect(Brush.verticalGradient(listOf(Color(0xFF34373B),Color(0xFF16191C),Color(0xFF303338))))
         for(y in 0..250 step 3)rect(0f,y.toFloat(),1000f,.35f,Color(0xFF3C3F41))
         rect(222f,8f,550f,178f,Color(0xFF070A0D));rect(228f,14f,538f,166f,Color(0xFF182B38))
-        rect(230f,16f,534f,18f,Color(0xFF98521B));text("ORGX  •  MAIN PAGE",238f,29f,12f,0xFFFFE1B0.toInt())
+        rect(230f,16f,534f,18f,Color(0xFF98521B));text("ORGX  ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢  MAIN PAGE",238f,29f,12f,0xFFFFE1B0.toInt())
         rect(233f,39f,245f,69f,Color(0xFF452C21));rect(484f,39f,275f,69f,Color(0xFF183F59))
         text("STYLE",239f,52f,10f,0xFFE2C35B.toInt());text(style.take(32),239f,72f,15f,0xFFFFFFFF.toInt())
         text("TEMPO $bpm    METER ${session?.section(current)?.let{ReferenceSectionTiming.meter(it)}?.let{"${it.first}/${it.second}"} ?: "4/4"}",239f,96f,12f,0xFFDDDDDD.toInt())
@@ -130,3 +147,5 @@ import androidx.compose.ui.input.pointer.pointerInput
         rect(0f,247f,1000f,3f,Color(0xFF9F2432))
     }
 }
+}
+
