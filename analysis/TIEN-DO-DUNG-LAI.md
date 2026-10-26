@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chorus, Flanger và Equalizer cập nhật tại chỗ, 26-10-2026
+
+- Các stage có vòng đệm/pha giờ nhận tham số mới trực tiếp, giữ lịch sử âm thanh; Equalizer chỉ thay hệ số gain, Flanger/Chorus giữ state và frame. Robot/filter trước đó vẫn giữ cơ chế riêng.
+- assembleDebug và nhóm ImportedFxChainTest/ReferenceRhythmPlayerTest đạt. Reverb native chưa đổi tại chỗ vì API JNI hiện không có setter tương ứng; không giả lập bằng cách sửa file SET.
+
 ## Cập nhật FX theo từng module, 26-10-2026
 
 - Đối chiếu v01/u01/o01/x01/y01: High Pass, Low Pass, Band Pass, Robot và Stereo Width không còn dựng lại cả chuỗi khi event66 đổi tham số. Bộ lọc thay stage riêng và xóa lịch sử của chính nó; Robot đổi tần số giữ bộ đếm mẫu; Stereo Width đổi hệ số tại chỗ.

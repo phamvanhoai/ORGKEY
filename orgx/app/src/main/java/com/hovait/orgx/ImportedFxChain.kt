@@ -134,6 +134,7 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
         private val angles=doubleArrayOf(Math.PI/8,Math.PI/4,Math.PI/2,Math.PI/2,Math.PI,Math.PI,Math.PI,Math.PI)
         private val coefficients=FloatArray(8){i->(2*kotlin.math.sin((frequency[i]*(1f/sampleRate)).toDouble()*angles[i])).toFloat()}
         private val gains=FloatArray(8){values.getOrElse(it){100}*.01f}
+        fun configure(values:List<Int>){require(values.size==32);for(i in 0..7)gains[i]=values[i*4]/100f}
         fun move(position:Float){
             for(i in gains.indices)gains[i]=(if(i<4)100f-position else 100f+position).toInt()*.01f
         }
@@ -163,11 +164,12 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     /** NFlanger ARM64: shared modulation coefficient, independent all-pass states. */
     private class Flanger(values:List<Int>,sampleRate:Int):Stage {
         private val states=Array(2){FloatArray(values[4])}
-        private val feedback=values[1].toFloat()
-        private val start=values[2].toFloat()
-        private val depth=values[3].toFloat()*-0.003921568859368563f
-        private val wet=values[5].toFloat()
-        private val increment=values[0].toFloat()*0.15707963705062866f/sampleRate
+        private var feedback=values[1].toFloat()
+        private var start=values[2].toFloat()
+        private var depth=values[3].toFloat()*-0.003921568859368563f
+        private var wet=values[5].toFloat()
+        private var increment=values[0].toFloat()*0.15707963705062866f/sampleRate
+        fun configure(values:List<Int>){feedback=values[1].toFloat();start=values[2].toFloat();depth=values[3].toFloat()*-0.003921568859368563f;wet=values[5].toFloat();increment=values[0].toFloat()*0.15707963705062866f/48000f}
         private var frame=0;private var coefficient=0f
         private val previous=FloatArray(2)
         override var left=0.0;override var right=0.0
@@ -218,12 +220,13 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     private class Chorus(values:List<Int>,rate:Int):Stage {
         private val buffers=Array(2){FloatArray(10082)}
         private var cursor=0;private var phase=0f;private var energy=0.0
-        private val depth=(values[1]/100f)*rate/1000f
-        private val delay=values[2]*rate/1000f
-        private val feedback=values[3]/100f
-        private val mix=values[4]/100f
-        private val spread=Math.toRadians(values[5].toDouble()).toFloat()
-        private val increment=((values[0]/100f).toDouble()*2*Math.PI/rate).toFloat()
+        private var depth=(values[1]/100f)*rate/1000f
+        private var delay=values[2]*rate/1000f
+        private var feedback=values[3]/100f
+        private var mix=values[4]/100f
+        private var spread=Math.toRadians(values[5].toDouble()).toFloat()
+        private var increment=((values[0]/100f).toDouble()*2*Math.PI/rate).toFloat()
+        fun configure(values:List<Int>,rate:Int){depth=(values[1]/100f)*rate/1000f;delay=values[2]*rate/1000f;feedback=values[3]/100f;mix=values[4]/100f;spread=Math.toRadians(values[5].toDouble()).toFloat();increment=((values[0]/100f).toDouble()*2*Math.PI/rate).toFloat()}
         override var left=0.0;override var right=0.0
         override val active get()=energy>1e-18
         // q01.c clears rings/cursor while retaining oscillator phase.
@@ -451,9 +454,9 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     fun updateFilterOrModulation(moduleIndex:Int,updated:ImportedFxModule):Boolean {
         check(!closed)
         val original=settings.modules.getOrNull(moduleIndex) ?: return false
-        if(original.type !in listOf(1,9,10,16,17) || updated.type!=original.type ||
+        if(original.type !in listOf(1,7,8,9,10,16,17,21) || updated.type!=original.type ||
             original.enabled!=updated.enabled || original.realtime!=updated.realtime)return false
-        require(updated.payload.size==if(updated.type==1)8 else 4)
+        require(updated.payload.size==when(updated.type){1->8;7->32;8->28;21->24;else->4})
         val value=int(updated.payload,0)
         val replacement:Stage=when(updated.type){
             1->{
@@ -461,6 +464,9 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
                 require(value in 0..150000 && width in 0..25000 && sampleRate>0)
                 BandPass(value,width,sampleRate)
             }
+            7->{require(updated.payload.all{it.toByte().toInt() in -100..100});Equalizer(updated.payload.chunked(4).map{int(it,0)},sampleRate)}
+            8->{require(sampleRate>0);Flanger(listOf(value,int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20),int(updated.payload,24)),sampleRate)}
+            21->{require(sampleRate>0);Chorus(listOf(value,int(updated.payload,4),int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20)),sampleRate)}
             9,10->{require(value in 0..150000 && sampleRate>0);PassFilter(value,sampleRate,updated.type==9)}
             16->{require(value in 0..1000 && sampleRate>0);Robot(value,sampleRate)}
             else->{require(value in 0..50000);StereoWidth(value)}
@@ -471,6 +477,9 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
             when(updated.type){
                 16->(stage as? Robot ?: return false).frequency=value
                 17->(stage as? StereoWidth ?: return false).configure(value)
+                7->(stage as? Equalizer ?: return false).configure(updated.payload)
+                8->(stage as? Flanger ?: return false).configure(listOf(value,int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20),int(updated.payload,24)))
+                21->(stage as? Chorus ?: return false).configure(listOf(value,int(updated.payload,4),int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20)),sampleRate)
                 else->{stage.close();stages=stages.toMutableList().also{it[index]=replacement}}
             }
             modules=modules.toMutableList().also{it[index]=updated}
