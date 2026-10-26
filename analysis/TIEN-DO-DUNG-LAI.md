@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Loader PCM lazy cho InstSec event 101, 26-10-2026
+
+- Thêm ImportedSectionPcmLoader: đọc đúng offset/byte length little-endian từ SET, kiểm tra frame/channel, tạo SamplePcm mono hoặc stereo mà không sửa file nguồn.
+- Đây là nền để ReferenceRhythmPlayer tạo InstrumentRegion tạm cho voice event 101; player chưa gọi loader trực tiếp. ssembleDebug đạt; đã cài APK mới.
+
 ## Giữ metadata InstSec nhúng trong event 101, 26-10-2026
 
 - ReferenceDrumEvent nay giữ embeddedSection tùy chọn. Parser đọc tên, sample rate, channels, frames, wave index, volume/pan/tune, loop và tạo ImportedSection trỏ tới PCM inline hoặc wave dùng chung.
