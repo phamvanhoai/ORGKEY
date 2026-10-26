@@ -162,14 +162,14 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
         override fun process(l:Double,r:Double){left=channel(l,0);right=channel(r,1)}
     }
     /** NFlanger ARM64: shared modulation coefficient, independent all-pass states. */
-    private class Flanger(values:List<Int>,sampleRate:Int):Stage {
+    private class Flanger(values:List<Int>,private val sampleRate:Int):Stage {
         private val states=Array(2){FloatArray(values[4])}
         private var feedback=values[1].toFloat()
         private var start=values[2].toFloat()
         private var depth=values[3].toFloat()*-0.003921568859368563f
         private var wet=values[5].toFloat()
         private var increment=values[0].toFloat()*0.15707963705062866f/sampleRate
-        fun configure(values:List<Int>){feedback=values[1].toFloat();start=values[2].toFloat();depth=values[3].toFloat()*-0.003921568859368563f;wet=values[5].toFloat();increment=values[0].toFloat()*0.15707963705062866f/48000f}
+        fun configure(values:List<Int>){feedback=values[1].toFloat();start=values[2].toFloat();depth=values[3].toFloat()*-0.003921568859368563f;wet=values[5].toFloat();increment=values[0].toFloat()*0.15707963705062866f/sampleRate}
         private var frame=0;private var coefficient=0f
         private val previous=FloatArray(2)
         override var left=0.0;override var right=0.0
@@ -464,7 +464,7 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
                 require(value in 0..150000 && width in 0..25000 && sampleRate>0)
                 BandPass(value,width,sampleRate)
             }
-            7->{require(updated.payload.all{it.toByte().toInt() in -100..100});Equalizer(updated.payload.chunked(4).map{int(it,0)},sampleRate)}
+            7->{require(updated.payload.size==32 && (0..7).all{i->int(updated.payload,i*4) in 0..200});Equalizer(updated.payload.chunked(4).map{int(it,0)},sampleRate)}
             8->{require(sampleRate>0);Flanger(listOf(value,int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20),int(updated.payload,24)),sampleRate)}
             21->{require(sampleRate>0);Chorus(listOf(value,int(updated.payload,4),int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20)),sampleRate)}
             9,10->{require(value in 0..150000 && sampleRate>0);PassFilter(value,sampleRate,updated.type==9)}

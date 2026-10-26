@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Sửa sai tham số EQ và sample rate Flanger, 26-10-2026
+
+- EQ SET lưu giá trị từng band dạng little-endian 0..200 (offset +100), không phải từng byte signed -100..100; nhánh cập nhật đã kiểm tra đúng định dạng này.
+- Flanger dùng đúng sample rate của chain khi đổi tốc độ LFO tại chỗ, không còn cố định 48000 Hz.
+- assembleDebug và nhóm kiểm thử FX đạt; đã cài APK mới. Không sửa SET.
+
 ## Chorus, Flanger và Equalizer cập nhật tại chỗ, 26-10-2026
 
 - Các stage có vòng đệm/pha giờ nhận tham số mới trực tiếp, giữ lịch sử âm thanh; Equalizer chỉ thay hệ số gain, Flanger/Chorus giữ state và frame. Robot/filter trước đó vẫn giữ cơ chế riêng.
