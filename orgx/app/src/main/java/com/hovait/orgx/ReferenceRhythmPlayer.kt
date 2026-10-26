@@ -352,7 +352,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==51 && event.note>=0){
                 keyTouch=event.note and 65535
                 voices.values.filter{event.id==0 || it.eventId==event.id}.forEach{it.touchGain=keyTouch/100.0}
-                return@advance
+                // Continue through the normal note-open path: KeyData 101 carries
+                // its own key/touch/length and opens this embedded section now.
             }
             if(event.type==52 && event.note in -100..100){
                 keyBalance=event.note
@@ -469,7 +470,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                         SampledInstrument(listOf(region),sampleRateForEnvelope)
                     }
                 }
-                return@advance
+                // Fall through so the event's own key/touch opens the embedded voice.
             }
             if(event.type==204){tempLoopCommand(event.note);return@advance}
             if(event.type==203){discardVoices();jumpCommand(event.note);return@advance}
@@ -479,7 +480,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             if(event.type==5){
                 openedKeyIds.getOrNull(event.note+1)?.let{selected->voices.values.filter{it.eventId==selected && it.release<0}
                     .forEach{it.playback?.aftertouch(event.touch/127f)}}
-                return@advance
+                // Continue into the note-open path.
             }
             if(event.type==14){eventMuted=false;return@advance}
             if(event.type==12){
@@ -501,11 +502,11 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voices.values.forEach{it.playback?.modulate(event.note)}
                 return@advance
             }
-            val note=if(event.type in listOf(2,4))mappedNote(event.note) else event.note
-            if(event.type in listOf(2,4) && event.note in 0..127){
+            val note=if(event.type in listOf(2,4,101))mappedNote(event.note) else event.note
+            if(event.type in listOf(2,4,101) && event.note in 0..127){
                 openedKeyIds[0]=event.id;openedKeyIds[event.note+1]=event.id
             }
-            if(event.type in listOf(2,4) && !eventMuted && !performanceMuted &&
+            if(event.type in listOf(2,4,101) && !eventMuted && !performanceMuted &&
                 (sampled?.keyDurationFrames(note,event.type==4) ?: drumLength(note))>0){
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 val connection=keyConnectionEffect?.takeIf{expressionAllowed && it.enabled}

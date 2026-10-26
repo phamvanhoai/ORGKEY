@@ -17,7 +17,7 @@ class ReferenceDrumTimeline(events:List<ReferenceDrumEvent>) {
         while(index<events.size && events[index].time<=time){
             val event=events[index++]
             // Reference PlayNext ignores note-ons whose complete interval was missed.
-            if(event.type in listOf(2,4) && event.length>0 && time-event.time>event.length+10)continue
+            if(event.type in listOf(2,4,101) && event.length>0 && time-event.time>event.length+10)continue
             dispatch(event)
         }
     }

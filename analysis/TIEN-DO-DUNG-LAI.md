@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Event 101 mở voice ngay tại thời điểm phát, 26-10-2026
+
+- Timeline không còn bỏ qua event 101 khi quá hạn; event 101 đi vào cùng note-open path với event 2/4, dùng Key, Touch, Length của chính record sau khi nạp section nhúng.
+- Build đạt và đã cài APK mới. Chưa có kiểm thử thiết bị với SET chứa event 101; event nhúng đồng thời nhiều section vẫn dùng cache theo wave.
+
 ## Cache PCM InstSec nhúng, 26-10-2026
 
 - Cache theo (wave offset, byte length) giúp event lặp lại tái sử dụng SampledInstrument thay vì đọc và giải mã PCM nhiều lần.
