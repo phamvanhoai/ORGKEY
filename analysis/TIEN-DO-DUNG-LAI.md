@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Event 101 không phụ thuộc drum bank khi kiểm tra duration, 26-10-2026
+
+- Điều kiện mở voice nay kiểm tra embeddedSampled trước sampled; track chỉ có PCM InstSec nhúng không còn bị loại vì duration của drum bank mặc định bằng 0.
+- Build đạt và đã cài APK mới. Không sửa SET.
+
 ## Event 101 mở voice ngay tại thời điểm phát, 26-10-2026
 
 - Timeline không còn bỏ qua event 101 khi quá hạn; event 101 đi vào cùng note-open path với event 2/4, dùng Key, Touch, Length của chính record sau khi nạp section nhúng.

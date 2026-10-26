@@ -507,7 +507,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 openedKeyIds[0]=event.id;openedKeyIds[event.note+1]=event.id
             }
             if(event.type in listOf(2,4,101) && !eventMuted && !performanceMuted &&
-                (sampled?.keyDurationFrames(note,event.type==4) ?: drumLength(note))>0){
+                ((embeddedSampled ?: sampled)?.keyDurationFrames(note,event.type==4) ?: drumLength(note))>0){
                 val gain=ImportedNoteTouch.velocity(event.touch)*ImportedMusicParameters.rhythmGain(musicSettings,rhythmSettings,accompaniment)
                 val connection=keyConnectionEffect?.takeIf{expressionAllowed && it.enabled}
                 val previous=voices.values.lastOrNull{it.playback!=null && !it.playback.finished &&
