@@ -4,6 +4,35 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ImportedFxChainTest {
+    @Test fun changingFilterResetsOnlyItsHistoryAndPreservesPendingEcho(){
+        for(type in listOf(1,9,10)){
+            val original=module(type,500,100).let{if(type==1)it else it.copy(payload=it.payload.take(4))}
+            val updated=module(type,600,120).let{if(type==1)it else it.copy(payload=it.payload.take(4))}
+            val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(module(6,50,1),original)),1000)
+            val filter=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(updated)),1000)
+            try{
+                fx.process(1.0,0.0)
+                assertTrue(fx.updateFilterOrModulation(1,updated))
+                repeat(9){fx.process(0.0,0.0);assertEquals(0.0,fx.left,0.0)}
+                fx.process(0.0,0.0);filter.process(.5,0.0)
+                assertEquals(filter.left,fx.left,1e-12)
+                assertTrue(kotlin.math.abs(fx.left)>0.0)
+                assertEquals(0.0,fx.right,0.0)
+            }finally{fx.close();filter.close()}
+        }
+    }
+    @Test fun changingRobotFrequencyRetainsItsSampleClock(){
+        val original=module(16,20,0).copy(payload=listOf(20,0,0,0))
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(original)),100)
+        try{
+            repeat(5){fx.process(1.0,1.0)}
+            assertTrue(fx.updateFilterOrModulation(0,original.copy(payload=listOf(40,0,0,0))))
+            fx.process(1.0,1.0)
+            assertEquals(kotlin.math.cos(2.0),fx.left,0.0)
+            assertEquals(fx.left,fx.right,0.0)
+            fx.fresh().use{it.process(1.0,1.0);assertEquals(1.0,it.left,0.0)}
+        }finally{fx.close()}
+    }
     @Test fun bassParameterUpdateKeepsFilterMemoryAndEchoAlreadyInFlight(){
         val bass=module(20,16,1)
         val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(bass,module(6,50,1))),1000)

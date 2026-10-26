@@ -277,7 +277,7 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
         override fun process(l:Double,r:Double){left=channel(l,0);right=channel(r,1)}
     }
     /** x01: both channels share the same frame counter, reset every sampleRate frames. */
-    private class Robot(private val frequency:Int,private val sampleRate:Int):Stage {
+    private class Robot(var frequency:Int,private val sampleRate:Int):Stage {
         private var frame=0
         override var left=0.0;override var right=0.0
         override val active=false
@@ -309,7 +309,8 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     }
     /** y01: widen the side signal while preserving the mono centre. */
     private class StereoWidth(volume:Int):Stage {
-        private val width=(volume/10000.0f)*6.5536f
+        private var width=(volume/10000.0f)*6.5536f
+        fun configure(volume:Int){width=(volume/10000.0f)*6.5536f}
         override var left=0.0;override var right=0.0
         override val active=false
         override fun reset(){left=0.0;right=0.0}
@@ -368,7 +369,7 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     private fun int(bytes:List<Int>,offset:Int):Int =
         bytes[offset] or (bytes[offset+1] shl 8) or (bytes[offset+2] shl 16) or (bytes[offset+3] shl 24)
     private var modules=if(!settings.fxEnabled)emptyList() else settings.modules.filter{it.enabled && it.type in listOf(20,6,4,17,9,10,16,1,21,23,8,7,2,29,31,15)}
-    private val stages:List<Stage> = modules.map{
+    private var stages:List<Stage> = modules.map{
         if(it.type==15){
             require(it.payload.size==4){"Invalid Pitch Shift payload"}
             return@map PitchShift(int(it.payload,0),sampleRate)
@@ -446,6 +447,37 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     var left=0.0;private set
     var right=0.0;private set
     private var closed=false
+    /** v01.a clears only the changed filter; x01 retains its frame counter. */
+    fun updateFilterOrModulation(moduleIndex:Int,updated:ImportedFxModule):Boolean {
+        check(!closed)
+        val original=settings.modules.getOrNull(moduleIndex) ?: return false
+        if(original.type !in listOf(1,9,10,16,17) || updated.type!=original.type ||
+            original.enabled!=updated.enabled || original.realtime!=updated.realtime)return false
+        require(updated.payload.size==if(updated.type==1)8 else 4)
+        val value=int(updated.payload,0)
+        val replacement:Stage=when(updated.type){
+            1->{
+                val width=int(updated.payload,4)
+                require(value in 0..150000 && width in 0..25000 && sampleRate>0)
+                BandPass(value,width,sampleRate)
+            }
+            9,10->{require(value in 0..150000 && sampleRate>0);PassFilter(value,sampleRate,updated.type==9)}
+            16->{require(value in 0..1000 && sampleRate>0);Robot(value,sampleRate)}
+            else->{require(value in 0..50000);StereoWidth(value)}
+        }
+        if(settings.fxEnabled && original.enabled){
+            val index=settings.modules.take(moduleIndex).count{it.enabled}
+            val stage=stages.getOrNull(index) ?: return false
+            when(updated.type){
+                16->(stage as? Robot ?: return false).frequency=value
+                17->(stage as? StereoWidth ?: return false).configure(value)
+                else->{stage.close();stages=stages.toMutableList().also{it[index]=replacement}}
+            }
+            modules=modules.toMutableList().also{it[index]=updated}
+        }
+        settings=settings.copy(modules=settings.modules.toMutableList().also{it[moduleIndex]=updated})
+        return true
+    }
     fun updateEcho(moduleIndex:Int,updated:ImportedFxModule):Boolean {
         check(!closed)
         val original=settings.modules.getOrNull(moduleIndex) ?: return false

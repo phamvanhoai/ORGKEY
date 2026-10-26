@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Cập nhật FX theo từng module, 26-10-2026
+
+- Đối chiếu v01/u01/o01/x01/y01: High Pass, Low Pass, Band Pass, Robot và Stereo Width không còn dựng lại cả chuỗi khi event66 đổi tham số. Bộ lọc thay stage riêng và xóa lịch sử của chính nó; Robot đổi tần số giữ bộ đếm mẫu; Stereo Width đổi hệ số tại chỗ.
+- Echo của các stage còn lại tiếp tục giữ bộ đệm khi cập nhật. Event66 Enable/realtime hoặc thay loại module vẫn đi nhánh dựng lại theo APK.
+- assembleDebug và 95 kiểm thử unit (ImportedFxChainTest, ReferenceRhythmPlayerTest) đạt. Không sửa file SET.
+- Giới hạn: chưa đo waveform trực tiếp từ thiết bị; các hiệu ứng Chorus/Flanger/EQ/Reverb vẫn dùng nhánh dựng lại khi đổi tham số.
+
 ## Echo cập nhật tại chỗ khi phát style, 26-10-2026
 
 - Đối chiếu s01.a/e và t01.a/e: cập nhật mức/thời gian Echo giữ bộ đệm và con trỏ; riêng Stereo đặt lại pha đảo kênh. Event66 module4/6 cập nhật stage đang chạy, không dựng lại toàn chuỗi FX.
