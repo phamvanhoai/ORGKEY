@@ -80,6 +80,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val sampleRateForEnvelope=sampleRate
     private var current=-1
     private var embeddedSampled:SampledInstrument?=null
+    private val embeddedCache=HashMap<Pair<Long,Int>,SampledInstrument>()
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
@@ -284,8 +285,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     private fun discardVoices(){voices.values.forEach{it.playback?.cut()};voices.clear()}
-    fun close(){discardVoices();embeddedSampled=null;left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0;fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
-    fun reset(){liveMode=fixedMode;resetStsChannel();resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;discardVoices();embeddedSampled=null;eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    fun close(){discardVoices();embeddedSampled=null;embeddedCache.clear();left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0;fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
+    fun reset(){liveMode=fixedMode;resetStsChannel();resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;discardVoices();embeddedSampled=null;embeddedCache.clear();eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     /** Track.Start rewinds events, closes old notes in release, and retains channel controls. */
     fun restartAt(referenceTime:Long){
         require(referenceTime>=0)
@@ -459,11 +460,14 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 val section=event.embeddedSection
                 val file=embeddedSetFile
                 if(section!=null && file!=null)runCatching{
-                    val pcm=ImportedSectionPcmLoader.load(file,section)
-                    val end=section.loopEnd.coerceIn(1,pcm.frames.size)
-                    val start=section.loopStart.coerceIn(0,(end-1).coerceAtLeast(0))
-                    val region=InstrumentRegion(section.note,pcm,start,end,section.volume/100.0,section.pan,section.loop>0,section.tune)
-                    embeddedSampled=SampledInstrument(listOf(region),sampleRateForEnvelope)
+                    val key=section.wave.offset to section.wave.bytes
+                    embeddedSampled=embeddedCache.getOrPut(key){
+                        val pcm=ImportedSectionPcmLoader.load(file,section)
+                        val end=section.loopEnd.coerceIn(1,pcm.frames.size)
+                        val start=section.loopStart.coerceIn(0,(end-1).coerceAtLeast(0))
+                        val region=InstrumentRegion(section.note,pcm,start,end,section.volume/100.0,section.pan,section.loop>0,section.tune)
+                        SampledInstrument(listOf(region),sampleRateForEnvelope)
+                    }
                 }
                 return@advance
             }

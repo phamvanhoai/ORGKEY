@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Cache PCM InstSec nhúng, 26-10-2026
+
+- Cache theo (wave offset, byte length) giúp event lặp lại tái sử dụng SampledInstrument thay vì đọc và giải mã PCM nhiều lần.
+- Cache được xóa khi player reset/close, tránh giữ dữ liệu SET cũ. ssembleDebug đạt và đã cài APK mới.
+
 ## Ổn định vòng đời voice nhúng, 26-10-2026
 
 - Voice lặp lại của track dùng đúng embeddedSampled thay vì quay về sound bank mặc định.
