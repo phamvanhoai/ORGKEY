@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Echo cập nhật tại chỗ khi phát style, 26-10-2026
+
+- Đối chiếu s01.a/e và t01.a/e: cập nhật mức/thời gian Echo giữ bộ đệm và con trỏ; riêng Stereo đặt lại pha đảo kênh. Event66 module4/6 cập nhật stage đang chạy, không dựng lại toàn chuỗi FX.
+- Giữ 48001 ô mỗi kênh như APK gốc, kể cả ô tạm nằm ngoài cửa sổ delay. Khi tăng delay trở lại, dữ liệu các ô đó vẫn còn. fresh dùng cấu hình mới với bộ đệm sạch.
+- assembleDebug, ImportedFxChainTest và ReferenceRhythmPlayerTest đạt. Bổ sung hai ca vào file test hiện có, kiểm tra tín hiệu khi rút/ngắt rồi tăng delay và khi Stereo đổi mức.
+- Giới hạn: Mode FX và thay Enable vẫn theo nhánh áp dụng lại hiện có; chưa đối chiếu âm thanh thực tế trên thiết bị. Không sửa file SET.
+
 ## Bass Booster cập nhật tại chỗ, giữ bộ nhớ lọc và các FX khác, 26-10-2026
 
 - Đối chiếu p01.a: thay volume/frequency/smoothing, không xóa m/n trạng thái lọc. Bass stage có configure giữ stateL/stateR; ImportedFxChain.updateBass cập nhật cấu hình dùng cho fresh mà không đóng chain.

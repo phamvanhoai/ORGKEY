@@ -199,6 +199,26 @@ class ImportedFxChainTest {
     }
     private fun module(type:Int,a:Int,b:Int)=ImportedFxModule(type,true,false,
         listOf(a and 255,(a ushr 8) and 255,0,0,b and 255,(b ushr 8) and 255,0,0))
+    @Test fun echoAutomationRetainsMemoryAcrossShorterAndLongerDelay(){
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(module(6,50,10))),100)
+        repeat(10){fx.process(1.0,0.0)}
+        assertTrue(fx.updateEcho(0,module(6,25,5)))
+        repeat(5){fx.process(0.0,0.0);assertEquals(.25,fx.left,0.0)}
+        assertTrue(fx.updateEcho(0,module(6,50,10)))
+        // Cursor remains at cell 5: the cells outside the shorter window survived.
+        repeat(5){fx.process(0.0,0.0);assertEquals(.5,fx.left,0.0)}
+        fx.process(0.0,0.0);assertEquals(.125,fx.left,0.0)
+        fx.fresh().use{fresh->fresh.process(0.0,0.0);assertEquals(0.0,fresh.left,0.0)}
+        fx.close()
+    }
+    @Test fun stereoEchoAutomationRestartsSweepWithoutErasingDelay(){
+        val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(module(4,50,10))),100)
+        repeat(10){fx.process(1.0,1.0)}
+        assertTrue(fx.updateEcho(0,module(4,25,10)))
+        fx.process(0.0,0.0);assertEquals(0.0,fx.left,0.0);assertEquals(.25,fx.right,0.0)
+        fx.process(0.0,0.0);assertEquals(.025,fx.left,1e-9);assertEquals(.225,fx.right,1e-9)
+        fx.close()
+    }
     @Test fun echoRepeatsAtStoredDelayWithFeedbackAndIndependentStereo(){
         val fx=ImportedFxChain(ImportedChannelSettings(fxEnabled=true,modules=listOf(module(6,50,1))),1000)
         fx.process(1.0,0.0);assertEquals(1.0,fx.left,0.0)

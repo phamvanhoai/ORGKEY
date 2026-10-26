@@ -428,6 +428,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                     val retained=if(event.note==0)false else when(module.type){
                         15->fx?.updatePitchShift(event.id,modules[event.id]) ?: false
                         20->fx?.updateBass(event.id,modules[event.id]) ?: false
+                        4,6->fx?.updateEcho(event.id,modules[event.id]) ?: false
                         else->false
                     }
                     if(!retained){

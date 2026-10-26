@@ -332,18 +332,28 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
             left=l+stateL*volume;right=r+stateR*volume
         }
     }
-    private class Echo(val feedback:Double,val delay:Int,val stereo:Boolean=false):Stage{
-        private val bufferL=DoubleArray(delay.coerceAtLeast(1))
-        private val bufferR=DoubleArray(delay.coerceAtLeast(1))
+    private class Echo(var feedback:Double,var delay:Int,val stereo:Boolean=false):Stage{
+        // s01 retains all delay cells when the playback window changes.
+        private val bufferL=DoubleArray(48001)
+        private val bufferR=DoubleArray(48001)
         private var cursor=0
         private var phase=0
         private var direction=1
         private var energy=0.0
         override val active get()=energy>1e-18
         init { require(!stereo || delay>0){"Stereo Echo requires a positive delay"} }
+        fun configure(gain:Int,newDelay:Int){
+            require(!stereo || newDelay>0){"Stereo Echo requires a positive delay"}
+            feedback=gain/100.0;delay=newDelay
+            energy=0.0
+            for(i in 0 until delay.coerceAtLeast(1))energy+=bufferL[i]*bufferL[i]+bufferR[i]*bufferR[i]
+            // t01.a resets only the stereo sweep, not its delay memory/cursor.
+            if(stereo){phase=0;direction=1}
+        }
         override var left=0.0;override var right=0.0
         override fun reset(){bufferL.fill(0.0);bufferR.fill(0.0);cursor=0;energy=0.0;left=0.0;right=0.0}
         override fun process(l:Double,r:Double){
+            if(cursor>=delay)cursor=0
             val echoL=bufferL[cursor]*feedback;val echoR=bufferR[cursor]*feedback
             left=l+echoL*(if(stereo)phase.toDouble()/delay else 1.0)
             right=r+echoR*(if(stereo)(delay-phase).toDouble()/delay else 1.0)
@@ -352,7 +362,7 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
             bufferL[cursor]=l+echoL;bufferR[cursor]=r+echoR
             energy=(energy+bufferL[cursor]*bufferL[cursor]+bufferR[cursor]*bufferR[cursor]).coerceAtLeast(0.0)
             if(stereo){phase+=direction;if(phase==delay || phase==0)direction=-direction}
-            cursor=(cursor+1)%bufferL.size
+            cursor++
         }
     }
     private fun int(bytes:List<Int>,offset:Int):Int =
@@ -436,6 +446,24 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     var left=0.0;private set
     var right=0.0;private set
     private var closed=false
+    fun updateEcho(moduleIndex:Int,updated:ImportedFxModule):Boolean {
+        check(!closed)
+        val original=settings.modules.getOrNull(moduleIndex) ?: return false
+        if(original.type !in listOf(4,6) || updated.type!=original.type || updated.payload.size!=8 ||
+            original.enabled!=updated.enabled || original.realtime!=updated.realtime)return false
+        val gain=int(updated.payload,0);val frequency=int(updated.payload,4)
+        require(gain in 0..99 && frequency in 0..100)
+        val delay=minOf(48000,(frequency.toLong()*sampleRate/100).toInt())
+        require(updated.type!=4 || delay>0){"Stereo Echo requires a positive delay"}
+        if(settings.fxEnabled && original.enabled){
+            val index=settings.modules.take(moduleIndex).count{it.enabled}
+            val stage=stages.getOrNull(index) as? Echo ?: return false
+            stage.configure(gain,delay)
+            modules=modules.toMutableList().also{it[index]=updated}
+        }
+        settings=settings.copy(modules=settings.modules.toMutableList().also{it[moduleIndex]=updated})
+        return true
+    }
     fun updateBass(moduleIndex:Int,updated:ImportedFxModule):Boolean {
         check(!closed)
         val original=settings.modules.getOrNull(moduleIndex) ?: return false
