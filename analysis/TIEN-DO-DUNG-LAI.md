@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Distortion cập nhật tại chỗ, 26-10-2026
+
+- Đối chiếu r01.a/e: Gain, Soft và CutOff được tính lại trên cùng stage; giữ lịch sử làm mượt trái/phải, không đóng chuỗi FX.
+- Event66 module23 giờ đi fast path giống các module đã đối chiếu. Build và ImportedFxChainTest đạt; đã cài APK mới. Không sửa SET.
+
 ## Reverb cập nhật native tại chỗ, 26-10-2026
 
 - Đối chiếu w01.g/a: bổ sung các setter JNI setroomsize, setrevtime, setdamping, setinputbandwidth, setearlylevel, settaillevel; stage Reverb đang chạy nhận event66 mà không đóng/mở lại handle hoặc xóa đuôi âm.
