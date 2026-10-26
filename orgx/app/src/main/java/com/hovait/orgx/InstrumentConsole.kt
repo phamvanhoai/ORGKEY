@@ -70,11 +70,12 @@ import androidx.compose.ui.input.pointer.pointerInput
         keys+=Key(695f,153f,65f,23f,"NEXT",enabled=(page+1)*12<styleChoices.size,action={onPage(1)})
         if(modeLabel.isNotEmpty())keys+=Key(465f,153f,220f,23f,modeLabel,action=onMode)
     }
-    val slots=listOf(16,17,18,32,33,34,35,48,49,50,51,64,80,81,82)
+    // APK gốc exposes four keys for each Intro/Variation/Fill/Ending bank.
+    val slots=listOf(16,17,18,19,32,33,34,35,48,49,50,51,64,80,81,82,83)
     slots.forEachIndexed{i,section->
         val part=session?.style?.sections?.firstOrNull{it.section==section}
-        val label=when(section){in 16..18->"INTRO ${section-15}";in 32..35->"MAIN ${section-31}";in 48..51->"FILL ${section-47}";64->"BREAK";else->"END ${section-79}"}
-        keys+=Key(8f+i*65.8f,202f,62f,37f,label,part!=null && part.id==current,
+        val label=when(section){in 16..19->"INTRO ${section-15}";in 32..35->"MAIN ${section-31}";in 48..51->"FILL ${section-47}";64->"BREAK";else->"END ${section-79}"}
+        keys+=Key(8f+(i%9)*110f,202f+(i/9)*25f,104f,22f,label,part!=null && part.id==current,
             part!=null && session.available(part.id),action={part?.let{onPart(it.id)}})
     }
     val latest=rememberUpdatedState(keys)

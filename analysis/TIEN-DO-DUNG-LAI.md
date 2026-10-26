@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Đối chiếu đúng nhóm phím style theo APK gốc, 26-10-2026
+
+- 	p2.java của APK gốc xác nhận các nhóm có Intro 1–4, Variation/Main 1–4, Fill 1–4, Break và Ending 1–4. ORGX đã bổ sung Intro 4 và Ending 4; bố trí 17 phím thành hai hàng phần cứng để không bị tràn màn hình.
+- Build đạt và đã cài APK mới.
+
 ## Màn hình chọn style dạng phím 3×4, 26-10-2026
 
 - Style picker trên custom console nay hiển thị 12 phím mỗi trang theo lưới 3 cột × 4 hàng, trạng thái selected/disabled giữ kiểu phím phần cứng; không dùng modal danh sách riêng.
