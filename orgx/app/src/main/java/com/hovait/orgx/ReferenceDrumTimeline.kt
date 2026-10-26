@@ -1,6 +1,7 @@
 package com.hovait.orgx
 
-data class ReferenceDrumEvent(val type:Int,val id:Int,val note:Int,val touch:Int,val time:Long,val length:Long,val tune:Int=0)
+data class ReferenceDrumEvent(val type:Int,val id:Int,val note:Int,val touch:Int,val time:Long,val length:Long,val tune:Int=0,
+    val embeddedSection:ImportedSection?=null)
 
 /** Schedules in reference time units; conversion from audio frames is separate. */
 class ReferenceDrumTimeline(events:List<ReferenceDrumEvent>) {

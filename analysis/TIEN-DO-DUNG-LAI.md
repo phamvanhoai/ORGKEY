@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Giữ metadata InstSec nhúng trong event 101, 26-10-2026
+
+- ReferenceDrumEvent nay giữ embeddedSection tùy chọn. Parser đọc tên, sample rate, channels, frames, wave index, volume/pan/tune, loop và tạo ImportedSection trỏ tới PCM inline hoặc wave dùng chung.
+- Đây là nền dữ liệu cho bước phát sound nhúng; player hiện vẫn chưa chọn embeddedSection khi mở voice. ssembleDebug đạt và không sửa SET.
+
 ## Đọc và căn chỉnh event 101 nhúng, 26-10-2026
 
 - Parser nay đọc phần header InstSec inline (tên, rate, wave index, frame count, volume/pan/tune/start, loop và reserved) và bỏ qua đúng PCM nội tuyến khi wave index bằng 0, để các KeyData sau không bị lệch offset.

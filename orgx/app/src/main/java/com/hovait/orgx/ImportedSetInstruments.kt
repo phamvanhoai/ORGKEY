@@ -168,13 +168,19 @@ object ImportedSetInstruments {
                 // KeyData 101 is an inline InstSec. Consume its variable payload so
                 // following events remain aligned; the shared instrument loader is
                 // still used for normal (wave-index) sections.
+                var embedded:ImportedSection?=null
                 if(type==101){
-                    bytes(32);f.readShort();f.readByte();f.readByte();val inlineRate=int();val waveIndex=int();val frames=count(Int.MAX_VALUE);int()
-                    int();int();int();int();f.readByte();skip(3);int();int();skip(16)
-                    require(inlineRate>=0 && frames>=0)
-                    if(waveIndex==0){val channels=2;skip(frames.toLong()*channels*2)}
+                    val name=bytes(32).drop(1).takeWhile{it!=0.toByte()}.toByteArray().toString(Charsets.UTF_8)
+                    val legacyRate=java.lang.Short.reverseBytes(f.readShort()).toInt() and 65535
+                    val bits=f.readUnsignedByte();val channels=f.readUnsignedByte().let{if(it in 1..2)it else 2}
+                    val rate=int().let{if(it!=0)it else legacyRate.coerceAtLeast(48000)};val waveIndex=int();val frames=count(Int.MAX_VALUE);int()
+                    val volume=int();val pan=int();val tuneValue=int();val start=int();val loop=f.readUnsignedByte();skip(3);val loopStart=int();val loopEnd=int();skip(16)
+                    require(bits==0 || bits==16)
+                    val lengthBytes=frames.toLong()*channels*2;require(lengthBytes<=Int.MAX_VALUE)
+                    val wave=if(waveIndex==0){ImportedWave(f.filePointer,lengthBytes.toInt()).also{skip(lengthBytes)}} else waves[waveIndex-1]
+                    if(wave!=null)embedded=ImportedSection(note,rate,channels,frames,volume,pan,tuneValue,start,loop,loopStart.coerceAtMost(loopEnd),loopEnd,wave)
                 }
-                ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune)
+                ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune,embedded)
             }
             ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts,effects=channelEffects,
                 pedalMode=pedalMode,pedal=pedal,keyAreaFrom=keyAreaFrom,keyAreaTo=keyAreaTo,
