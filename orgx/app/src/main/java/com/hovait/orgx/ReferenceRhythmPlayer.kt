@@ -80,7 +80,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val sampleRateForEnvelope=sampleRate
     private var current=-1
     private var embeddedSampled:SampledInstrument?=null
-    private val embeddedCache=HashMap<Pair<Long,Int>,SampledInstrument>()
+    private val embeddedCache=HashMap<ImportedSection,SampledInstrument>()
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
@@ -461,8 +461,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 val section=event.embeddedSection
                 val file=embeddedSetFile
                 if(section!=null && file!=null)runCatching{
-                    val key=section.wave.offset to section.wave.bytes
-                    embeddedSampled=embeddedCache.getOrPut(key){
+                    embeddedSampled=embeddedCache.getOrPut(section){
                         val pcm=ImportedSectionPcmLoader.load(file,section)
                         val end=section.loopEnd.coerceIn(1,pcm.frames.size)
                         val start=section.loopStart.coerceIn(0,(end-1).coerceAtLeast(0))

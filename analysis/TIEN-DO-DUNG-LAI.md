@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Cache InstSec theo toàn bộ cấu hình section, 26-10-2026
+
+- Cache nay dùng toàn bộ ImportedSection, không chỉ offset/byte length. Hai section dùng chung PCM nhưng khác loop, gain, pan hoặc tune sẽ giữ sound riêng đúng cấu hình.
+- Build đạt và đã cài APK mới.
+
 ## Event 101 không phụ thuộc drum bank khi kiểm tra duration, 26-10-2026
 
 - Điều kiện mở voice nay kiểm tra embeddedSampled trước sampled; track chỉ có PCM InstSec nhúng không còn bị loại vì duration của drum bank mặc định bằng 0.
