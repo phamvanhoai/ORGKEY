@@ -84,7 +84,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
-    private data class Voice(var note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,var eventId:Int=0,var touchGain:Double=1.0,val tune:Int=0,val samplePan:Int=0,val repeat:ImportedKeyRepeat?=null,var sourceNote:Int=note,var sourceLength:Long=0,var sourceTouch:Int=100,var sourceAftertouch:Boolean=false)
+    private data class Voice(var note:Int,val gain:Double,var age:Int=0,var release:Int=-1,var pendingRelease:Boolean=false,val envelope:ImportedEnvelope.State?=null,val playback:SampledInstrument.Playback?=null,val panLeft:Double=1.0,val panRight:Double=1.0,var eventId:Int=0,var touchGain:Double=1.0,val tune:Int=0,val samplePan:Int=0,val repeat:ImportedKeyRepeat?=null,var sourceNote:Int=note,var sourceLength:Long=0,var sourceTouch:Int=100,var sourceAftertouch:Boolean=false,val sourceInstrument:SampledInstrument?=null)
     private var chordTarget:(()->Int?)?=null
     private var lastChordTarget:Int?=null
     private var chordControl:()->Int={0}
@@ -111,7 +111,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
             val note=mappedNote(voice.sourceNote)
             if(note==voice.note)return@forEach
             if(note !in 0..127){voice.playback?.cut();voice.release=0;return@forEach}
-            val playback=(embeddedSampled ?: sampled)?.voice(note,voice.tune,voice.samplePan,scriptVelocity=voice.sourceTouch and 65535,
+            val playback=(voice.sourceInstrument ?: embeddedSampled ?: sampled)?.voice(note,voice.tune,voice.samplePan,scriptVelocity=voice.sourceTouch and 65535,
                 initialScriptPedal=pedalDown,scriptAllowed=false,scriptId=voice.eventId,initialAftertouch=voice.sourceAftertouch,releasePercent=currentChannel.releasePercent)?.also{
                 it.channelBalance(keyBalance);it.pitchBend(12*kotlin.math.log2(pitchMove/1000.0),pitchScriptLevel,notifyScript=pitchScriptLevel!=null)
                 if(expressionAllowed){volumeShake?.let(it::configureVolumeShake);pitchShakeEffect?.let(it::configurePitchShake)}
@@ -530,7 +530,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voices[voiceSequence++]=Voice(note,gain,envelope=envelope?.voice(sampleRateForEnvelope),playback=playback,
                     panLeft=ImportedNoteTouch.gain(event.touch,0),panRight=ImportedNoteTouch.gain(event.touch,1),eventId=event.id,touchGain=keyTouch/100.0,
                     tune=tune,samplePan=samplePan,repeat=if(playback!=null && expressionAllowed)ImportedKeyRepeat(sampleRateForEnvelope).also{it.configure(keyRepeatEffect)} else null,
-                    sourceNote=event.note,sourceLength=event.length,sourceTouch=event.touch,sourceAftertouch=event.type==4)
+                    sourceNote=event.note,sourceLength=event.length,sourceTouch=event.touch,sourceAftertouch=event.type==4,sourceInstrument=embeddedSampled)
             } else if(event.type==1)voices.values.forEach{if(it.eventId==event.id && it.release<0){
                 if(pedalDown && it.playback==null)it.pendingRelease=true else it.release=0
             }}
@@ -551,7 +551,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voice.playback.next(voice.release>=0,envelopePedal,effectPedal=pedalDown)
                 left+=voice.playback.left*voice.gain*voice.touchGain*currentChannelGain(0);right+=voice.playback.right*voice.gain*voice.touchGain*currentChannelGain(1)
                 if(voice.repeat?.next(voice.release>=0,pedalDown)==true){
-                    val playback=(embeddedSampled ?: sampled)?.voice(voice.note,voice.tune,voice.samplePan,autoRelease=true,effectsAllowed=false,scriptAllowed=false,initialAftertouch=voice.sourceAftertouch,releasePercent=currentChannel.releasePercent)
+                    val playback=(voice.sourceInstrument ?: embeddedSampled ?: sampled)?.voice(voice.note,voice.tune,voice.samplePan,autoRelease=true,effectsAllowed=false,scriptAllowed=false,initialAftertouch=voice.sourceAftertouch,releasePercent=currentChannel.releasePercent)
                     if(playback!=null){playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0),pitchScriptLevel,notifyScript=pitchScriptLevel!=null);repeated.add(voice.copy(playback=playback,envelope=null,release=-1,pendingRelease=false,repeat=null,sourceLength=0))}
                 }
                 if(voice.playback.finished)iterator.remove()

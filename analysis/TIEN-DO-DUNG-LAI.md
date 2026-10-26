@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Mỗi voice giữ InstSec riêng, 26-10-2026
+
+- Voice giữ sourceInstrument tại lúc mở note. Follow Chord và voice lặp dùng lại đúng section nhúng của voice đó, không bị thay bởi event 101 kế tiếp.
+- Build đạt và đã cài APK mới.
+
 ## Drum/PAD giữ track có InstSec event 101, 26-10-2026
 
 - Nhánh drumTracks nay giữ track có event 101 ngay cả khi instrument type không nằm trong nhóm drum, để section nhúng không bị loại khi chạy PAD/Drum.
