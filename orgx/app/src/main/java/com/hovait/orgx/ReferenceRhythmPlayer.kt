@@ -1,5 +1,7 @@
 package com.hovait.orgx
 
+import java.io.File
+
 /** Sample track playback; accompaniment is kept separate for mixer routing. */
 class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val drumLength:(Int)->Int,private val drum:(Int,Int,Int)->Double,sampleRate:Int,
@@ -11,7 +13,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val storedTranspose:Int=initialChannel?.transpose ?: 0,private val storedOctave:Int=initialChannel?.octave ?: 0,
     private var fadeController:ReferenceFadeController=ReferenceFadeController(),
     private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges,
-    private val fixedMode:ImportedSts?=null) {
+    private val fixedMode:ImportedSts?=null,
+    private val embeddedSetFile:File?=null) {
     private var liveMode=fixedMode
     private val modeChangeMask=List(21){it in 13..19}
     private fun applyLiveMode(){
@@ -76,6 +79,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private val clock=ReferenceStyleClock(sampleRate)
     private val sampleRateForEnvelope=sampleRate
     private var current=-1
+    private var embeddedSampled:SampledInstrument?=null
     private var timeline:ReferenceDrumTimeline?=null
     private var loopOrigin=0L
     private var initialTime=0L
@@ -451,6 +455,18 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 musicState.chord(event.note,event.tune)
                 return@advance
             }
+            if(event.type==101){
+                val section=event.embeddedSection
+                val file=embeddedSetFile
+                if(section!=null && file!=null)runCatching{
+                    val pcm=ImportedSectionPcmLoader.load(file,section)
+                    val end=section.loopEnd.coerceIn(1,pcm.frames.size)
+                    val start=section.loopStart.coerceIn(0,(end-1).coerceAtLeast(0))
+                    val region=InstrumentRegion(section.note,pcm,start,end,section.volume/100.0,section.pan,section.loop>0,section.tune)
+                    embeddedSampled=SampledInstrument(listOf(region),sampleRateForEnvelope)
+                }
+                return@advance
+            }
             if(event.type==204){tempLoopCommand(event.note);return@advance}
             if(event.type==203){discardVoices();jumpCommand(event.note);return@advance}
             if(event.type==201){discardVoices();rhythmCommand(event.note);return@advance}
@@ -499,7 +515,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 while(voices.size>=ImportedPolyphony.rhythm)voices.remove(voices.keys.first())?.playback?.cut()
                 val samplePan=ImportedNoteTouch.pan(event.touch)
                 val tune=event.tune+if(accompaniment)currentChannel.tune-(initialChannel?.tune ?: 0) else 0
-                val playback=sampled?.voice(note,tune,samplePan,scriptVelocity=event.touch and 65535,
+                val playback=(embeddedSampled ?: sampled)?.voice(note,tune,samplePan,scriptVelocity=event.touch and 65535,
                     initialScriptPedal=pedalDown,scriptId=event.id,initialAftertouch=event.type==4,releasePercent=currentChannel.releasePercent)?.also{playback->
                     if(pedalDown)playback.scriptPedal(true)
                     modulationLevel?.let(playback::modulate)

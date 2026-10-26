@@ -104,7 +104,7 @@ object ImportedStylePlayer {
                 storedTranspose=track.settings.transpose,storedOctave=track.settings.octave,
                 stsSnapshotResolver={slot->track.sts.firstOrNull{it.slot==slot}?.let{sts->
                     sts.copy(settings=ImportedMusicParameters.pitch(sts.settings,index.musicSettings,index.rhythmSettings.octave))
-                }},stsChanges=stsChanges,fixedMode=fixedMode)
+                }},stsChanges=stsChanges,fixedMode=fixedMode,embeddedSetFile=file)
                 .withChordFollowing(control=chordControl,octaveMove=resolveOctave,target=if(follow && melodic)resolveTarget else null)
                 .withTrackGate{muted->quality.allows(track.instrument,melodic,muted)}
             player

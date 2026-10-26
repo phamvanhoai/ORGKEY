@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nối loader InstSec vào style player, 26-10-2026
+
+- ImportedStylePlayer truyền file SET vào ReferenceRhythmPlayer; event 101 tạo SampledInstrument tạm từ ImportedSectionPcmLoader, giữ rate/channels/loop/tune/volume/pan cho note tiếp theo của track.
+- Các track không có event 101 vẫn dùng sound bank cũ. ssembleDebug đạt và đã cài APK mới. Chưa xử lý voice nhúng đồng thời ở nhiều event 101 trong cùng track.
+
 ## Loader PCM lazy cho InstSec event 101, 26-10-2026
 
 - Thêm ImportedSectionPcmLoader: đọc đúng offset/byte length little-endian từ SET, kiểm tra frame/channel, tạo SamplePcm mono hoặc stereo mà không sửa file nguồn.
