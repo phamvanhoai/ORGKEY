@@ -2,6 +2,13 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Reverb cập nhật native tại chỗ, 26-10-2026
+
+- Đối chiếu w01.g/a: bổ sung các setter JNI setroomsize, setrevtime, setdamping, setinputbandwidth, setearlylevel, settaillevel; stage Reverb đang chạy nhận event66 mà không đóng/mở lại handle hoặc xóa đuôi âm.
+- Backend test giữ mặc định no-op để các fake backend cũ vẫn tương thích; NativeBackend gọi đúng setter thư viện 
+gverb. Build và ImportedFxChainTest đạt.
+- Chưa đo waveform trên thiết bị; nếu thư viện native thiếu symbol setter thì Android sẽ báo lỗi khi gọi Reverb automation, cần kiểm tra bằng thao tác thực tế. Không sửa SET.
+
 ## Sửa sai tham số EQ và sample rate Flanger, 26-10-2026
 
 - EQ SET lưu giá trị từng band dạng little-endian 0..200 (offset +100), không phải từng byte signed -100..100; nhánh cập nhật đã kiểm tra đúng định dạng này.

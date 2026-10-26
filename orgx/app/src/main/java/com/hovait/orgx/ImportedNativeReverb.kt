@@ -12,6 +12,7 @@ class ImportedNativeReverb(payload:List<Int>,sampleRate:Int,private val backend:
         fun open(rate:Int,values:List<Int>):Long
         fun process(handle:Long,left:Long,right:Long,mix:Int,output:LongArray)
         fun flush(handle:Long)
+        fun configure(handle:Long,values:List<Int>) {}
         fun close(handle:Long)
     }
     private object NativeBackend:Backend {
@@ -25,6 +26,7 @@ class ImportedNativeReverb(payload:List<Int>,sampleRate:Int,private val backend:
             output[1]=NGVerb.processStereoRight()
         }
         override fun flush(handle:Long)=synchronized(lock){NGVerb.flush(handle)}
+        override fun configure(handle:Long,v:List<Int>)=synchronized(lock){NGVerb.setroomsize(handle,v[0]);NGVerb.setrevtime(handle,v[1]);NGVerb.setdamping(handle,v[2]/100f);NGVerb.setinputbandwidth(handle,v[3]/100f);NGVerb.setearlylevel(handle,v[4]/100f);NGVerb.settaillevel(handle,v[5]/100f)}
         override fun close(handle:Long)=synchronized(lock){NGVerb.close(handle)}
     }
     private val mix:Int
@@ -46,6 +48,7 @@ class ImportedNativeReverb(payload:List<Int>,sampleRate:Int,private val backend:
         left=output[0]/32768.0;right=output[1]/32768.0
     }
     @Synchronized fun reset(){check(handle!=0L);backend.flush(handle);left=0.0;right=0.0}
+    @Synchronized fun configure(values:List<Int>){check(handle!=0L);require(values.size>=6);backend.configure(handle,values)}
     @Synchronized override fun close(){
         val owned=handle;handle=0
         if(owned!=0L)backend.close(owned)
