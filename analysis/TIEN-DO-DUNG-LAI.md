@@ -2,11 +2,6 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
-## Dùng skin mặt đàn gốc trong ORGX, 26-10-2026
-
-- Đã giải mã us3: APK gốc dùng bitmap skin, không phải nút gradient. Đưa skin_4.jpg và các asset phím/slider/joystick vào drawable-nodpi; InstrumentConsole dùng skin_4 làm nền mặt đàn.
-- Build đạt và đã cài APK mới. Touch mapping/overlay động vẫn cần tiếp tục căn theo lưới s3 của renderer gốc.
-
 ## Đối chiếu đúng nhóm phím style theo APK gốc, 26-10-2026
 
 - 	p2.java của APK gốc xác nhận các nhóm có Intro 1–4, Variation/Main 1–4, Fill 1–4, Break và Ending 1–4. ORGX đã bổ sung Intro 4 và Ending 4; bố trí 17 phím thành hai hàng phần cứng để không bị tràn màn hình.

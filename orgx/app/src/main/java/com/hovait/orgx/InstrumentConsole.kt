@@ -9,9 +9,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.input.pointer.pointerInput
 
 /** Hardware panel proportions taken from the installed reference main screen. */
@@ -82,7 +80,6 @@ import androidx.compose.ui.input.pointer.pointerInput
     }
     val latest=rememberUpdatedState(keys)
     val browsing=rememberUpdatedState(stylePage)
-    val originalSkin=ImageBitmap.imageResource(com.hovait.orgx.R.drawable.skin_4)
     Canvas(modifier.pointerInput(Unit){detectTapGestures{point->
         val x=point.x/size.width*1000;val y=point.y/size.height*250
         latest.value.lastOrNull{x>=it.x && x<it.x+it.w && y>=it.y && y<it.y+it.h && it.enabled}?.action?.invoke()
@@ -95,9 +92,8 @@ import androidx.compose.ui.input.pointer.pointerInput
             paint.textSize=font*minOf(sx,sy);paint.color=color;paint.textAlign=if(center)Paint.Align.CENTER else Paint.Align.LEFT
             drawContext.canvas.nativeCanvas.drawText(value,x*sx,y*sy,paint)
         }
-        drawImage(originalSkin,dstSize=IntSize(size.width.toInt(),size.height.toInt()))
-        /* The reference skin already contains the metal panel, labels and hardware keys. */
-        if(false){
+        drawRect(Brush.verticalGradient(listOf(Color(0xFF34373B),Color(0xFF16191C),Color(0xFF303338))))
+        for(y in 0..250 step 3)rect(0f,y.toFloat(),1000f,.35f,Color(0xFF3C3F41))
         rect(222f,8f,550f,178f,Color(0xFF070A0D));rect(228f,14f,538f,166f,Color(0xFF182B38))
         rect(230f,16f,534f,18f,Color(0xFF98521B));text("ORGX  •  MAIN PAGE",238f,29f,12f,0xFFFFE1B0.toInt())
         rect(233f,39f,245f,69f,Color(0xFF452C21));rect(484f,39f,275f,69f,Color(0xFF183F59))
@@ -109,7 +105,6 @@ import androidx.compose.ui.input.pointer.pointerInput
         val nextLabel=pending?.let{session?.section(it)}?.let{"NEXT ${ImportedStyleCatalog.label(it.section)}"}
         text(nextLabel ?: if(playing && temporaryLoop)"RUNNING / TEMP LOOP" else if(playing)"RUNNING" else "READY",239f,if(stsPages>1)176f else 164f,12f,0xFFDDDDDD.toInt())
         if(stsSlots.isEmpty())text(pending?.let{p->session?.style?.sections?.firstOrNull{it.id==p}?.let{"NEXT  ${ImportedStyleCatalog.label(it.section)}"}} ?: "SELECT STYLE / VOICE ON DISPLAY",490f,157f,11f,0xFFFFD36A.toInt())
-        }
         if(stylePage){
             rect(230f,16f,534f,162f,Color(0xFF152D3D))
             rect(230f,16f,534f,18f,Color(0xFF98521B))
@@ -125,7 +120,7 @@ import androidx.compose.ui.input.pointer.pointerInput
         text("VOLUME / MIXER",62f,132f,10f,0xFFE2C35B.toInt(),true)
         text("TEMPO",835f,100f,10f,0xFFE2C35B.toInt(),true)
         text("STYLE CONTROL",500f,196f,10f,0xFFE2C35B.toInt(),true)
-        if(false) latest.value.forEach{k->
+        latest.value.forEach{k->
             val p=Offset(k.x*sx,k.y*sy);val d=Size(k.w*sx,k.h*sy)
             drawRoundRect(Color(0xFF070809),Offset(p.x-1,p.y-1),Size(d.width+2,d.height+2),androidx.compose.ui.geometry.CornerRadius(5f*sx))
             drawRoundRect(Brush.verticalGradient(listOf(Color(0xFF777B80),Color(0xFF383C40),Color(0xFF54585B)),p.y,p.y+d.height),p,d,androidx.compose.ui.geometry.CornerRadius(4f*sx))
