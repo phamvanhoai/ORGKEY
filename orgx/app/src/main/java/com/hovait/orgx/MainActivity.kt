@@ -885,7 +885,7 @@ private fun ORGXApp(engine: AudioEngine,keyboardActive:Boolean=true) {
     var revision by remember{mutableIntStateOf(0)}
     InstrumentPage(onDismissRequest=onDismiss,title={Text("SET memory")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)){
         TextButton(onClick={showBankFiles=!showBankFiles}){Text(if(showBankFiles)"ẨN FILE SET" else "ĐỔI / NHẬP FILE SET")}
-        if(showBankFiles)OutlinedButton(enabled=!importing,onClick={picker.launch(arrayOf("*/*"))},modifier=Modifier.fillMaxWidth()){
+        if(showBankFiles)OutlinedButton(enabled=!importing,onClick={picker.launch(arrayOf("*/*","application/octet-stream"))},modifier=Modifier.fillMaxWidth()){
             Text(if(importing)"IMPORTING…" else "IMPORT SET / TEMPLATE")
         }
         if(importStatus.isNotEmpty())Text(importStatus,fontSize=12.sp)

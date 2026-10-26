@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Nhận file SET có phần mở rộng .SET, 26-10-2026
+
+- Bộ nhớ SET trước đây chỉ liệt kê file .orgset, nên file .SET đã nhập đúng nhưng không xuất hiện trong danh sách. Store nay nhận cả .orgset và .set; trình chọn file vẫn cho phép Android lọc theo dữ liệu nhị phân.
+- assembleDebug và ReferenceSetStoreTest đạt; đã cài APK mới. Không sửa nội dung SET.
+
 ## Band Booster cập nhật tại chỗ, 26-10-2026
 
 - Bộ lọc Band Booster giữ các mảng trạng thái low/high/delay của ReferenceBandBooster, chỉ thay ba hệ số gain khi event66 đổi tham số.

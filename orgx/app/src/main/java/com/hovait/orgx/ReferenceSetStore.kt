@@ -9,7 +9,7 @@ data class ReferenceSetInfo(val name:String,val version:String,val tempo:Int,val
 
 /** Import staging only: never replaces the running sound bank. */
 class ReferenceSetStore(private val directory:File) {
-    fun list():List<File> = directory.listFiles{f->f.isFile && f.extension=="orgset"}?.sortedBy{it.name} ?: emptyList()
+    fun list():List<File> = directory.listFiles{f->f.isFile && f.extension.lowercase() in setOf("orgset","set")}?.sortedBy{it.name} ?: emptyList()
     fun import(input:InputStream):Pair<File,ReferenceSetInfo> {
         check(directory.isDirectory || directory.mkdirs()) { "Cannot create SET directory" }
         val staged=File.createTempFile("import-",".pending",directory)
