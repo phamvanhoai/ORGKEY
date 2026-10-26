@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Ổn định vòng đời voice nhúng, 26-10-2026
+
+- Voice lặp lại của track dùng đúng embeddedSampled thay vì quay về sound bank mặc định.
+- Reset/close player giải phóng nguồn sound nhúng để không giữ PCM của SET cũ khi đổi style.
+- assembleDebug đạt và đã cài APK mới. Chưa hỗ trợ đồng thời nhiều InstSec nhúng độc lập trong một track.
+
 ## Nối loader InstSec vào style player, 26-10-2026
 
 - ImportedStylePlayer truyền file SET vào ReferenceRhythmPlayer; event 101 tạo SampledInstrument tạm từ ImportedSectionPcmLoader, giữ rate/channels/loop/tune/volume/pan cho note tiếp theo của track.

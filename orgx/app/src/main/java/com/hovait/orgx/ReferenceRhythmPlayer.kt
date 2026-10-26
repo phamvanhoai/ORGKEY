@@ -284,8 +284,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
         (if(children.isNotEmpty())children.sumOf{it.mixedRight(drumGain,chordGain)}
         else right*(if(accompaniment)chordGain else drumGain))+releaseTails.sumOf{it.mixedRight(drumGain,chordGain)}
     private fun discardVoices(){voices.values.forEach{it.playback?.cut()};voices.clear()}
-    fun close(){discardVoices();left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0;fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
-    fun reset(){liveMode=fixedMode;resetStsChannel();resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;discardVoices();eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
+    fun close(){discardVoices();embeddedSampled=null;left=0.0;right=0.0;outputLeft=0.0;outputRight=0.0;fx?.close();groupFx?.close();children.forEach{it.close()};releaseTails.forEach{it.close()};releaseTails.clear()}
+    fun reset(){liveMode=fixedMode;resetStsChannel();resetExpression();clock.reset();initialTime=0;timeline=null;current=-1;discardVoices();embeddedSampled=null;eventMuted=initiallyMuted;pedalDown=initialPedal;channelVolume=initialChannel?.volume ?: 100;channelPan=initialChannel?.pan ?: 0;releaseTails.forEach{it.close()};releaseTails.clear();left=0.0;right=0.0;loopOrigin=0;finished=false;fx?.reset();groupFx?.reset();outputLeft=0.0;outputRight=0.0;children.forEach{it.reset()}}
     /** Track.Start rewinds events, closes old notes in release, and retains channel controls. */
     fun restartAt(referenceTime:Long){
         require(referenceTime>=0)
@@ -547,7 +547,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 voice.playback.next(voice.release>=0,envelopePedal,effectPedal=pedalDown)
                 left+=voice.playback.left*voice.gain*voice.touchGain*currentChannelGain(0);right+=voice.playback.right*voice.gain*voice.touchGain*currentChannelGain(1)
                 if(voice.repeat?.next(voice.release>=0,pedalDown)==true){
-                    val playback=sampled?.voice(voice.note,voice.tune,voice.samplePan,autoRelease=true,effectsAllowed=false,scriptAllowed=false,initialAftertouch=voice.sourceAftertouch,releasePercent=currentChannel.releasePercent)
+                    val playback=(embeddedSampled ?: sampled)?.voice(voice.note,voice.tune,voice.samplePan,autoRelease=true,effectsAllowed=false,scriptAllowed=false,initialAftertouch=voice.sourceAftertouch,releasePercent=currentChannel.releasePercent)
                     if(playback!=null){playback.channelBalance(keyBalance);playback.pitchBend(12*kotlin.math.log2(pitchMove/1000.0),pitchScriptLevel,notifyScript=pitchScriptLevel!=null);repeated.add(voice.copy(playback=playback,envelope=null,release=-1,pendingRelease=false,repeat=null,sourceLength=0))}
                 }
                 if(voice.playback.finished)iterator.remove()
