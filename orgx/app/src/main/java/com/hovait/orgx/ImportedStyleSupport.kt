@@ -64,7 +64,7 @@ object ImportedStyleSupport {
         return tracks.filter{(!it.muted || it.events.any{event->event.type==14}) && (!solo || it.solo) && it.events.any{event->event.type==2 || event.type==4 || event.type==101 || event.type==201 || event.type==202 || event.type==203 || event.type==204 || event.type==205 || event.type==206 || event.type==221 || event.type==222 || event.type==231 || event.type==232 || event.type in 241..246}}
     }
     fun drumTracks(index:ImportedSetIndex,group:ImportedStyleGroup)=activeTracks(index,group).filter{
-            instrument(index,it)?.type in 1..2 || it.events.any{event->event.type==201 || event.type==202 || event.type==203 || event.type==204 || event.type==205 || event.type==206 || event.type==221 || event.type==222 || event.type==231 || event.type==232 || event.type in 241..246}
+            instrument(index,it)?.type in 1..2 || it.events.any{event->event.type==101 || event.type==201 || event.type==202 || event.type==203 || event.type==204 || event.type==205 || event.type==206 || event.type==221 || event.type==222 || event.type==231 || event.type==232 || event.type in 241..246}
     }
     fun playbackTracks(index:ImportedSetIndex,group:ImportedStyleGroup,includeAccompaniment:Boolean)=
         if(!includeAccompaniment)drumTracks(index,group) else activeTracks(index,group)

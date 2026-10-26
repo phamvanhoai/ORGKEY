@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Drum/PAD giữ track có InstSec event 101, 26-10-2026
+
+- Nhánh drumTracks nay giữ track có event 101 ngay cả khi instrument type không nằm trong nhóm drum, để section nhúng không bị loại khi chạy PAD/Drum.
+- Build đạt và đã cài APK mới.
+
 ## Style filter giữ track chỉ có event 101, 26-10-2026
 
 - ImportedStyleSupport.activeTracks và validation nay coi event 101 là note hợp lệ. Track không có note 2/4 nhưng có InstSec nhúng không còn bị loại trước khi player xử lý.
