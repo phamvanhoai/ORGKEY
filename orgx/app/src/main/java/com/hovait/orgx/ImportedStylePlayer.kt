@@ -104,7 +104,8 @@ object ImportedStylePlayer {
                 storedTranspose=track.settings.transpose,storedOctave=track.settings.octave,
                 stsSnapshotResolver={slot->track.sts.firstOrNull{it.slot==slot}?.let{sts->
                     sts.copy(settings=ImportedMusicParameters.pitch(sts.settings,index.musicSettings,index.rhythmSettings.octave))
-                }},stsChanges=stsChanges,fixedMode=fixedMode,embeddedSetFile=file)
+                }},stsChanges=stsChanges,fixedMode=fixedMode,embeddedSetFile=file,
+                dynamicModes=ImportedStyleSupport.instrument(index,track)?.modes?.map{m->ImportedSts(m.name,false,0,track.instrument,track.system,track.pedal,0,0,0,0,emptyList(),ImportedMusicParameters.pitch(m.settings,index.musicSettings,index.rhythmSettings.octave),effects=m.effects,sourceVersion=index.sourceVersion)}.orEmpty())
                 .withChordFollowing(control=chordControl,octaveMove=resolveOctave,target=if(follow && melodic)resolveTarget else null)
                 .withTrackGate{muted->quality.allows(track.instrument,melodic,muted)}
             player

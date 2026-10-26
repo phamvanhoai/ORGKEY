@@ -14,7 +14,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
     private var fadeController:ReferenceFadeController=ReferenceFadeController(),
     private val stsSnapshotResolver:(Int)->ImportedSts?={null},private val stsChanges:List<Boolean> = ImportedStsPlan.defaultChanges,
     private val fixedMode:ImportedSts?=null,
-    private val embeddedSetFile:File?=null) {
+    private val embeddedSetFile:File?=null,
+    private val dynamicModes:List<ImportedSts> = emptyList()) {
     private var liveMode=fixedMode
     private val modeChangeMask=List(21){it in 13..19}
     private fun applyLiveMode(){
@@ -409,8 +410,8 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                 applySts(event.note)
                 return@advance
             }
-            if(event.type==61 && event.note==0 && liveMode!=null){
-                if(event.id!=0)applyLiveMode()
+            if(event.type==61 && dynamicModes.isNotEmpty()){
+                if(event.note in dynamicModes.indices){liveMode=dynamicModes[event.note];applyLiveMode()}
                 return@advance
             }
             if(event.type==66){

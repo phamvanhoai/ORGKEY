@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Chuyển mode động bằng event 61, 26-10-2026
+
+- Player nhận danh sách mode của instrument. Event 61 chọn mode theo 
+ote, cập nhật channel settings, STS effects và FX qua pplyLiveMode; mode script nâng cao vẫn chưa tự chạy.
+- ImportedStylePlayer truyền toàn bộ mode vào từng track player. Build đạt và đã cài APK mới.
+
 ## Mỗi voice giữ InstSec riêng, 26-10-2026
 
 - Voice giữ sourceInstrument tại lúc mở note. Follow Chord và voice lặp dùng lại đúng section nhúng của voice đó, không bị thay bởi event 101 kế tiếp.
