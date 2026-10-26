@@ -2,6 +2,12 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Validation cho mode động nhiều lựa chọn, 26-10-2026
+
+- Style có nhiều mode không script nay được chuẩn bị; event 61 hợp lệ khi 
+ote là chỉ số mode. Chỉ mode có script mới bị từ chối với lý do rõ ràng.
+- Build đạt và đã cài APK mới.
+
 ## Chuyển mode động bằng event 61, 26-10-2026
 
 - Player nhận danh sách mode của instrument. Event 61 chọn mode theo 

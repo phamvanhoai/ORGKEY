@@ -90,7 +90,7 @@ object ImportedStyleSupport {
             }
             if(event.type==61){
                 val modes=instrument(index,track)?.modes.orEmpty()
-                if(event.note!=0 || modes.size!=1 || modes.single().script.isNotBlank())
+                if(event.note !in modes.indices || modes[event.note].script.isNotBlank())
                     return "Track '${track.name}': dynamic mode selection ${event.note} is not supported yet"
                 if(event.id!=0)channel=checkNotNull(modeChannel)
                 return@forEach
@@ -98,7 +98,7 @@ object ImportedStyleSupport {
             if(event.type==66){
                 if(track.type==0)return@forEach // Original Track.Play ignores FX automation for Type 0.
                 val modes=instrument(index,track)?.modes.orEmpty()
-                if(modes.isNotEmpty() && (modes.size!=1 || modes.single().script.isNotBlank()))return "Track '${track.name}': dynamic mode FX automation is not supported yet"
+                if(modes.any{it.script.isNotBlank()})return "Track '${track.name}': dynamic mode scripts are not supported yet"
                 val basis=modeChannel ?: channel
                 val module=basis.modules.getOrNull(event.id)
                 if(module!=null){
