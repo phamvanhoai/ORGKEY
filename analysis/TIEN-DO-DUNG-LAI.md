@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Band Booster cập nhật tại chỗ, 26-10-2026
+
+- Bộ lọc Band Booster giữ các mảng trạng thái low/high/delay của ReferenceBandBooster, chỉ thay ba hệ số gain khi event66 đổi tham số.
+- Không đóng stage hoặc dựng lại chain; assembleDebug và ImportedFxChainTest đạt. Đã cài APK mới; không sửa SET.
+
 ## Distortion cập nhật tại chỗ, 26-10-2026
 
 - Đối chiếu r01.a/e: Gain, Soft và CutOff được tính lại trên cùng stage; giữ lịch sử làm mượt trái/phải, không đóng chuỗi FX.

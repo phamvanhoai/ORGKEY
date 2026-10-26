@@ -9,6 +9,7 @@ class ReferenceBandBooster(low:Int,mid:Int,high:Int,sampleRate:Int) {
     private val lowCoefficient:Float
     private val highCoefficient:Float
     private val gains=floatArrayOf(1f+low*.01f,1f+mid*.01f,1f+high*.01f)
+    fun configure(low:Int,mid:Int,high:Int){gains[0]=1f+low*.01f;gains[1]=1f+mid*.01f;gains[2]=1f+high*.01f}
     private val lows=FloatArray(4)
     private val highs=FloatArray(4)
     private val delay=LongArray(3)

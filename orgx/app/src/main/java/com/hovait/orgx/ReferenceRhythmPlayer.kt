@@ -429,7 +429,7 @@ class ReferenceRhythmPlayer(private val tracks:List<ReferenceDrumTrack>,
                         15->fx?.updatePitchShift(event.id,modules[event.id]) ?: false
                         20->fx?.updateBass(event.id,modules[event.id]) ?: false
                         4,6->fx?.updateEcho(event.id,modules[event.id]) ?: false
-                        1,7,8,9,10,16,17,21,23,29->fx?.updateFilterOrModulation(event.id,modules[event.id]) ?: false
+                        1,7,8,9,10,16,17,21,23,29,31->fx?.updateFilterOrModulation(event.id,modules[event.id]) ?: false
                         else->false
                     }
                     if(!retained){

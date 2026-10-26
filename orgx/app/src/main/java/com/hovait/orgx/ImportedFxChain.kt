@@ -82,6 +82,7 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
         private var remaining=0
         override var left=0.0;override var right=0.0
         override val active get()=remaining>0
+        fun configure(updated:List<Int>){require(updated.size>=3);processor.configure(updated[0].toByte().toInt(),updated[1].toByte().toInt(),updated[2].toByte().toInt())}
         override fun process(l:Double,r:Double){
             if(l!=0.0 || r!=0.0)remaining=tailFrames else if(remaining>0)remaining--
             left=processor.process((l*32768).toLong())/32768.0
@@ -456,9 +457,9 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
     fun updateFilterOrModulation(moduleIndex:Int,updated:ImportedFxModule):Boolean {
         check(!closed)
         val original=settings.modules.getOrNull(moduleIndex) ?: return false
-        if(original.type !in listOf(1,7,8,9,10,16,17,21,23,29) || updated.type!=original.type ||
+        if(original.type !in listOf(1,7,8,9,10,16,17,21,23,29,31) || updated.type!=original.type ||
             original.enabled!=updated.enabled || original.realtime!=updated.realtime)return false
-        require(updated.payload.size==when(updated.type){1->8;7->32;8->28;21->24;23->9;29->8;else->4})
+        require(updated.payload.size==when(updated.type){1->8;7->32;8->28;21->24;23->9;29->8;31->4;else->4})
         val value=int(updated.payload,0)
         val replacement:Stage=when(updated.type){
             1->{
@@ -469,6 +470,7 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
             7->{require(updated.payload.size==32 && (0..7).all{i->int(updated.payload,i*4) in 0..200});Equalizer(updated.payload.chunked(4).map{int(it,0)},sampleRate)}
             29->{require(updated.payload.take(7).all{it in 1..100});Reverb(updated.payload,sampleRate)}
             23->{val g=int(updated.payload,0);val c=int(updated.payload,5);require(g in 1..100 && c in 1..100 && updated.payload[4] in 0..1);Distortion(g,updated.payload[4]==1,c)}
+            31->{require(updated.payload.size==4);BandBooster(updated.payload,sampleRate)}
             8->{require(sampleRate>0);Flanger(listOf(value,int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20),int(updated.payload,24)),sampleRate)}
             21->{require(sampleRate>0);Chorus(listOf(value,int(updated.payload,4),int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20)),sampleRate)}
             9,10->{require(value in 0..150000 && sampleRate>0);PassFilter(value,sampleRate,updated.type==9)}
@@ -486,6 +488,7 @@ class ImportedFxChain(private var settings:ImportedChannelSettings,private val s
                 21->(stage as? Chorus ?: return false).configure(listOf(value,int(updated.payload,4),int(updated.payload,8),int(updated.payload,12),int(updated.payload,16),int(updated.payload,20)),sampleRate)
                 29->(stage as? Reverb ?: return false).configure(updated.payload)
                 23->(stage as? Distortion ?: return false).configure(int(updated.payload,0),updated.payload[4]==1,int(updated.payload,5))
+                31->(stage as? BandBooster ?: return false).configure(updated.payload)
                 else->{stage.close();stages=stages.toMutableList().also{it[index]=replacement}}
             }
             modules=modules.toMutableList().also{it[index]=updated}
