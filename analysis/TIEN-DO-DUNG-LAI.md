@@ -2,6 +2,11 @@
 
 Đây là bảng đối chiếu mã hiện tại, không phải chứng nhận tương đương APK gốc. Không quy đổi số kiểm thử hoặc số file sang phần trăm hoàn thành.
 
+## Đọc và căn chỉnh event 101 nhúng, 26-10-2026
+
+- Parser nay đọc phần header InstSec inline (tên, rate, wave index, frame count, volume/pan/tune/start, loop và reserved) và bỏ qua đúng PCM nội tuyến khi wave index bằng 0, để các KeyData sau không bị lệch offset.
+- Event vẫn chưa phát được như một sound riêng; bước tiếp theo là gắn InstSec này vào SampledInstrument. ssembleDebug đạt. Hai kiểm thử legacy SET hiện có vẫn fail ở combine/drum fixture cũ, nên chưa coi đây là tương thích hoàn chỉnh.
+
 ## Nhận file SET có phần mở rộng .SET, 26-10-2026
 
 - Bộ nhớ SET trước đây chỉ liệt kê file .orgset, nên file .SET đã nhập đúng nhưng không xuất hiện trong danh sách. Store nay nhận cả .orgset và .set; trình chọn file vẫn cho phép Android lọc theo dữ liệu nhị phân.

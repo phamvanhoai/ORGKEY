@@ -165,7 +165,15 @@ object ImportedSetInstruments {
                 val type=java.lang.Short.reverseBytes(f.readShort()).toInt()
                 val tune=java.lang.Short.reverseBytes(f.readShort()).toInt()
                 val id=int();val note=int();val touch=int();val time=int();val length=int()
-                require(type!=101){"Embedded wave events in SET tracks are not supported yet"}
+                // KeyData 101 is an inline InstSec. Consume its variable payload so
+                // following events remain aligned; the shared instrument loader is
+                // still used for normal (wave-index) sections.
+                if(type==101){
+                    bytes(32);f.readShort();f.readByte();f.readByte();val inlineRate=int();val waveIndex=int();val frames=count(Int.MAX_VALUE);int()
+                    int();int();int();int();f.readByte();skip(3);int();int();skip(16)
+                    require(inlineRate>=0 && frames>=0)
+                    if(waveIndex==0){val channels=2;skip(frames.toLong()*channels*2)}
+                }
                 ReferenceDrumEvent(type,id,note,touch,time.toLong(),length.toLong(),tune)
             }
             ImportedTrack(metadata.firstOrNull().orEmpty(),trackGroup,instrument,muted,events,chordRoot,chordType,kind,solo,channelFx.volume,channelFx.pan,system,channelFx,sts=sts,effects=channelEffects,
